@@ -6,13 +6,15 @@
     </div>
 </template>
 
-<script>export default {
-  name: 'NotFound'
-}</script>
+<script>
+export default {
+    name: 'NotFound',
+}
+</script>
 
 <style scoped>
-    .not-found {
-        text-align: left;
-        padding: 2rem;
-    }
+.not-found {
+    text-align: left;
+    padding: 2rem;
+}
 </style>
