@@ -10,8 +10,6 @@ export default defineConfig({
     vue(),
     vueDevTools(),
     ],
-    publicPath: '/BldBase/',
-  //base: "/BldBase/",
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url))
