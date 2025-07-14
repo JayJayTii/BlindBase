@@ -4,6 +4,5 @@
 
 
 <template>
-    <a href="#/">Home</a>
     <RouterView />
 </template>
