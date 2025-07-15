@@ -60,7 +60,7 @@
         padding-top: 50px;
         line-height: 1.1;
         transform: translateY(-150px);
-        transition: transform 0.5s ease;
+        transition: transform 0.2s ease;
     }
 
 </style>

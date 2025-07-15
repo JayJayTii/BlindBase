@@ -24,7 +24,7 @@
         flex-direction: column;
         align-items: center;
         justify-content: end;
-        height: 40vh;
+        height: 33vh;
         font-size: 20vh;
     }
 
