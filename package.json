@@ -12,9 +12,10 @@
         "deploy": "gh-pages -d dist --no-history"
     },
     "dependencies": {
+        "gh-pages": "^6.0.0",
+        "pinia": "^3.0.3",
         "vue": "^3.5.17",
-        "vue-router": "^4.5.1",
-        "gh-pages": "^6.0.0"
+        "vue-router": "^4.5.1"
     },
     "devDependencies": {
         "@vitejs/plugin-vue": "^6.0.0",
