@@ -11,7 +11,7 @@
         width: 100%;
         height: 7vh;
         background-color: hsl(140, 50%, 15%);
-        padding: 4px;
+        padding: 3px;
         justify-content: left;
         align-content: center;
         display:flex;

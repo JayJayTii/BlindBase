@@ -7,3 +7,7 @@ a,
     transition: 0.4s;
     padding: 3px;
 }
+
+body {
+    background-color: hsl(160 0% 9%)
+}
