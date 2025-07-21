@@ -1,15 +1,14 @@
 <script setup>
-    import { useCounterStore } from ".././stores/counter";
+    import { useSheetStore } from ".././stores/SheetStore";
+    const sheetStore = useSheetStore();
+    sheetStore.loadState();
 
-    const store = useCounterStore();
-    store.count++;
-    store.increment(2);
-
+    const inputValue = "";
 </script>
 
 <template>
-    <h1>Count is {{store.count}}</h1>
-    <h2>DoubleCount is {{store.doubleCount}}</h2>
-    <button @click="store.increment(1)">Increment</button>
-    <button @click="store.waitAndAdd">Wait + Increment</button>
+    <h1 v-for="type in sheetStore.getSheetTypes">{{type}}</h1>
+
+    <input v-model="inputValue" placeholder="Enter something..." />
+    <button @click="sheetStore.addSheetType(inputValue)">Submit</button>
 </template>
