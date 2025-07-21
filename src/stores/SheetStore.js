@@ -6,23 +6,33 @@ export const useSheetStore = defineStore("sheetStore", {
 	state: () => {
         return {
             sheetTypes: DEFAULT_SHEET_TYPES,
-			sheets: [],
+            sheets: [],
+            curSheetIndex: 0,
 		};
 	},
     actions: {
+        newSheet() {
+            this.sheets.push({ "name": "Untitled" });
+            this.curSheetIndex = this.sheets.length - 1;
+        },
+
         saveState() {
             localStorage.setItem('sheetStore', JSON.stringify({
                 sheets: this.sheets
             }));
         },
         loadState() {
-            const data = JSON.parse(localStorage.getItem('sheetStore'));
-            if (data) {
-                this.sheets = data.sheets || [];
+            try {
+                const data = JSON.parse(localStorage.getItem('sheetStore'));
+                this.sheets = data.sheets;
+            }
+            catch {
+                this.sheets = [];
             }
         }
     },
     getters: {
         getSheetTypes: (state) => state.sheetTypes,
+        getSheetNames: (state) => state.sheets.map(sheet => sheet.name),
     }
 })
