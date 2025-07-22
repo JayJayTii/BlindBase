@@ -4,19 +4,23 @@
     const sheetStore = useSheetStore();
     sheetStore.loadState();
 
+    const curSheetIndex = ref(0);
+    console.log(curSheetIndex)
+    const isSheetSelected = computed({
+        get: () => sheetStore.isValidSheetIndex(curSheetIndex.value),
+    });
     const currentSheet = computed({
-        get: () => sheetStore.sheets[sheetStore.curSheetIndex],
+        get: () => sheetStore.sheets[curSheetIndex.value],
     });
     const currentSheetName = computed({
-        get: () => sheetStore.sheets[sheetStore.curSheetIndex]?.name || '',
+        get: () => sheetStore.sheets[curSheetIndex.value]?.name || '',
         set: (newName) => {
-            if (sheetStore.sheets[sheetStore.curSheetIndex]) {
-                sheetStore.sheets[sheetStore.curSheetIndex].name = newName;
+            if (sheetStore.sheets[curSheetIndex.value]) {
+                sheetStore.sheets[curSheetIndex.value].name = newName;
                 sheetStore.saveState();
             }
         }
     });
-    console.log(sheetStore.getVisualXHeadings);
 </script>
 
 
@@ -30,12 +34,12 @@
                 </div>
                 <div v-for="(sheetName, index) in sheetStore.getSheetNames"
                      :key="index"
-                     :class="['list-item', sheetStore.curSheetIndex === index ? 'selected' : '']"
-                     @click="sheetStore.curSheetIndex = index">
+                     :class="['list-item', curSheetIndex === index ? 'selected' : '']"
+                     @click="curSheetIndex = index; console.log(index) ">
                     {{ sheetName }}
                 </div>
             </div>
-            <div class="SheetSettings" v-if="sheetStore.isValidSheetIndex">
+            <div class="SheetSettings" v-if="isSheetSelected">
                 <h1>{{currentSheetName != "" ? currentSheetName : "&nbsp;"}}</h1>
                 <div class="SheetSettingsRow"> Name: <input v-model="currentSheetName" /> </div>
                 <div class="SheetSettingsRow">
@@ -51,14 +55,16 @@
             </div>
             <div v-else class="SheetSettings"> Select a sheet! </div>
         </div>
-        <div class="SheetGrid" v-if="sheetStore.isValidSheetIndex">
-            <div v-for="(row,y) in 24">
-                <div v-for="(col,x) in 24" class="SheetGridCell">
-                    {{ currentSheet.grid[y][x] }}
+        <div class="SheetGridContainer" v-if="isSheetSelected">
+            <div class="SheetGrid">
+                <div v-for="(row,y) in 24">
+                    <div v-for="(col,x) in 24" class="SheetGridCell">
+                        {{ currentSheet.grid[y][x] }}
+                    </div>
                 </div>
             </div>
         </div>
-        <div v-else class="SheetGrid">
+        <div v-else class="SheetGridContainer">
             Select a sheet!
         </div>
         <div class="RightColumn">
@@ -105,10 +111,12 @@
         gap: 5px;
     }
 
-    .SheetGrid {
+    .SheetGridContainer {
         width: 60vw;
         height: 93vh;
         border: 3px solid #303030;
+    }
+    .SheetGrid {
         display: grid;
         grid-template-columns: repeat(24, minmax(50px, max-content));
         overflow: auto;

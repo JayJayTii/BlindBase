@@ -13,7 +13,6 @@ export const useSheetStore = defineStore("sheetStore", {
         return {
             sheetTypes: DEFAULT_SHEET_TYPES,
             sheets: [],
-            curSheetIndex: 0,
 		};
 	},
     actions: {
@@ -35,15 +34,18 @@ export const useSheetStore = defineStore("sheetStore", {
                 "yHeadings":DEFAULT_SHEET_YHEADINGS,
                 "grid":DEFAULT_SHEET_GRID,
             });
-            this.curSheetIndex = this.sheets.length - 1;
 
             this.saveState();
         },
-        deleteSheet() { //Should only be allowed to delete at current sheet
-            this.sheets.splice(this.curSheetIndex, 1);
-            this.curSheetIndex--;
-
+        deleteSheet(index) { //Should only be allowed to delete at current sheet
+            this.sheets.splice(index, 1);
             this.saveState();
+        },
+        isValidSheetIndex(index) {
+            return index < this.sheets.length && index >= 0;
+        },
+        getVisualXHeadings(sheetIndex) {
+            return this.sheets[sheetIndex].xHeadings.split(''); //For the future when pair order swapping is done
         },
 
         saveState() {
@@ -64,7 +66,5 @@ export const useSheetStore = defineStore("sheetStore", {
     getters: {
         getSheetTypes: (state) => state.sheetTypes,
         getSheetNames: (state) => state.sheets.map(sheet => sheet.name),
-        isValidSheetIndex: (state) => state.curSheetIndex < state.sheets.length || state.curSheetIndex < 0,
-        getVisualXHeadings: (state) => state.sheets[state.curSheetIndex].xHeadings.split(''), //For the future when pair order swapping is done
     }
 })
