@@ -1,10 +1,11 @@
 <script setup>
-    import { ref, computed } from "vue";
+    import { reactive, ref, computed } from "vue";
     import { useSheetStore } from ".././stores/SheetStore";
     const sheetStore = useSheetStore();
     sheetStore.loadState();
 
     const curSheetIndex = ref(0);
+    const curCell = reactive({ x: 0, y: 0 });
 
     const isSheetSelected = computed({
         get: () => sheetStore.isValidSheetIndex(curSheetIndex.value),
@@ -21,6 +22,17 @@
             }
         }
     });
+    const currentSheetType = computed({
+        get: () => sheetStore.sheets[curSheetIndex.value].type,
+        set: (newType) => {
+            sheetStore.sheets[curSheetIndex.value].type = newType;
+            sheetStore.saveState();
+        }
+    });
+    const curCellValue = computed({
+        get: () => sheetStore.getCell(curSheetIndex.value, curCell),
+        set: (newValue) => sheetStore.setCell(curSheetIndex.value, curCell, newValue)
+    })
 </script>
 
 
@@ -43,8 +55,8 @@
                 <h1>{{currentSheetName != "" ? currentSheetName : "&nbsp;"}}</h1>
                 <div class="SheetSettingsRow"> Name: <input v-model="currentSheetName" /> </div>
                 <div class="SheetSettingsRow">
-                    Type: <select id="SheetSettingsType">
-                        <option v-for="(type,index) in sheetStore.sheetTypes">
+                    Type: <select v-model="currentSheetType">
+                        <option v-for="(type,index) in sheetStore.sheetTypes" :key="index" :value="index">
                             {{type.name}}
                         </option>
                     </select>
@@ -68,13 +80,16 @@
                     </div>
                 </div>
 
-                <template v-for="(row, y) in sheetStore.getVisualYHeadings(curSheetIndex)">
+                <template v-for="(row, y) in sheetStore.getVisualYHeadings(curSheetIndex)" :key="y">
                     <div class="SheetGridVisualYHeadings">
                         <div class="SheetGridCell">
                             {{ row }}
                         </div>
                     </div>
-                    <div v-for="(col, x) in 24" class="SheetGridCell">
+                    <div v-for="(col, x) in 24"
+                         :key="x"
+                         @click="curCell.x = x; curCell.y = y;"
+                         :class="['SheetGridCell', curCell.x === x && curCell.y === y ? 'SheetGridCellSelected' : '']">
                         {{ currentSheet.grid[y][x] }}
                     </div>
 
@@ -84,8 +99,11 @@
         <div v-else class="SheetGridContainer">
             Select a sheet!
         </div>
-        <div class="RightColumn">
-            Cell editing here
+        <div class="RightColumn" v-if="isSheetSelected">
+            <input v-model="curCellValue" />
+        </div>
+        <div v-else class="RightColumn">
+            Select a sheet!
         </div>
     </div>
 </template>
@@ -142,7 +160,7 @@
     .SheetGrid {
         display: grid;
         grid-template-rows: repeat(25, var(--sheet-cell-height));
-        grid-template-columns: repeat(25, minmax(50px, max-content));
+        grid-template-columns: repeat(25, 100px);
     }
     .SheetGridBlankCorner {
         position: sticky;
@@ -170,16 +188,20 @@
         z-index: 2;
     }
     .SheetGridCell {
+        display: block;
+        padding: 0px 4px;
         border: 1px solid #aaa;
-        padding: 4px;
-        text-align: center;
         overflow: hidden;
         text-overflow: ellipsis;
+        color: white;
         white-space: nowrap;
         background-color: transparent;
         font-size: 12px;
-        max-width: 100px;
-        min-height: var(--sheet-cell-height);
+        word-break: break-word;
+        height: var(--sheet-cell-height);
+    }
+    .SheetGridCellSelected {
+        border: 3px solid white;
     }
 
     .RightColumn {

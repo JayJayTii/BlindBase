@@ -51,6 +51,24 @@ export const useSheetStore = defineStore("sheetStore", {
             return this.sheets[sheetIndex].yHeadings.split('');
         },
 
+        getCell(sheetIndex, visualCellCoord) { //The sheetsview works in visual space (possibly flipped pair order)
+            //Add pair order flipping here
+            const gridCellCoord = visualCellCoord;
+            return this.sheets[sheetIndex]?.grid[gridCellCoord.y][gridCellCoord.x] || '';
+        },
+        setCell(sheetIndex, visualCellCoord, newValue) {
+            //Add pair order flipping here
+            const gridCellCoord = visualCellCoord;
+            try {
+                this.sheets[sheetIndex].grid[gridCellCoord.y][gridCellCoord.x] = newValue;
+                this.saveState();
+            }
+            catch {
+                console.warn("Failed to save '" + newValue + "' to sheet " + sheetIndex + " at cell " + gridCellCoord.x + ", " + gridCellCoord.y);
+            }
+        },
+
+
         saveState() {
             localStorage.setItem('sheetStore', JSON.stringify({
                 sheets: this.sheets
