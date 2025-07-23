@@ -47,6 +47,9 @@ export const useSheetStore = defineStore("sheetStore", {
         getVisualXHeadings(sheetIndex) {
             return this.sheets[sheetIndex].xHeadings.split(''); //For the future when pair order swapping is done
         },
+        getVisualYHeadings(sheetIndex) {
+            return this.sheets[sheetIndex].yHeadings.split('');
+        },
 
         saveState() {
             localStorage.setItem('sheetStore', JSON.stringify({

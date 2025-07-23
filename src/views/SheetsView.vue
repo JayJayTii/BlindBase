@@ -5,7 +5,7 @@
     sheetStore.loadState();
 
     const curSheetIndex = ref(0);
-    console.log(curSheetIndex)
+
     const isSheetSelected = computed({
         get: () => sheetStore.isValidSheetIndex(curSheetIndex.value),
     });
@@ -35,7 +35,7 @@
                 <div v-for="(sheetName, index) in sheetStore.getSheetNames"
                      :key="index"
                      :class="['list-item', curSheetIndex === index ? 'selected' : '']"
-                     @click="curSheetIndex = index; console.log(index) ">
+                     @click="curSheetIndex = index ">
                     {{ sheetName }}
                 </div>
             </div>
@@ -57,11 +57,28 @@
         </div>
         <div class="SheetGridContainer" v-if="isSheetSelected">
             <div class="SheetGrid">
-                <div v-for="(row,y) in 24">
-                    <div v-for="(col,x) in 24" class="SheetGridCell">
-                        {{ currentSheet.grid[y][x] }}
+                <div class="SheetGridBlankCorner">
+                    <div class="SheetGridCell">
+
                     </div>
                 </div>
+                <div v-for="char in sheetStore.getVisualXHeadings(curSheetIndex)" class="SheetGridVisualXHeadings">
+                    <div class="SheetGridCell">
+                        {{ char }}
+                    </div>
+                </div>
+
+                <template v-for="(row, y) in sheetStore.getVisualYHeadings(curSheetIndex)">
+                    <div class="SheetGridVisualYHeadings">
+                        <div class="SheetGridCell">
+                            {{ row }}
+                        </div>
+                    </div>
+                    <div v-for="(col, x) in 24" class="SheetGridCell">
+                        {{ currentSheet.grid[y][x] }}
+                    </div>
+
+                </template>
             </div>
         </div>
         <div v-else class="SheetGridContainer">
@@ -74,6 +91,10 @@
 </template>
 
 <style>
+    :root{
+        --sheet-cell-height: 2rem;
+    }
+
     .SheetsView {
         display: flex;
         flex-direction: row;
@@ -115,11 +136,38 @@
         width: 60vw;
         height: 93vh;
         border: 3px solid #303030;
+        overflow: auto;
+        background-color: black;
     }
     .SheetGrid {
         display: grid;
-        grid-template-columns: repeat(24, minmax(50px, max-content));
-        overflow: auto;
+        grid-template-rows: repeat(25, var(--sheet-cell-height));
+        grid-template-columns: repeat(25, minmax(50px, max-content));
+    }
+    .SheetGridBlankCorner {
+        position: sticky;
+        top: 0;
+        left: 0;
+        z-index: 3;
+    }
+        .SheetGridBlankCorner .SheetGridCell {
+            background-color: #303030;
+        }
+    .SheetGridVisualXHeadings {
+        display: grid;
+        position: sticky;
+        top: 0;
+        z-index: 1;
+    }
+        .SheetGridVisualXHeadings .SheetGridCell {
+            background-color: #303030;
+        }
+
+    .SheetGridVisualYHeadings {
+        position: sticky;
+        left: 0;
+        background-color: #303030;
+        z-index: 2;
     }
     .SheetGridCell {
         border: 1px solid #aaa;
@@ -128,10 +176,10 @@
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
-        background-color: #303030;
+        background-color: transparent;
         font-size: 12px;
         max-width: 100px;
-        min-height: 1rem;
+        min-height: var(--sheet-cell-height);
     }
 
     .RightColumn {
