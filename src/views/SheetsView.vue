@@ -5,7 +5,6 @@
     sheetStore.loadState();
 
     const curSheetIndex = ref(0);
-    const curCell = reactive({ x: 0, y: 0 });
 
     const isSheetSelected = computed({
         get: () => sheetStore.isValidSheetIndex(curSheetIndex.value),
@@ -33,6 +32,39 @@
         get: () => sheetStore.getCell(curSheetIndex.value, curCell),
         set: (newValue) => sheetStore.setCell(curSheetIndex.value, curCell, newValue)
     })
+
+    //Theres 3 layers to the curCell: the actual coordinate, that coordinate's key, and the input box's value (could be 1 char)
+    const curCell = reactive({ x: 0, y: 0 });
+    const curCellKeyInput = ref("AA");
+    function handleCurCellInput(event) {
+        const inputChar = event.data || event.target.value.slice(-1);
+
+        // Only allow letters A-Z
+        if (!/^[a-zA-Z]$/.test(inputChar)) {
+            curCellKeyInput.value = curCellKeyInput.value.slice(0,-1);
+            return;
+        }
+
+        // Replace full text with the new uppercase letter
+        if(curCellKeyInput.value.length == 3)
+            curCellKeyInput.value = inputChar.toUpperCase();
+        else
+            curCellKeyInput.value = curCellKeyInput.value.slice(0, -1) + inputChar.toUpperCase();
+
+        if (curCellKeyInput.value.length != 2)
+            return;
+        //Now update the actual coordinate of curCell
+        const newCoord = cellKeyToCoord(curCellKeyInput.value);
+        curCell.x = newCoord.x;
+        curCell.y = newCoord.y;
+    }
+    function cellCoordToKey(coord) {
+        return sheetStore.getVisualXHeadings(curSheetIndex.value)[coord.x] + sheetStore.getVisualYHeadings(curSheetIndex.value)[coord.y];
+    }
+    function cellKeyToCoord(coord) {
+        return { x: sheetStore.getVisualXHeadings(curSheetIndex.value).indexOf(coord[0]), y: sheetStore.getVisualYHeadings(curSheetIndex.value).indexOf(coord[1]) };
+    }
+
 </script>
 
 
@@ -52,16 +84,21 @@
                 </div>
             </div>
             <div class="SheetSettings" v-if="isSheetSelected">
-                <h1>{{currentSheetName != "" ? currentSheetName : "&nbsp;"}}</h1>
-                <div class="SheetSettingsRow"> Name: <input v-model="currentSheetName" /> </div>
-                <div class="SheetSettingsRow">
+                <div class="header-row">
+                    <h3>Sheet settings:</h3>
+                </div>
+                <h1 style="overflow:hidden;text-overflow:ellipsis; white-space:nowrap;">
+                    {{currentSheetName != "" ? currentSheetName : "&nbsp;"}}
+                </h1>
+                <div class="SheetEditingRow"> Name: <input v-model="currentSheetName" maxlength="20" /> </div>
+                <div class="SheetEditingRow">
                     Type: <select v-model="currentSheetType">
                         <option v-for="(type,index) in sheetStore.sheetTypes" :key="index" :value="index">
                             {{type.name}}
                         </option>
                     </select>
                 </div>
-                <div class="SheetSettingsRow">
+                <div class="SheetEditingRow">
                     <button @click="sheetStore.deleteSheet()">Delete</button>
                 </div>
             </div>
@@ -71,7 +108,7 @@
             <div class="SheetGrid">
                 <div class="SheetGridBlankCorner">
                     <div class="SheetGridCell">
-
+                        {{currentSheetName}}
                     </div>
                 </div>
                 <div v-for="char in sheetStore.getVisualXHeadings(curSheetIndex)" class="SheetGridVisualXHeadings">
@@ -79,6 +116,7 @@
                         {{ char }}
                     </div>
                 </div>
+
 
                 <template v-for="(row, y) in sheetStore.getVisualYHeadings(curSheetIndex)" :key="y">
                     <div class="SheetGridVisualYHeadings">
@@ -88,7 +126,7 @@
                     </div>
                     <div v-for="(col, x) in 24"
                          :key="x"
-                         @click="curCell.x = x; curCell.y = y;"
+                         @click="curCell.x = x; curCell.y = y; curCellKeyInput = cellCoordToKey(curCell)"
                          :class="['SheetGridCell', curCell.x === x && curCell.y === y ? 'SheetGridCellSelected' : '']">
                         {{ currentSheet.grid[y][x] }}
                     </div>
@@ -100,7 +138,13 @@
             Select a sheet!
         </div>
         <div class="RightColumn" v-if="isSheetSelected">
-            <input v-model="curCellValue" />
+            <div class="header-row"> <h3>Edit cell:</h3> </div>
+            <div class="SheetEditingRow"> 
+                Current cell:
+                <input v-model="curCellKeyInput" class="editCurCellKey" @input="handleCurCellInput" /> 
+            </div>
+            Value:
+            <input v-model="curCellValue"  />
         </div>
         <div v-else class="RightColumn">
             Select a sheet!
@@ -143,7 +187,7 @@
         display: flex;
         flex-direction: column;
     }
-    .SheetSettingsRow {
+    .SheetEditingRow {
         display: flex;
         flex-direction: row;
         padding: 2px;
@@ -154,13 +198,15 @@
         width: 60vw;
         height: 93vh;
         border: 3px solid #303030;
-        overflow: auto;
+        overflow: scroll;
         background-color: black;
     }
     .SheetGrid {
         display: grid;
         grid-template-rows: repeat(25, var(--sheet-cell-height));
         grid-template-columns: repeat(25, 100px);
+        overflow: visible; 
+        position: relative;
     }
     .SheetGridBlankCorner {
         position: sticky;
@@ -220,6 +266,17 @@
         background-color: white;
         color: black;
         font-weight: bold;
+    }
+
+    .RightColumn{
+        display:flex;
+        flex-direction:column;
+    }
+
+    .editCurCellKey{
+        font-size: 2rem;
+        width:4ch;
+        text-transform: uppercase;
     }
 
 </style>
