@@ -4,6 +4,10 @@
     const sheetStore = useSheetStore();
     sheetStore.loadState();
 
+    const leftColumn = ref(null);
+    const topRow = ref(null);
+    const mainGrid = ref(null);
+
     const curSheetIndex = ref(0);
 
     const isSheetSelected = computed({
@@ -64,7 +68,12 @@
     function cellKeyToCoord(coord) {
         return { x: sheetStore.getVisualXHeadings(curSheetIndex.value).indexOf(coord[0]), y: sheetStore.getVisualYHeadings(curSheetIndex.value).indexOf(coord[1]) };
     }
-
+    function syncScroll() {
+        if (leftColumn.value && topRow.value && mainGrid.value) {
+            leftColumn.value.scrollTop = mainGrid.value.scrollTop;
+            topRow.value.scrollLeft = mainGrid.value.scrollLeft;
+        }
+    }
 </script>
 
 
@@ -105,33 +114,31 @@
             <div v-else class="SheetSettings"> Select a sheet! </div>
         </div>
         <div class="SheetGridContainer" v-if="isSheetSelected">
-            <div class="SheetGrid">
-                <div class="SheetGridBlankCorner">
-                    <div class="SheetGridCell">
-                        {{currentSheetName}}
-                    </div>
+            <div class="SheetGridCorner">
+                <div class="SheetGridCell">
+                    Sheet Name
                 </div>
-                <div v-for="char in sheetStore.getVisualXHeadings(curSheetIndex)" class="SheetGridVisualXHeadings">
-                    <div class="SheetGridCell">
-                        {{ char }}
-                    </div>
+            </div>
+            <div class="SheetGridTopRow" ref="topRow">
+                <div v-for="char in sheetStore.getVisualXHeadings(curSheetIndex)" class="SheetGridCell">
+                    {{ char }}
                 </div>
-
-
-                <template v-for="(row, y) in sheetStore.getVisualYHeadings(curSheetIndex)" :key="y">
-                    <div class="SheetGridVisualYHeadings">
-                        <div class="SheetGridCell">
-                            {{ row }}
-                        </div>
-                    </div>
+                <div class="SheetGridCell"> </div>
+            </div>
+            <div class="SheetGridLeftColumn" ref="leftColumn">
+                <div v-for="char in sheetStore.getVisualYHeadings(curSheetIndex)" class="SheetGridCell">
+                    {{ char }}
+                </div>
+                <div class="SheetGridCell"> </div>
+            </div>
+            <div class="SheetGrid" ref="mainGrid" @scroll="syncScroll">
+                <div v-for="(row,y) in 24">
                     <div v-for="(col, x) in 24"
-                         :key="x"
                          @click="curCell.x = x; curCell.y = y; curCellKeyInput = cellCoordToKey(curCell)"
                          :class="['SheetGridCell', curCell.x === x && curCell.y === y ? 'SheetGridCellSelected' : '']">
                         {{ currentSheet.grid[y][x] }}
                     </div>
-
-                </template>
+                </div>
             </div>
         </div>
         <div v-else class="SheetGridContainer">
@@ -139,12 +146,12 @@
         </div>
         <div class="RightColumn" v-if="isSheetSelected">
             <div class="header-row"> <h3>Edit cell:</h3> </div>
-            <div class="SheetEditingRow"> 
+            <div class="SheetEditingRow">
                 Current cell:
-                <input v-model="curCellKeyInput" class="editCurCellKey" @input="handleCurCellInput" /> 
+                <input v-model="curCellKeyInput" class="editCurCellKey" @input="handleCurCellInput" />
             </div>
             Value:
-            <input v-model="curCellValue"  />
+            <input v-model="curCellValue" />
         </div>
         <div v-else class="RightColumn">
             Select a sheet!
@@ -155,6 +162,7 @@
 <style>
     :root{
         --sheet-cell-height: 2rem;
+        --sheet-cell-width: 100px;
     }
 
     .SheetsView {
@@ -198,41 +206,48 @@
         width: 60vw;
         height: 93vh;
         border: 3px solid #303030;
-        overflow: scroll;
         background-color: black;
+        display: grid;
+        grid-template-columns: auto 1fr;
+        grid-template-rows: auto 1fr;
+        grid-template-areas:
+            "corner top"
+            "left grid";
+        overflow: hidden;
     }
     .SheetGrid {
+        grid-area: grid;
         display: grid;
-        grid-template-rows: repeat(25, var(--sheet-cell-height));
-        grid-template-columns: repeat(25, 100px);
-        overflow: visible; 
-        position: relative;
+        grid-template-rows: repeat(24, var(--sheet-cell-height));
+        grid-template-columns: repeat(24, var(--sheet-cell-width));
+        height: calc(100%);
+        overflow: auto; 
     }
-    .SheetGridBlankCorner {
-        position: sticky;
-        top: 0;
-        left: 0;
-        z-index: 3;
+    .SheetGridCorner {
+        grid-area: corner;
+        background-color: #303030;
+        min-width: var(--sheet-cell-width);
     }
-        .SheetGridBlankCorner .SheetGridCell {
+    .SheetGridTopRow {
+        display: flex;
+        flex-direction: row;
+        grid-area: top;
+        overflow-x: hidden;
+    }
+        .SheetGridTopRow .SheetGridCell {
             background-color: #303030;
+            min-width: var(--sheet-cell-width);
         }
-    .SheetGridVisualXHeadings {
-        display: grid;
-        position: sticky;
-        top: 0;
-        z-index: 1;
+    .SheetGridLeftColumn {
+        grid-area: left;
+        overflow-y: hidden;
     }
-        .SheetGridVisualXHeadings .SheetGridCell {
+        .SheetGridLeftColumn .SheetGridCell {
             background-color: #303030;
+            min-height: var(--sheet-cell-height);
+            max-width: var(--sheet-cell-width);
         }
 
-    .SheetGridVisualYHeadings {
-        position: sticky;
-        left: 0;
-        background-color: #303030;
-        z-index: 2;
-    }
     .SheetGridCell {
         display: block;
         padding: 0px 4px;
