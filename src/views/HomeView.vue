@@ -1,6 +1,10 @@
 <script setup>
     import { useRouter } from 'vue-router'
+    import { useSettingsStore } from ".././stores/SettingsStore";
     import HomeButton from '@/components/HomeButton.vue'
+
+    const settingsStore = useSettingsStore();
+    settingsStore.loadState();
 
     const router = useRouter()
     const routes = router.getRoutes().filter(route => route.meta.tool)

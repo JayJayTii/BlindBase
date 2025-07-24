@@ -1,21 +1,57 @@
+<script setup>
+    import { ref } from 'vue'
+    import SettingsView from '@/views/SettingsView.vue'
+
+    const showSettings = ref(false);
+
+    function toggleSettings() {
+        showSettings.value = !showSettings.value;
+    }
+</script>
+
 <template>
     <div class="navbar">
         <RouterLink to="/">
-            <img src="@/assets/logo.png" height="100%"/>
+            <img src="@/assets/logo.png" height="100%" />
         </RouterLink>
+
+        <button @click="toggleSettings" id="settingsButton">Settings</button>
+        <div v-if="showSettings" @click="toggleSettings" id="settingsBackdrop"></div>
+        <SettingsView v-if="showSettings" id="settings" />
     </div>
 </template>
 
 <style>
+    :root {
+        --navbar-height: 7vh;
+    }
+
     .navbar {
         width: 100%;
-        height: 7vh;
+        height: var(--navbar-height);
         background-color: hsl(140, 50%, 15%);
         padding: 3px;
-        justify-content: left;
         align-content: center;
-        display:flex;
+        display: flex;
+        justify-content: space-between;
         flex-direction: row;
     }
+
+    #settingsBackdrop {
+        position: fixed;
+        top: var(--navbar-height);
+        left: 0;
+        width: 100vw;
+        height: 93vh;
+        background: rgba(256, 256, 256, 0.1); /* semi-transparent */
+        z-index: 99;
+    }
+
+    #settings {
+        position: absolute;
+        top: var(--navbar-height);
+        right: 0vw;
+    }
+
 
 </style>

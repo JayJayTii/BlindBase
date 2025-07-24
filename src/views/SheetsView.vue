@@ -41,19 +41,27 @@
     const curCell = reactive({ x: 0, y: 0 });
     const curCellKeyInput = ref("AA");
     function handleCurCellInput(event) {
-        const inputChar = event.data || event.target.value.slice(-1);
+        const cursorPos = event.target.selectionStart;
+        const inputChar = event.data;
 
-        // Only allow letters A-Z
-        if (!/^[a-zA-Z]$/.test(inputChar)) {
-            curCellKeyInput.value = curCellKeyInput.value.slice(0,-1);
+        if (!inputChar) return;
+
+        const valueAfterInput = curCellKeyInput.value;
+        const valueBeforeInput = curCellKeyInput.value.slice(0, cursorPos - 1) + event.target.value.slice(cursorPos);
+
+        // Only allow letters A-X
+        if (!/^[a-xA-X]$/.test(inputChar)) {
+            curCellKeyInput.value = valueBeforeInput;
+            event.target.setSelectionRange(cursorPos - 1, cursorPos - 1); // Restore cursor
             return;
         }
 
         // Replace full text with the new uppercase letter
-        if(curCellKeyInput.value.length == 3)
+        if (curCellKeyInput.value.length == 3)
             curCellKeyInput.value = inputChar.toUpperCase();
-        else
-            curCellKeyInput.value = curCellKeyInput.value.slice(0, -1) + inputChar.toUpperCase();
+        else {
+            curCellKeyInput.value = valueAfterInput.toUpperCase();
+        }
 
         if (curCellKeyInput.value.length != 2)
             return;
@@ -116,7 +124,7 @@
         <div class="SheetGridContainer" v-if="isSheetSelected">
             <div class="SheetGridCorner">
                 <div class="SheetGridCell">
-                    Sheet Name
+                    {{ currentSheetName }}
                 </div>
             </div>
             <div class="SheetGridTopRow" ref="topRow">
@@ -177,7 +185,7 @@
     }
 
     .SheetSelect {
-        height: 40vh;
+        height: 33%;
         border: 3px solid #303030;
         padding: 2px;
     }
@@ -189,7 +197,7 @@
     }
 
     .SheetSettings {
-        height: 53vh;
+        height: 67%;
         border: 3px solid #303030;
         padding: 2px;
         display: flex;
