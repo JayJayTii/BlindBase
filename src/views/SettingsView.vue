@@ -5,9 +5,9 @@
     settingsStore.loadState();
 
     const Sheets_PairOrder = computed({
-        get: () => settingsStore.Sheets.pairOrder.value,
+        get: () => settingsStore.sheets_pairorder,
         set: (newValue) => {
-            settingsStore.Sheets.pairOrder.value = newValue;
+            settingsStore.sheets_pairorder = newValue;
             settingsStore.saveState();
         }
     })
@@ -19,9 +19,9 @@
         <div class="Settings_Sheets">
             <h2>Sheets Settings</h2>
             <div class="Settings_Sheets_PairOrder">
-                {{settingsStore.Sheets.pairOrder.name}}:
+                {{settingsStore.sheets_pairorder_definition.name}}:
                 <select v-model="Sheets_PairOrder">
-                    <option v-for="(type,index) in settingsStore.Sheets_PairOrders" :key="index" :value="index">
+                    <option v-for="(type,index) in settingsStore.sheets_pairorder_definition.options" :key="index" :value="index">
                         {{type.name}}
                     </option>
                 </select>

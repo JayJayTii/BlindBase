@@ -1,8 +1,11 @@
 <script setup>
-    import { reactive, ref, computed } from "vue";
+    import { reactive, ref, watch, computed } from "vue";
     import { useSheetStore } from ".././stores/SheetStore";
     const sheetStore = useSheetStore();
     sheetStore.loadState();
+    import { useSettingsStore } from ".././stores/SettingsStore";
+    const settingsStore = useSettingsStore();
+    settingsStore.loadState();
 
     const leftColumn = ref(null);
     const topRow = ref(null);
@@ -66,22 +69,26 @@
         if (curCellKeyInput.value.length != 2)
             return;
         //Now update the actual coordinate of curCell
-        const newCoord = cellKeyToCoord(curCellKeyInput.value);
+        const newCoord = sheetStore.keyToCoord(curSheetIndex.value, curCellKeyInput.value);
         curCell.x = newCoord.x;
         curCell.y = newCoord.y;
     }
-    function cellCoordToKey(coord) {
-        return sheetStore.getVisualXHeadings(curSheetIndex.value)[coord.x] + sheetStore.getVisualYHeadings(curSheetIndex.value)[coord.y];
-    }
-    function cellKeyToCoord(coord) {
-        return { x: sheetStore.getVisualXHeadings(curSheetIndex.value).indexOf(coord[0]), y: sheetStore.getVisualYHeadings(curSheetIndex.value).indexOf(coord[1]) };
-    }
+
     function syncScroll() {
         if (leftColumn.value && topRow.value && mainGrid.value) {
             leftColumn.value.scrollTop = mainGrid.value.scrollTop;
             topRow.value.scrollLeft = mainGrid.value.scrollLeft;
         }
     }
+
+    watch(
+        () => settingsStore.sheets_pairorder,
+        (newVal) => {
+            const newCoord = sheetStore.keyToCoord(curSheetIndex.value, curCellKeyInput.value);
+            curCell.x = newCoord.x;
+            curCell.y = newCoord.y;
+        }
+    );
 </script>
 
 
@@ -128,13 +135,13 @@
                 </div>
             </div>
             <div class="SheetGridTopRow" ref="topRow">
-                <div v-for="char in sheetStore.getVisualXHeadings(curSheetIndex)" class="SheetGridCell">
+                <div v-for="char in sheetStore.getXHeadings(curSheetIndex)" class="SheetGridCell">
                     {{ char }}
                 </div>
                 <div class="SheetGridCell"> </div>
             </div>
             <div class="SheetGridLeftColumn" ref="leftColumn">
-                <div v-for="char in sheetStore.getVisualYHeadings(curSheetIndex)" class="SheetGridCell">
+                <div v-for="char in sheetStore.getYHeadings(curSheetIndex)" class="SheetGridCell">
                     {{ char }}
                 </div>
                 <div class="SheetGridCell"> </div>
@@ -142,9 +149,9 @@
             <div class="SheetGrid" ref="mainGrid" @scroll="syncScroll">
                 <div v-for="(row,y) in 24">
                     <div v-for="(col, x) in 24"
-                         @click="curCell.x = x; curCell.y = y; curCellKeyInput = cellCoordToKey(curCell)"
+                         @click="curCell.x = x; curCell.y = y; curCellKeyInput = sheetStore.coordToKey(curSheetIndex, curCell)"
                          :class="['SheetGridCell', curCell.x === x && curCell.y === y ? 'SheetGridCellSelected' : '']">
-                        {{ currentSheet.grid[y][x] }}
+                        {{ sheetStore.getCell(curSheetIndex, {x:x,y:y}) }}
                     </div>
                 </div>
             </div>
@@ -156,10 +163,12 @@
             <div class="header-row"> <h3>Edit cell:</h3> </div>
             <div class="SheetEditingRow">
                 Current cell:
-                <input v-model="curCellKeyInput" class="editCurCellKey" @input="handleCurCellInput" />
+                <input v-model="curCellKeyInput" 
+                       class="editCurCellKey" 
+                       @input="handleCurCellInput"/>
             </div>
             Value:
-            <input v-model="curCellValue" />
+            <input v-model="curCellValue" :key="settingsStore.sheets_pairorder"/>
         </div>
         <div v-else class="RightColumn">
             Select a sheet!

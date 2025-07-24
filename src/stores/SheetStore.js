@@ -1,4 +1,9 @@
 import { defineStore } from "pinia";
+import { useSettingsStore } from "./SettingsStore";
+
+export function getSettingsStore() {
+    return useSettingsStore();
+}
 
 const DEFAULT_SHEET_TYPES = [{ name: "None", id: 0 },{ name: "Corners", id: 1 }, { name: "Edges", id: 2 }, { name: "Images", id: 3 }];
 const DEFAULT_SHEET_XHEADINGS = "ABCDEFGHIJKLMNOPQRSTUVWX";
@@ -44,21 +49,27 @@ export const useSheetStore = defineStore("sheetStore", {
         isValidSheetIndex(index) {
             return index < this.sheets.length && index >= 0;
         },
-        getVisualXHeadings(sheetIndex) {
-            return this.sheets[sheetIndex].xHeadings.split(''); //For the future when pair order swapping is done
+        getXHeadings(sheetIndex) { //Headings stay the same no matter the pair order
+            return this.sheets[sheetIndex].xHeadings.split(''); 
         },
-        getVisualYHeadings(sheetIndex) {
+        getYHeadings(sheetIndex) {
             return this.sheets[sheetIndex].yHeadings.split('');
         },
 
         getCell(sheetIndex, visualCellCoord) { //The sheetsview works in visual space (possibly flipped pair order)
-            //Add pair order flipping here
-            const gridCellCoord = visualCellCoord;
+            var gridCellCoord = { ...visualCellCoord };
+            if (getSettingsStore().sheets_pairorder == 1) {
+                gridCellCoord.x = visualCellCoord.y;
+                gridCellCoord.y = visualCellCoord.x;
+            }
             return this.sheets[sheetIndex]?.grid[gridCellCoord.y][gridCellCoord.x] || '';
         },
         setCell(sheetIndex, visualCellCoord, newValue) {
-            //Add pair order flipping here
-            const gridCellCoord = visualCellCoord;
+            var gridCellCoord = { ...visualCellCoord };
+            if (getSettingsStore().sheets_pairorder == 1) {
+                gridCellCoord.x = visualCellCoord.y;
+                gridCellCoord.y = visualCellCoord.x;
+            }
             try {
                 this.sheets[sheetIndex].grid[gridCellCoord.y][gridCellCoord.x] = newValue;
                 this.saveState();
@@ -66,6 +77,24 @@ export const useSheetStore = defineStore("sheetStore", {
             catch {
                 console.warn("Failed to save '" + newValue + "' to sheet " + sheetIndex + " at cell " + gridCellCoord.x + ", " + gridCellCoord.y);
             }
+        },
+        coordToKey(sheetIndex, coord) {
+            let trueCoord = {...coord};
+            if (getSettingsStore().sheets_pairorder == 1) {
+                trueCoord.x = coord.y;
+                trueCoord.y = coord.x;
+            }
+            return this.getXHeadings(sheetIndex)[trueCoord.x] +
+                this.getYHeadings(sheetIndex)[trueCoord.y];
+        },
+        keyToCoord(sheetIndex, key) {
+            if (getSettingsStore().sheets_pairorder == 1) {
+                key = key.split('').reverse().join('');
+            }
+            return {
+                x: this.getXHeadings(sheetIndex).indexOf(key[0]),
+                y: this.getYHeadings(sheetIndex).indexOf(key[1])
+            };
         },
 
 
