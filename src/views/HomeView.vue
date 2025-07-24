@@ -12,7 +12,7 @@
 
 <template>
     <div class="title">
-        BlindBase
+        <h1>BlindBase</h1>
     </div>
     <div class="row-container">
         <nav class="row">
@@ -29,7 +29,8 @@
         align-items: center;
         justify-content: end;
         height: 33vh;
-        font-size: 20vh;
+        font-size: 11vh;
+        color: var(--grey-100);
     }
 
     .row-container {
@@ -42,10 +43,10 @@
 
     .row {
         display: flex;
-        justify-content: space-between; /* Even spacing between items */
-        align-items: center; /* Vertically center items */
-        flex-wrap: wrap; /* Optional: wrap to next line if needed */
-        gap: 1rem; /* Optional: consistent spacing between items */
+        justify-content: space-between; 
+        align-items: center;
+        flex-wrap: wrap; 
+        gap: 1rem;
         padding: 1rem;
     }
 </style>

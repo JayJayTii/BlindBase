@@ -29,7 +29,8 @@
 
     .button {
         display: inline-flex;
-        background-color: lightgray;
+        background-color: var(--brand-600);
+        color: var(--brand-900);
         border: none;
         border-radius: 10px;
         min-width: 150px;
@@ -49,7 +50,8 @@
 
     .description {
         display: inline-flex;
-        background-color: dimgray;
+        background-color: var(--brand-400);
+        color: var(--grey-800);
         border: none;
         border-radius: 10px;
         min-height: 150px;
@@ -60,7 +62,7 @@
         padding-top: 50px;
         line-height: 1.1;
         transform: translateY(-150px);
-        transition: transform 0.2s ease;
+        transition: transform 0.1s ease;
     }
 
 </style>

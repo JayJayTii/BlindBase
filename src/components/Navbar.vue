@@ -15,7 +15,9 @@
             <img src="@/assets/logo.png" height="100%" />
         </RouterLink>
 
-        <button @click="toggleSettings" id="settingsButton">Settings</button>
+        <img src="@/assets/settings.svg" 
+             @click="toggleSettings" 
+             style="cursor:pointer"/>
         <div v-if="showSettings" @click="toggleSettings" id="settingsBackdrop"></div>
         <SettingsView v-if="showSettings" id="settings" />
     </div>
@@ -29,7 +31,7 @@
     .navbar {
         width: 100%;
         height: var(--navbar-height);
-        background-color: hsl(140, 50%, 15%);
+        background-color: var(--brand-800);
         padding: 3px;
         align-content: center;
         display: flex;

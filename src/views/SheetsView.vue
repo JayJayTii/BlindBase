@@ -98,14 +98,15 @@
             <div class="SheetSelect">
                 <div class="header-row">
                     <h3>Select Sheet:</h3>
-                    <button @click="sheetStore.newSheet()" style="justify-content:right">+</button>
                 </div>
                 <div v-for="(sheetName, index) in sheetStore.getSheetNames"
                      :key="index"
-                     :class="['list-item', curSheetIndex === index ? 'selected' : '']"
+                     :class="['ListItem', curSheetIndex === index ? 'Selected' : '']"
                      @click="curSheetIndex = index ">
                     {{ sheetName }}
                 </div>
+                <button @click="sheetStore.newSheet(); curSheetIndex = sheetStore.sheets.length - 1;" 
+                        style="justify-content:center;">+</button>
             </div>
             <div class="SheetSettings" v-if="isSheetSelected">
                 <div class="header-row">
@@ -123,10 +124,20 @@
                     </select>
                 </div>
                 <div class="SheetEditingRow">
-                    <button @click="sheetStore.deleteSheet()">Delete</button>
+                    <button @click="sheetStore.deleteSheet(); 
+                            if(curSheetIndex == sheetStore.sheets.length) 
+                                curSheetIndex--;
+                            ">
+                    Delete
+                    </button>
                 </div>
             </div>
-            <div v-else class="SheetSettings"> Select a sheet! </div>
+            <div v-else class="SheetSettings">
+                <div class="header-row">
+                    <h3>Sheet settings:</h3>
+                </div>
+                Select a sheet!
+            </div>
         </div>
         <div class="SheetGridContainer" v-if="isSheetSelected">
             <div class="SheetGridCorner">
@@ -150,27 +161,30 @@
                 <div v-for="(row,y) in 24">
                     <div v-for="(col, x) in 24"
                          @click="curCell.x = x; curCell.y = y; curCellKeyInput = sheetStore.coordToKey(curSheetIndex, curCell)"
-                         :class="['SheetGridCell', curCell.x === x && curCell.y === y ? 'SheetGridCellSelected' : '']">
+                         :class="['SheetGridCell', curCell.x === x && curCell.y === y ? 'SheetGridCellSelected' : '']"
+                         style="cursor:pointer">
                         {{ sheetStore.getCell(curSheetIndex, {x:x,y:y}) }}
                     </div>
                 </div>
             </div>
         </div>
         <div v-else class="SheetGridContainer">
-            Select a sheet!
         </div>
         <div class="RightColumn" v-if="isSheetSelected">
-            <div class="header-row"> <h3>Edit cell:</h3> </div>
+            <div class="header-row"> <h3>Edit cell:</h3>  </div>
             <div class="SheetEditingRow">
                 Current cell:
                 <input v-model="curCellKeyInput" 
                        class="editCurCellKey" 
                        @input="handleCurCellInput"/>
             </div>
-            Value:
-            <input v-model="curCellValue" :key="settingsStore.sheets_pairorder"/>
+            <div class="SheetEditingRow">
+                Value:
+                <input v-model="curCellValue" :key="settingsStore.sheets_pairorder" />
+            </div>
         </div>
         <div v-else class="RightColumn">
+            <div class="header-row"> <h3>Edit cell:</h3>  </div>
             Select a sheet!
         </div>
     </div>
@@ -180,6 +194,11 @@
     :root{
         --sheet-cell-height: 2rem;
         --sheet-cell-width: 100px;
+        --border-color: var(--grey-900);
+        --panel-color: var(--grey-800);
+        --panel-header-color: var(--brand-800);
+        --panel-header-text-color: var(--grey-100);
+        --text-color: var(--grey-100);
     }
 
     .SheetsView {
@@ -187,30 +206,50 @@
         flex-direction: row;
     }
 
+    .header-row {
+        display: flex;
+        justify-content: center;
+        background-color: var(--panel-header-color);
+        color: var(--panel-header-text-color);
+        align-items: center;
+        border-radius: 3px;
+        font-size: 1rem;
+    }
+
     .LeftColumn {
         display: flex;
         flex-direction: column;
         width: 20vw;
+        color: var(--text-color);
     }
 
     .SheetSelect {
         height: 33%;
-        border: 3px solid #303030;
+        border: 3px solid var(--border-color);
         padding: 2px;
+        background-color: var(--panel-color);
+        overflow:auto;
     }
-    .header-row {
+    .ListItem {
+        background-color: var(--grey-600);
+        border: 1px solid var(--panel-color);
+        cursor: pointer;
+        height: 20px;
         display: flex;
-        justify-content: space-between;
-        background-color: #303030;
         align-items: center;
     }
-
+    .Selected {
+        background-color: white;
+        color: black;
+        font-weight: bold;
+    }
     .SheetSettings {
         height: 67%;
-        border: 3px solid #303030;
+        border: 3px solid var(--border-color);
         padding: 2px;
         display: flex;
         flex-direction: column;
+        background-color: var(--panel-color);
     }
     .SheetEditingRow {
         display: flex;
@@ -222,8 +261,8 @@
     .SheetGridContainer {
         width: 60vw;
         height: 93vh;
-        border: 3px solid #303030;
-        background-color: black;
+        border: 3px solid var(--border-color);
+        background-color: var(--panel-color);
         display: grid;
         grid-template-columns: auto 1fr;
         grid-template-rows: auto 1fr;
@@ -242,8 +281,7 @@
     }
     .SheetGridCorner {
         grid-area: corner;
-        background-color: #303030;
-        min-width: var(--sheet-cell-width);
+        background-color: var(--brand-900);
     }
     .SheetGridTopRow {
         display: flex;
@@ -252,31 +290,38 @@
         overflow-x: hidden;
     }
         .SheetGridTopRow .SheetGridCell {
-            background-color: #303030;
+            background-color: var(--brand-800);
             min-width: var(--sheet-cell-width);
+            display:flex;
+            justify-content:center;
+            align-items:center;
         }
     .SheetGridLeftColumn {
         grid-area: left;
         overflow-y: hidden;
     }
         .SheetGridLeftColumn .SheetGridCell {
-            background-color: #303030;
+            background-color: var(--brand-800);
             min-height: var(--sheet-cell-height);
             max-width: var(--sheet-cell-width);
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
 
     .SheetGridCell {
-        display: block;
         padding: 0px 4px;
-        border: 1px solid #aaa;
+        border: 1px solid var(--border-color);
         overflow: hidden;
         text-overflow: ellipsis;
         color: white;
         white-space: nowrap;
         background-color: transparent;
-        font-size: 12px;
+        font-size: 14px;
         word-break: break-word;
         height: var(--sheet-cell-height);
+        line-height: var(--sheet-cell-height);
+        width: var(--sheet-cell-width);
     }
     .SheetGridCellSelected {
         border: 3px solid white;
@@ -285,24 +330,12 @@
     .RightColumn {
         width: 20vw;
         height: 93vh;
-        border: 3px solid #303030;
+        border: 3px solid var(--border-color);
         padding: 2px;
-    }
-
-    .list-item {
-        background-color: #303030;
-        cursor: pointer;
-        height: 20px;
-    }
-    .selected {
-        background-color: white;
-        color: black;
-        font-weight: bold;
-    }
-
-    .RightColumn{
-        display:flex;
-        flex-direction:column;
+        background-color: var(--panel-color);
+        display: flex;
+        flex-direction: column;
+        color: var(--text-color);
     }
 
     .editCurCellKey{

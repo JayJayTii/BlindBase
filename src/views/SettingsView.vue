@@ -16,7 +16,8 @@
 <template>
 
     <div class="Settings">
-        <div class="Settings_Sheets">
+        <h1>Settings</h1>
+        <div class="Subsettings">
             <h2>Sheets Settings</h2>
             <div class="Settings_Sheets_PairOrder">
                 {{settingsStore.sheets_pairorder_definition.name}}:
@@ -27,6 +28,7 @@
                 </select>
             </div>
         </div>
+
     </div>
 </template>
 
@@ -34,8 +36,16 @@
     .Settings {
         width: 50vw;
         height: 50vh;
-        background-color: #181818;
-        border: 4px solid white;
+        background-color: var(--grey-800);
+        border: 4px solid var(--grey-900);
         z-index: 100;
+        color: var(--grey-100);
+        padding: 4px;
+
+        overflow:auto;
+    }
+
+    .Subsettings{
+        border-top: 2px solid white;
     }
 </style>

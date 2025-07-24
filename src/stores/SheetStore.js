@@ -35,16 +35,18 @@ export const useSheetStore = defineStore("sheetStore", {
                 "name": "Untitled",
                 "id": this.getNewSheetID(),
                 "type": 0,
-                "xHeadings":DEFAULT_SHEET_XHEADINGS,
-                "yHeadings":DEFAULT_SHEET_YHEADINGS,
-                "grid":DEFAULT_SHEET_GRID,
+                "xHeadings": DEFAULT_SHEET_XHEADINGS,
+                "yHeadings": DEFAULT_SHEET_YHEADINGS,
+                "grid": { ...DEFAULT_SHEET_GRID },
             });
 
             this.saveState();
+            this.loadState();
         },
         deleteSheet(index) { //Should only be allowed to delete at current sheet
             this.sheets.splice(index, 1);
             this.saveState();
+            this.loadState();
         },
         isValidSheetIndex(index) {
             return index < this.sheets.length && index >= 0;

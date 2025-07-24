@@ -5,14 +5,14 @@ const SHEETS_PAIRORDER = {
     options: [
         { id: 0, name: "Row then column" },
         { id: 1, name: "Column then row" }],
+    default: 0,
 };
 
-const DEFAULT_SHEETS_PAIRORDER = 0;
 export const useSettingsStore = defineStore("settingsStore", {
     state: () => {
         return {
             sheets_pairorder_definition: SHEETS_PAIRORDER,
-            sheets_pairorder: DEFAULT_SHEETS_PAIRORDER,
+            sheets_pairorder: SHEETS_PAIRORDER.default,
         };
     },
     actions: {
