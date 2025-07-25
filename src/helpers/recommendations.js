@@ -11,8 +11,7 @@ export function getRecommendations(sheetType, key) {
 		return ["image1", "image2"];
 }
 
-const url = "https://v2.blddb.net/corner?position=UFR-UBL-UBR&mode=manmade";
-
 function getCornerRecommendations(key) {
+
 	return [key, key, key, key];
 }
