@@ -105,7 +105,12 @@
                 <div v-for="(sheetName, index) in sheetStore.getSheetNames"
                      :key="index"
                      :class="['ListItem', curSheetIndex === index ? 'Selected' : '']"
-                     @click="curSheetIndex = index ">
+                     @click="if(curSheetIndex != index) {
+                                curSheetIndex = index;
+                                curCell.x = 0;
+                                curCell.y = 0;
+                                curCellKeyInput = sheetStore.coordToKey(curSheetIndex, curCell);
+                             }">
                     {{ sheetName }}
                 </div>
                 <button @click="sheetStore.newSheet(); curSheetIndex = sheetStore.sheets.length - 1;" 
@@ -249,9 +254,9 @@
         background-color: var(--grey-600);
         border: 1px solid var(--panel-color);
         cursor: pointer;
-        height: 20px;
         display: flex;
         align-items: center;
+        font-size: 1rem;
     }
     .Selected {
         background-color: white;

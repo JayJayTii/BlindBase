@@ -1,8 +1,19 @@
 #This is used for reformatting the json files taken from v2.blddb.net
 import json
 import requests
+cornerChichuToSpeffz = {"D": "A","G": "B","J": "C","A": "D","E": "E","C": "F","M": "G","Q": "H","B": "I","L": "J","Y": "K","N": "L","K": "M","I": "N","S": "O","Z": "P","H": "Q","F": "R","P": "S","T": "T","W": "U","X": "V","R": "W","O": "X"}
+edgeChichuToSpeffz = {"E": "A","G": "B","A": "C","C": "D","D": "E","T": "F","L": "G","X": "H","B": "I","Q": "J","J": "K","S": "L","H": "M","Z": "N","P": "O","R": "P","F": "Q","W": "R","N": "S","Y": "T","I": "U","O": "V","M": "W","K": "X"}
+def convertByChar(strData, dictionary):
+    out = ""
+    for i in range(len(strData)):
+        out += dictionary[strData[i]]
+    return out
 
-for filename in ["cornerManmade","edgeManmade"]:
+filenames = ["cornerManmade","edgeManmade"]
+dicts = [cornerChichuToSpeffz, edgeChichuToSpeffz]
+
+for i in range(len(filenames)):
+    filename = filenames[i]
     print("Fetching data for " + filename)
     url = "https://raw.githubusercontent.com/nbwzx/blddb/refs/heads/v2/public/data/" + filename + ".json"
     response = requests.get(url, params=None)
@@ -15,9 +26,10 @@ for filename in ["cornerManmade","edgeManmade"]:
     content = response.json()
     reformatted = {}
     for comm in content:
-        reformatted[comm]=[]
+        convertedComm = convertByChar(comm, dicts[i])
+        reformatted[convertedComm]=[]
         for alg in content[comm]:
-            reformatted[comm].append([alg[0], alg[2]])
+            reformatted[convertedComm].append([alg[0][0], alg[2][0]])
 
     print("Writing to file")
     strreformatted = json.dumps(reformatted, indent=None)
@@ -27,4 +39,16 @@ for filename in ["cornerManmade","edgeManmade"]:
     print("Finished formatting " + filename + "\n")
 
 print("Finished parsing all files!")
+
+
+
+
+
+
+
+
+
+
+
+
 
