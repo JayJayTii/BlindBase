@@ -1,10 +1,12 @@
 <script setup>
     import { reactive, ref, watch, computed } from "vue";
-    import { useSheetStore } from ".././stores/SheetStore";
+    import { getRecommendations } from "../helpers/recommendations"
+    import { useSheetStore } from "../stores/SheetStore";
+    import { useSettingsStore } from "../stores/SettingsStore";
     const sheetStore = useSheetStore();
     sheetStore.loadState();
-    import { useSettingsStore } from ".././stores/SettingsStore";
     const settingsStore = useSettingsStore();
+    
     settingsStore.loadState();
 
     const leftColumn = ref(null);
@@ -43,6 +45,7 @@
     //Theres 3 layers to the curCell: the actual coordinate, that coordinate's key, and the input box's value (could be 1 char)
     const curCell = reactive({ x: 0, y: 0 });
     const curCellKeyInput = ref("AA");
+    const cellValueInputBox = ref(null);
     function handleCurCellInput(event) {
         const cursorPos = event.target.selectionStart;
         const inputChar = event.data;
@@ -160,7 +163,10 @@
             <div class="SheetGrid" ref="mainGrid" @scroll="syncScroll">
                 <div v-for="(row,y) in 24">
                     <div v-for="(col, x) in 24"
-                         @click="curCell.x = x; curCell.y = y; curCellKeyInput = sheetStore.coordToKey(curSheetIndex, curCell)"
+                         @click="curCell.x = x; 
+                                curCell.y = y; 
+                                curCellKeyInput = sheetStore.coordToKey(curSheetIndex, curCell)
+                                cellValueInputBox.focus()"
                          :class="['SheetGridCell', curCell.x === x && curCell.y === y ? 'SheetGridCellSelected' : '']"
                          style="cursor:pointer">
                         {{ sheetStore.getCell(curSheetIndex, {x:x,y:y}) }}
@@ -180,7 +186,16 @@
             </div>
             <div class="SheetEditingRow">
                 Value:
-                <input v-model="curCellValue" :key="settingsStore.sheets_pairorder" />
+                <input v-model="curCellValue" ref="cellValueInputBox" :key="settingsStore.sheets_pairorder" />
+            </div>
+
+            <div class="CellOptions" v-if="currentSheetType != 0">
+                Recommendations:
+                <div v-for="algorithm in getRecommendations(currentSheetType, sheetStore.coordToKey(curSheetIndex, curCell))"
+                     :class="['ListItem']"
+                     @click="sheetStore.setCell(curSheetIndex, curCell, algorithm)">
+                    {{ algorithm }}
+                </div>
             </div>
         </div>
         <div v-else class="RightColumn">
@@ -250,12 +265,6 @@
         display: flex;
         flex-direction: column;
         background-color: var(--panel-color);
-    }
-    .SheetEditingRow {
-        display: flex;
-        flex-direction: row;
-        padding: 2px;
-        gap: 5px;
     }
 
     .SheetGridContainer {
@@ -338,10 +347,24 @@
         color: var(--text-color);
     }
 
+    .SheetEditingRow {
+        display: flex;
+        flex-direction: row;
+        padding: 2px;
+        gap: 5px;
+        width: 100%;
+    }
+
     .editCurCellKey{
         font-size: 2rem;
         width:4ch;
         text-transform: uppercase;
+    }
+
+    .CellOptions{
+        width: 100%;
+        height:100%;
+        overflow: auto;
     }
 
 </style>

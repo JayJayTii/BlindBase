@@ -22,3 +22,5 @@ npm run build
 ```sh
 npx serve dist
 ```
+
+Algorithm recommendations taken from [v2.blddb.net](https://github.com/nbwzx/blddb)
