@@ -52,6 +52,7 @@ function getEquivalentEdgeComms(key) {
 }
 
 function getCornerRecommendations(baseKey) {
+	const notation = getSettingsStore().sheets_notationtype;
 	baseKey = "C" + baseKey;
 	const equivalentKeys = getEquivalentCornerComms(baseKey);
 	let allComms = [];
@@ -61,7 +62,7 @@ function getCornerRecommendations(baseKey) {
 
 		//Each of these equivalent keys could have multiple algs
 		for (var alg of cornerData[key]) {
-			allComms.push(alg[0]);
+			allComms.push(alg[notation]);
 		}
 	}
 	return allComms;
