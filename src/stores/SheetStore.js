@@ -1,4 +1,5 @@
 import { defineStore } from "pinia";
+import { flatten } from "../helpers/ArrayHelper"
 import { useSettingsStore } from "./SettingsStore";
 
 export function getSettingsStore() {
@@ -56,6 +57,13 @@ export const useSheetStore = defineStore("sheetStore", {
         },
         getYHeadings(sheetIndex) {
             return this.sheets[sheetIndex].yHeadings.split('');
+        },
+        getFilledCellCount(sheetIndex) {
+            const grid = this.sheets[sheetIndex].grid;
+            const rows = Object.values(grid);
+            return rows.reduce(function (a, b) { return a.concat(b) })
+                .filter(val => val != "")
+                .length;
         },
 
         getCell(sheetIndex, visualCellCoord) { //The sheetsview works in visual space (possibly flipped pair order)

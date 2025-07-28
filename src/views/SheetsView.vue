@@ -1,6 +1,6 @@
 <script setup>
     import { reactive, ref, watch, computed } from "vue";
-    import { getRecommendations } from "../helpers/recommendations"
+    import { getRecommendations } from "../helpers/Recommendations"
     import { useSheetStore } from "../stores/SheetStore";
     import { useSettingsStore } from "../stores/SettingsStore";
     const sheetStore = useSheetStore();
