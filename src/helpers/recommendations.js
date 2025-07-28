@@ -1,7 +1,13 @@
-//This should be the only file which works with chichu
+﻿//This should be the only file which works with chichu
 import cornerData from "../assets/recommendations/cornerManmade_formatted.json"
 import edgeData from "../assets/recommendations/edgeManmade_formatted.json"
 import imageData from "../assets/recommendations/imageRecommendations.json"
+import { useSettingsStore } from "../stores/SettingsStore";
+
+export function getSettingsStore() {
+	return useSettingsStore();
+}
+
 
 export function getRecommendations(sheetType, key) {
 	if (sheetType == 0) //No sheet type, no recommendations
@@ -61,6 +67,7 @@ function getCornerRecommendations(baseKey) {
 	return allComms;
 }
 function getEdgeRecommendations(baseKey) {
+	const notation = getSettingsStore().sheets_notationtype;
 	baseKey = "C" + baseKey;
 	const equivalentKeys = getEquivalentEdgeComms(baseKey);
 	let allComms = [];
@@ -70,14 +77,28 @@ function getEdgeRecommendations(baseKey) {
 
 		//Each of these equivalent keys could have multiple algs
 		for (var alg of edgeData[key]) {
-			allComms.push(alg[0]);
+			allComms.push(alg[notation]);
 		}
 	}
 	return allComms;
 }
 
 function getImageRecommendations(baseKey) {
-	return imageData[baseKey];
+	let result = imageData[baseKey]
+	if (!(baseKey.includes("X") && getSettingsStore().sheets_extraximages == true))
+		return result;
+
+	if (baseKey[0] == "X") {
+		result = result.concat(imageData["ʧ" + baseKey[1]]);
+	}
+	if (baseKey[1] == "X") {
+		result = result.concat(imageData[baseKey[0] + "ʧ"]);
+	}
+	if (baseKey == "XX") {
+		result = result.concat(imageData["ʧʧ"]);
+    }
+
+	return result;
 }
 
 //These should maybe go in a rubik's cube script or something instead

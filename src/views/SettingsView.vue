@@ -11,6 +11,20 @@
             settingsStore.saveState();
         }
     })
+    const Sheets_NotationType = computed({
+        get: () => settingsStore.sheets_notationtype,
+        set: (newValue) => {
+            settingsStore.sheets_notationtype = newValue;
+            settingsStore.saveState();
+        }
+    })
+    const Sheets_ExtraXImages = computed({
+        get: () => settingsStore.sheets_extraximages,
+        set: (newValue) => {
+            settingsStore.sheets_extraximages = newValue;
+            settingsStore.saveState();
+        }
+    })
 </script>
 
 <template>
@@ -26,6 +40,18 @@
                         {{type.name}}
                     </option>
                 </select>
+            </div>
+            <div class="Settings_Sheets_NotationType">
+                {{settingsStore.sheets_notationtype_definition.name}}:
+                <select v-model="Sheets_NotationType">
+                    <option v-for="(type,index) in settingsStore.sheets_notationtype_definition.options" :key="index" :value="index">
+                        {{type.name}}
+                    </option>
+                </select>
+            </div>
+            <div class="Settings_Sheets_ExtraXImages">
+                {{settingsStore.sheets_extraximages_definition.name}}:
+                <input v-model="Sheets_ExtraXImages" type="checkbox" class="Settings_Sheets_ExtraXImages">
             </div>
         </div>
 

@@ -67,6 +67,7 @@ def ParseResult(result):
     return matches
 
 #https://stackoverflow.com/questions/62007674/multi-thread-requests-python3
+#You can find the parameters for the query in the source section when you inspect the colpi webpage
 def request_get(key):
     url="https://bestsiteever.ru/colpi/api/lpiquery.php?lp="+key+"&includeSmForm=1"
     print(key + "\n")
@@ -75,8 +76,8 @@ def request_get(key):
     return {"key":key, "result":parsed}
 
 allKeys = []
-for letter1 in "ABCDEFGHIJKLMNOPQRSTUVWX":
-    for letter2 in "ABCDEFGHIJKLMNOPQRSTUVWX":
+for letter1 in "ABCDEFGHIJKLMNOPQRSTUVWXʧ":
+    for letter2 in "ABCDEFGHIJKLMNOPQRSTUVWXʧ":
         allKeys.append(letter1+letter2)
 with concurrent.futures.ThreadPoolExecutor() as executor: # optimally defined number of threads
     res = [executor.submit(request_get, key) for key in allKeys]
