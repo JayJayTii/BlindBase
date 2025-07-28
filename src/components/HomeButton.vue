@@ -7,7 +7,7 @@
 <template>
     <RouterLink :to="route.path" class="home-button">
         <div class="button">
-            {{route.name}}
+            <div style="background-color:transparent">{{route.name}}</div>
             <img src="@/assets/placeholder.png" />
         </div>
         <div class="description">
@@ -17,10 +17,14 @@
 </template>
 
 <style>
+    :root{
+        --square-size: 150px;
+    }
+
     .home-button {
         display: flex;
         flex-direction: column;
-        max-height: 150px;
+        max-height: var(--square-size);
     }
 
         .home-button:hover .description {
@@ -28,40 +32,40 @@
         }
 
     .button {
-        display: inline-flex;
         background-color: var(--brand-600);
         color: var(--brand-900);
-        border: none;
         border-radius: 10px;
-        min-width: 150px;
-        min-height: 150px;
+        width: var(--square-size);
+        min-height: var(--square-size);
         align-items: center;
-        justify-content: center;
+        justify-content: start;
+        display: flex;
         flex-direction: column;
         font-size: 40px;
+        line-height: 1.1;
         z-index: 5;
     }
     .button img {
-        min-width: 120px;
-        min-height: 100px;
-        max-height: 100px;
-        display: block;
+        max-height:100px;
+        aspect-ratio: auto;
+        display: flex;
     }
 
     .description {
-        display: inline-flex;
-        background-color: var(--brand-400);
+        background-color: var(--brand-500);
         color: var(--grey-800);
-        border: none;
         border-radius: 10px;
-        min-height: 150px;
-        max-width: 150px;
+        width: var(--square-size);
+        min-height: var(--square-size);
+        align-items: center;
+        justify-content: start;
+        display: flex;
+        flex-direction: column;
         font-size: 20px;
         text-align: center;
-        justify-content: center;
-        padding-top: 50px;
+        padding: 50px 10px 10px 10px;
         line-height: 1.1;
-        transform: translateY(-150px);
+        transform: translateY(calc(-1*var(--square-size)));
         transition: transform 0.1s ease;
     }
 

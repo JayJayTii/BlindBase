@@ -1,9 +1,9 @@
 //This should be the only file which works with chichu
-import cornerData from "../assets/alg_recommendations/cornerManmade_formatted.json"
-import edgeData from "../assets/alg_recommendations/edgeManmade_formatted.json"
+import cornerData from "../assets/recommendations/cornerManmade_formatted.json"
+import edgeData from "../assets/recommendations/edgeManmade_formatted.json"
+import imageData from "../assets/recommendations/imageRecommendations.json"
 
 export function getRecommendations(sheetType, key) {
-	console.log(sheetType);
 	if (sheetType == 0) //No sheet type, no recommendations
 		return [];
 	if(sheetType == 1) //Corners
@@ -11,7 +11,7 @@ export function getRecommendations(sheetType, key) {
 	if (sheetType == 2) //Edges
 		return getEdgeRecommendations(key);
 	if (sheetType == 3) //Images
-		return ["image1", "image2"];
+		return getImageRecommendations(key);
 }
 
 function getEquivalentCornerComms(key) {
@@ -76,6 +76,9 @@ function getEdgeRecommendations(baseKey) {
 	return allComms;
 }
 
+function getImageRecommendations(baseKey) {
+	return imageData[baseKey];
+}
 
 //These should maybe go in a rubik's cube script or something instead
 //Connects a corner sticker to all stickers on the piece that it is on (in clockwise direction)

@@ -144,7 +144,9 @@
                 <div class="header-row">
                     <h3>Sheet settings:</h3>
                 </div>
-                Select a sheet!
+                <div style="color:var(--info-200)">
+                    Select a sheet to get started
+                </div>
             </div>
         </div>
         <div class="SheetGridContainer" v-if="isSheetSelected">
@@ -179,8 +181,7 @@
                 </div>
             </div>
         </div>
-        <div v-else class="SheetGridContainer">
-        </div>
+        <div v-else class="SheetGridContainer"> </div>
         <div class="RightColumn" v-if="isSheetSelected">
             <div class="header-row"> <h3>Edit cell:</h3>  </div>
             <div class="SheetEditingRow">
@@ -202,10 +203,15 @@
                     {{ algorithm }}
                 </div>
             </div>
+            <div v-else class="CellOptions" style="color:var(--info-300)">
+                Select a type for this sheet to show algorithm recommendations.
+            </div>
         </div>
         <div v-else class="RightColumn">
             <div class="header-row"> <h3>Edit cell:</h3>  </div>
-            Select a sheet!
+            <div style="color:var(--info-200)">
+                Select a sheet to get started
+            </div>
         </div>
     </div>
 </template>
@@ -216,7 +222,7 @@
         --sheet-cell-width: 100px;
         --border-color: var(--grey-900);
         --panel-color: var(--grey-800);
-        --panel-header-color: var(--brand-800);
+        --panel-header-color: var(--brand-700);
         --panel-header-text-color: var(--grey-100);
         --text-color: var(--grey-100);
     }
@@ -257,6 +263,8 @@
         display: flex;
         align-items: center;
         font-size: 1rem;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
     .Selected {
         background-color: white;
@@ -295,7 +303,7 @@
     }
     .SheetGridCorner {
         grid-area: corner;
-        background-color: var(--brand-900);
+        background-color: var(--brand-800);
     }
     .SheetGridTopRow {
         display: flex;
@@ -304,7 +312,7 @@
         overflow-x: hidden;
     }
         .SheetGridTopRow .SheetGridCell {
-            background-color: var(--brand-800);
+            background-color: var(--brand-700);
             min-width: var(--sheet-cell-width);
             display:flex;
             justify-content:center;
@@ -315,7 +323,7 @@
         overflow-y: hidden;
     }
         .SheetGridLeftColumn .SheetGridCell {
-            background-color: var(--brand-800);
+            background-color: var(--brand-700);
             min-height: var(--sheet-cell-height);
             max-width: var(--sheet-cell-width);
             display: flex;

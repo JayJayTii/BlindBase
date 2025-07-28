@@ -12,13 +12,11 @@
 
 <template>
     <div class="title">
-        <h1>BlindBase</h1>
+        <h1>BldBase</h1>
     </div>
-    <div class="row-container">
-        <nav class="row">
-            <HomeButton v-for="route in routes" :route="route"/>
-        </nav>
-    </div>
+    <nav class="row">
+        <HomeButton v-for="route in routes" :route="route"/>
+    </nav>
 </template>
 
 <style>
@@ -33,20 +31,11 @@
         color: var(--grey-100);
     }
 
-    .row-container {
-        display: flex;
-        justify-content: start;
-        align-items: center;
-        height: 60vh; 
-        flex-direction: column;
-    }
-
     .row {
+        height: 60vh;
         display: flex;
-        justify-content: space-between; 
-        align-items: center;
-        flex-wrap: wrap; 
-        gap: 1rem;
-        padding: 1rem;
+        justify-content: center;
+        align-items: start;
+        gap: 15px;
     }
 </style>

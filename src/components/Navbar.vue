@@ -31,7 +31,7 @@
     .navbar {
         width: 100%;
         height: var(--navbar-height);
-        background-color: var(--brand-800);
+        background-color: var(--brand-700);
         padding: 3px;
         align-content: center;
         display: flex;
