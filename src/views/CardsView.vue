@@ -1,5 +1,5 @@
 <script setup>
-    import { ref, reactive } from 'vue';
+    import { ref, reactive, computed, onMounted, onUnmounted } from 'vue';
     import SheetGrid from "@/components/SheetGrid.vue";
     import { useSheetStore } from "../stores/SheetStore";
     import { useCardStore } from "../stores/CardStore";
@@ -8,80 +8,165 @@
     const cardStore = useCardStore();
     cardStore.loadState();
 
+    const sheetIndex = ref(-1);
+
     const gridRef = ref(null);
-    const editSheetIndex = ref(-1);
     const selectedCells = ref([]);
     function UpdateSelectedCells() {
-        selectedCells.value = cardStore.getCardsForSheet(editSheetIndex.value).map(card => card.reference.coord);
+        selectedCells.value = cardStore.getCardsForSheet(sheetIndex.value).map(card => card.reference.coord);
         gridRef.value.changeHighlightedCells(selectedCells.value);
     }
     function onCellClicked(value) {
-        if (sheetStore.getCell(editSheetIndex.value, value) === "") {
+        if (sheetStore.getCell(sheetIndex.value, value) === "") {
             return; //Empty cell, not allowed!
         }
         if (selectedCells.value.some(cell => cell.x === value.x && cell.y === value.y)) {
             //If it already includes it, remove it
             selectedCells.value = selectedCells.value.filter(cell => !(cell.x === value.x && cell.y === value.y));
-            cardStore.deleteCard(editSheetIndex.value, value);
+            cardStore.deleteCard(sheetIndex.value, value);
         }
         else {
             //If it wasn't in it, add it
             selectedCells.value.push(value);
-            cardStore.createCard(editSheetIndex, value);
+            cardStore.createCard(sheetIndex.value, value);
         }
         gridRef.value.changeHighlightedCells(selectedCells.value);
     }
+
+    const practicing = ref(false);
+    const cardFlipped = ref(false);
+    const hasFlipped = ref(false);
+    function handleKeydown(event) {
+        if (event.code === 'Space' && practicing.value === true) {
+            cardFlipped.value = !cardFlipped.value;
+            hasFlipped.value = true;
+        }
+    }
+    const currentCard = computed({
+        get: () => {
+            return cardStore.getNewCards(sheetIndex.value).length > 0 ? cardStore.getNewCards(sheetIndex.value)[0]
+                : (cardStore.getLearningCards(sheetIndex.value).length > 0 ? cardStore.getLearningCards(sheetIndex.value)[0]
+                    : cardStore.getDueCards(sheetIndex.value)[0])
+        }
+    });
+    const currentCardType = computed({
+        get: () => {
+            return cardStore.getNewCards(sheetIndex.value).length > 0 ? "New"
+                : (cardStore.getLearningCards(sheetIndex.value).length > 0 ? "Learning"
+                    : "Due")
+        }
+    });
+    function finishedCard(result) {
+        hasFlipped.value = false;
+        cardFlipped.value = false;
+        var updated = JSON.parse(JSON.stringify(currentCard.value)); //Needed to deep-copy the reference as well
+        updated.practiceCount += 1;
+        if (currentCardType.value == "New") {
+            var nextTime = new Date();
+            nextTime.setSeconds(nextTime.getSeconds() + 10);
+            updated.nextPracticeTime = nextTime.toISOString();
+        }
+        else if (currentCardType.value == "Learning") {
+            var nextTime = new Date();
+            nextTime.setSeconds(nextTime.getSeconds() + 10);
+            updated.nextPracticeTime = nextTime.toISOString();
+        }
+        cardStore.updateCard(updated)
+        if (cardStore.getCardsToPracticeCount(sheetIndex.value) === 0) {
+            practicing.value = false;
+        }
+    }
+
+    onMounted(() => {
+        window.addEventListener('keydown', handleKeydown)
+    })
+    onUnmounted(() => {
+        window.removeEventListener('keydown', handleKeydown)
+    })
 </script>
 
 <template>
-    <div style="height:10vh"></div>
-    <div class="CardsView">
-        <div class="MenuLayout">
-            <div class="cardsViewCell"></div>
-            <div class="Headings"><div class="HeadingText">Sheet</div></div>
-            <div class="Headings"><div class="HeadingText">Flashcards</div></div>
-            <div class="columnBorder"></div>
-            <div class="Headings"><div class="HeadingText">New</div></div>
-            <div class="Headings"><div class="HeadingText">Learning</div></div>
-            <div class="Headings"><div class="HeadingText">Due</div></div>
-            <div class="cardsViewCell"></div>
-            <div class="RowGap" v-for="x in 8"></div>
-            <template v-for="(name, index) in sheetStore.getSheetNames">
-                <div class="cardsViewCell">
-                    <!--this should have a pencil icon or smthn-->
-                    <img @click="editSheetIndex = (editSheetIndex === index) ? -1 : index;
-                                 UpdateSelectedCells();"
-                         src="@/assets/edit.svg"
-                         :class="['editButton', (editSheetIndex === index) ? 'editButtonSelected': '']" />
-                </div>
-                <div class="cardsViewCell">{{name}}</div>
-                <div class="cardsViewCell">
-                {{cardStore.getCardsForSheet(index).length}}/{{sheetStore.getFilledCellCount(index)}}
-                </div>
+    <div v-if="practicing === false">
+        <div style="height:10vh"></div>
+        <div class="CardsView">
+            <div class="MenuLayout">
+                <div class="cardsViewCell"></div>
+                <div class="Headings"><div class="HeadingText">Sheet</div></div>
+                <div class="Headings"><div class="HeadingText">Flashcards</div></div>
                 <div class="columnBorder"></div>
-                <div class="cardsViewCell">0</div>
-                <div class="cardsViewCell">0</div>
-                <div class="cardsViewCell">0</div>
-                <div class="cardsViewCell">
-                    <button style="width:100%;font-size:100%">---></button>
+                <div class="Headings"><div class="HeadingText">New</div></div>
+                <div class="Headings"><div class="HeadingText">Learning</div></div>
+                <div class="Headings"><div class="HeadingText">Due</div></div>
+                <div class="cardsViewCell"></div>
+                <div class="RowGap" v-for="x in 8"></div>
+                <template v-for="(name, index) in sheetStore.getSheetNames">
+                    <div class="cardsViewCell">
+                        <!--this should have a pencil icon or smthn-->
+                        <img @click="sheetIndex = (sheetIndex === index) ? -1 : index;
+                                 UpdateSelectedCells();"
+                             src="@/assets/edit.svg"
+                             :class="['editButton', (sheetIndex === index) ? 'editButtonSelected': '']" />
+                    </div>
+                    <div class="cardsViewCell">{{name}}</div>
+                    <div class="cardsViewCell">
+                        {{cardStore.getCardsForSheet(index).length}}/{{sheetStore.getFilledCellCount(index)}}
+                    </div>
+                    <div class="columnBorder"></div>
+                    <div class="cardsViewCell">{{cardStore.getNewCards(index).length}}</div>
+                    <div class="cardsViewCell">{{cardStore.getLearningCards(index).length}}</div>
+                    <div class="cardsViewCell">{{cardStore.getDueCards(index).length}}</div>
+                    <div class="cardsViewCell">
+                        <button v-if="cardStore.getCardsToPracticeCount(index) > 0"
+                                style="width:100%;font-size:100%"
+                                @click="sheetIndex = index;
+                                        editSheetIndex = -1;
+                                        practicing = true;">
+                        Practice!</button>
+                    </div>
+                    <div class="RowGap" v-for="x in 8" v-if="index + 1 < sheetStore.sheets.length"></div>
+                </template>
+            </div>
+            <div v-if="sheetStore.sheets.length === 0" style="color:var(--info-200); font-size:1.5rem;">
+                Create a sheet to begin making flashcards!
+            </div>
+            <div style="height:10vh"></div>
+            <div v-if="sheetIndex !== -1" class="PromptHeader">
+                <h3>Select flashcards to create from this sheet</h3>
+            </div>
+            <SheetGrid :sheetIndex="sheetIndex"
+                       :formatEmpty="true"
+                       @update:selected-cell="onCellClicked"
+                       ref="gridRef"
+                       style="width:100%; height:90vh;" />
+        </div>
+    </div>
+    <div v-else class="PracticeView">
+        <button @click="sheetIndex = -1; practicing = false;" class="BackButton"><h1><--</h1></button>
+        <h3 class="PracticeSheetName">{{sheetStore.sheets[sheetIndex].name}}</h3>
+        <div class="RemainingPanel">
+            <div class="Headings">New</div>
+            <div class="Headings">Learning</div>
+            <div class="Headings">Due</div>
+            <div class="Headings">{{cardStore.getNewCards(sheetIndex).length}}</div>
+            <div class="Headings">{{cardStore.getLearningCards(sheetIndex).length}}</div>
+            <div class="Headings">{{cardStore.getDueCards(sheetIndex).length}}</div>
+        </div>
+        <button v-if="currentCardType != 'New' && hasFlipped">BAD</button>
+        <div v-else></div>
+        <div class="Card">
+            <div class="CardTypeText">
+                <h3>{{currentCardType}}</h3>
+            </div>
+            <div class="FlashcardText">
+                <div v-if="!cardFlipped">
+                    {{sheetStore.coordToKey(sheetIndex,currentCard.reference.coord)}}
                 </div>
-                <div class="RowGap" v-for="x in 8" v-if="index + 1 < sheetStore.sheets.length"></div>
-            </template>
+                <div v-else>{{currentCard.algorithm}}</div>
+            </div>
         </div>
-        <div v-if="sheetStore.sheets.length === 0" style="color:var(--info-200); font-size:1.5rem;">
-            Create a sheet to begin making flashcards!
-        </div>
+        <button v-if="hasFlipped" @click="finishedCard('Good')">GOOD</button>
     </div>
 
-    <div style="height:10vh"></div>
-    <div v-if="editSheetIndex !== -1" class="PromptHeader">
-        <h3>Select flashcards to create from this sheet</h3>
-    </div>
-    <SheetGrid :sheetIndex="editSheetIndex"
-               :formatEmpty="true"
-               @update:selected-cell="onCellClicked"
-               ref="gridRef"
-               style="width:100%; height:90vh;" />
 </template>
 
 <style>
@@ -106,9 +191,9 @@
         font-size: 1.5rem;
         text-align: center;
         justify-content: center;
+        color: var(--grey-100);
     }
     .HeadingText {
-        color: var(--grey-100);
         background-color: var(--brand-700);
         border-radius: 5px;
         padding: 2px 10px;
@@ -145,5 +230,66 @@
         color: var(--grey-100);
         border-radius:10px;
         height: 10vh;
+    }
+
+    .PracticeView {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        margin-top: 10px;
+    }
+
+    .BackButton {
+        width: 60px;
+        height: 60px;
+        margin-left:10px;
+        background-color: var(--brand-600);
+        color: var(--brand-900);
+        font-size: 1rem;
+        border-radius: 10px;
+    }
+
+    .PracticeSheetName {
+        display: flex;
+        justify-content: center;
+        height:60px;
+        width: auto;
+
+        background-color: var(--brand-700);
+        font-size: 2rem;
+        color: var(--grey-100);
+        border-radius: 10px;
+    }
+
+    .RemainingPanel{
+        display:grid;
+        grid-template-columns: 1fr 1fr 1fr;
+    }
+
+    .Card {
+        width: 40vw;
+        height: 50vh;
+        justify-self: center;
+        background-color: var(--brand-700);
+        border: 5px solid var(--grey-100);
+        border-radius: 20px;
+        display: flex;
+        position: relative;
+        color: var(--grey-100);
+        font-size: 1.5rem;
+    }
+
+    .CardTypeText {
+        position: absolute;
+        top: 0px;
+        left: 10px;
+    }
+
+    .FlashcardText {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        text-align: center;
+        width: 100%;
     }
 </style>
