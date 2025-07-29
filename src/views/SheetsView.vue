@@ -1,19 +1,16 @@
 <script setup>
-    import { reactive, ref, watch, computed } from "vue";
+    import { reactive, ref, watch, computed, onMounted } from "vue";
+    import SheetGrid from "@/components/SheetGrid.vue";
     import { getRecommendations } from "../helpers/Recommendations"
     import { useSheetStore } from "../stores/SheetStore";
     import { useSettingsStore } from "../stores/SettingsStore";
     const sheetStore = useSheetStore();
     sheetStore.loadState();
     const settingsStore = useSettingsStore();
-    
     settingsStore.loadState();
 
-    const leftColumn = ref(null);
-    const topRow = ref(null);
-    const mainGrid = ref(null);
-
     const curSheetIndex = ref(0);
+    const gridRef = ref(null);
 
     const isSheetSelected = computed({
         get: () => sheetStore.isValidSheetIndex(curSheetIndex.value),
@@ -37,59 +34,62 @@
             sheetStore.saveState();
         }
     });
-    const curCellValue = computed({
-        get: () => sheetStore.getCell(curSheetIndex.value, curCell),
-        set: (newValue) => sheetStore.setCell(curSheetIndex.value, curCell, newValue)
-    })
+    const selectedCell = reactive({ x: 0, y: 0 });
+    const selectedCellKey = computed({
+        get: () => sheetStore.coordToKey(curSheetIndex.value, selectedCell),
+        set: (newKey) => {
+            const newCoord = sheetStore.keyToCoord(curSheetIndex.value, newKey);
+            selectedCell.x = newCoord.x;
+            selectedCell.y = newCoord.y;
+            gridRef.value.changeHighlightedCell(selectedCell);
+        }
+    });
+    const selectedCellValue = computed({
+        get: () => {
+            return sheetStore.getCell(curSheetIndex.value, selectedCell);
+        },
+        set: (newValue) => {
+            sheetStore.setCell(curSheetIndex.value, selectedCell, newValue);
+        },
+    });
 
-    //Theres 3 layers to the curCell: the actual coordinate, that coordinate's key, and the input box's value (could be 1 char)
-    const curCell = reactive({ x: 0, y: 0 });
-    const curCellKeyInput = ref("AA");
-    const cellValueInputBox = ref(null);
-    function handleCurCellInput(event) {
-        const cursorPos = event.target.selectionStart;
-        const inputChar = event.data;
-
+    const selectedCellInput = ref("AA");
+    watch(selectedCellInput, (newValue, oldValue) => {
+        const inputChar = [...newValue].filter(char => !oldValue.includes(char))[0];
         if (!inputChar) return;
-
-        const valueAfterInput = curCellKeyInput.value;
-        const valueBeforeInput = curCellKeyInput.value.slice(0, cursorPos - 1) + event.target.value.slice(cursorPos);
-
-        // Only allow letters A-X
         if (!/^[a-xA-X]$/.test(inputChar)) {
-            curCellKeyInput.value = valueBeforeInput;
-            event.target.setSelectionRange(cursorPos - 1, cursorPos - 1); // Restore cursor
+            //Something other than allowed letters
+            selectedCellInput.value = oldValue;
             return;
         }
 
-        // Replace full text with the new uppercase letter
-        if (curCellKeyInput.value.length == 3)
-            curCellKeyInput.value = inputChar.toUpperCase();
-        else {
-            curCellKeyInput.value = valueAfterInput.toUpperCase();
-        }
-
-        if (curCellKeyInput.value.length != 2)
+        let updatedInput = newValue.length === 3 ? inputChar.toUpperCase() : newValue.toUpperCase();
+        if (selectedCellInput.value === updatedInput) {
             return;
-        //Now update the actual coordinate of curCell
-        const newCoord = sheetStore.keyToCoord(curSheetIndex.value, curCellKeyInput.value);
-        curCell.x = newCoord.x;
-        curCell.y = newCoord.y;
-    }
-
-    function syncScroll() {
-        if (leftColumn.value && topRow.value && mainGrid.value) {
-            leftColumn.value.scrollTop = mainGrid.value.scrollTop;
-            topRow.value.scrollLeft = mainGrid.value.scrollLeft;
         }
+        selectedCellInput.value = updatedInput;
+
+        if (updatedInput.length == 2) {
+            selectedCellKey.value = updatedInput;
+        }
+    });
+
+    const cellValueInputBox = ref(null);
+    function onCellClicked(newValue) {
+        selectedCell.x = newValue.x;
+        selectedCell.y = newValue.y;
+        selectedCellInput.value = sheetStore.coordToKey(curSheetIndex.value, newValue);
+        gridRef.value.changeHighlightedCell(selectedCell);
+        cellValueInputBox.value.focus();
     }
+    onMounted(() => {
+        gridRef.value.changeHighlightedCell(selectedCell);
+    });
 
     watch(
         () => settingsStore.sheets_pairorder,
         (newVal) => {
-            const newCoord = sheetStore.keyToCoord(curSheetIndex.value, curCellKeyInput.value);
-            curCell.x = newCoord.x;
-            curCell.y = newCoord.y;
+            onCellClicked({ x: 0, y: 0 }); //Just reset it since this won't happen often
         }
     );
 </script>
@@ -107,9 +107,7 @@
                      :class="['ListItem', curSheetIndex === index ? 'Selected' : '']"
                      @click="if(curSheetIndex != index) {
                                 curSheetIndex = index;
-                                curCell.x = 0;
-                                curCell.y = 0;
-                                curCellKeyInput = sheetStore.coordToKey(curSheetIndex, curCell);
+                                gridRef.selectedCellKey = 'AA';
                              }">
                     {{ sheetName }}
                 </div>
@@ -132,7 +130,7 @@
                     </select>
                 </div>
                 <div class="SheetEditingRow">
-                    <button @click="sheetStore.deleteSheet(); 
+                    <button @click="sheetStore.deleteSheet(curSheetIndex); 
                             if(curSheetIndex == sheetStore.sheets.length) 
                                 curSheetIndex--;
                             ">
@@ -149,59 +147,29 @@
                 </div>
             </div>
         </div>
-        <div class="SheetGridContainer" v-if="isSheetSelected">
-            <div class="SheetGridCorner">
-                <div class="SheetGridCell">
-                    {{ currentSheetName }}
-                </div>
-            </div>
-            <div class="SheetGridTopRow" ref="topRow">
-                <div v-for="char in sheetStore.getXHeadings(curSheetIndex)" class="SheetGridCell">
-                    {{ char }}
-                </div>
-                <div class="SheetGridCell"> </div>
-            </div>
-            <div class="SheetGridLeftColumn" ref="leftColumn">
-                <div v-for="char in sheetStore.getYHeadings(curSheetIndex)" class="SheetGridCell">
-                    {{ char }}
-                </div>
-                <div class="SheetGridCell"> </div>
-            </div>
-            <div class="SheetGrid" ref="mainGrid" @scroll="syncScroll">
-                <div v-for="(row,y) in 24">
-                    <div v-for="(col, x) in 24"
-                         @click="curCell.x = x; 
-                                curCell.y = y; 
-                                curCellKeyInput = sheetStore.coordToKey(curSheetIndex, curCell)
-                                cellValueInputBox.focus()"
-                         :class="['SheetGridCell', curCell.x === x && curCell.y === y ? 'SheetGridCellSelected' : '']"
-                         style="cursor:pointer">
-                        {{ sheetStore.getCell(curSheetIndex, {x:x,y:y}) }}
-                    </div>
-                </div>
-            </div>
-        </div>
+        <SheetGrid v-if="isSheetSelected"
+                   class="SheetGridContainer" 
+                   ref="gridRef"
+                   :sheetIndex="curSheetIndex"
+                   @update:selected-cell="onCellClicked"/>
         <div v-else class="SheetGridContainer"> </div>
         <div class="RightColumn" v-if="isSheetSelected">
             <div class="header-row"> <h3>Edit cell:</h3>  </div>
             <div class="SheetEditingRow">
                 Current cell:
-                <input v-model="curCellKeyInput" 
-                       class="editCurCellKey" 
-                       @input="handleCurCellInput"/>
+                <input v-model="selectedCellInput" class="editCurCellKey"/>
             </div>
             <div class="SheetEditingRow">
                 Value:
-                <input v-model="curCellValue" ref="cellValueInputBox" :key="settingsStore.sheets_pairorder" />
+                <input v-model="selectedCellValue" ref="cellValueInputBox" :key="settingsStore.sheets_pairorder" />
             </div>
-
             <div class="CellOptions" v-if="currentSheetType != 0">
                 Recommendations:
-                <div v-for="algorithm in getRecommendations(currentSheetType, sheetStore.coordToKey(curSheetIndex, curCell))"
-                     :class="['ListItem']"
-                     @click="sheetStore.setCell(curSheetIndex, curCell, algorithm)">
-                    {{ algorithm }}
-                </div>
+                <div v-for="algorithm in getRecommendations(currentSheetType, sheetStore.coordToKey(curSheetIndex, selectedCell))"
+    :class="['ListItem']"
+    @click="sheetStore.setCell(curSheetIndex, selectedCell, algorithm)">
+        {{ algorithm }}
+    </div>
             </div>
             <div v-else class="CellOptions" style="color:var(--info-300)">
                 Select a type for this sheet to show algorithm recommendations.
@@ -280,73 +248,9 @@
         background-color: var(--panel-color);
     }
 
-    .SheetGridContainer {
+    .SheetGridContainer{
         width: 60vw;
         height: 93vh;
-        border: 3px solid var(--border-color);
-        background-color: var(--panel-color);
-        display: grid;
-        grid-template-columns: auto 1fr;
-        grid-template-rows: auto 1fr;
-        grid-template-areas:
-            "corner top"
-            "left grid";
-        overflow: hidden;
-    }
-    .SheetGrid {
-        grid-area: grid;
-        display: grid;
-        grid-template-rows: repeat(24, var(--sheet-cell-height));
-        grid-template-columns: repeat(24, var(--sheet-cell-width));
-        height: calc(100%);
-        overflow: auto; 
-    }
-    .SheetGridCorner {
-        grid-area: corner;
-        background-color: var(--brand-800);
-    }
-    .SheetGridTopRow {
-        display: flex;
-        flex-direction: row;
-        grid-area: top;
-        overflow-x: hidden;
-    }
-        .SheetGridTopRow .SheetGridCell {
-            background-color: var(--brand-700);
-            min-width: var(--sheet-cell-width);
-            display:flex;
-            justify-content:center;
-            align-items:center;
-        }
-    .SheetGridLeftColumn {
-        grid-area: left;
-        overflow-y: hidden;
-    }
-        .SheetGridLeftColumn .SheetGridCell {
-            background-color: var(--brand-700);
-            min-height: var(--sheet-cell-height);
-            max-width: var(--sheet-cell-width);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-    .SheetGridCell {
-        padding: 0px 4px;
-        border: 1px solid var(--border-color);
-        overflow: hidden;
-        text-overflow: ellipsis;
-        color: white;
-        white-space: nowrap;
-        background-color: transparent;
-        font-size: 14px;
-        word-break: break-word;
-        height: var(--sheet-cell-height);
-        line-height: var(--sheet-cell-height);
-        width: var(--sheet-cell-width);
-    }
-    .SheetGridCellSelected {
-        border: 3px solid white;
     }
 
     .RightColumn {

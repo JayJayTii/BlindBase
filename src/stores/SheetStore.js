@@ -1,5 +1,4 @@
 import { defineStore } from "pinia";
-import { flatten } from "../helpers/ArrayHelper"
 import { useSettingsStore } from "./SettingsStore";
 
 export function getSettingsStore() {
