@@ -65,36 +65,22 @@ export const useSheetStore = defineStore("sheetStore", {
                 .length;
         },
 
-        getCell(sheetIndex, visualCellCoord) { //The sheetsview works in visual space (possibly flipped pair order)
-            var gridCellCoord = { ...visualCellCoord };
-            if (getSettingsStore().sheets_pairorder == 1) {
-                gridCellCoord.x = visualCellCoord.y;
-                gridCellCoord.y = visualCellCoord.x;
-            }
-            return this.sheets[sheetIndex]?.grid[gridCellCoord.y][gridCellCoord.x] || '';
+        getCell(sheetIndex, absoluteCoord) {
+            return this.sheets[sheetIndex]?.grid[absoluteCoord.y][absoluteCoord.x] || '';
         },
-        setCell(sheetIndex, visualCellCoord, newValue) {
-            var gridCellCoord = { ...visualCellCoord };
-            if (getSettingsStore().sheets_pairorder == 1) {
-                gridCellCoord.x = visualCellCoord.y;
-                gridCellCoord.y = visualCellCoord.x;
-            }
+        setCell(sheetIndex, absoluteCoord, newValue) {
             try {
-                this.sheets[sheetIndex].grid[gridCellCoord.y][gridCellCoord.x] = newValue;
+                this.sheets[sheetIndex].grid[absoluteCoord.y][absoluteCoord.x] = newValue;
                 this.saveState();
             }
             catch {
-                console.warn("Failed to save '" + newValue + "' to sheet " + sheetIndex + " at cell " + gridCellCoord.x + ", " + gridCellCoord.y);
+                console.warn("Failed to save '" + newValue + "' to sheet " + sheetIndex + " at cell " + absoluteCoord.x + ", " + absoluteCoord.y);
             }
         },
         coordToKey(sheetIndex, coord) {
-            let trueCoord = {...coord};
-            if (getSettingsStore().sheets_pairorder == 1) {
-                trueCoord.x = coord.y;
-                trueCoord.y = coord.x;
-            }
-            return this.getXHeadings(sheetIndex)[trueCoord.x] +
-                this.getYHeadings(sheetIndex)[trueCoord.y];
+            //Expect it to be already absolute
+            return this.getXHeadings(sheetIndex)[coord.x] +
+                this.getYHeadings(sheetIndex)[coord.y];
         },
         keyToCoord(sheetIndex, key) {
             if (getSettingsStore().sheets_pairorder == 1) {
@@ -104,6 +90,22 @@ export const useSheetStore = defineStore("sheetStore", {
                 x: this.getXHeadings(sheetIndex).indexOf(key[0]),
                 y: this.getYHeadings(sheetIndex).indexOf(key[1])
             };
+        },
+        absoluteToVisual(absoluteCoord) {
+            var visualCoord = { ...absoluteCoord };
+            if (getSettingsStore().sheets_pairorder == 1) {
+                visualCoord.x = absoluteCoord.y;
+                visualCoord.y = absoluteCoord.x;
+            }
+            return visualCoord;
+        },
+        visualToAbsolute(visualCoord) {
+            var absoluteCoord = { ...visualCoord };
+            if (getSettingsStore().sheets_pairorder == 1) {
+                absoluteCoord.x = visualCoord.y;
+                absoluteCoord.y = visualCoord.x;
+            }
+            return absoluteCoord;
         },
 
 

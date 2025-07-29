@@ -4,7 +4,8 @@
     import { useSettingsStore } from "../stores/SettingsStore";
 
     const props = defineProps({
-        sheetIndex: Number
+        sheetIndex: Number,
+        formatEmpty: Boolean,
     });
     const emit = defineEmits(['update:selected-cell']);
 
@@ -22,33 +23,33 @@
             topRow.value.scrollLeft = mainGrid.value.scrollLeft;
         }
     }
-    //Add reaction to changing pair order setting
 
-    const highlightedCell = reactive({ x: -1, y: -1 });
-    function changeHighlightedCell(newValue) {
-        highlightedCell.x = newValue.x;
-        highlightedCell.y = newValue.y;
+    //Highlighted cells are all absolute
+    const highlightedCells = reactive([{ x: -1, y: -1 }]);
+    function changeHighlightedCells(newValue) {
+        //New values will be absolute, not visual
+        highlightedCells.value = newValue.map(coord => sheetStore.absoluteToVisual(coord)) || [];
     }
 
     defineExpose({
-        changeHighlightedCell,
+        changeHighlightedCells,
     })
 </script>
 <template>
-    <div class="SheetGridContainer">
+    <div class="SheetGridContainer" v-if="sheetIndex >= 0">
         <div class="SheetGridCorner">
-            <div class="SheetGridCell">
+            <div class="SheetGridCell" style="cursor:default">
                 {{ sheetStore.sheets[sheetIndex].name }}
             </div>
         </div>
         <div class="SheetGridTopRow" ref="topRow">
-            <div v-for="char in sheetStore.getXHeadings(sheetIndex)" class="SheetGridCell">
+            <div v-for="char in sheetStore.getXHeadings(sheetIndex)" class="SheetGridCell" style="cursor:default">
                 {{ char }}
             </div>
             <div class="SheetGridCell"> </div>
         </div>
         <div class="SheetGridLeftColumn" ref="leftColumn">
-            <div v-for="char in sheetStore.getYHeadings(sheetIndex)" class="SheetGridCell">
+            <div v-for="char in sheetStore.getYHeadings(sheetIndex)" class="SheetGridCell" style="cursor:default">
                 {{ char }}
             </div>
             <div class="SheetGridCell"> </div>
@@ -56,10 +57,12 @@
         <div class="SheetGrid" ref="mainGrid" @scroll="syncScroll">
             <div v-for="(row,y) in 24">
                 <div v-for="(col, x) in 24"
-                     @click="emit('update:selected-cell', { x, y });"
-                     :class="['SheetGridCell', highlightedCell.x === x && highlightedCell.y === y ? 'SheetGridCellHightlighted' : '']"
-                     style="cursor:pointer">
-                    {{ sheetStore.getCell(sheetIndex, {x:x,y:y}) }}
+                     @click="emit('update:selected-cell', sheetStore.visualToAbsolute({x,y}));"
+                     :class="['SheetGridCell',
+                     (formatEmpty && sheetStore.getCell(sheetIndex, sheetStore.absoluteToVisual({x,y})) === '') ? 'SheetGridCellEmpty' : '',
+                     (Array.isArray(highlightedCells.value) && highlightedCells.value.some(cell=> cell.x === x && cell.y === y)) ? 'SheetGridCellHightlighted' : '']"
+                >
+                    {{ sheetStore.getCell(sheetIndex, sheetStore.absoluteToVisual({x,y})) }}
                 </div>
             </div>
         </div>
@@ -135,6 +138,12 @@
         height: var(--sheet-cell-height);
         line-height: var(--sheet-cell-height);
         width: var(--sheet-cell-width);
+        cursor: pointer;
+    }
+
+    .SheetGridCellEmpty {
+        background-color: var(--brand-800);
+        cursor: default;
     }
 
     .SheetGridCellHightlighted {

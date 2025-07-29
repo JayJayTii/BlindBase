@@ -41,7 +41,7 @@
             const newCoord = sheetStore.keyToCoord(curSheetIndex.value, newKey);
             selectedCell.x = newCoord.x;
             selectedCell.y = newCoord.y;
-            gridRef.value.changeHighlightedCell(selectedCell);
+            gridRef.value.changeHighlightedCells([selectedCell]);
         }
     });
     const selectedCellValue = computed({
@@ -79,11 +79,11 @@
         selectedCell.x = newValue.x;
         selectedCell.y = newValue.y;
         selectedCellInput.value = sheetStore.coordToKey(curSheetIndex.value, newValue);
-        gridRef.value.changeHighlightedCell(selectedCell);
+        gridRef.value.changeHighlightedCells([selectedCell]);
         cellValueInputBox.value.focus();
     }
     onMounted(() => {
-        gridRef.value.changeHighlightedCell(selectedCell);
+        gridRef.value?.changeHighlightedCells([selectedCell]);
     });
 
     watch(
@@ -165,9 +165,9 @@
             </div>
             <div class="CellOptions" v-if="currentSheetType != 0">
                 Recommendations:
-                <div v-for="algorithm in getRecommendations(currentSheetType, sheetStore.coordToKey(curSheetIndex, selectedCell))"
+                <div v-for="algorithm in getRecommendations(currentSheetType, sheetStore.coordToKey(curSheetIndex, sheetStore.absoluteToVisual(selectedCell)))"
     :class="['ListItem']"
-    @click="sheetStore.setCell(curSheetIndex, selectedCell, algorithm)">
+    @click="sheetStore.setCell(curSheetIndex, sheetStore.absoluteToVisual(selectedCell), algorithm)">
         {{ algorithm }}
     </div>
             </div>
