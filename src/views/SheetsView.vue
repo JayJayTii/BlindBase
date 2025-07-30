@@ -167,7 +167,7 @@
                 Recommendations:
                 <div v-for="algorithm in getRecommendations(currentSheetType, sheetStore.coordToKey(curSheetIndex, sheetStore.absoluteToVisual(selectedCell)))"
     :class="['ListItem']"
-    @click="sheetStore.setCell(curSheetIndex, sheetStore.absoluteToVisual(selectedCell), algorithm)">
+    @click="selectedCellValue = algorithm">
         {{ algorithm }}
     </div>
             </div>
