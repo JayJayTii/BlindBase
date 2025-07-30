@@ -165,7 +165,7 @@
             </div>
             <div class="CellOptions" v-if="currentSheetType != 0">
                 Recommendations:
-                <div v-for="algorithm in getRecommendations(currentSheetType, sheetStore.coordToKey(curSheetIndex, sheetStore.absoluteToVisual(selectedCell)))"
+                <div v-for="algorithm in getRecommendations(currentSheetType, sheetStore.coordToKey(curSheetIndex, selectedCell))"
     :class="['ListItem']"
     @click="selectedCellValue = algorithm">
         {{ algorithm }}

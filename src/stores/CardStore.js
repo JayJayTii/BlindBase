@@ -38,10 +38,9 @@ export const useCardStore = defineStore("cardStore", {
                     : "New";
         },
         cardComplete(updatedCard) {
-            if (updatedCard.practiceCount === 0) {
+            if (updatedCard.practiceCount === 1) {
                 this.dailyStats.dailyNewCards += 1;
             }
-            updatedCard.practiceCount += 1;
             this.cards = this.cards.map((card) => {
                 if (card.reference.sheet == updatedCard.reference.sheet
                     && card.reference.coord.x == updatedCard.reference.coord.x

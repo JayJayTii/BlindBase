@@ -59,6 +59,10 @@
     }
     const currentCard = reactive({});
     function getNextCard() {
+        practicing.value = true;
+        cardFlipped.value = false;
+        hasFlipped.value = false;
+
         const possibleNextCards = cardStore.getDueCards(sheetIndex.value).length > 0 ? cardStore.getDueCards(sheetIndex.value)
             : (cardStore.getLearningCards(sheetIndex.value).length > 0 ? cardStore.getLearningCards(sheetIndex.value)
                 : cardStore.getNewCards(sheetIndex.value))
@@ -69,23 +73,35 @@
             return cardStore.getCardType(currentCard.value);
         }
     });
-    function finishedCard(result) {
+    function finishedCard(result) { //Result is a string 'Good' or 'Bad'
         hasFlipped.value = false;
         cardFlipped.value = false;
         var updated = JSON.parse(JSON.stringify(currentCard.value)); //Needed to deep-copy the reference as well
+        if (result == 'Good') {
+            updated.practiceCount += 1;
+            updated.successCount += 1;
+        }
+        else {
+            updated.failCount += 1;
+        }
+
         if (currentCardType.value == "New") {
             var nextTime = new Date();
-            nextTime.setSeconds(nextTime.getSeconds() + 10);
+            nextTime.setMinutes(nextTime.getMinutes() + 10);
             updated.nextPracticeTime = nextTime.toISOString();
         }
         else if (currentCardType.value == "Learning") {
+            //10 minutes later no matter what result
+            //But you repeat it more often if it was bad
             var nextTime = new Date();
-            nextTime.setSeconds(nextTime.getSeconds() + 10);
+            nextTime.setMinutes(nextTime.getMinutes() + 10); 
             updated.nextPracticeTime = nextTime.toISOString();
         }
         else if (currentCardType.value == "Due") {
+            //Create a system for number of times practiced mapping to spaced repetition time
+            //For now just add 30 minutes
             var nextTime = new Date();
-            nextTime.setMinutes(nextTime.getMinutes() + 2);
+            nextTime.setMinutes(nextTime.getMinutes() + 30); 
             updated.nextPracticeTime = nextTime.toISOString();
         }
         cardStore.cardComplete(updated)
@@ -139,8 +155,6 @@
                         <button v-if="cardStore.getCardsToPracticeCount(index) > 0"
                                 style="width:100%;font-size:100%"
                                 @click="sheetIndex = index;
-                                        editSheetIndex = -1;
-                                        practicing = true;
                                         getNextCard()">
                         Practice!</button>
                     </div>
@@ -174,7 +188,7 @@
         </div>
         <button v-if="currentCardType != 'New' && hasFlipped">BAD</button>
         <div v-else></div>
-        <div class="Card">
+        <div :class="['Card', cardFlipped ? 'FlippedCard' : '' ]">
             <div class="CardTypeText">
                 <h3>{{currentCardType}}</h3>
             </div>
@@ -297,6 +311,10 @@
         position: relative;
         color: var(--grey-100);
         font-size: 1.5rem;
+    }
+    .FlippedCard {
+        background-color: var(--brand-800);
+        border: 5px solid var(--grey-200);
     }
 
     .CardTypeText {
