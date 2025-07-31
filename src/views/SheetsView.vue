@@ -104,7 +104,7 @@
                 </div>
                 <div v-for="(sheetName, index) in sheetStore.getSheetNames"
                      :key="index"
-                     :class="['ListItem', curSheetIndex === index ? 'Selected' : '']"
+                     :class="['ListItem', curSheetIndex === index ? 'ListItemSelected' : 'ListItemUnselected']"
                      @click="if(curSheetIndex != index) {
                                 curSheetIndex = index;
                                 gridRef.selectedCellKey = 'AA';
@@ -234,12 +234,19 @@
         overflow: hidden;
         text-overflow: ellipsis;
     }
+    .ListItem:hover {
+        background-color: var(--grey-500);
+    }
 
-    .Selected {
-        background-color: white;
-        color: black;
+    .ListItemSelected {
+        background-color: var(--grey-100);
+        color: var(--grey-900);
         font-weight: bold;
     }
+    .ListItemSelected:hover {
+        background-color: var(--grey-100);
+    }
+
     .SheetSettings {
         height: 67%;
         border: 3px solid var(--border-color);

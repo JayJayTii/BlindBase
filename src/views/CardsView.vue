@@ -34,6 +34,23 @@
         selectedCells.value = cardStore.getCardsForSheet(sheetIndex.value).map(card => card.reference.coord);
         gridRef.value.changeHighlightedCells(selectedCells.value);
     }
+    function SelectAll() {
+        for (var i = 0; i < 24; i++) {
+            for (var j = 0; j < 24; j++) {
+                if (selectedCells.value.filter(cell => cell.y === i && cell.x === j).length > 0) {
+                    continue; //Already in the array
+                }
+                onCellClicked({ x: j, y: i }); //Takes care of if its already empty
+            }
+        }
+    }
+    function SelectNone() {
+        const selectedCellsCopy = [...selectedCells.value];
+        selectedCellsCopy.forEach((card) => {
+            onCellClicked(card);
+        })
+    }
+
     function onCellClicked(value) {
         if (sheetStore.getCell(sheetIndex.value, value) === "") {
             return; //Empty cell, not allowed!
@@ -58,6 +75,16 @@
         if (event.code === 'Space' && practicing.value === true) {
             cardFlipped.value = !cardFlipped.value;
             hasFlipped.value = true;
+        }
+        //Right arrow
+        else if (event.code == 'ArrowRight' && hasFlipped.value === true && practicing.value === true) {
+            finishedCard('Good');
+            console.log("good");
+        }
+        //left arrow
+        else if (event.code == 'ArrowLeft' && hasFlipped.value === true && practicing.value === true) {
+            finishedCard('Bad');
+            console.log("bad");
         }
     }
     const currentCard = reactive({});
@@ -184,8 +211,12 @@
                 Create a sheet to begin making flashcards!
             </div>
             <div style="height:10vh"></div>
-            <div v-if="sheetIndex !== -1" class="PromptHeader">
-                <h3>Select flashcards to create from this sheet</h3>
+            <div v-if="sheetIndex !== -1" style="display:flex;flex-direction:column;gap:5px;">
+                <h3 class="PromptHeader">Select flashcards to create from this sheet</h3>
+                <div style="display:flex;flex-direction:row;gap:5px;justify-content:center">
+                    <div class="cardSelectButton" @click="SelectAll()"><h3>Select all</h3></div>
+                    <div class="cardSelectButton" @click="SelectNone()"><h3>Select none</h3></div>
+                </div>
             </div>
             <SheetGrid :sheetIndex="sheetIndex"
                        :formatEmpty="true"
@@ -306,8 +337,24 @@
         background-color: var(--brand-700);
         font-size:2rem;
         color: var(--grey-100);
+        width: 700px;
         border-radius:10px;
     }
+    .cardSelectButton {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background-color: var(--brand-700);
+        color: var(--brand-900);
+        font-size: 1rem;
+        width:110px;
+        border-radius: 10px;
+        cursor:pointer;
+    }
+    .cardSelectButton:hover{
+        background-color: var(--brand-500);
+    }
+
 
     .PracticeView {
         display: grid;

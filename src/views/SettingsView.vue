@@ -53,6 +53,7 @@
                 {{settingsStore.sheets_extraximages_definition.name}}:
                 <input v-model="Sheets_ExtraXImages" type="checkbox" class="Settings_Sheets_ExtraXImages">
             </div>
+            <h2>Cards Settings</h2>
         </div>
 
     </div>

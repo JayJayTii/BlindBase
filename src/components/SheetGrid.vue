@@ -59,7 +59,7 @@
                 <div v-for="(col, x) in 24"
                      @click="emit('update:selected-cell', sheetStore.visualToAbsolute({x,y}));"
                      :class="['SheetGridCell',
-                     (formatEmpty && sheetStore.getCell(sheetIndex, sheetStore.absoluteToVisual({x,y})) === '') ? 'SheetGridCellEmpty' : '',
+                     (formatEmpty && sheetStore.getCell(sheetIndex, sheetStore.absoluteToVisual({x,y})) === '') ? 'SheetGridCellEmpty' : 'SheetGridCellHoverable',
                      (Array.isArray(highlightedCells.value) && highlightedCells.value.some(cell=> cell.x === x && cell.y === y)) ? 'SheetGridCellHightlighted' : '']"
                 >
                     {{ sheetStore.getCell(sheetIndex, sheetStore.absoluteToVisual({x,y})) }}
@@ -139,6 +139,9 @@
         line-height: var(--sheet-cell-height);
         width: var(--sheet-cell-width);
         cursor: pointer;
+    }
+    .SheetGridCellHoverable:hover {
+        background-color: var(--grey-700);
     }
 
     .SheetGridCellEmpty {
