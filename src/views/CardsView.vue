@@ -1,10 +1,13 @@
 <script setup>
-    import { ref, reactive, computed, onMounted, onUnmounted } from 'vue';
+    import { ref, reactive, computed, watch, onMounted, onUnmounted } from 'vue';
     import SheetGrid from "@/components/SheetGrid.vue";
+    import { useSettingsStore } from "../stores/SettingsStore";
     import { useSheetStore } from "../stores/SheetStore";
     import { useCardStore } from "../stores/CardStore";
     const sheetStore = useSheetStore();
     sheetStore.loadState();
+    const settingsStore = useSettingsStore();
+    settingsStore.loadState();
     const cardStore = useCardStore();
     cardStore.loadState();
 
@@ -63,10 +66,12 @@
         cardFlipped.value = false;
         hasFlipped.value = false;
 
-        const possibleNextCards = cardStore.getDueCards(sheetIndex.value).length > 0 ? cardStore.getDueCards(sheetIndex.value)
+        var possibleNextCards = cardStore.getDueCards(sheetIndex.value).length > 0 ? cardStore.getDueCards(sheetIndex.value)
             : (cardStore.getLearningCards(sheetIndex.value).length > 0 ? cardStore.getLearningCards(sheetIndex.value)
                 : cardStore.getNewCards(sheetIndex.value))
-        currentCard.value = possibleNextCards[Math.floor(Math.random() * possibleNextCards.length)];
+        //Sort next cards by practice time, we want the oldest first
+        possibleNextCards.sort((a, b) => new Date(a.nextPracticeTime) - new Date(b.nextPracticeTime));
+        currentCard.value = possibleNextCards[0];
     };
     const currentCardType = computed({
         get: () => {
@@ -78,7 +83,6 @@
         cardFlipped.value = false;
         var updated = JSON.parse(JSON.stringify(currentCard.value)); //Needed to deep-copy the reference as well
         if (result == 'Good') {
-            updated.practiceCount += 1;
             updated.successCount += 1;
         }
         else {
@@ -98,10 +102,19 @@
             updated.nextPracticeTime = nextTime.toISOString();
         }
         else if (currentCardType.value == "Due") {
-            //Create a system for number of times practiced mapping to spaced repetition time
-            //For now just add 30 minutes
+            //Both successes and fails taken into account
             var nextTime = new Date();
-            nextTime.setMinutes(nextTime.getMinutes() + 30); 
+            if (updated.successCount - updated.failCount < 4) //Had some trouble while learning
+                nextTime.setDate(nextTime.getDate() + 1);
+            else if (updated.successCount - updated.failCount < 7)
+                nextTime.setDate(nextTime.getDate() + 2);
+            else if (updated.successCount - updated.failCount < 11)
+                nextTime.setDate(nextTime.getDate() + 7);
+            else if (updated.successCount - updated.failCount < 14)
+                nextTime.setDate(nextTime.getDate() + 30);
+            else
+                nextTime.setDate(nextTime.getDate() + 90);
+
             updated.nextPracticeTime = nextTime.toISOString();
         }
         cardStore.cardComplete(updated)
@@ -119,6 +132,12 @@
     onUnmounted(() => {
         window.removeEventListener('keydown', handleKeydown)
     })
+    watch(
+        () => settingsStore.sheets_pairorder,
+        (newVal) => {
+            UpdateSelectedCells();
+        }
+    );
 </script>
 
 <template>
@@ -152,11 +171,11 @@
                     <div class="cardsViewCell">{{cardStore.getLearningCards(index).length}}</div>
                     <div class="cardsViewCell">{{cardStore.getDueCards(index).length}}</div>
                     <div class="cardsViewCell">
-                        <button v-if="cardStore.getCardsToPracticeCount(index) > 0"
-                                style="width:100%;font-size:100%"
-                                @click="sheetIndex = index;
-                                        getNextCard()">
-                        Practice!</button>
+                        <img v-if="cardStore.getCardsToPracticeCount(index) > 0"
+                             src="@/assets/arrow-right-long.svg"
+                             class="PracticeButton"
+                             @click="sheetIndex = index;
+                                        getNextCard()"/>
                     </div>
                     <div class="RowGap" v-for="x in 8" v-if="index + 1 < sheetStore.sheets.length"></div>
                 </template>
@@ -176,7 +195,9 @@
         </div>
     </div>
     <div v-else class="PracticeView">
-        <button @click="sheetIndex = -1; practicing = false;" class="BackButton"><h1><--</h1></button>
+        <img @click="sheetIndex = -1; practicing = false;" 
+             src="@/assets/arrow-left-long.svg"
+             class="BackButton" />
         <h3 class="PracticeSheetName">{{sheetStore.sheets[sheetIndex].name}}</h3>
         <div class="RemainingPanel" :key="updateStatsKey">
             <div class="Headings">New</div>
@@ -186,9 +207,13 @@
             <div class="Headings">{{cardStore.getLearningCards(sheetIndex).length}}</div>
             <div class="Headings">{{cardStore.getDueCards(sheetIndex).length}}</div>
         </div>
-        <button v-if="currentCardType != 'New' && hasFlipped">BAD</button>
+        <img v-if="currentCardType != 'New' && hasFlipped"
+             @click="finishedCard('Bad')"
+             class="BadButton"
+             src="@/assets/thumb-down.svg" />
         <div v-else></div>
-        <div :class="['Card', cardFlipped ? 'FlippedCard' : '' ]">
+        <div :class="['Card', cardFlipped ? 'FlippedCard' : '' ]"
+             @click="cardFlipped = !cardFlipped; hasFlipped = true;">
             <div class="CardTypeText">
                 <h3>{{currentCardType}}</h3>
             </div>
@@ -199,7 +224,10 @@
                 <div v-else>{{currentCard.value.algorithm}}</div>
             </div>
         </div>
-        <button v-if="hasFlipped" @click="finishedCard('Good')">GOOD</button>
+        <img v-if="hasFlipped"
+             @click="finishedCard('Good')"
+             class="GoodButton"
+             src="@/assets/thumb-up.svg" />
     </div>
 
 </template>
@@ -248,12 +276,27 @@
         padding: 5px;
     }
 
-    .editButton{
-        cursor:pointer;
-        background-color:var(--brand-700);
+    .editButton {
+        cursor: pointer;
+        background-color: var(--brand-700);
         border-radius: 5px;
+        height: 60px;
+    }
+    .editButton:hover {
+        background-color: var(--brand-500);
     }
     .editButtonSelected {
+        background-color: var(--brand-500);
+    }
+
+    .PracticeButton {
+        background-color: var(--brand-600);
+        border-radius: 5px;
+        cursor: pointer;
+        height: 60px;
+        width: 100px;
+    }
+    .PracticeButton:hover{
         background-color: var(--brand-500);
     }
 
@@ -264,7 +307,6 @@
         font-size:2rem;
         color: var(--grey-100);
         border-radius:10px;
-        height: 10vh;
     }
 
     .PracticeView {
@@ -274,13 +316,15 @@
     }
 
     .BackButton {
-        width: 60px;
-        height: 60px;
-        margin-left:10px;
         background-color: var(--brand-600);
-        color: var(--brand-900);
-        font-size: 1rem;
-        border-radius: 10px;
+        border-radius: 5px;
+        cursor: pointer;
+        height: 50px;
+        width: 70px;
+        margin-left: 10px;
+    }
+    .BackButton:hover {
+        background-color: var(--brand-500);
     }
 
     .PracticeSheetName {
@@ -304,6 +348,7 @@
         width: 40vw;
         height: 50vh;
         justify-self: center;
+        align-self: center;
         background-color: var(--brand-700);
         border: 5px solid var(--grey-100);
         border-radius: 20px;
@@ -311,6 +356,7 @@
         position: relative;
         color: var(--grey-100);
         font-size: 1.5rem;
+        cursor: pointer;
     }
     .FlippedCard {
         background-color: var(--brand-800);
@@ -321,6 +367,30 @@
         position: absolute;
         top: 0px;
         left: 10px;
+    }
+
+    .BadButton{
+        background-color: var(--error-200);
+        border-radius: 10px;
+        align-self: center;
+        justify-self: end;
+        width: 10vw;
+        cursor: pointer;
+    }
+    .BadButton:hover{
+         background-color: var(--error-300);
+     }
+
+    .GoodButton {
+        background-color: var(--confirm-200);
+        border-radius: 10px;
+        align-self: center;
+        justify-self: start;
+        width: 10vw;
+        cursor: pointer;
+    }
+    .GoodButton:hover {
+        background-color: var(--confirm-300);
     }
 
     .FlashcardText {

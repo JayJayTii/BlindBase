@@ -234,6 +234,7 @@
         overflow: hidden;
         text-overflow: ellipsis;
     }
+
     .Selected {
         background-color: white;
         color: black;

@@ -19,7 +19,6 @@ export const useCardStore = defineStore("cardStore", {
                 reference: { sheet: sheetIndex, coord: absoluteCoord },
                 creationTime: new Date().toISOString(),
                 nextPracticeTime: new Date().toISOString(),
-                practiceCount: 0,
                 successCount: 0,
                 failCount: 0
             });
@@ -33,12 +32,12 @@ export const useCardStore = defineStore("cardStore", {
             this.saveState();
         },
         getCardType(card) {
-            return card.practiceCount > 5 ? "Due"
-                : card.practiceCount > 0 ? "Learning"
+            return card.successCount > 5 ? "Due"
+                : card.successCount > 0 ? "Learning"
                     : "New";
         },
         cardComplete(updatedCard) {
-            if (updatedCard.practiceCount === 1) {
+            if (updatedCard.successCount + updatedCard.failCount === 1) {
                 this.dailyStats.dailyNewCards += 1;
             }
             this.cards = this.cards.map((card) => {
@@ -59,7 +58,7 @@ export const useCardStore = defineStore("cardStore", {
             const now = new Date().toISOString();
             const newCards = this.cards.filter(card =>
                 card.nextPracticeTime < now &&
-                card.practiceCount === 0 &&
+                card.successCount + card.failCount === 0 &&
                 card.reference.sheet === sheetIndex);
             const dailyNewCardsRemaining = 20 - this.dailyStats.dailyNewCards;
             return newCards.slice(0, dailyNewCardsRemaining);
@@ -68,15 +67,15 @@ export const useCardStore = defineStore("cardStore", {
             const now = new Date().toISOString();
             return this.cards.filter(card =>
                 card.nextPracticeTime < now &&
-                card.practiceCount > 0 &&
-                card.practiceCount < 5 &&
+                card.successCount > 0 &&
+                card.successCount < 5 &&
                 card.reference.sheet === sheetIndex);
         },
         getDueCards(sheetIndex) {
             const now = new Date().toISOString();
             return this.cards.filter(card =>
                 card.nextPracticeTime < now &&
-                card.practiceCount >= 5 &&
+                card.successCount >= 5 &&
                 card.reference.sheet === sheetIndex);
         },
         getCardsToPracticeCount(sheetIndex) {
@@ -96,7 +95,6 @@ export const useCardStore = defineStore("cardStore", {
 
             this.dailyStats.date = new Date().setHours(0, 0, 0, 0);
             this.dailyStats.dailyNewCards = 0;
-            console.log("resetting");
             this.saveState();
         },
 
