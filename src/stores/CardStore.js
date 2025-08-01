@@ -13,10 +13,10 @@ export const useCardStore = defineStore("cardStore", {
 		};
 	},
     actions: {
-        createCard(sheetIndex, absoluteCoord) {
+        createCard(sheetID, absoluteCoord) {
             const newCard = ({
-                algorithm: getSheetStore().getCell(sheetIndex, absoluteCoord),
-                reference: { sheet: sheetIndex, coord: absoluteCoord },
+                algorithm: getSheetStore().getCell(sheetID, absoluteCoord),
+                reference: { sheetID: sheetID, coord: absoluteCoord },
                 creationTime: new Date().toISOString(),
                 nextPracticeTime: new Date().toISOString(),
                 successCount: 0,
@@ -25,8 +25,8 @@ export const useCardStore = defineStore("cardStore", {
             this.cards.push(newCard);
             this.saveState();
         },
-        deleteCard(sheetIndex, absoluteCoord) {
-            this.cards = this.cards.filter((card) => !(card.reference.sheet == sheetIndex &&
+        deleteCard(sheetID, absoluteCoord) {
+            this.cards = this.cards.filter((card) => !(card.reference.sheetID == sheetID &&
                                         card.reference.coord.x == absoluteCoord.x &&
                                         card.reference.coord.y == absoluteCoord.y));
             this.saveState();
@@ -41,7 +41,7 @@ export const useCardStore = defineStore("cardStore", {
                 this.dailyStats.dailyNewCards += 1;
             }
             this.cards = this.cards.map((card) => {
-                if (card.reference.sheet == updatedCard.reference.sheet
+                if (card.reference.sheetID == updatedCard.reference.sheetID
                     && card.reference.coord.x == updatedCard.reference.coord.x
                     && card.reference.coord.y == updatedCard.reference.coord.y) {
                     return updatedCard;
@@ -51,42 +51,45 @@ export const useCardStore = defineStore("cardStore", {
             this.saveState();
         },
 
-        getCardsForSheet(sheetIndex) {
-            return this.cards.filter(card => card.reference.sheet === sheetIndex);
+        getSheetsWithCards(sheetID) {
+            //do this haha
         },
-        getNewCards(sheetIndex) {
+        getCardsForSheet(sheetID) {
+            return this.cards.filter(card => card.reference.sheetID === sheetID);
+        },
+        getNewCards(sheetID) {
             const now = new Date().toISOString();
             const newCards = this.cards.filter(card =>
                 card.nextPracticeTime < now &&
                 card.successCount + card.failCount === 0 &&
-                card.reference.sheet === sheetIndex);
+                card.reference.sheetID === sheetID);
             const dailyNewCardsRemaining = 20 - this.dailyStats.dailyNewCards;
             return newCards.slice(0, dailyNewCardsRemaining);
         },
-        getLearningCards(sheetIndex) {
+        getLearningCards(sheetID) {
             const now = new Date().toISOString();
             return this.cards.filter(card =>
                 card.nextPracticeTime < now &&
                 card.successCount > 0 &&
                 card.successCount < 5 &&
-                card.reference.sheet === sheetIndex);
+                card.reference.sheetID === sheetID);
         },
-        getDueCards(sheetIndex) {
+        getDueCards(sheetID) {
             const now = new Date().toISOString();
             return this.cards.filter(card =>
                 card.nextPracticeTime < now &&
                 card.successCount >= 5 &&
-                card.reference.sheet === sheetIndex);
+                card.reference.sheetID === sheetID);
         },
-        getCardsToPracticeCount(sheetIndex) {
-            return this.getNewCards(sheetIndex).length
-                + this.getLearningCards(sheetIndex).length
-                + this.getDueCards(sheetIndex).length;
+        getCardsToPracticeCount(sheetID) {
+            return this.getNewCards(sheetID).length
+                + this.getLearningCards(sheetID).length
+                + this.getDueCards(sheetID).length;
         },
 
         checkCards() {
             this.cards = this.cards.filter((card) =>
-                card.algorithm === getSheetStore().getCell(card.reference.sheet, card.reference.coord));
+                card.algorithm === getSheetStore().getCell(card.reference.sheetID, card.reference.coord));
             this.saveState();
         },
         checkDailyStats() {

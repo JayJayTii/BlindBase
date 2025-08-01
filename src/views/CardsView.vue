@@ -11,7 +11,7 @@
     const cardStore = useCardStore();
     cardStore.loadState();
 
-    const sheetIndex = ref(-1);
+    const sheetID = ref(-1);
 
     //Reload stats at a regular interval
     let intervalId
@@ -31,7 +31,7 @@
     const gridRef = ref(null);
     const selectedCells = ref([]);
     function UpdateSelectedCells() {
-        selectedCells.value = cardStore.getCardsForSheet(sheetIndex.value).map(card => card.reference.coord);
+        selectedCells.value = cardStore.getCardsForSheet(sheetID.value).map(card => card.reference.coord);
         gridRef.value.changeHighlightedCells(selectedCells.value);
     }
     function SelectAll() {
@@ -52,18 +52,18 @@
     }
 
     function onCellClicked(value) {
-        if (sheetStore.getCell(sheetIndex.value, value) === "") {
+        if (sheetStore.getCell(sheetID.value, value) === "") {
             return; //Empty cell, not allowed!
         }
         if (selectedCells.value.some(cell => cell.x === value.x && cell.y === value.y)) {
             //If it already includes it, remove it
             selectedCells.value = selectedCells.value.filter(cell => !(cell.x === value.x && cell.y === value.y));
-            cardStore.deleteCard(sheetIndex.value, value);
+            cardStore.deleteCard(sheetID.value, value);
         }
         else {
             //If it wasn't in it, add it
             selectedCells.value.push(value);
-            cardStore.createCard(sheetIndex.value, value);
+            cardStore.createCard(sheetID.value, value);
         }
         gridRef.value.changeHighlightedCells(selectedCells.value);
     }
@@ -79,12 +79,10 @@
         //Right arrow
         else if (event.code == 'ArrowRight' && hasFlipped.value === true && practicing.value === true) {
             finishedCard('Good');
-            console.log("good");
         }
         //left arrow
-        else if (event.code == 'ArrowLeft' && hasFlipped.value === true && practicing.value === true) {
+        else if (event.code == 'ArrowLeft' && hasFlipped.value === true && practicing.value === true && currentCardType.value !== "New") {
             finishedCard('Bad');
-            console.log("bad");
         }
     }
     const currentCard = reactive({});
@@ -93,9 +91,9 @@
         cardFlipped.value = false;
         hasFlipped.value = false;
 
-        var possibleNextCards = cardStore.getDueCards(sheetIndex.value).length > 0 ? cardStore.getDueCards(sheetIndex.value)
-            : (cardStore.getLearningCards(sheetIndex.value).length > 0 ? cardStore.getLearningCards(sheetIndex.value)
-                : cardStore.getNewCards(sheetIndex.value))
+        var possibleNextCards = cardStore.getDueCards(sheetID.value).length > 0 ? cardStore.getDueCards(sheetID.value)
+            : (cardStore.getLearningCards(sheetID.value).length > 0 ? cardStore.getLearningCards(sheetID.value)
+                : cardStore.getNewCards(sheetID.value))
         //Sort next cards by practice time, we want the oldest first
         possibleNextCards.sort((a, b) => new Date(a.nextPracticeTime) - new Date(b.nextPracticeTime));
         currentCard.value = possibleNextCards[0];
@@ -145,8 +143,8 @@
             updated.nextPracticeTime = nextTime.toISOString();
         }
         cardStore.cardComplete(updated)
-        if (cardStore.getCardsToPracticeCount(sheetIndex.value) === 0) {
-            sheetIndex.value = -1;
+        if (cardStore.getCardsToPracticeCount(sheetID.value) === 0) {
+            sheetID.value = -1;
             practicing.value = false;
             return;
         }
@@ -181,28 +179,27 @@
                 <div class="Headings"><div class="HeadingText">Due</div></div>
                 <div class="cardsViewCell"></div>
                 <div class="RowGap" v-for="x in 8"></div>
-                <template v-for="(name, index) in sheetStore.getSheetNames">
+                <template v-for="(name,index) in sheetStore.getSheetNames">
                     <div class="cardsViewCell">
-                        <!--this should have a pencil icon or smthn-->
-                        <img @click="sheetIndex = (sheetIndex === index) ? -1 : index;
+                        <img @click="sheetID = (sheetID === sheetStore.sheets[index].id) ? -1 : sheetStore.sheets[index].id;
                                  UpdateSelectedCells();"
                              src="@/assets/edit.svg"
-                             :class="['editButton', (sheetIndex === index) ? 'editButtonSelected': '']" />
+                             :class="['editButton', (sheetID === sheetStore.sheets[index].id) ? 'editButtonSelected': '']" />
                     </div>
                     <div class="cardsViewCell">{{name}}</div>
                     <div class="cardsViewCell">
-                        {{cardStore.getCardsForSheet(index).length}}/{{sheetStore.getFilledCellCount(index)}}
+                        {{cardStore.getCardsForSheet(sheetStore.sheets[index].id).length}}/{{sheetStore.getFilledCellCount(sheetStore.sheets[index].id)}}
                     </div>
                     <div class="columnBorder"></div>
-                    <div class="cardsViewCell">{{cardStore.getNewCards(index).length}}</div>
-                    <div class="cardsViewCell">{{cardStore.getLearningCards(index).length}}</div>
-                    <div class="cardsViewCell">{{cardStore.getDueCards(index).length}}</div>
+                    <div class="cardsViewCell">{{cardStore.getNewCards(sheetStore.sheets[index].id).length}}</div>
+                    <div class="cardsViewCell">{{cardStore.getLearningCards(sheetStore.sheets[index].id).length}}</div>
+                    <div class="cardsViewCell">{{cardStore.getDueCards(sheetStore.sheets[index].id).length}}</div>
                     <div class="cardsViewCell">
-                        <img v-if="cardStore.getCardsToPracticeCount(index) > 0"
+                        <img v-if="cardStore.getCardsToPracticeCount(sheetStore.sheets[index].id) > 0"
                              src="@/assets/arrow-right-long.svg"
                              class="PracticeButton"
-                             @click="sheetIndex = index;
-                                        getNextCard()"/>
+                             @click="sheetID = sheetStore.sheets[index].id;
+                                        getNextCard();"/>
                     </div>
                     <div class="RowGap" v-for="x in 8" v-if="index + 1 < sheetStore.sheets.length"></div>
                 </template>
@@ -211,14 +208,14 @@
                 Create a sheet to begin making flashcards!
             </div>
             <div style="height:10vh"></div>
-            <div v-if="sheetIndex !== -1" style="display:flex;flex-direction:column;gap:5px;">
+            <div v-if="sheetID !== -1" style="display:flex;flex-direction:column;gap:5px;">
                 <h3 class="PromptHeader">Select flashcards to create from this sheet</h3>
                 <div style="display:flex;flex-direction:row;gap:5px;justify-content:center">
                     <div class="cardSelectButton" @click="SelectAll()"><h3>Select all</h3></div>
                     <div class="cardSelectButton" @click="SelectNone()"><h3>Select none</h3></div>
                 </div>
             </div>
-            <SheetGrid :sheetIndex="sheetIndex"
+            <SheetGrid :sheetID="sheetID"
                        :formatEmpty="true"
                        @update:selected-cell="onCellClicked"
                        ref="gridRef"
@@ -226,17 +223,17 @@
         </div>
     </div>
     <div v-else class="PracticeView">
-        <img @click="sheetIndex = -1; practicing = false;" 
+        <img @click="sheetID = -1; practicing = false;" 
              src="@/assets/arrow-left-long.svg"
              class="BackButton" />
-        <h3 class="PracticeSheetName">{{sheetStore.sheets[sheetIndex].name}}</h3>
+        <h3 class="PracticeSheetName">{{sheetStore.getSheet(sheetID).name}}</h3>
         <div class="RemainingPanel" :key="updateStatsKey">
             <div class="Headings">New</div>
             <div class="Headings">Learning</div>
             <div class="Headings">Due</div>
-            <div class="Headings">{{cardStore.getNewCards(sheetIndex).length}}</div>
-            <div class="Headings">{{cardStore.getLearningCards(sheetIndex).length}}</div>
-            <div class="Headings">{{cardStore.getDueCards(sheetIndex).length}}</div>
+            <div class="Headings">{{cardStore.getNewCards(sheetID).length}}</div>
+            <div class="Headings">{{cardStore.getLearningCards(sheetID).length}}</div>
+            <div class="Headings">{{cardStore.getDueCards(sheetID).length}}</div>
         </div>
         <img v-if="currentCardType != 'New' && hasFlipped"
              @click="finishedCard('Bad')"
@@ -250,7 +247,7 @@
             </div>
             <div class="FlashcardText">
                 <div v-if="!cardFlipped">
-                    {{sheetStore.coordToKey(sheetIndex,currentCard.value.reference.coord)}}
+                    {{sheetStore.coordToKey(sheetID, currentCard.value.reference.coord)}}
                 </div>
                 <div v-else>{{currentCard.value.algorithm}}</div>
             </div>

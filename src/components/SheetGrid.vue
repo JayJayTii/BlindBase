@@ -4,8 +4,9 @@
     import { useSettingsStore } from "../stores/SettingsStore";
 
     const props = defineProps({
-        sheetIndex: Number,
+        sheetID: Number,
         formatEmpty: Boolean,
+        showIfNull: Boolean,
     });
     const emit = defineEmits(['update:selected-cell']);
 
@@ -36,20 +37,20 @@
     })
 </script>
 <template>
-    <div class="SheetGridContainer" v-if="sheetIndex >= 0">
+    <div class="SheetGridContainer" v-if="sheetStore.isValidSheetID(sheetID)">
         <div class="SheetGridCorner">
             <div class="SheetGridCell" style="cursor:default">
-                {{ sheetStore.sheets[sheetIndex].name }}
+                {{ sheetStore.getSheet(sheetID).name }}
             </div>
         </div>
         <div class="SheetGridTopRow" ref="topRow">
-            <div v-for="char in sheetStore.getXHeadings(sheetIndex)" class="SheetGridCell" style="cursor:default">
+            <div v-for="char in sheetStore.getXHeadings(sheetID)" class="SheetGridCell" style="cursor:default">
                 {{ char }}
             </div>
             <div class="SheetGridCell"> </div>
         </div>
         <div class="SheetGridLeftColumn" ref="leftColumn">
-            <div v-for="char in sheetStore.getYHeadings(sheetIndex)" class="SheetGridCell" style="cursor:default">
+            <div v-for="char in sheetStore.getYHeadings(sheetID)" class="SheetGridCell" style="cursor:default">
                 {{ char }}
             </div>
             <div class="SheetGridCell"> </div>
@@ -58,15 +59,15 @@
             <div v-for="(row,y) in 24">
                 <div v-for="(col, x) in 24"
                      @click="emit('update:selected-cell', sheetStore.visualToAbsolute({x,y}));"
-                     :class="['SheetGridCell',
-                     (formatEmpty && sheetStore.getCell(sheetIndex, sheetStore.absoluteToVisual({x,y})) === '') ? 'SheetGridCellEmpty' : 'SheetGridCellHoverable',
-                     (Array.isArray(highlightedCells.value) && highlightedCells.value.some(cell=> cell.x === x && cell.y === y)) ? 'SheetGridCellHightlighted' : '']"
+                     :class="['SheetGridCell', (formatEmpty && sheetStore.getCell(sheetID, sheetStore.absoluteToVisual({x,y})) === '') ? 'SheetGridCellEmpty' : 'SheetGridCellHoverable', 
+                     (Array.isArray(highlightedCells.value) && highlightedCells.value.some(cell => cell.x === x && cell.y === y)) ? 'SheetGridCellHightlighted' : '']"
                 >
-                    {{ sheetStore.getCell(sheetIndex, sheetStore.absoluteToVisual({x,y})) }}
+                    {{ sheetStore.getCell(sheetID, sheetStore.absoluteToVisual({x,y})) }}
                 </div>
             </div>
         </div>
     </div>
+    <div class="SheetGridContainer" v-else-if="showIfNull"></div>
 </template>
 
 <style>

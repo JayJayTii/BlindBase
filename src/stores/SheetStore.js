@@ -43,46 +43,68 @@ export const useSheetStore = defineStore("sheetStore", {
             this.saveState();
             this.loadState();
         },
-        deleteSheet(index) { //Should only be allowed to delete at current sheet
-            this.sheets.splice(index, 1);
+        deleteSheet(id) { //Should only be allowed to delete at current sheet
+            this.sheets.splice(this.getSheetIndexWithID(id), 1);
             this.saveState();
             this.loadState();
         },
-        isValidSheetIndex(index) {
-            return index < this.sheets.length && index >= 0;
+        getSheetsOfType(type) { //Returns the whole sheet because why not
+            return this.sheets.filter((sheet) => sheet.type === type);
         },
-        getXHeadings(sheetIndex) { //Headings stay the same no matter the pair order
-            return this.sheets[sheetIndex].xHeadings.split(''); 
+        isValidSheetID(id) {
+            for (var i = 0; i < this.sheets.length; i++) {
+                if (this.sheets[i].id === id)
+                    return true;
+            }
+            return false
         },
-        getYHeadings(sheetIndex) {
-            return this.sheets[sheetIndex].yHeadings.split('');
+        getXHeadings(id) { //Headings stay the same no matter the pair order
+            return this.sheets[this.getSheetIndexWithID(id)].xHeadings.split(''); 
         },
-        getFilledCellCount(sheetIndex) {
-            const grid = this.sheets[sheetIndex].grid;
+        getYHeadings(id) {
+            return this.sheets[this.getSheetIndexWithID(id)].yHeadings.split('');
+        },
+        getFilledCellCount(id) {
+            const grid = this.sheets[this.getSheetIndexWithID(id)].grid;
             const rows = Object.values(grid);
             return rows.reduce(function (a, b) { return a.concat(b) })
                 .filter(val => val != "")
                 .length;
         },
 
-        getCell(sheetIndex, absoluteCoord) {
-            return this.sheets[sheetIndex]?.grid[absoluteCoord.y][absoluteCoord.x] || '';
+        getSheetIndexWithID(id) {
+            for (var i = 0; i < this.sheets.length; i++) {
+                if (this.sheets[i].id === id)
+                    return i;
+            }
+            return -1
         },
-        setCell(sheetIndex, absoluteCoord, newValue) {
+        getSheet(id) {
+            for (var i = 0; i < this.sheets.length; i++) {
+                if (this.sheets[i].id === id)
+                    return this.sheets[i];
+            }
+            return null;
+        },
+        getCell(id, absoluteCoord) {
+            return this.sheets[this.getSheetIndexWithID(id)]?.grid[absoluteCoord.y][absoluteCoord.x] || '';
+        },
+        setCell(id, absoluteCoord, newValue) {
             try {
-                this.sheets[sheetIndex].grid[absoluteCoord.y][absoluteCoord.x] = newValue;
+                this.sheets[this.getSheetIndexWithID(id)].grid[absoluteCoord.y][absoluteCoord.x] = newValue;
                 this.saveState();
             }
             catch {
                 console.warn("Failed to save '" + newValue + "' to sheet " + sheetIndex + " at cell " + absoluteCoord.x + ", " + absoluteCoord.y);
             }
         },
-        coordToKey(sheetIndex, coord) {
+        coordToKey(id, coord) {
             //Expect it to be already absolute
-            return this.getXHeadings(sheetIndex)[coord.x] +
-                this.getYHeadings(sheetIndex)[coord.y];
+            return this.getXHeadings(id)[coord.x] +
+                this.getYHeadings(id)[coord.y];
         },
-        keyToCoord(sheetIndex, key) {
+        keyToCoord(id, key) {
+            const sheetIndex = this.getSheetIndexWithID(id);
             if (getSettingsStore().sheets_pairorder == 1) {
                 key = key.split('').reverse().join('');
             }

@@ -1,5 +1,5 @@
 <script setup>
-    import { reactive, ref, watch, computed, onMounted } from "vue";
+    import { reactive, ref, watch, computed, onMounted, nextTick } from "vue";
     import SheetGrid from "@/components/SheetGrid.vue";
     import { getRecommendations } from "../helpers/Recommendations"
     import { useSheetStore } from "../stores/SheetStore";
@@ -9,36 +9,38 @@
     const settingsStore = useSettingsStore();
     settingsStore.loadState();
 
-    const curSheetIndex = ref(0);
+    const curSheetID = ref(-1);
     const gridRef = ref(null);
 
     const isSheetSelected = computed({
-        get: () => sheetStore.isValidSheetIndex(curSheetIndex.value),
+        get: () => sheetStore.isValidSheetID(curSheetID.value),
     });
     const currentSheet = computed({
-        get: () => sheetStore.sheets[curSheetIndex.value],
+        get: () => sheetStore.getSheet(curSheetID.value),
     });
     const currentSheetName = computed({
-        get: () => sheetStore.sheets[curSheetIndex.value]?.name || '',
+        get: () => sheetStore.getSheet(curSheetID.value)?.name || '',
         set: (newName) => {
-            if (sheetStore.sheets[curSheetIndex.value]) {
-                sheetStore.sheets[curSheetIndex.value].name = newName;
+            if (sheetStore.isValidSheetID(curSheetID.value)) {
+                sheetStore.sheets[sheetStore.getSheetIndexWithID(curSheetID.value)].name = newName;
                 sheetStore.saveState();
             }
         }
     });
     const currentSheetType = computed({
-        get: () => sheetStore.sheets[curSheetIndex.value].type,
+        get: () => sheetStore.getSheet(curSheetID.value).type,
         set: (newType) => {
-            sheetStore.sheets[curSheetIndex.value].type = newType;
-            sheetStore.saveState();
+            if (sheetStore.isValidSheetID(curSheetID.value)) {
+                sheetStore.sheets[sheetStore.getSheetIndexWithID(curSheetID.value)].type = newType;
+                sheetStore.saveState();
+            }
         }
     });
     const selectedCell = reactive({ x: 0, y: 0 });
     const selectedCellKey = computed({
-        get: () => sheetStore.coordToKey(curSheetIndex.value, selectedCell),
+        get: () => sheetStore.coordToKey(curSheetID.value, selectedCell),
         set: (newKey) => {
-            const newCoord = sheetStore.keyToCoord(curSheetIndex.value, newKey);
+            const newCoord = sheetStore.keyToCoord(curSheetID.value, newKey);
             selectedCell.x = newCoord.x;
             selectedCell.y = newCoord.y;
             gridRef.value.changeHighlightedCells([selectedCell]);
@@ -46,10 +48,10 @@
     });
     const selectedCellValue = computed({
         get: () => {
-            return sheetStore.getCell(curSheetIndex.value, selectedCell);
+            return sheetStore.getCell(curSheetID.value, selectedCell);
         },
         set: (newValue) => {
-            sheetStore.setCell(curSheetIndex.value, selectedCell, newValue);
+            sheetStore.setCell(curSheetID.value, selectedCell, newValue);
         },
     });
 
@@ -78,9 +80,9 @@
     function onCellClicked(newValue) {
         selectedCell.x = newValue.x;
         selectedCell.y = newValue.y;
-        selectedCellInput.value = sheetStore.coordToKey(curSheetIndex.value, newValue);
+        selectedCellInput.value = sheetStore.coordToKey(curSheetID.value, newValue);
         gridRef.value.changeHighlightedCells([selectedCell]);
-        cellValueInputBox.value.focus();
+        nextTick(() => { cellValueInputBox.value.focus() });
     }
     onMounted(() => {
         gridRef.value?.changeHighlightedCells([selectedCell]);
@@ -103,15 +105,15 @@
                     <h3>Select Sheet:</h3>
                 </div>
                 <div v-for="(sheetName, index) in sheetStore.getSheetNames"
-                     :key="index"
-                     :class="['ListItem', curSheetIndex === index ? 'ListItemSelected' : 'ListItemUnselected']"
-                     @click="if(curSheetIndex != index) {
-                                curSheetIndex = index;
-                                gridRef.selectedCellKey = 'AA';
+                     :key="sheetStore.sheets[index].id"
+                     :class="['ListItem', curSheetID === sheetStore.sheets[index].id ? 'ListItemSelected' : 'ListItemUnselected']"
+                     @click="if(curSheetID != sheetStore.sheets[index].id) {
+                                curSheetID = sheetStore.sheets[index].id;
+                                onCellClicked({x:0,y:0});
                              }">
                     {{ sheetName }}
                 </div>
-                <button @click="sheetStore.newSheet(); curSheetIndex = sheetStore.sheets.length - 1;" 
+                <button @click="sheetStore.newSheet(); curSheetID = sheetStore.sheets[sheetStore.sheets.length - 1].id;" 
                         style="justify-content:center;">+</button>
             </div>
             <div class="SheetSettings" v-if="isSheetSelected">
@@ -130,10 +132,7 @@
                     </select>
                 </div>
                 <div class="SheetEditingRow">
-                    <button @click="sheetStore.deleteSheet(curSheetIndex); 
-                            if(curSheetIndex == sheetStore.sheets.length) 
-                                curSheetIndex--;
-                            ">
+                    <button @click="sheetStore.deleteSheet(curSheetID)">
                     Delete
                     </button>
                 </div>
@@ -147,12 +146,12 @@
                 </div>
             </div>
         </div>
-        <SheetGrid v-if="isSheetSelected"
-                   class="SheetGridContainer" 
+        <SheetGrid class="SheetGridContainer" 
                    ref="gridRef"
-                   :sheetIndex="curSheetIndex"
+                   :sheetID="curSheetID"
+                   :showIfNull="true"
+                   :key="curSheetID"
                    @update:selected-cell="onCellClicked"/>
-        <div v-else class="SheetGridContainer"> </div>
         <div class="RightColumn" v-if="isSheetSelected">
             <div class="header-row"> <h3>Edit cell:</h3>  </div>
             <div class="SheetEditingRow">
@@ -165,9 +164,9 @@
             </div>
             <div class="CellOptions" v-if="currentSheetType != 0">
                 Recommendations:
-                <div v-for="algorithm in getRecommendations(currentSheetType, sheetStore.coordToKey(curSheetIndex, selectedCell))"
+                <div v-for="algorithm in getRecommendations(currentSheetType, sheetStore.coordToKey(curSheetID, selectedCell))"
     :class="['ListItem']"
-    @click="selectedCellValue = algorithm">
+    @click="selectedCellValue = algorithm;">
         {{ algorithm }}
     </div>
             </div>
