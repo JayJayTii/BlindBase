@@ -32,7 +32,7 @@ export const useCardStore = defineStore("cardStore", {
             this.saveState();
         },
         getCardType(card) {
-            return card.successCount > 5 ? "Due"
+            return card.successCount >= 5 ? "Due"
                 : card.successCount > 0 ? "Learning"
                     : "New";
         },
@@ -61,7 +61,7 @@ export const useCardStore = defineStore("cardStore", {
             const now = new Date().toISOString();
             const newCards = this.cards.filter(card =>
                 card.nextPracticeTime < now &&
-                card.successCount + card.failCount === 0 &&
+                card.successCount === 0 &&
                 card.reference.sheetID === sheetID);
             const dailyNewCardsRemaining = 20 - this.dailyStats.dailyNewCards;
             return newCards.slice(0, dailyNewCardsRemaining);

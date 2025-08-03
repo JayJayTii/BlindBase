@@ -12,7 +12,7 @@
 
 <template>
     <div class="title">
-        <h1>BldBase</h1>
+        <h1>BlindBase</h1>
     </div>
     <nav class="row">
         <HomeButton v-for="route in routes" :route="route"/>

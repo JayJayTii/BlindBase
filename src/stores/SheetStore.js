@@ -49,7 +49,23 @@ export const useSheetStore = defineStore("sheetStore", {
             this.loadState();
         },
         getSheetsOfType(type) { //Returns the whole sheet because why not
-            return this.sheets.filter((sheet) => sheet.type === type);
+            return this.sheets.filter((sheet) => {
+                //Ignore the sheet if it is empty
+                var empty = true
+                for (var x = 0; x < 24; x++) {
+                    for (var y = 0; y < 24; y++) {
+                        if (sheet.grid[y][x] !== "") {
+                            empty = false
+                            break
+                        }
+                    }
+                    if (!empty)
+                        break
+                }
+                if (empty)
+                    return false
+                return sheet.type === type
+            });
         },
         isValidSheetID(id) {
             for (var i = 0; i < this.sheets.length; i++) {
