@@ -1,6 +1,6 @@
 import { defineStore } from "pinia";
 
-export const modes = ["Endless", "One mistake"]
+export const modes = ["Endless", "One mistake", "Multiblind"]
 export const useMemoStore = defineStore("memoStore", {
 	state: () => {
         return {
@@ -8,6 +8,21 @@ export const useMemoStore = defineStore("memoStore", {
 		};
 	},
     actions: {
+        GetHighscore(index) {
+            while (this.highscores.length <= index) {
+                this.highscores.push(0)
+                this.saveState()
+            }
+            return this.highscores[index];
+        },
+        SetHighscore(index, value) {
+            while (this.highscores.length <= index) {
+                this.highscores.push(0)
+                this.saveState()
+            }
+            this.highscores[index] = value;
+        },
+
         saveState() {
             localStorage.setItem('memoStore', JSON.stringify({
                 highscores: this.highscores

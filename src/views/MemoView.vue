@@ -24,8 +24,12 @@
                 testSequence = GenerateSequence();
                 break;
             case 3:
-                rawUserSequence.value = ""
-                nextTick(() => { sequenceInput.value.focus() })
+                userSequence.value = Array(cubes.value).fill("")
+                //nextTick(() => { sequenceInput.value[0].focus() })
+                break;
+            case 4:
+                FormatUserSequence()
+                break;
         }
     }
 
@@ -33,6 +37,7 @@
     const pairSelect = ref(0)
     const pairSelectSheet = ref({})
     const possiblePairs = ref([])
+    const cubes = ref(2)
     function GetLearnedCards() {
         const out = cardStore.cards.filter((card) => card.successCount > 0);
         return out.filter((card) => sheetStore.getSheet(card.reference.sheetID).type === 3); //Filter for image sheets
@@ -45,8 +50,14 @@
         if (pairSelect.value === 1) { //All pairs in sheet
             pairSelectSheet.value = sheetStore.getSheetsOfType(3)[0];
         }
-        if (pairSelect.value === 2) { //All cards for a sheet
+        else if (pairSelect.value === 2) { //All cards for a sheet
             pairSelectSheet.value = GetSheetsWithLearnedCards()[0];
+        }
+    }
+    function ModeUpdated() {
+        if (mode.value === 2) { //Multiblind
+            if (cubes.value < 2)
+                cubes.value = 2
         }
     }
     function updatePossiblePairs() {
@@ -77,58 +88,71 @@
         }
     }
     function StartRun() {
-        length.value = 4;
+        if (mode.value !== 2) {
+            length.value = 4
+            cubes.value = 1
+        }
+        else {
+            length.value = 10
+        }
         SetStage(1);
     }
 
     //Stage 1 (show sequence)
-    var testSequence = ""
+    var testSequence = []
     function GenerateSequence() {
         var sequenceArr = [];
-        //Remove invalid values from the following
-        while (sequenceArr.length < length.value) {
-            const nextKey = possiblePairs.value[Math.floor(Math.random() * possiblePairs.value.length)];
-            sequenceArr.push(nextKey);
+        for (var cube = 0; cube < cubes.value; cube++) {
+            var newSequence = ""
+            for (var key = 0; key < length.value; key++) {
+                const nextKey = possiblePairs.value[Math.floor(Math.random() * possiblePairs.value.length)]
+                newSequence += nextKey + " "
+            }
+            newSequence = newSequence.trim()
+            sequenceArr.push(newSequence);
         }
-        var sequenceStr = "";
-        for (var i = 0; i < sequenceArr.length; i++) {
-            sequenceStr += sequenceArr[i] + " "
-        }
-        return sequenceStr.trimEnd();
+        return sequenceArr
     }
 
     //Stage 2 (distraction)
 
     //Stage 3 (enter memo)
     const sequenceInput = ref(null)
-    const rawUserSequence = ref("");
-    const userSequence = computed({
-        get: () => rawUserSequence.value,
-        set: (newVal) => {
-            if (newVal.length < rawUserSequence.value.length || newVal.length > rawUserSequence.value.length + 1) {
-                rawUserSequence.value = newVal;
-                return;
-            }
-
-            const inputChar = [...newVal].filter(char => !rawUserSequence.value.includes(char))[0];
-            if (!inputChar) {
-                return;
-            }
-
-            let updated = rawUserSequence.value;
-            if (updated.length % 3 === 2) updated += " ";
-            updated += inputChar.toUpperCase();
-
-            rawUserSequence.value = updated;
-        }
-    });
+    const userSequence = ref([]);
 
     //Stage 4 (compare to correct)
+    function FormatUserSequence() {
+        //https://stackoverflow.com/questions/6259515/how-can-i-split-a-string-into-segments-of-n-characters
+        for (var i = 0; i < userSequence.value.length; i++) {
+            const scrubbed = userSequence.value[i].split(" ").join("").toUpperCase()
+            if (scrubbed.match(/.{1,2}/g)) {
+                const formatted = scrubbed.match(/.{1,2}/g).join(" ")
+                userSequence.value[i] = formatted
+            }
+            else {
+                userSequence.value[i] = scrubbed;
+            }
+        }
+    }
     const correct = computed({
-        get: () => testSequence === userSequence.value
+        get: () => {
+            var correctCubes = 0
+            for (var i = 0; i < userSequence.value.length; i++) {
+                const user = userSequence.value[i].split(" ").join("").toLowerCase()
+                const test = testSequence[i].split(" ").join("").toLowerCase()
+                if (user === test) {
+                    correctCubes += 1
+                }
+            }
+            return correctCubes
+        }
     })
+    const score = computed({
+        get: () => 2 * correct.value - cubes.value
+    })
+
     function EndTurn() {
-        if (pairSelect.value === 0 && correct.value) //Only update highscore when testing all possible letter pairs
+        if (pairSelect.value === 0) //Only update highscore when testing all possible letter pairs
             UpdateHighscore();
         if (mode.value === 0) {//Endless (kinda)
             length.value += correct.value ? 1 : -1
@@ -141,13 +165,25 @@
             SetStage(0);
             return;
         }
+        else if (mode.value === 2) { //Multiblind
+            SetStage(0);
+            return;
+        }
         SetStage(1)
     }
     function UpdateHighscore() {
-        if (length.value <= memoStore.highscores[mode.value])
-            return;
+        if (mode.value === 2) {
+            if (score.value <= memoStore.GetHighscore(mode.value))
+                return
 
-        memoStore.highscores[mode.value] = length.value;
+            memoStore.SetHighscore(mode.value, score.value)
+        }
+        else {
+            if (length.value <= memoStore.GetHighscore(mode.value))
+                return
+
+            memoStore.SetHighscore(mode.value, length.value)
+        }
         memoStore.saveState();
     }
 
@@ -165,27 +201,35 @@
         }
     }
     onMounted(() => {
-        window.addEventListener('keydown', handleKeydown)
+        //Cant really have enter keybind because it messes with multiblind sequence input
+        //window.addEventListener('keydown', handleKeydown)
     })
     onUnmounted(() => {
-        window.removeEventListener('keydown', handleKeydown)
+        //window.removeEventListener('keydown', handleKeydown)
     })
 </script>
 
 <template>
     <div v-if="stage > 0" style="display:grid;grid-template-columns:repeat(4,25vw); color:white;font-size:1.5rem;justify-self:center;">
-        <button @click="SetStage(0)" style="width:100px;height:2rem;"><------------</button>
+        <button @click="if(stage===4){ UpdateHighscore();}
+                        SetStage(0);" 
+                style="width:100px;height:2rem;"><------------</button>
         <div>Mode: {{modes[mode]}}</div>
-        <div>Length: {{length}}</div>
-        <div v-if="pairSelect === 0">Highscore:  {{memoStore.highscores[mode]}}</div>
+        <div v-if="mode !== 2">Length: {{length}}</div>
+        <div v-else>Cubes: {{cubes}}</div>
+        <div v-if="pairSelect === 0">Highscore:  {{memoStore.GetHighscore(mode)}}</div>
     </div>
     <div v-if="stage===0" class="MemoViewContainer">
         <div class="MemoViewHeader">
             Mode:
-            <select v-model="mode" style="font-size: 2rem;">
+            <select v-model="mode" @change="ModeUpdated()" style="font-size: 2rem;">
                 <option v-for="(modeOption, index) in modes" :value="index">{{modeOption}}</option>
             </select>
-            <div v-if="pairSelect === 0" style="margin-left:20px;">(Highscore: {{memoStore.highscores[mode]}})</div>
+            <div v-if="pairSelect === 0" style="margin-left:20px;">(Highscore: {{memoStore.GetHighscore(mode)}})</div>
+        </div>
+        <div class="MemoViewHeader" v-if="mode===2">
+            Cubes:
+            <input type="number" v-model="cubes" value="2" min="2" style="font-size:2rem;width:100px;">
         </div>
         <div class="MemoViewHeader">
             Select pairs from:
@@ -213,7 +257,7 @@
     </div>
     <div v-else-if="stage===1" class="MemoViewContainer">
             <div style="font-size: 2rem;">
-                {{testSequence}}
+                <div v-for="cube in testSequence">{{cube}}</div>
             </div>
             <img src="@/assets/arrow-right-long.svg"
                  class="NextButton"
@@ -228,19 +272,29 @@
                  @click="SetStage((stage + 1) % 5);" />
         </div>
     <div v-else-if="stage===3" class="MemoViewContainer">
-            <div style="font-size: 2rem;">
-                Enter what you memoed:
-                <input v-model="userSequence" ref="sequenceInput" style="font-size: 2rem;" />
-            </div>
+            <input v-for="cube in cubes"
+                   v-model="userSequence[cube - 1]"
+                   :ref="'sequenceInput' + cube"
+                   :style="{textTransform: 'uppercase', fontSize: '2rem', width: (testSequence[0].length + 1) + 'ch'}"/>
+
             <img src="@/assets/arrow-right-long.svg"
                  class="NextButton"
                  @click="SetStage((stage + 1) % 5);" />
         </div>
     <div v-else-if="stage===4" class="MemoViewContainer">
-        <div style="font-size: 2rem;">
-             {{correct ? "Correct!" : "Incorrect..."}}
-            <div>You put: {{userSequence}}</div>
-            <div>It was: {{testSequence}}</div>
+        <div style="font-size: 2rem;display:flex;flex-direction:column; align-items:center;">
+            <div v-if="mode !== 2">{{correct === 1 ? "Correct!" : "Incorrect"}}</div>
+            <div v-else style="font-size:2.5rem">{{correct}}/{{cubes}} (score: {{score < 0 ? 'DNF' : score}})</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr; gap:50px">
+                <div>
+                    It was:
+                    <div v-for="cubeSequence in testSequence">{{cubeSequence}}</div>
+                </div>
+                <div>
+                    You put:
+                    <div v-for="cubeSequence in userSequence">{{cubeSequence}}</div>
+                </div>
+            </div>
             <img src="@/assets/arrow-right-long.svg"
                  class="NextButton"
                  @click="EndTurn();" />
@@ -261,7 +315,7 @@
     .MemoViewHeader {
         display: flex;
         flex-direction: row;
-        gap: 5px;
+        gap: 10px;
     }
 
     .NextButton {
