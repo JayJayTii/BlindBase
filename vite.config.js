@@ -9,7 +9,7 @@ export default defineConfig({
     base: '/BldBase/',
     plugins: [vue(), vueDevTools()],
     resolve: {
-        alias: {
+        alias: { 
             '@': fileURLToPath(new URL('./src', import.meta.url)),
         },
     },
