@@ -9,7 +9,7 @@ import ReconsView from '@/views/ReconsView.vue'
 import NotFoundView from '@/views/NotFound.vue'
 
 const router = createRouter({
-    history: createWebHistory('/BldBase'),
+    history: createWebHistory(),
     routes: [
         { path: '/',        name: 'Home',   component: HomeView, meta: { tool: false }},
         { path: '/sheets', name: 'Sheets', component: SheetsView, meta: { tool: true, description: "Create and edit your own algsheets" } },

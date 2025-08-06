@@ -2,10 +2,13 @@
 <!--https://stackoverflow.com/questions/48521177/404-when-reloading-a-vue-website-published-to-github-pages-->
 <html>
 <head>
-    <script>sessionStorage.redirect = location.href;</script>
-    <meta http-equiv="refresh" content="0;URL='/BldBase'">
+    <script>
+        if (!sessionStorage.redirect) {
+            sessionStorage.redirect = location.href;
+        }
+    </script>
+    <meta http-equiv="refresh" content="0;URL='/'">
 </head>
 <body>
-
 </body>
 </html>

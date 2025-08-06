@@ -6,7 +6,7 @@ import vueDevTools from 'vite-plugin-vue-devtools'
 
 // https://vite.dev/config/
 export default defineConfig({
-    base: '/BldBase/',
+    base: '',
     plugins: [vue(), vueDevTools()],
     resolve: {
         alias: { 
