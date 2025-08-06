@@ -1,6 +1,6 @@
 <script setup>
     defineProps({
-        route: Object
+        route: Object,
     })
 </script>
 
@@ -8,7 +8,7 @@
     <RouterLink :to="route.path" class="home-button">
         <div class="button">
             <div style="background-color:transparent">{{route.name}}</div>
-            <img src="@/assets/placeholder.png" />
+            <img :src="route.meta.iconPath"/>
         </div>
         <div class="description">
             {{route.meta.description}}
