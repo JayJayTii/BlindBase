@@ -113,7 +113,8 @@
                 <div v-for="(sheetName, index) in sheetStore.getSheetNames"
                      :key="sheetStore.sheets[index].id"
                      :class="['ListItem', curSheetID === sheetStore.sheets[index].id ? 'ListItemSelected' : 'ListItemUnselected']"
-                     @click="if(curSheetID != sheetStore.sheets[index].id) {
+                     @click="
+                     if(curSheetID != sheetStore.sheets[index].id) {
                                 curSheetID = sheetStore.sheets[index].id;
                                 onCellClicked({x:0,y:0});
                              }">

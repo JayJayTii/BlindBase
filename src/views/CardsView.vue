@@ -186,7 +186,8 @@
                 <div class="RowGap" v-for="x in 8"></div>
                 <template v-for="(name,index) in sheetStore.getSheetNames">
                     <div class="cardsViewCell">
-                        <img @click="sheetID = (sheetID === sheetStore.sheets[index].id) ? -1 : sheetStore.sheets[index].id;
+                        <img @click="
+                             sheetID = (sheetID === sheetStore.sheets[index].id) ? -1 : sheetStore.sheets[index].id;
                                  UpdateSelectedCells();"
                              src="@/assets/edit.svg"
                              :class="['editButton', (sheetID === sheetStore.sheets[index].id) ? 'editButtonSelected': '']" />
