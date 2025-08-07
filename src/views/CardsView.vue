@@ -1,5 +1,5 @@
 <script setup>
-    import { ref, reactive, computed, watch, onMounted, onUnmounted } from 'vue';
+    import { ref, inject, reactive, computed, watch, onMounted, onUnmounted } from 'vue';
     import SheetGrid from "@/components/SheetGrid.vue";
     import { useSettingsStore } from "../stores/SettingsStore";
     import { useSheetStore } from "../stores/SheetStore";
@@ -10,6 +10,7 @@
     settingsStore.loadState();
     const cardStore = useCardStore();
     cardStore.loadState();
+    const confirmDialog = inject('confirmDialog')
 
     const sheetID = ref(-1);
 
@@ -44,7 +45,11 @@
             }
         }
     }
-    function SelectNone() {
+    async function SelectNone() {
+        if (!(await confirmDialog.value.open('Are you sure you want deselect all? This will delete all cards for this sheet.'))) {
+            return
+        }
+
         const selectedCellsCopy = [...selectedCells.value];
         selectedCellsCopy.forEach((card) => {
             onCellClicked(card);

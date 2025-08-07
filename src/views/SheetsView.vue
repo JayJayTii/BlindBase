@@ -1,5 +1,5 @@
 <script setup>
-    import { reactive, ref, watch, computed, onMounted, nextTick } from "vue";
+    import { reactive, ref, watch, computed, onMounted, nextTick, inject } from "vue";
     import SheetGrid from "@/components/SheetGrid.vue";
     import { getRecommendations } from "../helpers/Recommendations"
     import { useSheetStore } from "../stores/SheetStore";
@@ -8,6 +8,7 @@
     sheetStore.loadState();
     const settingsStore = useSettingsStore();
     settingsStore.loadState();
+    const confirmDialog = inject('confirmDialog')
 
     const curSheetID = ref(-1);
     const gridRef = ref(null);
@@ -36,6 +37,11 @@
             }
         }
     });
+    async function DeleteSheet() {
+        if (await confirmDialog.value.open('Are you sure you want to delete this sheet?')) {
+            sheetStore.deleteSheet(curSheetID)
+        }
+    }
     const selectedCell = reactive({ x: 0, y: 0 });
     const selectedCellKey = computed({
         get: () => sheetStore.coordToKey(curSheetID.value, selectedCell),
@@ -132,7 +138,7 @@
                     </select>
                 </div>
                 <div class="SheetEditingRow">
-                    <button @click="sheetStore.deleteSheet(curSheetID)">
+                    <button @click="DeleteSheet()">
                     Delete
                     </button>
                 </div>
