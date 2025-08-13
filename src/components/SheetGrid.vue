@@ -39,9 +39,7 @@ defineExpose({
 <template>
     <div class="SheetGridContainer" v-if="sheetStore.isValidSheetID(sheetID)">
         <div class="SheetGridCorner">
-            <div class="SheetGridCell" style="cursor: default">
-                {{ sheetStore.getSheet(sheetID).name }}
-            </div>
+            <div class="SheetGridCell" style="cursor: default"></div>
         </div>
         <div class="SheetGridTopRow" ref="topRow">
             <div
@@ -51,7 +49,7 @@ defineExpose({
             >
                 {{ char }}
             </div>
-            <div class="SheetGridCell"></div>
+            <div class="SheetGridCell" style="background-color:transparent;"></div>
         </div>
         <div class="SheetGridLeftColumn" ref="leftColumn">
             <div
@@ -61,7 +59,6 @@ defineExpose({
             >
                 {{ char }}
             </div>
-            <div class="SheetGridCell"></div>
         </div>
         <div class="SheetGrid" ref="mainGrid" @scroll="syncScroll">
             <div v-for="(row, y) in 24">
@@ -110,10 +107,12 @@ defineExpose({
     overflow: auto;
 }
 
-.SheetGridCorner {
-    grid-area: corner;
-    background-color: var(--brand-800);
-}
+    .SheetGridCorner {
+        grid-area: corner;
+        background-color: var(--brand-800);
+        width: var(--sheet-cell-height);
+        border-inline-end: 2px solid var(--border-color);
+    }
 
 .SheetGridTopRow {
     display: flex;
@@ -134,15 +133,20 @@ defineExpose({
     grid-area: left;
     overflow-y: hidden;
 }
-
-.SheetGridLeftColumn .SheetGridCell {
-    background-color: var(--brand-700);
-    min-height: var(--sheet-cell-height);
-    max-width: var(--sheet-cell-width);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
+    .SheetGridLeftColumn::after {
+        content: '';
+        display: block;
+        height: 50px;
+    }
+    .SheetGridLeftColumn .SheetGridCell {
+        background-color: var(--brand-700);
+        height: var(--sheet-cell-height);
+        width: var(--sheet-cell-height);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        border-inline-end: 2px solid var(--border-color);
+    }
 
 .SheetGridCell {
     padding: 0px 4px;

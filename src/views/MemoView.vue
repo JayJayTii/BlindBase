@@ -82,7 +82,7 @@ function updatePossiblePairs() {
         //All pairs in a sheet
         possiblePairs.value = []
         for (var y = 0; y < 24; y++) {
-            for (var x = 0; x < 23; x++) {
+            for (var x = 0; x < 24; x++) {
                 if (pairSelectSheet.value.grid[y][x] === '') continue
                 possiblePairs.value.push(
                     pairSelectSheet.value.xHeadings[x] + pairSelectSheet.value.yHeadings[y],
@@ -168,9 +168,10 @@ const score = computed({
 })
 
 function EndTurn() {
-    if (pairSelect.value === 0)
+    if (pairSelect.value === 0) {
         //Only update highscore when testing all possible letter pairs
         UpdateHighscore()
+    }
     if (mode.value === 0) {
         //Endless (kinda)
         length.value += correct.value ? 1 : -1
@@ -178,9 +179,14 @@ function EndTurn() {
             SetStage(0)
             return
         }
-    } else if (mode.value === 1 && !correct.value) {
+    } else if (mode.value === 1) {
         //One mistake
-        SetStage(0)
+        if (correct.value) {
+            length.value += 1
+        }
+        else {
+            SetStage(0)
+        }
         return
     } else if (mode.value === 2) {
         //Multiblind
@@ -206,38 +212,39 @@ function handleKeydown(event) {
     if (event.code === 'Enter') {
         if (stage.value === 0) {
             StartRun()
-        } else if (stage.value === 4) EndTurn()
+        }
+        else if (stage.value === 4) {
+            EndTurn()
+        }
         else SetStage((stage.value + 1) % 5)
     }
 }
 onMounted(() => {
     //Cant really have enter keybind because it messes with multiblind sequence input
-    //window.addEventListener('keydown', handleKeydown)
+    //Watch me
+    window.addEventListener('keydown', handleKeydown)
 })
 onUnmounted(() => {
-    //window.removeEventListener('keydown', handleKeydown)
+    window.removeEventListener('keydown', handleKeydown)
 })
 </script>
 
 <template>
-    <div
-        v-if="stage > 0"
-        style="
+    <div v-if="stage > 0"
+         style="
             display: grid;
-            grid-template-columns: repeat(4, 25vw);
+            grid-template-columns: repeat(4, 24vw);
+            max-width: 100%;
             color: white;
             font-size: 1.5rem;
-            justify-self: center;
-        "
-    >
-        <button
-            @click="if (stage === 4) {UpdateHighscore();}
+            justify-self: start;
+            margin-top: 10px;
+        ">
+        <img src="@/assets/arrow-left-long.svg"
+             @click="if (stage === 4) {UpdateHighscore();}
                 SetStage(0)
             "
-            style="width: 100px; height: 2rem"
-        >
-            <------------
-        </button>
+             class="BackButton" />
         <div>Mode: {{ modes[mode] }}</div>
         <div v-if="mode !== 2">Length: {{ length }}</div>
         <div v-else>Cubes: {{ cubes }}</div>
@@ -257,13 +264,11 @@ onUnmounted(() => {
         </div>
         <div class="MemoViewHeader" v-if="mode === 2">
             Cubes:
-            <input
-                type="number"
-                v-model="cubes"
-                value="2"
-                min="2"
-                style="font-size: 2rem; width: 100px"
-            />
+            <input type="number"
+                   v-model="cubes"
+                   value="2"
+                   min="2"
+                   style="font-size: 2rem; width: 100px" />
         </div>
         <div class="MemoViewHeader">
             Select pairs from:
@@ -296,59 +301,71 @@ onUnmounted(() => {
         <img src="@/assets/arrow-right-long.svg" class="NextButton" @click="StartRun()" />
     </div>
     <div v-else-if="stage === 1" class="MemoViewContainer">
-        <div style="font-size: 2rem">
-            <div v-for="cube in testSequence">{{ cube }}</div>
+        <div style="display:flex;flex-direction:column;gap:15px;">
+            <div v-for="cube in testSequence" style="display:flex;flex-direction:row;gap:5px;">
+                <div v-for="pair in cube.split(' ')" class="MemoPair">
+                    {{pair}}
+                </div>
+            </div>
         </div>
-        <img
-            src="@/assets/arrow-right-long.svg"
-            class="NextButton"
-            @click="SetStage((stage + 1) % 5)"
-        />
+        <img src="@/assets/arrow-right-long.svg"
+             class="NextButton"
+             @click="SetStage((stage + 1) % 5)" />
     </div>
     <div v-else-if="stage === 2" class="MemoViewContainer">
         <div style="font-size: 2rem">DISTRACTION GRAAAHHH</div>
-        <img
-            src="@/assets/arrow-right-long.svg"
-            class="NextButton"
-            @click="SetStage((stage + 1) % 5)"
-        />
+        <img src="@/assets/arrow-right-long.svg"
+             class="NextButton"
+             @click="SetStage((stage + 1) % 5)" />
     </div>
     <div v-else-if="stage === 3" class="MemoViewContainer">
-        <input
-            v-for="cube in cubes"
-            v-model="userSequence[cube - 1]"
-            :ref="'sequenceInput' + cube"
-            :style="{
+        <input v-for="cube in cubes"
+               v-model="userSequence[cube - 1]"
+               :ref="'sequenceInput' + cube"
+               :style="{
                 textTransform: 'uppercase',
                 fontSize: '2rem',
                 width: testSequence[0].length + 1 + 'ch',
-            }"
-        />
+            }" />
 
-        <img
-            src="@/assets/arrow-right-long.svg"
-            class="NextButton"
-            @click="SetStage((stage + 1) % 5)"
-        />
+        <img src="@/assets/arrow-right-long.svg"
+             class="NextButton"
+             @click="SetStage((stage + 1) % 5)" />
     </div>
     <div v-else-if="stage === 4" class="MemoViewContainer">
-        <div style="font-size: 2rem; display: flex; flex-direction: column; align-items: center">
+        <div style="display:flex;align-self:center;">
             <div v-if="mode !== 2">{{ correct === 1 ? 'Correct!' : 'Incorrect' }}</div>
-            <div v-else style="font-size: 2.5rem">
+            <div v-else style="font-size: 2.5rem;">
                 {{ correct }}/{{ cubes }} (score: {{ score < 0 ? 'DNF' : score }})
             </div>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 50px">
+        </div>
+        <div style="font-size: 2rem; display: grid; grid-template-columns: 1fr 1fr; gap:50px;">
                 <div>
                     It was:
-                    <div v-for="cubeSequence in testSequence">{{ cubeSequence }}</div>
+                    <div style="display:flex;flex-direction:column;gap:15px;">
+                        <div v-for="cubeSequence in testSequence" style="display:flex;flex-direction:row;gap:5px;">
+                            <div v-for="pair in cubeSequence.split(' ')" class="MemoPair">
+                                {{pair}}
+                            </div>
+                        </div>
+                    </div>
                 </div>
+
                 <div>
                     You put:
-                    <div v-for="cubeSequence in userSequence">{{ cubeSequence }}</div>
+                    <div style="display:flex;flex-direction:column;gap:15px;">
+                        <div v-for="cubeSequence in userSequence" style="display:flex;flex-direction:row;gap:5px;">
+                            <div v-if="cubeSequence.length > 0" v-for="pair in cubeSequence.split(' ')" class="MemoPair">
+                                {{pair}}
+                            </div>
+                        </div>
+                    </div>
                 </div>
-            </div>
-            <img src="@/assets/arrow-right-long.svg" class="NextButton" @click="EndTurn()" />
+            <div style="height:20vh;"></div>
         </div>
+        <img src="@/assets/arrow-right-long.svg"
+             class="NextButton"
+             @click="EndTurn()" />
     </div>
 </template>
 
@@ -368,15 +385,29 @@ onUnmounted(() => {
     gap: 10px;
 }
 
-.NextButton {
-    background-color: var(--brand-600);
-    border-radius: 5px;
-    cursor: pointer;
-    height: 3rem;
-    width: 80px;
-    align-self: end;
-}
+    .NextButton {
+        background-color: var(--brand-600);
+        border-radius: 5px;
+        cursor: pointer;
+        height: 3rem;
+        width: 80px;
+        position: fixed;
+        left: 90%;
+        top: 90%;
+        transform: translate(-100%, -100%);
+    }
 .NextButton:hover {
     background-color: var(--brand-500);
 }
+
+    .MemoPair {
+        border: 4px solid var(--brand-900);
+        border-radius: 5px;
+        background-color: var(--brand-700);
+        width: 50px;
+        height: 50px;
+        justify-content: center;
+        text-align: center;
+        font-size: 1.5rem;
+    }
 </style>

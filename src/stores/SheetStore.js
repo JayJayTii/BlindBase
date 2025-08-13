@@ -136,13 +136,12 @@ export const useSheetStore = defineStore('sheetStore', {
             return this.getXHeadings(id)[coord.x] + this.getYHeadings(id)[coord.y]
         },
         keyToCoord(id, key) {
-            const sheetIndex = this.getSheetIndexWithID(id)
             if (getSettingsStore().sheets_pairorder == 1) {
                 key = key.split('').reverse().join('')
             }
             return {
-                x: this.getXHeadings(sheetIndex).indexOf(key[0]),
-                y: this.getYHeadings(sheetIndex).indexOf(key[1]),
+                x: this.getXHeadings(id).indexOf(key[0]),
+                y: this.getYHeadings(id).indexOf(key[1]),
             }
         },
         absoluteToVisual(absoluteCoord) {

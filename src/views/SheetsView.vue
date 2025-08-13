@@ -118,7 +118,7 @@
                                 curSheetID = sheetStore.sheets[index].id;
                                 onCellClicked({x:0,y:0});
                              }">
-                    {{ sheetName }}
+                    {{ sheetName != "" ? sheetName : "&nbsp;" }}
                 </div>
                 <button @click="sheetStore.newSheet(); curSheetID = sheetStore.sheets[sheetStore.sheets.length - 1].id;" 
                         style="justify-content:center;">+</button>
@@ -127,13 +127,16 @@
                 <div class="header-row">
                     <h3>Sheet settings:</h3>
                 </div>
-                <h1 style="overflow:hidden;text-overflow:ellipsis; white-space:nowrap;">
-                    {{currentSheetName != "" ? currentSheetName : "&nbsp;"}}
-                </h1>
-                <div class="SheetEditingRow"> Name: <input v-model="currentSheetName" maxlength="20" /> </div>
+                <div class="SheetEditingRow">
+                    <input v-model="currentSheetName"
+                           maxlength="20"
+                           style="white-space:nowrap;font-weight:bold;font-size:2rem;width:100%;" />
+                </div>
                 <div class="SheetEditingRow">
                     Type: <select v-model="currentSheetType">
-                        <option v-for="(type,index) in sheetStore.sheetTypes" :key="index" :value="index">
+                        <option v-for="(type,index) in sheetStore.sheetTypes" 
+                                :key="index" 
+                                :value="index">
                             {{type.name}}
                         </option>
                     </select>
@@ -163,11 +166,15 @@
             <div class="header-row"> <h3>Edit cell:</h3>  </div>
             <div class="SheetEditingRow">
                 Current cell:
-                <input v-model="selectedCellInput" class="editCurCellKey"/>
+                <input v-model="selectedCellInput" 
+                       class="editCurCellKey"/>
             </div>
             <div class="SheetEditingRow">
                 Value:
-                <input v-model="selectedCellValue" ref="cellValueInputBox" :key="settingsStore.sheets_pairorder" />
+                <input v-model="selectedCellValue" 
+                       ref="cellValueInputBox" 
+                       :key="settingsStore.sheets_pairorder"
+                       style="width:100%;"/>
             </div>
             <div class="CellOptions" v-if="currentSheetType != 0">
                 Recommendations:
@@ -211,7 +218,7 @@
         justify-content: center;
         background-color: var(--panel-header-color);
         color: var(--panel-header-text-color);
-        align-items: center;
+        text-align: center;
         border-radius: 3px;
         font-size: 1rem;
     }
@@ -228,7 +235,8 @@
         border: 3px solid var(--border-color);
         padding: 2px;
         background-color: var(--panel-color);
-        overflow:auto;
+        overflow-x: hidden;
+        overflow-y: auto;
     }
     .ListItem {
         background-color: var(--grey-600);
@@ -237,7 +245,6 @@
         display: flex;
         align-items: center;
         font-size: 1rem;
-        overflow: hidden;
         text-overflow: ellipsis;
     }
     .ListItem:hover {
@@ -286,16 +293,17 @@
         width: 100%;
     }
 
-    .editCurCellKey{
+    .editCurCellKey {
         font-size: 2rem;
-        width:4ch;
+        width: min(100%, 4ch);
         text-transform: uppercase;
     }
 
     .CellOptions{
         width: 100%;
         height:100%;
-        overflow: auto;
+        overflow-x: hidden;
+        overflow-y: auto;
     }
 
 </style>

@@ -24,48 +24,47 @@ defineProps({
 .home-button {
     display: flex;
     flex-direction: column;
-    max-height: var(--square-size);
 }
 
-.home-button:hover .description {
-    transform: translateY(-50px);
-}
+    .home-button:hover .description {
+        margin-top: calc(-0.3 * var(--square-size));
+    }
 
-.button {
-    background-color: var(--brand-600);
-    color: var(--brand-900);
-    border-radius: 10px;
-    width: var(--square-size);
-    min-height: var(--square-size);
-    align-items: center;
-    justify-content: start;
-    display: flex;
-    flex-direction: column;
-    font-size: 40px;
-    line-height: 1.1;
-    z-index: 5;
-}
+    .button {
+        width: var(--square-size);
+        height: var(--square-size);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: start;
+        font-size: 40px;
+        line-height: 1.1;
+        background-color: var(--brand-600);
+        color: var(--brand-900);
+        border-radius: 10px;
+        z-index: 5;
+    }
 .button img {
-    max-height: 100px;
+    height: calc(0.7 * var(--square-size));
     aspect-ratio: auto;
     display: flex;
 }
 
-.description {
-    background-color: var(--brand-500);
-    color: var(--grey-800);
-    border-radius: 10px;
-    width: var(--square-size);
-    min-height: var(--square-size);
-    align-items: center;
-    justify-content: start;
-    display: flex;
-    flex-direction: column;
-    font-size: 20px;
-    text-align: center;
-    padding: 50px 10px 10px 10px;
-    line-height: 1.1;
-    transform: translateY(calc(-1 * var(--square-size)));
-    transition: transform 0.1s ease;
-}
+    .description {
+        background-color: var(--brand-500);
+        color: var(--grey-800);
+        border-radius: 10px;
+        width: var(--square-size);
+        min-height: var(--square-size);
+        align-items: center;
+        justify-content: start;
+        display: flex;
+        flex-direction: column;
+        font-size: 20px;
+        text-align: center;
+        padding: 50px 10px 10px 10px;
+        line-height: 1.1;
+        margin-top: calc(-1 * var(--square-size));
+        transition: margin-top 0.1s ease;
+    }
 </style>

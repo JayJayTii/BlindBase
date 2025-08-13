@@ -99,9 +99,9 @@
         var possibleNextCards = cardStore.getDueCards(sheetID.value).length > 0 ? cardStore.getDueCards(sheetID.value)
             : (cardStore.getLearningCards(sheetID.value).length > 0 ? cardStore.getLearningCards(sheetID.value)
                 : cardStore.getNewCards(sheetID.value))
-        //Sort next cards by practice time, we want the oldest first
-        possibleNextCards.sort((a, b) => new Date(a.nextPracticeTime) - new Date(b.nextPracticeTime));
-        currentCard.value = possibleNextCards[0];
+
+        const nextIndex = Math.floor(Math.random() * possibleNextCards.length);
+        currentCard.value = possibleNextCards[nextIndex];
     };
     const currentCardType = computed({
         get: () => {
@@ -363,6 +363,7 @@
         display: grid;
         grid-template-columns: 1fr 1fr 1fr;
         margin-top: 10px;
+        gap: 10px;
     }
 
     .BackButton {
@@ -380,7 +381,8 @@
     .PracticeSheetName {
         display: flex;
         justify-content: center;
-        height:60px;
+        align-items: center;
+        text-align: center;
         width: auto;
 
         background-color: var(--brand-700);
@@ -392,6 +394,7 @@
     .RemainingPanel{
         display:grid;
         grid-template-columns: 1fr 1fr 1fr;
+        gap: 2px;
     }
 
     .Card {

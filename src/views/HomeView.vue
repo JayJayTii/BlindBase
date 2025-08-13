@@ -11,12 +11,10 @@ const routes = router.getRoutes().filter((route) => route.meta.tool)
 </script>
 
 <template>
-    <div class="title">
-        <h1>BlindBase</h1>
-    </div>
-    <nav class="row">
+    <h1 class="title">BlindBase</h1>
+    <div class="row">
         <HomeButton v-for="route in routes" :route="route" />
-    </nav>
+    </div>
 </template>
 
 <style>
@@ -26,15 +24,16 @@ const routes = router.getRoutes().filter((route) => route.meta.tool)
     align-items: center;
     justify-content: end;
     height: 33vh;
-    font-size: 11vh;
+    font-size: clamp(0px, 20vw, 20vh);
     color: var(--grey-100);
 }
 
-.row {
-    height: 60vh;
-    display: flex;
-    justify-content: center;
-    align-items: start;
-    gap: 15px;
-}
+    .row {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        overflow: hidden;
+        align-items: start;
+        gap: 15px;
+    }
 </style>
