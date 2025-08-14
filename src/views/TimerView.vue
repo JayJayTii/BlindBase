@@ -1,6 +1,7 @@
 <script setup>
     import { ref, computed, inject } from 'vue'
     import { useTimerStore } from "../stores/TimerStore";
+    import Timer from "@/components/Timer.vue";
     const confirmDialog = inject('confirmDialog')
     const timerStore = useTimerStore();
     timerStore.loadState();
@@ -38,6 +39,11 @@
         }
     }
 
+
+    function onSolveComplete(newSolve) {
+        timerStore.addSolve(sessionID.value, newSolve)
+    }
+
 </script>
 
 <template>
@@ -48,17 +54,17 @@
                     <h3>Select Session:</h3>
                 </div>
                 <div v-for="(sessionName, index) in timerStore.getSessionNames"
-                 :key="timerStore.sessions[index].id"
-                 :class="['ListItem', sessionID === timerStore.sessions[index].id ? 'ListItemSelected' : 'ListItemUnselected']"
-                 @click="
+                     :key="timerStore.sessions[index].id"
+                     :class="['ListItem', sessionID === timerStore.sessions[index].id ? 'ListItemSelected' : 'ListItemUnselected']"
+                     @click="
                  if(sessionID != timerStore.sessions[index].id) {
                             sessionID = timerStore.sessions[index].id;
                          }">
-                {{ sessionName != "" ? sessionName : "&nbsp;" }}
-            </div>
+                    {{ sessionName != "" ? sessionName : "&nbsp;" }}
+                </div>
                 <button @click="timerStore.newSession(); sessionID = timerStore.sessions[timerStore.sessions.length - 1].id;"
                         style="justify-content:center;">
-                    + 
+                    +
                 </button>
             </div>
             <div class="SessionSettings" v-if="isSessionSelected">
@@ -71,7 +77,7 @@
                            style="white-space:nowrap;font-weight:bold;font-size:2rem;width:100%;" />
                 </div>
                 <div class="SessionEditingRow">
-                    Type: <select v-model="currentSessionType">
+                    Type: <select v-model="currentSessionType" style="width: 100%; ">
                         <option v-for="(type,index) in timerStore.getSessionTypes"
                                 :key="index"
                                 :value="index">
@@ -95,9 +101,12 @@
             </div>
         </div>
 
-
-        <div style=" width: 60vw; height: 93vh;" />
-
+        <div style="width: 60vw; height: 93vh;">
+            <Timer v-if="isSessionSelected"
+                   :lastSolve="timerStore.sessions[timerStore.getSessionIndexWithID(sessionID)].solves.at(-1)"
+                   @update:solve-complete="onSolveComplete" 
+                   :key="sessionID"/>
+        </div>
 
         <div class="SideColumn" v-if="isSessionSelected">
             <div class="SessionDetails">

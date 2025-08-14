@@ -10,15 +10,15 @@ function toggleSettings() {
 </script>
 
 <template>
-    <div class="navbar">
-        <RouterLink to="/">
-            <img src="@/assets/logo.png" height="100%" />
-        </RouterLink>
+    <div class="navbarBackground"></div>
+    <RouterLink to="/" class="HomeButton">
+        <img src="@/assets/logo.png" style="height:5vh;" />
+    </RouterLink>
 
-        <img src="@/assets/settings.svg" @click="toggleSettings" style="cursor: pointer" />
-        <div v-if="showSettings" @click="toggleSettings" id="settingsBackdrop"></div>
-        <SettingsView v-if="showSettings" id="settings" />
-    </div>
+    <img src="@/assets/settings.svg" @click="toggleSettings" class="SettingsButton" />
+    <div v-if="showSettings" @click="toggleSettings" id="settingsBackdrop"></div>
+    <SettingsView v-if="showSettings" id="settings" style="position:fixed;" />
+    <div class="navbar"></div>
 </template>
 
 <style>
@@ -26,15 +26,29 @@ function toggleSettings() {
     --navbar-height: 7vh;
 }
 
+    .navbarBackground {
+        position: fixed;
+        width: 100%;
+        height: var(--navbar-height);
+        background-color: var(--brand-700);
+    }
+
+    .HomeButton {
+        position: fixed;
+        top: 3px;
+    }
+
+    .SettingsButton {
+        position: fixed;
+        cursor: pointer;
+        top: 3px;
+        height: 6vh;
+        right: 0px;
+    }
+
 .navbar {
     width: 100%;
     height: var(--navbar-height);
-    background-color: var(--brand-700);
-    padding: 3px;
-    align-content: center;
-    display: flex;
-    justify-content: space-between;
-    flex-direction: row;
 }
 
 #settingsBackdrop {

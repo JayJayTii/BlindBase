@@ -61,6 +61,11 @@ export const useTimerStore = defineStore('timerStore', {
             }
             return null
         },
+        addSolve(sessionID, solve) {
+            this.sessions[this.getSessionIndexWithID(sessionID)].solves.push(solve)
+
+            this.saveState();
+        },
 
 
         saveState() {
