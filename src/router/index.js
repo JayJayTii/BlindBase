@@ -59,7 +59,7 @@ const router = createRouter({
             path: '/timer',
             name: 'Timer',
             component: TimerView,
-            meta: { tool: true, description: 'colourless green ideas sleep furiously' },
+            meta: { tool: true, description: 'Put your skills to use in full solves' },
         },
         {
             path: '/recons',
