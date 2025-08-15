@@ -1,9 +1,13 @@
 <script setup>
     import { ref, reactive, computed, onMounted, onUnmounted } from 'vue'
     import { useTimerStore } from '../stores/TimerStore';
+    const timerStore = useTimerStore();
+    timerStore.loadState();
+    import { formatTime } from '../helpers/timer.js';
+    import { Scramble } from '../helpers/scramble.js';
 
     const props = defineProps({
-        lastSolve: Object,
+        sessionID: Number,
     })
     const emit = defineEmits(['update:solve-complete'])
 
@@ -18,30 +22,36 @@
         get: () => timerStage.value === stages.memoing || timerStage.value === stages.executing
     })
     const timerStage = ref(0)
-    const solve = reactive({ ...props.lastSolve })
+    const solve = reactive({})
+    solve.value = timerStore.sessions[timerStore.getSessionIndexWithID(props.sessionID)].solves.at(-1)
+    if (!solve.value) {
+        solve.value = {solveTime: 0}
+    }
+    let scramble = new Scramble(20).toString()
     let stopwatchStartTime = 0;
+
     let timerUpdate = null;
     function handleKeydown(event) {
         const el = document.activeElement;
         if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.isContentEditable)
             return
-
         if (event.code === 'Space') {
             if (timerStage.value === stages.finished) {
                 timerStage.value = stages.waiting //Wait for space up
-                solve.value = {
-                    scramble: "Fsdfhjkdfhsjdkfhskdfhjkfshjk",
-                    memoTime: 0,
-                    solveTime: 0,
-                    dnf: false
-                }
+                solve.value = {}
+                solve.value.memoTime = 0
                 solve.value.solveTime = 0
+                solve.value.status = 0
+                solve.value.scramble = scramble
+                solve.value.dnf = false
             }
             else if (timerStage.value === stages.executing) { //Stop timer
                 clearInterval(timerUpdate)
                 solve.value.solveTime = new Date().getTime() - stopwatchStartTime
+                solve.value.status = 0 //Default to no penalty
                 timerStage.value = stages.stopping
-                emit('update:solve-complete', solve)
+                emit('update:solve-complete', solve.value)
+                scramble = new Scramble(20).toString()
             }
         }
     }
@@ -67,25 +77,6 @@
             }
         }
     }
-    function formatTime(ms) {
-        const centiseconds = Math.floor(ms / 10)
-
-        const hours = (Math.floor(centiseconds / 100 / 60 / 60))
-        const minutes = (Math.floor(centiseconds / 100 / 60) % 60)
-        const seconds = (Math.floor(centiseconds / 100) % 60)
-        const hundredths = (centiseconds % 100)
-
-        let timeStr = ""
-        if (hours > 0)
-            timeStr += hours.toString() + ":" + (minutes < 10 ? "0" : "")
-        if (minutes > 0)
-            timeStr += minutes.toString() + ":" + (seconds < 10 ? "0" : "")
-        timeStr += seconds.toString() + "."
-        timeStr += (hundredths < 10 ? "0" : "") + hundredths.toString()
-
-        return timeStr
-    }
-
     onMounted(() => {
         window.addEventListener('keydown', handleKeydown)
         window.addEventListener('keyup', handleKeyup)
@@ -94,7 +85,6 @@
         window.removeEventListener('keydown', handleKeydown)
         window.removeEventListener('keyup', handleKeyup)
     })
-
     defineExpose({
 
     })
@@ -103,17 +93,17 @@
 <template>
     <div class="TimerContainer">
         <div class="ScrambleText" v-if="!isSolving">
-            U2 F2 L2 F2 L D2 R2 B2 R' U2 R B2 F L2 F2 D L R U2 B R2 Rw2 Uw
+            {{scramble}}
         </div>
         <div class="StageText" v-if="isSolving">{{timerStage === stages.memoing ? "MEMO" : "EXEC"}}</div>
         <div :class="['StopwatchText',
              timerStage === stages.waiting ? 'StopwatchStartSpaceDown' :
-             timerStage === stages.stopping ? 'StopwatchEndSpaceDown' : '']">
-            {{formatTime(solve.value?.solveTime || 0)}}
+             timerStage === stages.stopping ? 'StopwatchEndSpaceDown' : '']"
+             :key="solve">
+            {{timerStore.getSolveTimeStringFromSolve(solve.value)}}
         </div>
         <div class="RatioText" v-if="!isSolving && solve.value && solve.value.memoTime > 0">
-            {{formatTime(solve.value.memoTime)}} memo :
-            {{formatTime(solve.value.solveTime - solve.value.memoTime)}} exec
+            {{timerStore.getSolveRatioStringFromSolve(solve.value)}}
         </div>
     </div>
 </template>
@@ -153,6 +143,8 @@
         top: 40%;
         left: 50%;
         transform: translate(-50%, -50%);
+        width: 100%;
+        text-align:center;
         font-size: var(--timer-font-size);
         font-weight: bold;
         color: var(--grey-100);
@@ -166,7 +158,7 @@
     .RatioText {
         position: absolute;
         width: 100%;
-        top: calc(42% + 0.5 * var(--timer-font-size));
+        top: calc(44% + 0.5 * var(--timer-font-size));
         left: 50%;
         transform: translate(-50%, -50%);
         font-size: 1.5rem;

@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import { useSettingsStore } from './SettingsStore'
+import { formatTime } from '@/helpers/timer.js'
 
 export function getSettingsStore() {
     return useSettingsStore()
@@ -8,11 +9,17 @@ export function getSettingsStore() {
 const DEFAULT_SESSION_TYPES = [
     { name: '3x3 Blindfolded', id: 0 },
 ]
+const DEFAULT_SOLVE_STATUSES = [
+    {name: "", id: 0},
+    {name: "DNF", id: 1},
+    {name: "+2", id: 2},
+]
 
 export const useTimerStore = defineStore('timerStore', {
     state: () => {
         return {
             sessionTypes: DEFAULT_SESSION_TYPES,
+            solveStatuses: DEFAULT_SOLVE_STATUSES,
             sessions: [],
         }
     },
@@ -67,6 +74,23 @@ export const useTimerStore = defineStore('timerStore', {
             this.saveState();
         },
 
+        getSolveTimeString(sessionID, solveIndex) {
+            const solve = this.sessions[this.getSessionIndexWithID(sessionID)].solves[solveIndex]
+            return this.getSolveTimeStringFromSolve(solve)
+        },
+        getSolveTimeStringFromSolve(solve) {
+            const solveTime = formatTime(solve.solveTime + ((solve.status === 2) ? 2000 : 0)) //Account for +2
+            const modifier = solve.status === 1 ? " (DNF)" : solve.status === 2 ? "+" : ""
+            return solveTime + modifier
+        },
+        getSolveRatioString(sessionID, solveIndex) {
+            const solve = this.sessions[this.getSessionIndexWithID(sessionID)].solves[solveIndex]
+            return this.getSolveRatioStringFromSolve(solve)
+        },
+        getSolveRatioStringFromSolve(solve) {
+            return solve.memoTime === 0 ? "" :
+                (formatTime(solve.memoTime) + " memo : " + formatTime(solve.solveTime - solve.memoTime) + " exec")
+        },
 
         saveState() {
             localStorage.setItem(

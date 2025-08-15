@@ -53,19 +53,29 @@ const router = createRouter({
             path: '/exec',
             name: 'Exec',
             component: ExecView,
-            meta: { tool: true, description: 'youre not even reading these are you' },
+            meta: {
+                tool: true,
+                description: '',
+            },
         },
         {
             path: '/timer',
             name: 'Timer',
             component: TimerView,
-            meta: { tool: true, description: 'Put your skills to use in full solves' },
+            meta: {
+                tool: true,
+                description: 'Put your skills to use in full solves',
+                iconPath: new URL('@/assets/TimerIcon.png', import.meta.url).href,
+            },
         },
         {
             path: '/recons',
             name: 'Recons',
             component: ReconsView,
-            meta: { tool: true, description: 'nerd' },
+            meta: {
+                tool: true,
+                description: ''
+            },
         },
         {
             path: '/:catchAll(.*)*',
