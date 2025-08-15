@@ -10,7 +10,7 @@ const DEFAULT_SESSION_TYPES = [
     { name: '3x3 Blindfolded', id: 0 },
 ]
 const DEFAULT_SOLVE_STATUSES = [
-    {name: "", id: 0},
+    {name: "Success", id: 0},
     {name: "DNF", id: 1},
     {name: "+2", id: 2},
 ]

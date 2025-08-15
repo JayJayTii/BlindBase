@@ -3,7 +3,6 @@
     import { useTimerStore } from '../stores/TimerStore';
     const timerStore = useTimerStore();
     timerStore.loadState();
-    import { formatTime } from '../helpers/timer.js';
     import { Scramble } from '../helpers/scramble.js';
 
     const props = defineProps({
@@ -54,6 +53,18 @@
                 scramble = new Scramble(20).toString()
             }
         }
+        else if (event.code === "ArrowRight") {
+            if (solve.value.status < timerStore.solveStatuses.length - 1) {
+                solve.value.status++
+                timerStore.saveState()
+            }
+        }
+        else if (event.code === "ArrowLeft") {
+            if (solve.value.status > 0) {
+                solve.value.status--
+                timerStore.saveState()
+            }
+        }
     }
     function handleKeyup(event) {
         const el = document.activeElement;
@@ -96,14 +107,24 @@
             {{scramble}}
         </div>
         <div class="StageText" v-if="isSolving">{{timerStage === stages.memoing ? "MEMO" : "EXEC"}}</div>
-        <div :class="['StopwatchText',
+        <div id="TimerCenterColumn">
+            <div :class="['StopwatchText',
              timerStage === stages.waiting ? 'StopwatchStartSpaceDown' :
              timerStage === stages.stopping ? 'StopwatchEndSpaceDown' : '']"
-             :key="solve">
-            {{timerStore.getSolveTimeStringFromSolve(solve.value)}}
-        </div>
-        <div class="RatioText" v-if="!isSolving && solve.value && solve.value.memoTime > 0">
-            {{timerStore.getSolveRatioStringFromSolve(solve.value)}}
+                 :key="solve">
+                {{timerStore.getSolveTimeStringFromSolve(solve.value)}}
+            </div>
+            <div class="RatioText" v-if="!isSolving && solve.value && solve.value.memoTime > 0">
+                {{timerStore.getSolveRatioStringFromSolve(solve.value)}}
+            </div>
+            <div class="StatusRow" v-if="!isSolving && timerStage !== 1 && 'status' in solve.value">
+                <template v-for="status in timerStore.solveStatuses">
+                    <div :class="['ListItem', solve.value.status === status.id ? 'ListItemSelected' : 'ListItemUnselected']"
+                         @click="solve.value.status = status.id;timerStore.saveState()">
+                        {{status.name}}
+                    </div>
+                </template>
+            </div>
         </div>
     </div>
 </template>
@@ -138,15 +159,21 @@
         font-weight: bold;
         color: var(--grey-100);
     }
-    .StopwatchText {
+    #TimerCenterColumn {
+        display: flex;
+        flex-direction: column;
         position: absolute;
-        top: 40%;
-        left: 50%;
-        transform: translate(-50%, -50%);
+        left:50%;
+        top:40%;
+        transform: translate(-50%,-50%);
+    }
+    .StopwatchText {
         width: 100%;
-        text-align:center;
+        text-align: center;
         font-size: var(--timer-font-size);
         font-weight: bold;
+        white-space: nowrap; 
+        overflow: hidden;
         color: var(--grey-100);
     }
     .StopwatchStartSpaceDown {
@@ -156,13 +183,25 @@
         color: var(--error-200);
     }
     .RatioText {
-        position: absolute;
         width: 100%;
-        top: calc(44% + 0.5 * var(--timer-font-size));
-        left: 50%;
-        transform: translate(-50%, -50%);
         font-size: 1.5rem;
         text-align: center;
         color: var(--grey-100);
+    }
+    .StatusRow {
+        display: grid;
+        grid-template-columns: repeat(3, 70px);
+        font-size: 1.5rem;
+        align-self: center;
+        text-align: center;
+        color: var(--grey-100);
+    }
+    .StatusButton {
+        background-color: var(--grey-600);
+        border: 1px solid var(--panel-color);
+        border-radius: 5px;
+        color: var(--grey-100);
+        cursor: pointer;
+        font-size: 1rem;
     }
 </style>

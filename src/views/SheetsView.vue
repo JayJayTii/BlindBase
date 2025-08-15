@@ -130,7 +130,7 @@
                 <div class="SheetEditingRow">
                     <input v-model="currentSheetName"
                            maxlength="20"
-                           style="white-space:nowrap;font-weight:bold;font-size:2rem;width:100%;" />
+                           style="white-space:nowrap;font-weight:bold;font-size:2rem;width:100%;text-align:center;" />
                 </div>
                 <div class="SheetEditingRow">
                     Type: <select v-model="currentSheetType">
@@ -241,9 +241,10 @@
     .ListItem {
         background-color: var(--grey-600);
         border: 1px solid var(--panel-color);
+        border-radius: 5px;
         cursor: pointer;
         display: flex;
-        align-items: center;
+        justify-content:center;
         font-size: 1rem;
         text-overflow: ellipsis;
     }

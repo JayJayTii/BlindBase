@@ -112,7 +112,7 @@
                 <div class="SessionEditingRow">
                     <input v-model="currentSessionName"
                            maxlength="20"
-                           style="white-space:nowrap;font-weight:bold;font-size:2rem;width:100%;" />
+                           style="white-space:nowrap;font-weight:bold;font-size:2rem;width:100%;text-align:center;" />
                 </div>
                 <div class="SessionEditingRow">
                     Type: <select v-model="currentSessionType" style="width: 100%; ">
@@ -152,18 +152,26 @@
             </div>
 
             <div class="SolvePanel">
-                <div class="SolveDetails" v-if="isSolveSelected">
+                <div class="SolveDetailsContainer" v-if="isSolveSelected">
                     <div class="header-row"> <h3>Solve {{solveIndex + 1}}:</h3>  </div>
-                    <div>{{selectedSolve.scramble}}</div>
-                    <h2>{{timerStore.getSolveTimeString(sessionID, solveIndex)}}</h2>
-                    <h3>{{timerStore.getSolveRatioString(sessionID, solveIndex)}}</h3>
-                    <div>DNF: <input type="checkbox" v-model="selectedSolveDNF" /></div>
-                    <div>+2: <input type="checkbox" v-model="selectedSolvePlus2" /></div>
-                    <button @click="solveIndex = -1" style="width:30%;">back</button>
-                    <RouterLink to="/recons" class="header-row">
+                    <div class="SolveDetails">
+                        <div>{{selectedSolve.scramble}}</div>
+                        <h1>{{timerStore.getSolveTimeString(sessionID, solveIndex)}}</h1>
+                        <h3>{{timerStore.getSolveRatioString(sessionID, solveIndex)}}</h3>
+                        <div class="StatusRow">
+                            <template v-for="status in timerStore.solveStatuses">
+                                <div :class="['ListItem', selectedSolve.status === status.id ? 'ListItemSelected' : 'ListItemUnselected']"
+                                     @click="selectedSolve.status = status.id;timerStore.saveState()">
+                                    {{status.name}}
+                                </div>
+                            </template>
+                        </div>
+                        <button @click="solveIndex = -1" style="width:30%;">back</button>
+                        <RouterLink to="/recons" class="header-row">
                             RECONSTRUCT
-                    </RouterLink>
-                    <button @click="DeleteSolve()" style="width:30%;">delete</button>
+                        </RouterLink>
+                        <button @click="DeleteSolve()" style="width:30%;">delete</button>
+                    </div>
                 </div>
                 <div class="SolveList">
                     <div class="header-row"> <h3>Solves:</h3>  </div>
@@ -241,15 +249,24 @@
         position:relative;
         height:50%;
     }
-    .SolveDetails {
-        position:absolute;
+    .SolveDetailsContainer {
+        position: absolute;
         height: 100%;
         width: 100%;
-        padding: 2px;
         display: flex;
         flex-direction: column;
         background-color: var(--panel-color);
         z-index: 10;
+    }
+    .SolveDetails {
+        padding: 2px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        gap: 2px;
+        overflow-x: hidden;
+        overflow-y: auto;
     }
     .SolveList {
         position: absolute;
