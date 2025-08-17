@@ -42,7 +42,6 @@
                 solve.value.solveTime = 0
                 solve.value.status = 0
                 solve.value.scramble = scramble
-                solve.value.dnf = false
             }
             else if (timerStage.value === stages.executing) { //Stop timer
                 clearInterval(timerUpdate)
@@ -131,7 +130,7 @@
 
 <style>
     body {
-        --timer-font-size: 8rem;
+        --timer-font-size: 7rem;
     }
 
     .TimerContainer{

@@ -15,6 +15,12 @@ const DEFAULT_SOLVE_STATUSES = [
     {name: "+2", id: 2},
 ]
 
+const SOLVE_SECTIONS = {
+    total: 1,
+    memo: 2,
+    exec: 3
+}
+
 export const useTimerStore = defineStore('timerStore', {
     state: () => {
         return {
@@ -90,6 +96,74 @@ export const useTimerStore = defineStore('timerStore', {
         getSolveRatioStringFromSolve(solve) {
             return solve.memoTime === 0 ? "" :
                 (formatTime(solve.memoTime) + " memo : " + formatTime(solve.solveTime - solve.memoTime) + " exec")
+        },
+
+        //Mean of N
+        moN(sessionID, n, section) {
+            const index = this.getSessionIndexWithID(sessionID)
+            const solves = this.sessions[index].solves.slice(-n)
+            if (solves.length < n)
+                return "---"
+            let times = []
+            let dnfAverage = false
+            if (section === SOLVE_SECTIONS.total) {
+                const dnfCount = solves.filter((solve) => solve.status === 1).length
+                if (dnfCount > 0) {
+                    //Ignore DNFs if it is a dnf average, just to give a hypothetical
+                    dnfAverage = true
+                }
+                times = solves.map((solve) => solve.solveTime + (solve.status === 2 ? 2000 : 0))
+            }
+            else if (section === SOLVE_SECTIONS.memo) {
+                times = solves.map((solve) => solve.memoTime)
+            }
+            else if (section === SOLVE_SECTIONS.exec) {
+                times = solves.map((solve) => solve.solveTime - solve.memoTime)
+            }
+            const mean = times.reduce((acc, time) => acc + time, 0) / times.length;
+            return (dnfAverage ? ("DNF (" + formatTime(mean) + ")") : (formatTime(mean)))
+        },
+        //Average of N
+        aoN(sessionID, n, section) {
+            const index = this.getSessionIndexWithID(sessionID)
+            const solves = this.sessions[index].solves.slice(-n)
+            if (solves.length < n)
+                return "---"
+            let times = []
+            let dnfAverage = false
+            if (section === SOLVE_SECTIONS.total) {
+                const dnfCount = solves.filter((solve) => solve.status === 1).length
+                if (dnfCount > 1) {
+                    //Ignore DNFs if it is a dnf average, just to give a hypothetical
+                    dnfAverage = true
+                }
+                //If it isn't a DNF average, just add lots of time to any DNF to filter out
+                times = solves.map((solve) => solve.solveTime + (solve.status === 2 ? 2000 : 0) + (!dnfAverage && solve.status === 1 ? 99999999999999 : 0))
+            }
+            else if (section === SOLVE_SECTIONS.memo) {
+                times = solves.map((solve) => solve.memoTime)
+            }
+            else if (section === SOLVE_SECTIONS.exec) {
+                times = solves.map((solve) => solve.solveTime - solve.memoTime)
+            }
+            times.sort(function (a, b) {
+                return a - b;
+            });
+            times = times.slice(1, n - 1) //Only take middle values
+            const mean = times.reduce((acc, time) => acc + time, 0) / times.length;
+            return (dnfAverage ? ("DNF (" + formatTime(mean) + ")") : (formatTime(mean)))
+        },
+
+        getSessionStatistics(id) {
+            return [
+                ["single", this.moN(id, 1, SOLVE_SECTIONS.total), this.moN(id, 1, SOLVE_SECTIONS.memo), this.moN(id, 1, SOLVE_SECTIONS.exec)],
+                ["mo3", this.moN(id, 3, SOLVE_SECTIONS.total), this.moN(id, 3, SOLVE_SECTIONS.memo), this.moN(id, 3, SOLVE_SECTIONS.exec)],
+                ["ao5", this.aoN(id, 5, SOLVE_SECTIONS.total), this.aoN(id, 5, SOLVE_SECTIONS.memo), this.aoN(id, 5, SOLVE_SECTIONS.exec)],
+                ["ao12", this.aoN(id, 12, SOLVE_SECTIONS.total), this.aoN(id, 12, SOLVE_SECTIONS.memo), this.aoN(id, 12, SOLVE_SECTIONS.exec)],
+                ["ao25", this.aoN(id, 25, SOLVE_SECTIONS.total), this.aoN(id, 25, SOLVE_SECTIONS.memo), this.aoN(id, 25, SOLVE_SECTIONS.exec)],
+                ["ao50", this.aoN(id, 50, SOLVE_SECTIONS.total), this.aoN(id, 50, SOLVE_SECTIONS.memo), this.aoN(id, 50, SOLVE_SECTIONS.exec)],
+                ["ao100", this.aoN(id, 100, SOLVE_SECTIONS.total), this.aoN(id, 100, SOLVE_SECTIONS.memo), this.aoN(id, 100, SOLVE_SECTIONS.exec)],
+            ]
         },
 
         saveState() {
