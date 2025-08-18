@@ -132,13 +132,13 @@ export const useSheetStore = defineStore('sheetStore', {
             }
         },
         coordToKey(id, coord) {
+            if (!this.isValidSheetID(id))
+                return ''
             //Expect it to be already absolute
             return this.getXHeadings(id)[coord.x] + this.getYHeadings(id)[coord.y]
         },
         keyToCoord(id, key) {
-            if (getSettingsStore().sheets_pairorder == 1) {
-                key = key.split('').reverse().join('')
-            }
+            //Takes visual and returns visual i think?
             return {
                 x: this.getXHeadings(id).indexOf(key[0]),
                 y: this.getYHeadings(id).indexOf(key[1]),

@@ -1,40 +1,40 @@
 <script setup>
-import { ref, reactive, watch, computed } from 'vue'
-import { useSheetStore } from '../stores/SheetStore'
-import { useSettingsStore } from '../stores/SettingsStore'
+    import { ref, reactive, watch, computed, nextTick } from 'vue'
+    import { useSheetStore } from '../stores/SheetStore'
+    import { useSettingsStore } from '../stores/SettingsStore'
 
-const props = defineProps({
-    sheetID: Number,
-    formatEmpty: Boolean,
-    showIfNull: Boolean,
-})
-const emit = defineEmits(['update:selected-cell'])
+    const props = defineProps({
+        sheetID: Number,
+        formatEmpty: Boolean,
+        showIfNull: Boolean,
+    })
+    const emit = defineEmits(['update:selected-cell'])
 
-const sheetStore = useSheetStore()
-sheetStore.loadState()
-const settingsStore = useSettingsStore()
-settingsStore.loadState()
+    const sheetStore = useSheetStore()
+    sheetStore.loadState()
+    const settingsStore = useSettingsStore()
+    settingsStore.loadState()
 
-const leftColumn = ref(null)
-const topRow = ref(null)
-const mainGrid = ref(null)
-function syncScroll() {
-    if (leftColumn.value && topRow.value && mainGrid.value) {
-        leftColumn.value.scrollTop = mainGrid.value.scrollTop
-        topRow.value.scrollLeft = mainGrid.value.scrollLeft
+    const leftColumn = ref(null)
+    const topRow = ref(null)
+    const mainGrid = ref(null)
+    function syncScroll() {
+        if (leftColumn.value && topRow.value && mainGrid.value) {
+            leftColumn.value.scrollTop = mainGrid.value.scrollTop
+            topRow.value.scrollLeft = mainGrid.value.scrollLeft
+        }
     }
-}
 
-//Highlighted cells are all absolute
-const highlightedCells = reactive([{ x: -1, y: -1 }])
-function changeHighlightedCells(newValue) {
-    //New values will be absolute, not visual
-    highlightedCells.value = newValue.map((coord) => sheetStore.absoluteToVisual(coord)) || []
-}
+    //Highlighted cells are all absolute
+    const highlightedCells = ref([{ x: -1, y: -1 }])
+    function changeHighlightedCells(newValue) {
+        //New values will be absolute, not visual
+        highlightedCells.value = newValue.map(coord => sheetStore.absoluteToVisual(coord))
+    }
 
-defineExpose({
-    changeHighlightedCells,
-})
+    defineExpose({
+        changeHighlightedCells,
+    })
 </script>
 <template>
     <div class="SheetGridContainer" v-if="sheetStore.isValidSheetID(sheetID)">
@@ -65,16 +65,9 @@ defineExpose({
                 <div
                     v-for="(col, x) in 24"
                     @click="emit('update:selected-cell', sheetStore.visualToAbsolute({ x, y }))"
-                    :class="[
-                        'SheetGridCell',
-                        formatEmpty &&
-                        sheetStore.getCell(sheetID, sheetStore.absoluteToVisual({ x, y })) === ''
-                            ? 'SheetGridCellEmpty'
-                            : 'SheetGridCellHoverable',
-                        Array.isArray(highlightedCells.value) &&
-                        highlightedCells.value.some((cell) => cell.x === x && cell.y === y)
-                            ? 'SheetGridCellHightlighted'
-                            : '',
+                    :class="['SheetGridCell',
+                      formatEmpty && sheetStore.getCell(sheetID, sheetStore.absoluteToVisual({ x, y })) === '' ? 'SheetGridCellEmpty' : 'SheetGridCellHoverable',
+                      Array.isArray(highlightedCells) && highlightedCells.some((cell) => cell.x === x && cell.y === y) ? 'SheetGridCellHightlighted' : '',
                     ]"
                 >
                     {{ sheetStore.getCell(sheetID, sheetStore.absoluteToVisual({ x, y })) }}
@@ -87,7 +80,6 @@ defineExpose({
 
 <style>
 .SheetGridContainer {
-    border: 3px solid var(--border-color);
     background-color: var(--panel-color);
     display: grid;
     grid-template-columns: auto 1fr;

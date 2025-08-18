@@ -19,7 +19,7 @@
              @click="emit('updateSessionID', index);">
             {{ sessionName != "" ? sessionName : "&nbsp;" }}
         </div>
-        <button @click="timerStore.newSession(); sessionID = timerStore.sessions[timerStore.sessions.length - 1].id;"
+        <button @click="timerStore.newSession(); emit('updateSessionID',timerStore.sessions.length-1);"
                 style="justify-content:center;">
             +
         </button>

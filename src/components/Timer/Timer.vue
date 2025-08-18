@@ -1,9 +1,9 @@
 <script setup>
     import { ref, reactive, computed, onMounted, onUnmounted } from 'vue'
-    import { useTimerStore } from '../stores/TimerStore';
+    import { useTimerStore } from '@/stores/TimerStore';
     const timerStore = useTimerStore();
     timerStore.loadState();
-    import { Scramble } from '../helpers/scramble.js';
+    import { Scramble } from '@/helpers/scramble.js';
 
     const props = defineProps({
         sessionID: Number,

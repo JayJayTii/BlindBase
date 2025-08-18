@@ -7,6 +7,7 @@
     const props = defineProps({
         sessionID: Number,
     })
+    const emit = defineEmits(['deleteSession'])
 
     const currentSessionName = computed({
         get: () => timerStore.getSession(props.sessionID)?.name || '',
@@ -27,11 +28,6 @@
         }
     });
 
-    async function DeleteSession() {
-        if (await confirmDialog.value.open('Are you sure you want to delete this session?')) {
-            timerStore.deleteSession(props.sessionID)
-        }
-    }
 </script>
 
 <template>
@@ -54,7 +50,7 @@
             </select>
         </div>
         <div class="SessionEditingRow">
-            <button @click="DeleteSession()">
+            <button @click="emit('deleteSession')">
                 Delete
             </button>
         </div>

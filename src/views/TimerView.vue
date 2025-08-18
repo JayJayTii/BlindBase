@@ -4,12 +4,12 @@
     const timerStore = useTimerStore()
     timerStore.loadState()
     const confirmDialog = inject('confirmDialog')
-    import SessionSelect from "@/components/Timer/SessionSelect.vue"
-    import SessionSettings from "@/components/Timer/SessionSettings.vue"
-    import SessionDetails from "@/components/Timer/SessionDetails.vue"
-    import SolveDetails from "@/components/Timer/SolveDetails.vue"
-    import SolveList from "@/components/Timer/SolveList.vue"
-    import Timer from "@/components/Timer.vue";
+    import SessionSelect from "@/components/timer/SessionSelect.vue"
+    import SessionSettings from "@/components/timer/SessionSettings.vue"
+    import SessionDetails from "@/components/timer/SessionDetails.vue"
+    import SolveDetails from "@/components/timer/SolveDetails.vue"
+    import SolveList from "@/components/timer/SolveList.vue"
+    import Timer from "@/components/timer/Timer.vue";
 
     const sessionID = ref(-1);
     const solveIndex = ref(-1);
@@ -18,6 +18,12 @@
         if (sessionID.value != timerStore.sessions[index].id) {
             sessionID.value = timerStore.sessions[index].id;
             solveIndex.value = -1
+        }
+    }
+    async function deleteSession() {
+        if (await confirmDialog.value.open('Are you sure you want to delete this session?')) {
+            timerStore.deleteSession(sessionID.value)
+            sessionID.value = -1
         }
     }
     function onSolveComplete(newSolve) {
@@ -45,24 +51,23 @@
                            :solveIndex="solveIndex"
                            @updateSessionID="updateSessionID"/>
             <SessionSettings style="width:100%;height:67%;"
-                             :sessionID="sessionID"/>
+                             :sessionID="sessionID"
+                             @deleteSession="deleteSession"/>
         </div>
 
         <div style="width: 60vw; height: 93vh;">
-            <Timer v-if="sessionID > -1"
+            <Timer v-if="timerStore.isValidSessionID(sessionID)"
                    :sessionID="sessionID"
                    @update:solve-complete="onSolveComplete" 
                    :key="sessionID + '-' + timerStore.sessions[timerStore.getSessionIndexWithID(sessionID)].solves.length"/>
         </div>
 
-        <div class="SideColumn" v-if="sessionID > -1">
+        <div class="SideColumn" v-if="timerStore.isValidSessionID(sessionID)">
             <SessionDetails style="width:100%;height:50%" :sessionID="sessionID"/>
-
             <div class="SolvePanel">
-                <SolveDetails v-if="solveIndex > -1"
+                <SolveDetails v-if="solveIndex > -1" 
                               :sessionID="sessionID" :solveIndex="solveIndex"
                               @deleteSolve="DeleteSolve" @unselectSolve="solveIndex = -1"/>
-
                 <SolveList :sessionID="sessionID" @selectSolve="selectSolve"/>
             </div>
         </div>
@@ -76,6 +81,11 @@
 </template>
 
 <style>
+    .TimerView {
+        display: flex;
+        flex-direction: row;
+    }
+
     .SideColumn {
         display: flex;
         flex-direction: column;
@@ -83,11 +93,6 @@
         height: 93vh;
         color: var(--text-color);
         border: 3px solid var(--border-color);
-    }
-
-    .TimerView {
-        display: flex;
-        flex-direction: row;
     }
 
     .SolvePanel {
