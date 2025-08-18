@@ -1,5 +1,5 @@
 <script setup>
-    import { inject, ref, watch } from 'vue'
+    import { inject, ref, watch, nextTick } from 'vue'
     import { useSheetStore } from "@/stores/SheetStore"
     const sheetStore = useSheetStore()
     sheetStore.loadState()
@@ -21,20 +21,20 @@
 
     const columnHeaders = ['','Sheet','Flashcards','','New','Learning','Due','']
 
-    const gridRef = ref(null);
-    const selectedCells = ref([]);
+    const gridRef = ref(null)
+    const selectedCells = ref([])
     function UpdateSelectedCells() {
-        selectedCells.value = cardStore.getCardsForSheet(props.sheetID).map(card => card.reference.coord);
-        gridRef.value.changeHighlightedCells(selectedCells.value);
+        selectedCells.value = cardStore.getCardsForSheet(props.sheetID).map(card => card.reference.coord)
+        gridRef.value.changeHighlightedCells(selectedCells.value)
     }
 
     function SelectAll() {
         for (var i = 0; i < 24; i++) {
             for (var j = 0; j < 24; j++) {
                 if (selectedCells.value.filter(cell => cell.y === i && cell.x === j).length > 0) {
-                    continue; //Already in the array
+                    continue //Already in the array
                 }
-                onCellClicked({ x: j, y: i }); //Takes care of if its already empty
+                onCellClicked({ x: j, y: i }) //Takes care of if its already empty
             }
         }
     }
@@ -43,58 +43,66 @@
             return
         }
 
-        const selectedCellsCopy = [...selectedCells.value];
+        const selectedCellsCopy = [...selectedCells.value]
         selectedCellsCopy.forEach((card) => {
-            onCellClicked(card);
+            onCellClicked(card)
         })
     }
 
     function onCellClicked(value) {
         if (sheetStore.getCell(props.sheetID, value) === "") {
-            return; //Empty cell, not allowed!
+            return //Empty cell, not allowed!
         }
         if (selectedCells.value.some(cell => cell.x === value.x && cell.y === value.y)) {
             //If it already includes it, remove it
-            selectedCells.value = selectedCells.value.filter(cell => !(cell.x === value.x && cell.y === value.y));
-            cardStore.deleteCard(props.sheetID, value);
+            selectedCells.value = selectedCells.value.filter(cell => !(cell.x === value.x && cell.y === value.y))
+            cardStore.deleteCard(props.sheetID, value)
         }
         else {
             //If it wasn't in it, add it
-            selectedCells.value.push(value);
-            cardStore.createCard(props.sheetID, value);
+            selectedCells.value.push(value)
+            cardStore.createCard(props.sheetID, value)
         }
-        gridRef.value.changeHighlightedCells(selectedCells.value);
+        gridRef.value.changeHighlightedCells(selectedCells.value)
     }
 
     watch(
         () => settingsStore.sheets_pairorder,
         (newVal) => {
-            UpdateSelectedCells();
+            UpdateSelectedCells()
         }
-    );
+    )
 </script>
 
 <template>
     <div style="height:10vh"></div>
+
+    <!------CARD MENU GRID------>
     <div class="CardsView">
         <div class="CardsMenuGrid">
+            <!------HEADERS------>
             <div v-for="label in columnHeaders" :class="[label.length > 0 ? 'PanelHeader' : '']" style="font-size:1.5rem;">{{label}}</div>
             <div class="RowGap" v-for="x in columnHeaders"></div>
 
+            <!------SHEET ROWS------>
             <template v-for="(name,index) in sheetStore.getSheetNames">
-                <div><img @click="emit('sheetEditClicked', sheetStore.sheets[index].id);nextTick(()=>UpdateSelectedCells())"
+                <div>
+                    <img @click="emit('sheetEditClicked', sheetStore.sheets[index].id);nextTick(()=>UpdateSelectedCells())"
                          src="@/assets/edit.svg"
-                         :class="['editButton', (sheetID === sheetStore.sheets[index].id) ? 'editButtonSelected': '']" /></div>
+                         :class="['editButton', (sheetID === sheetStore.sheets[index].id) ? 'editButtonSelected': '']" />
+                </div>
                 <div>{{name}}</div>
                 <div>{{cardStore.getCardsForSheet(sheetStore.sheets[index].id).length}}/{{sheetStore.getFilledCellCount(sheetStore.sheets[index].id)}}</div>
                 <div />
-                <div>{{cardStore.getNewCards(sheetStore.sheets[index].id).length}}</div>
-                <div>{{cardStore.getLearningCards(sheetStore.sheets[index].id).length}}</div>
-                <div>{{cardStore.getDueCards(sheetStore.sheets[index].id).length}}</div>
-                <div><img v-if="cardStore.getCardsToPracticeCount(sheetStore.sheets[index].id) > 0"
+                <div>{{cardStore.getCardsOfType(sheetStore.sheets[index].id, "New").length}}</div>
+                <div>{{cardStore.getCardsOfType(sheetStore.sheets[index].id, "Learning").length}}</div>
+                <div>{{cardStore.getCardsOfType(sheetStore.sheets[index].id, "Due").length}}</div>
+                <div>
+                    <img v-if="cardStore.getCardsToPracticeCount(sheetStore.sheets[index].id) > 0"
                          src="@/assets/arrow-right-long.svg"
                          class="PracticeButton"
-                         @click="emit('beginPractice',sheetStore.sheets[index].id)" /></div>
+                         @click="emit('beginPractice',sheetStore.sheets[index].id)" />
+                </div>
                 <div class="RowGap" v-for="x in 8" v-if="index + 1 < sheetStore.sheets.length"></div>
             </template>
         </div>
@@ -103,6 +111,7 @@
         </div>
         <div style="height:10vh"></div>
 
+        <!------EDITING------>
         <div v-if="sheetStore.isValidSheetID(sheetID)" style="display:flex;flex-direction:column;gap:5px;">
             <h3 class="PanelHeader" style="font-size:5vh;">Select flashcards to create from this sheet</h3>
             <div style="display:flex;flex-direction:row;gap:5px;justify-content:center">

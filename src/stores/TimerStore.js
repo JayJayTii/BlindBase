@@ -31,6 +31,7 @@ export const useTimerStore = defineStore('timerStore', {
     },
     actions: {
         getNewSessionID() {
+            //Unique ID so sessions can have the same name
             const existingIDs = new Set(this.sessions.map((s) => s.id))
             let newID = 1
             while (existingIDs.has(newID)) {
@@ -51,7 +52,6 @@ export const useTimerStore = defineStore('timerStore', {
             this.loadState()
         },
         deleteSession(id) {
-            //Should only be allowed to delete at current session
             this.sessions.splice(this.getSessionIndexWithID(id), 1)
             this.saveState()
             this.loadState()
@@ -68,34 +68,22 @@ export const useTimerStore = defineStore('timerStore', {
             }
             return -1
         },
+
         getSession(id) {
             for (var i = 0; i < this.sessions.length; i++) {
                 if (this.sessions[i].id === id) return this.sessions[i]
             }
             return null
         },
+
         addSolve(sessionID, solve) {
             this.sessions[this.getSessionIndexWithID(sessionID)].solves.push(solve)
 
             this.saveState();
         },
-
-        getSolveTimeString(sessionID, solveIndex) {
-            const solve = this.sessions[this.getSessionIndexWithID(sessionID)].solves[solveIndex]
-            return this.getSolveTimeStringFromSolve(solve)
-        },
-        getSolveTimeStringFromSolve(solve) {
-            const solveTime = formatTime(solve.solveTime + ((solve.status === 2) ? 2000 : 0)) //Account for +2
-            const modifier = solve.status === 1 ? " (DNF)" : solve.status === 2 ? "+" : ""
-            return solveTime + modifier
-        },
-        getSolveRatioString(sessionID, solveIndex) {
-            const solve = this.sessions[this.getSessionIndexWithID(sessionID)].solves[solveIndex]
-            return this.getSolveRatioStringFromSolve(solve)
-        },
-        getSolveRatioStringFromSolve(solve) {
-            return solve.memoTime === 0 ? "" :
-                (formatTime(solve.memoTime) + " memo : " + formatTime(solve.solveTime - solve.memoTime) + " exec")
+        deleteSolve(sessionID, solveIndex) {
+            this.sessions[this.getSessionIndexWithID(sessionID)].solves.splice(solveIndex, 1)
+            this.saveState();
         },
 
         //Mean of N
@@ -108,10 +96,8 @@ export const useTimerStore = defineStore('timerStore', {
             let dnfAverage = false
             if (section === SOLVE_SECTIONS.total) {
                 const dnfCount = solves.filter((solve) => solve.status === 1).length
-                if (dnfCount > 0) {
-                    //Ignore DNFs if it is a dnf average, just to give a hypothetical
-                    dnfAverage = true
-                }
+                //Ignore DNFs if it is a DNF mean, just to give a hypothetical
+                dnfAverage = (dnfCount > 0)
                 times = solves.map((solve) => solve.solveTime + (solve.status === 2 ? 2000 : 0))
             }
             else if (section === SOLVE_SECTIONS.memo) {
@@ -120,24 +106,30 @@ export const useTimerStore = defineStore('timerStore', {
             else if (section === SOLVE_SECTIONS.exec) {
                 times = solves.map((solve) => solve.solveTime - solve.memoTime)
             }
-            const mean = times.reduce((acc, time) => acc + time, 0) / times.length;
-            return (dnfAverage ? ("DNF (" + formatTime(mean) + ")") : (formatTime(mean)))
+            const mean = times.reduce((acc, time) => acc + time, 0) / times.length
+
+            if (dnfAverage) {
+                return "DNF (" + formatTime(mean) + ")"
+            } else {
+                return formatTime(mean)
+            }
         },
         //Average of N
         aoN(sessionID, n, section) {
-            const index = this.getSessionIndexWithID(sessionID)
-            const solves = this.sessions[index].solves.slice(-n)
-            if (solves.length < n)
+            const sessionIndex = this.getSessionIndexWithID(sessionID)
+            //Get the last n solves
+            const solves = this.sessions[sessionIndex].solves.slice(-n)
+            if (solves.length < n) //If there haven't been n solves, then there isn't an average of n
                 return "---"
+
             let times = []
             let dnfAverage = false
-            if (section === SOLVE_SECTIONS.total) {
+            //DNFs aren't counted for parts of solves
+            if (section === SOLVE_SECTIONS.total) { 
                 const dnfCount = solves.filter((solve) => solve.status === 1).length
-                if (dnfCount > 1) {
-                    //Ignore DNFs if it is a dnf average, just to give a hypothetical
-                    dnfAverage = true
-                }
-                //If it isn't a DNF average, just add lots of time to any DNF to filter out
+                //Ignore DNFs if it is a dnf average, just to give a hypothetical
+                dnfAverage = (dnfCount > 1)
+                //If there is 0 or 1 DNFs, add lots of time to a DNF to filter it out
                 times = solves.map((solve) => solve.solveTime + (solve.status === 2 ? 2000 : 0) + (!dnfAverage && solve.status === 1 ? 99999999999999 : 0))
             }
             else if (section === SOLVE_SECTIONS.memo) {
@@ -146,12 +138,18 @@ export const useTimerStore = defineStore('timerStore', {
             else if (section === SOLVE_SECTIONS.exec) {
                 times = solves.map((solve) => solve.solveTime - solve.memoTime)
             }
+            //Sort times to remove fastest and slowest (or dnf)
             times.sort(function (a, b) {
                 return a - b;
             });
             times = times.slice(1, n - 1) //Only take middle values
-            const mean = times.reduce((acc, time) => acc + time, 0) / times.length;
-            return (dnfAverage ? ("DNF (" + formatTime(mean) + ")") : (formatTime(mean)))
+            const mean = times.reduce((acc, time) => acc + time, 0) / times.length
+
+            if (dnfAverage) {
+                return "DNF (" + formatTime(mean) + ")"
+            } else {
+                return formatTime(mean)
+            }
         },
 
         getSessionStatistics(id) {

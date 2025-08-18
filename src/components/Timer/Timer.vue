@@ -1,9 +1,10 @@
 <script setup>
     import { ref, reactive, computed, onMounted, onUnmounted } from 'vue'
-    import { useTimerStore } from '@/stores/TimerStore';
-    const timerStore = useTimerStore();
-    timerStore.loadState();
-    import { Scramble } from '@/helpers/scramble.js';
+    import { getSolveTimeString, getSolveRatioString } from '@/helpers/timer.js'
+    import { Scramble } from '@/helpers/scramble.js'
+    import { useTimerStore } from '@/stores/TimerStore'
+    const timerStore = useTimerStore()
+    timerStore.loadState()
 
     const props = defineProps({
         sessionID: Number,
@@ -16,24 +17,27 @@
         memoing: 2,
         executing: 3,
         stopping: 4
-    };
+    }
     const isSolving = computed({
         get: () => timerStage.value === stages.memoing || timerStage.value === stages.executing
     })
     const timerStage = ref(0)
+    //Initialise solve with last solve of the session
     const solve = reactive({})
     solve.value = timerStore.sessions[timerStore.getSessionIndexWithID(props.sessionID)].solves.at(-1)
     if (!solve.value) {
-        solve.value = {solveTime: 0}
+        solve.value = {solveTime: 0} //Initialise timer to 0.00 if this is the first solve
     }
     let scramble = new Scramble(20).toString()
-    let stopwatchStartTime = 0;
+    let stopwatchStartTime = 0
 
-    let timerUpdate = null;
+    let timerUpdate = null
     function handleKeydown(event) {
-        const el = document.activeElement;
+        const el = document.activeElement
+        //Don't start timer if typing a keybind as text
         if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.isContentEditable)
             return
+
         if (event.code === 'Space') {
             if (timerStage.value === stages.finished) {
                 timerStage.value = stages.waiting //Wait for space up
@@ -49,9 +53,11 @@
                 solve.value.status = 0 //Default to no penalty
                 timerStage.value = stages.stopping
                 emit('update:solve-complete', solve.value)
-                scramble = new Scramble(20).toString()
+
+                scramble = new Scramble(20).toString() //Generate new scramble
             }
         }
+        //Status change keybinds
         else if (event.code === "ArrowRight") {
             if (solve.value.status < timerStore.solveStatuses.length - 1) {
                 solve.value.status++
@@ -66,7 +72,7 @@
         }
     }
     function handleKeyup(event) {
-        const el = document.activeElement;
+        const el = document.activeElement
         if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.isContentEditable)
             return
 
@@ -76,11 +82,11 @@
                 stopwatchStartTime = new Date().getTime()
                 timerUpdate = setInterval(() => {
                     solve.value.solveTime = new Date().getTime() - stopwatchStartTime
-                }, 10)
+                }, 10) //Update the stopwatch text every 0.01 seconds
             }
             else if (timerStage.value === stages.memoing) { //Begin exec stage
                 timerStage.value = stages.executing
-                solve.value.memoTime = solve.value.solveTime
+                solve.value.memoTime = solve.value.solveTime //Copy current time into memoTime
             }
             else if (timerStage.value === stages.stopping) { //Go back to default screen
                 timerStage.value = stages.finished
@@ -95,27 +101,30 @@
         window.removeEventListener('keydown', handleKeydown)
         window.removeEventListener('keyup', handleKeyup)
     })
-    defineExpose({
-
-    })
 </script>
 
 <template>
     <div class="TimerContainer">
+        <!---------SCRAMBLE---------->
         <div class="ScrambleText" v-if="!isSolving">
             {{scramble}}
         </div>
+        <!---------MEMO/EXEC--------->
         <div class="StageText" v-if="isSolving">{{timerStage === stages.memoing ? "MEMO" : "EXEC"}}</div>
+
         <div id="TimerCenterColumn">
+            <!------STOPWATCH------>
             <div :class="['StopwatchText',
              timerStage === stages.waiting ? 'StopwatchStartSpaceDown' :
              timerStage === stages.stopping ? 'StopwatchEndSpaceDown' : '']"
                  :key="solve">
-                {{timerStore.getSolveTimeStringFromSolve(solve.value)}}
+                {{getSolveTimeString(solve.value)}}
             </div>
+            <!---LAST SOLVE RATIO--->
             <div class="RatioText" v-if="!isSolving && solve.value && solve.value.memoTime > 0">
-                {{timerStore.getSolveRatioStringFromSolve(solve.value)}}
+                {{getSolveRatioString(solve.value)}}
             </div>
+            <!---LAST SOLVE STATUS--->
             <div class="StatusRow" v-if="!isSolving && timerStage !== 1 && 'status' in solve.value">
                 <template v-for="status in timerStore.solveStatuses">
                     <div :class="['ListItem', solve.value.status === status.id ? 'ListItemSelected' : 'ListItemUnselected']"
@@ -129,11 +138,8 @@
 </template>
 
 <style>
-    body {
+    .TimerContainer {
         --timer-font-size: 7rem;
-    }
-
-    .TimerContainer{
         width: 100%;
         height: 100%;
         position: relative;

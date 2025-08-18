@@ -1,7 +1,7 @@
 <script setup>
-defineProps({
-    route: Object,
-})
+    defineProps({
+        route: Object,
+    })
 </script>
 
 <template>
@@ -17,22 +17,18 @@ defineProps({
 </template>
 
 <style>
-:root {
-    --square-size: 150px;
-}
-
-.home-button {
-    display: flex;
-    flex-direction: column;
-}
-
+    .home-button {
+        --home-button-size: 150px;
+        display: flex;
+        flex-direction: column;
+    }
     .home-button:hover .description {
-        margin-top: calc(-0.3 * var(--square-size));
+        margin-top: calc(-0.3 * var(--home-button-size));
     }
 
     .button {
-        width: var(--square-size);
-        height: var(--square-size);
+        width: var(--home-button-size);
+        height: var(--home-button-size);
         display: flex;
         flex-direction: column;
         align-items: center;
@@ -44,18 +40,22 @@ defineProps({
         border-radius: 10px;
         z-index: 5;
     }
-.button img {
-    height: calc(0.7 * var(--square-size));
-    aspect-ratio: auto;
-    display: flex;
-}
+        .button img {
+            height: calc(0.7 * var(--home-button-size));
+            aspect-ratio: auto;
+            display: flex;
+        }
 
+    /*
+        Descriptions are hidden behind the button by default,
+        then peek out when hovered by interpolating margin-top
+    */
     .description {
         background-color: var(--brand-500);
         color: var(--grey-800);
         border-radius: 10px;
-        width: var(--square-size);
-        min-height: var(--square-size);
+        width: var(--home-button-size);
+        min-height: var(--home-button-size);
         align-items: center;
         justify-content: start;
         display: flex;
@@ -64,7 +64,7 @@ defineProps({
         text-align: center;
         padding: 50px 10px 10px 10px;
         line-height: 1.1;
-        margin-top: calc(-1 * var(--square-size));
+        margin-top: calc(-1 * var(--home-button-size));
         transition: margin-top 0.1s ease;
     }
 </style>

@@ -1,30 +1,30 @@
 <script setup>
-import { computed } from 'vue'
-import { useSettingsStore } from '.././stores/SettingsStore'
-const settingsStore = useSettingsStore()
-settingsStore.loadState()
+    import { computed } from 'vue'
+    import { useSettingsStore } from '.././stores/SettingsStore'
+    const settingsStore = useSettingsStore()
+    settingsStore.loadState()
 
-const Sheets_PairOrder = computed({
-    get: () => settingsStore.sheets_pairorder,
-    set: (newValue) => {
-        settingsStore.sheets_pairorder = newValue
-        settingsStore.saveState()
-    },
-})
-const Sheets_NotationType = computed({
-    get: () => settingsStore.sheets_notationtype,
-    set: (newValue) => {
-        settingsStore.sheets_notationtype = newValue
-        settingsStore.saveState()
-    },
-})
-const Sheets_ExtraXImages = computed({
-    get: () => settingsStore.sheets_extraximages,
-    set: (newValue) => {
-        settingsStore.sheets_extraximages = newValue
-        settingsStore.saveState()
-    },
-})
+    const Sheets_PairOrder = computed({
+        get: () => settingsStore.sheets_pairorder,
+        set: (newValue) => {
+            settingsStore.sheets_pairorder = newValue
+            settingsStore.saveState()
+        },
+    })
+    const Sheets_NotationType = computed({
+        get: () => settingsStore.sheets_notationtype,
+        set: (newValue) => {
+            settingsStore.sheets_notationtype = newValue
+            settingsStore.saveState()
+        },
+    })
+    const Sheets_ExtraXImages = computed({
+        get: () => settingsStore.sheets_extraximages,
+        set: (newValue) => {
+            settingsStore.sheets_extraximages = newValue
+            settingsStore.saveState()
+        },
+    })
 </script>
 
 <template>

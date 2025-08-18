@@ -1,6 +1,5 @@
 <script setup>
     import { reactive} from "vue"
-    import Flashcard from "@/components/cards/Flashcard.vue"
     import { useSheetStore } from "@/stores/SheetStore"
     const sheetStore = useSheetStore()
     sheetStore.loadState()
@@ -8,51 +7,63 @@
     const cardStore = useCardStore()
     cardStore.loadState()
 
+    import Flashcard from "@/components/cards/Flashcard.vue"
+
     const props = defineProps({
         sheetID: Number,
         updateStatsKey: Number,
     })
-
     const emit = defineEmits(['quitPractice'])
 
-    const currentCard = reactive({});
+    //Current card is stored here then passed into the flashcard
+    const currentCard = reactive({})
     function getNextCard() {
-        var possibleNextCards = cardStore.getDueCards(props.sheetID).length > 0 ? cardStore.getDueCards(props.sheetID)
-            : (cardStore.getLearningCards(props.sheetID).length > 0 ? cardStore.getLearningCards(props.sheetID)
-                : cardStore.getNewCards(props.sheetID))
+        //Prioritise cards in the order Due -> Learning -> New
+        const dueCards = cardStore.getCardsOfType(props.sheetID, "Due")
+        const learningCards = cardStore.getCardsOfType(props.sheetID, "Learning")
+        const newCards = cardStore.getCardsOfType(props.sheetID, "New")
+        const possibleNextCards = dueCards.length > 0 ? dueCards
+            : (learningCards.length > 0 ? learningCards : newCards)
 
-        const nextIndex = Math.floor(Math.random() * possibleNextCards.length);
-        currentCard.value = possibleNextCards[nextIndex];
-    };
-    getNextCard() //Initial card
+        //Choose a random card out of the type that is being practiced
+        const nextIndex = Math.floor(Math.random() * possibleNextCards.length)
+        currentCard.value = possibleNextCards[nextIndex]
+    }
+    getNextCard() //Get initial card
 
     function finishedCard(result) { //Result is a string 'Good' or 'Bad'
         if (cardStore.getCardsToPracticeCount(props.sheetID) === 0) {
             emit("quitPractice")
-            return;
+            return
         }
-        getNextCard();
+        getNextCard()
     }
 </script>
 
 <template>
     <div class="PracticeView">
-        <img @click="emit('quitPractice');"
+        <!------BACK------>
+        <img @click="emit('quitPractice')"
              src="@/assets/arrow-left-long.svg"
              class="BackButton" />
+
+        <!------SHEET NAME------>
         <h3 class="PracticeSheetName">{{sheetStore.getSheet(props.sheetID).name}}</h3>
+
+        <!------REMAINING CARDS STATS------>
         <div class="RemainingPanel" :key="props.updateStatsKey">
             <div>New</div>
             <div>Learning</div>
             <div>Due</div>
-            <div>{{cardStore.getNewCards(props.sheetID).length}}</div>
-            <div>{{cardStore.getLearningCards(props.sheetID).length}}</div>
-            <div>{{cardStore.getDueCards(props.sheetID).length}}</div>
+            <div>{{cardStore.getCardsOfType(props.sheetID, 'New').length}}</div>
+            <div>{{cardStore.getCardsOfType(props.sheetID,'Learning').length}}</div>
+            <div>{{cardStore.getCardsOfType(props.sheetID,'Due').length}}</div>
         </div>
 
+        <!------FLASHCARD------>
         <Flashcard :card="currentCard"
                    :sheetID="props.sheetID"
-                   @finishedCard="finishedCard"/>
+                   @finishedCard="finishedCard" />
     </div>
 </template>
 

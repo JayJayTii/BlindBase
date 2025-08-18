@@ -2,7 +2,6 @@
     import { computed, inject } from 'vue'
     import { useTimerStore } from "@/stores/TimerStore"
     const timerStore = useTimerStore()
-    const confirmDialog = inject('confirmDialog')
 
     const props = defineProps({
         sessionID: Number,
@@ -17,27 +16,29 @@
                 timerStore.saveState()
             }
         }
-    });
+    })
     const currentSessionType = computed({
         get: () => timerStore.getSession(props.sessionID).type,
         set: (newType) => {
             if (timerStore.isValidSessionID(props.sessionID)) {
                 timerStore.sessions[timerStore.getSessionIndexWithID(props.sessionID)].type = newType
-                timerStore.saveState();
+                timerStore.saveState()
             }
         }
-    });
+    })
 
 </script>
 
 <template>
-    <div class="Panel" v-if="props.sessionID !== -1">
+    <div class="Panel" v-if="timerStore.isValidSessionID(props.sessionID)">
         <div class="PanelHeader"> Session Settings: </div>
+        <!------NAME------>
         <div class="SessionEditingRow">
             <input v-model="currentSessionName"
                    maxlength="20"
                    style="white-space:nowrap;font-weight:bold;font-size:2rem;width:100%;text-align:center;" />
         </div>
+        <!------TYPE------>
         <div class="SessionEditingRow">
             Type: <select v-model="currentSessionType" style="width: 100%; ">
                 <option v-for="(type,index) in timerStore.getSessionTypes"
@@ -47,6 +48,7 @@
                 </option>
             </select>
         </div>
+        <!------DELETE------>
         <div class="SessionEditingRow">
             <button @click="emit('deleteSession')">
                 Delete

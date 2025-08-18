@@ -67,13 +67,15 @@
 
 body {
     min-height: 100vh;
+    --navbar-height: 7vh;
+
     background-color: var(--grey-800);
     --panel-color: var(--grey-800);
     --border-color: var(--grey-900);
     --panel-header-color: var(--brand-700);
     --panel-header-text-color: var(--grey-100);
     --text-color: var(--grey-100);
-    
+
     user-select: none;
     transition: color 0.5s, background-color 0.5s;
     line-height: 1.6;
@@ -117,4 +119,11 @@ body {
     height: 93vh;
     color: var(--text-color);
     border: 3px solid var(--border-color);
+}
+
+.newButton {
+    justify-content: center;
+    align-self: end;
+    width: 30px;
+    height: 30px;
 }

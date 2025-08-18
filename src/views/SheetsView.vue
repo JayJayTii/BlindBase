@@ -13,37 +13,40 @@
     import EditCell from "@/components/sheets/EditCell.vue"
     const confirmDialog = inject('confirmDialog')
 
-    const sheetID = ref(-1);
-    const selectedCell = reactive({ x: 0, y: 0 });
+    //-1 means unselected
+    const sheetID = ref(-1)
+    const selectedCell = reactive({ x: 0, y: 0 })
 
-    const gridRef = ref(null);
-    const editCellRef = ref(null);
+    const gridRef = ref(null)
+    const editCellRef = ref(null)
 
-    function updateSheetID(index) {
+    function updateSheetID(index) { //Triggered by SheetSelect component
         if (sheetID.value != sheetStore.sheets[index].id) {
-            sheetID.value = sheetStore.sheets[index].id;
-            onCellClicked({ x: 0, y: 0 });
+            sheetID.value = sheetStore.sheets[index].id
+            onCellClicked({ x: 0, y: 0 })
         }
     }
     async function deleteSheet() {
-        if (await confirmDialog.value.open('Are you sure you want to delete this sheet?')) {
-            sheetStore.deleteSheet(sheetID.value)
-            sheetID.value = -1
+        if (!(await confirmDialog.value.open('Are you sure you want to delete this sheet?'))) {
+            return
         }
+        sheetStore.deleteSheet(sheetID.value)
+        sheetID.value = -1
     }
 
     function onCellClicked(newValue) {
-        //Absolute coord
-        selectedCell.x = newValue.x;
-        selectedCell.y = newValue.y;
-        gridRef.value.changeHighlightedCells([selectedCell]);
+        selectedCell.x = newValue.x
+        selectedCell.y = newValue.y
+        gridRef.value.changeHighlightedCells([selectedCell])
+        //Focus the input box in nextTick as it needs to start being rendered again before being accessible
         nextTick(() => { editCellRef.value.cellValueInputBox.focus() })
     }
 
+    //Grid cannot dynamically update highlighted cells after setting change, so just reset them
     watch(
         () => settingsStore.sheets_pairorder,
         (newVal) => {
-            onCellClicked({ x: 0, y: 0 }); //Just reset it since this won't happen often
+            onCellClicked({ x: 0, y: 0 })
         }
     );
 </script>
@@ -51,29 +54,32 @@
 
 <template>
     <div style="display: flex; flex-direction: row;">
+        <!---------LEFT COLUMN--------->
         <div class="PanelColumn">
             <SheetSelect style="width:100%; height:33%;"
                          :sheetID="sheetID"
-                         @updateSheetID="updateSheetID"/>
+                         @updateSheetID="updateSheetID" />
 
             <SheetSettings style="width:100%; height:67%;"
                            :sheetID="sheetID"
-                           @deleteSheet="deleteSheet"/>
+                           @deleteSheet="deleteSheet" />
         </div>
 
+        <!------------GRID------------->
         <SheetGrid ref="gridRef"
                    style="width: 60vw; height: 93vh;"
                    :sheetID="sheetID"
                    :showIfNull="true"
                    :key="sheetID"
-                   @update:selected-cell="onCellClicked"/>
+                   @update:selected-cell="onCellClicked" />
 
+        <!--------RIGHT COLUMN-------->
         <div class="PanelColumn">
             <EditCell style="width:100%; height: 100%;"
                       ref="editCellRef"
                       :key="sheetID + '-' + selectedCell.x+ '-' + selectedCell.y"
-                   :sheetID="sheetID" :selectedCell="selectedCell"
-                   @cellKeyChanged="onCellClicked"/>
+                      :sheetID="sheetID" :selectedCell="selectedCell"
+                      @cellKeyChanged="onCellClicked" />
         </div>
     </div>
 </template>

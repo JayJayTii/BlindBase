@@ -1,5 +1,4 @@
-﻿//This should be the only file which works with chichu
-import cornerData from '../assets/recommendations/cornerManmade_formatted.json'
+﻿import cornerData from '../assets/recommendations/cornerManmade_formatted.json'
 import edgeData from '../assets/recommendations/edgeManmade_formatted.json'
 import imageData from '../assets/recommendations/imageRecommendations.json'
 import { useSettingsStore } from '../stores/SettingsStore'
@@ -24,6 +23,7 @@ export function getRecommendations(sheetType, key) {
 }
 
 function getEquivalentCornerComms(key) {
+    //Each corner comm can have many equivalents, which are spread throughout the cornerData
     const cycled = [key, key[2] + key[0] + key[1], key[1] + key[2] + key[0]]
     let output = []
     for (let cycle of cycled) {
@@ -41,6 +41,7 @@ function getEquivalentCornerComms(key) {
     return output
 }
 function getEquivalentEdgeComms(key) {
+    //Each edge comm can have many equivalents, which are spread throughout the edgeData
     const cycled = [key, key[2] + key[0] + key[1], key[1] + key[2] + key[0]]
     let output = []
     for (let cycle of cycled) {
@@ -61,6 +62,7 @@ function getEquivalentEdgeComms(key) {
 
 function getCornerRecommendations(baseKey) {
     const notation = getSettingsStore().sheets_notationtype
+    //buffer is always included in the comm
     baseKey = 'C' + baseKey
     const equivalentKeys = getEquivalentCornerComms(baseKey)
     let allComms = []
@@ -76,6 +78,7 @@ function getCornerRecommendations(baseKey) {
 }
 function getEdgeRecommendations(baseKey) {
     const notation = getSettingsStore().sheets_notationtype
+    //buffer is always included in the comm
     baseKey = 'C' + baseKey
     const equivalentKeys = getEquivalentEdgeComms(baseKey)
     let allComms = []
@@ -94,6 +97,7 @@ function getImageRecommendations(baseKey) {
     let result = imageData[baseKey]
     if (!(baseKey.includes('X') && getSettingsStore().sheets_extraximages == true)) return result
 
+    //Get every combination of X/ʧ options
     if (baseKey[0] == 'X') {
         result = result.concat(imageData['ʧ' + baseKey[1]])
     }
@@ -107,7 +111,7 @@ function getImageRecommendations(baseKey) {
     return result
 }
 
-//These should maybe go in a rubik's cube script or something instead
+//These should maybe go in a rubik's cube script instead
 //Connects a corner sticker to all stickers on the piece that it is on (in clockwise direction)
 const adjacentCornerStickers = {
     A: ['A', 'E', 'R'],

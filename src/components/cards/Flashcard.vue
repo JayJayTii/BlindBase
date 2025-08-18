@@ -1,5 +1,6 @@
 <script setup>
     import { ref, computed, onMounted, onUnmounted } from "vue"
+    import { getCardType } from "@/helpers/cards.js"
     import { useSheetStore } from "@/stores/SheetStore"
     const sheetStore = useSheetStore()
     sheetStore.loadState()
@@ -13,19 +14,20 @@
     })
     const emit = defineEmits(['finishedCard'])
 
-    const cardFlipped = ref(false);
-    const hasFlipped = ref(false);
+    const cardFlipped = ref(false)
+    const hasFlipped = ref(false)
 
     function handleKeydown(event) {
+        //Space (flip card)
         if (event.code === 'Space') {
             cardFlipped.value = !cardFlipped.value
             hasFlipped.value = true
         }
-        //Right arrow
+        //Right arrow (good card)
         else if (event.code == 'ArrowRight' && hasFlipped.value === true) {
             finishedCard('Good')
         }
-        //left arrow
+        //Left arrow (bad card)
         else if (event.code == 'ArrowLeft' && hasFlipped.value === true && cardType.value !== "New") {
             finishedCard('Bad')
         }
@@ -39,60 +41,65 @@
 
     const cardType = computed({
         get: () => {
-            return cardStore.getCardType(props.card.value);
+            return getCardType(props.card.value)
         }
-    });
+    })
 
     function finishedCard(result) {
-        hasFlipped.value = false;
-        cardFlipped.value = false;
-        var updated = JSON.parse(JSON.stringify(props.card.value)); //Done to deep-copy the reference as well
+        hasFlipped.value = false
+        cardFlipped.value = false
+        var updated = JSON.parse(JSON.stringify(props.card.value)) //Done to deep-copy the reference as well
         if (result == 'Good') {
-            updated.successCount += 1;
+            updated.successCount += 1
         }
         else {
-            updated.failCount += 1;
+            updated.failCount += 1
         }
 
         if (cardType.value == "New") {
-            var nextTime = new Date();
-            nextTime.setMinutes(nextTime.getMinutes() + 10);
-            updated.nextPracticeTime = nextTime.toISOString();
+            //10 minutes later for a new card (can only select good)
+            var nextTime = new Date()
+            nextTime.setMinutes(nextTime.getMinutes() + 10)
+            updated.nextPracticeTime = nextTime.toISOString()
         }
         else if (cardType.value == "Learning") {
             //10 minutes later no matter what result
             //But you repeat it more often if it was bad
-            var nextTime = new Date();
-            nextTime.setMinutes(nextTime.getMinutes() + 10);
-            updated.nextPracticeTime = nextTime.toISOString();
+            var nextTime = new Date()
+            nextTime.setMinutes(nextTime.getMinutes() + 10)
+            updated.nextPracticeTime = nextTime.toISOString()
         }
         else if (cardType.value == "Due") {
             //Both successes and fails taken into account
-            var nextTime = new Date();
-            if (updated.successCount - updated.failCount < 4) //Had some trouble while learning
-                nextTime.setDate(nextTime.getDate() + 1);
-            else if (updated.successCount - updated.failCount < 7)
-                nextTime.setDate(nextTime.getDate() + 2);
-            else if (updated.successCount - updated.failCount < 11)
-                nextTime.setDate(nextTime.getDate() + 7);
-            else if (updated.successCount - updated.failCount < 14)
-                nextTime.setDate(nextTime.getDate() + 30);
+            var nextTime = new Date()
+            const score = updated.successCount - updated.failCount
+            if (score < 4)
+                nextTime.setDate(nextTime.getDate() + 1) //1 day
+            else if (score < 7)
+                nextTime.setDate(nextTime.getDate() + 2) //2 days
+            else if (score < 11)
+                nextTime.setDate(nextTime.getDate() + 7) //7 days
+            else if (score < 14)
+                nextTime.setDate(nextTime.getDate() + 30)//30 days
             else
-                nextTime.setDate(nextTime.getDate() + 90);
+                nextTime.setDate(nextTime.getDate() + 90)//90 days
 
-            updated.nextPracticeTime = nextTime.toISOString();
+            updated.nextPracticeTime = nextTime.toISOString()
         }
-        cardStore.cardComplete(updated)
+        cardStore.completeCard(updated)
         emit('finishedCard')
     }
 </script>
 
 <template>
+    <!------GOOD------>
     <img v-if="cardType != 'New' && hasFlipped"
          @click="finishedCard('Bad')"
          class="BadButton"
          src="@/assets/thumb-down.svg" />
     <div v-else></div>
+
+    <!------CARD------>
     <div :class="['Card', cardFlipped ? 'FlippedCard' : '' ]"
          @click="cardFlipped = !cardFlipped; hasFlipped = true;">
         <div class="CardTypeText">
@@ -105,6 +112,8 @@
             <div v-else>{{props.card.value.algorithm}}</div>
         </div>
     </div>
+
+    <!------BAD------>
     <img v-if="hasFlipped"
          @click="finishedCard('Good')"
          class="GoodButton"

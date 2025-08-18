@@ -1,5 +1,6 @@
 <script setup>
     import { ref, onMounted, nextTick, watch } from 'vue'
+    import { getSolveTimeString } from "@/helpers/timer.js"
     import { useTimerStore } from "@/stores/TimerStore"
     const timerStore = useTimerStore()
     import List from '@/components/List.vue'
@@ -39,7 +40,7 @@
         <div class="PanelHeader"> Solves: </div>
         <div style="overflow:auto;"
              ref="solveListRef">
-            <List :data="timerStore.getSession(props.sessionID).solves.map((solve,index) => (index+1).toString() + ' | ' + timerStore.getSolveTimeStringFromSolve(solve))"
+            <List :data="timerStore.getSession(props.sessionID).solves.map((solve,index) => (index+1).toString() + ' | ' + getSolveTimeString(solve))"
                   :selectedIndex="-1"
                   @onItemClick="SolveClicked"/>
         </div>

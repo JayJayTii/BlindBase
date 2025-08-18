@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 
 export const modes = ['Endless', 'One mistake', 'Multiblind']
+
 export const useMemoStore = defineStore('memoStore', {
     state: () => {
         return {
@@ -9,6 +10,7 @@ export const useMemoStore = defineStore('memoStore', {
     },
     actions: {
         GetHighscore(index) {
+            //Fill highscores with 0 if there have been new modes added
             while (this.highscores.length <= index) {
                 this.highscores.push(0)
                 this.saveState()

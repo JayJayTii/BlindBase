@@ -1,13 +1,13 @@
 <script setup>
-    import { ref } from 'vue';
-    import { useTimerStore } from "@/stores/TimerStore";
-    const timerStore = useTimerStore();
-    import List from "@/components/List.vue";
+    import { ref } from 'vue'
+    import { useTimerStore } from "@/stores/TimerStore"
+    const timerStore = useTimerStore()
+    import List from "@/components/List.vue"
 
     const props = defineProps({
         sessionID: Number,
     })
-    const emit = defineEmits(['updateSessionID']);
+    const emit = defineEmits(['updateSessionID'])
 
     function SessionClicked(index) {
         emit('updateSessionID', index)
@@ -17,11 +17,11 @@
 <template>
     <div class="Panel">
         <div class="PanelHeader"> Select Session:</div>
+
         <List :data="timerStore.getSessionNames" :selectedIndex="timerStore.getSessionIndexWithID(props.sessionID)"
               @onItemClick="SessionClicked" />
+
         <button @click="timerStore.newSession(); emit('updateSessionID',timerStore.sessions.length-1);"
-                style="justify-content: center; align-self: end; width: 30px; height: 30px;">
-            +
-        </button>
+                class="newButton">+</button>
     </div>
 </template>

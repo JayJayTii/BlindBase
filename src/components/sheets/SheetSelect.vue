@@ -1,12 +1,12 @@
 <script setup>
-    import { useSheetStore } from "@/stores/SheetStore";
-    const sheetStore = useSheetStore();
-    import List from "@/components/List.vue";
+    import { useSheetStore } from "@/stores/SheetStore"
+    const sheetStore = useSheetStore()
+    import List from "@/components/List.vue"
 
     const props = defineProps({
         sheetID: Number,
     })
-    const emit = defineEmits(['updateSheetID']);
+    const emit = defineEmits(['updateSheetID'])
 
     function SheetClicked(index) {
         emit('updateSheetID', index)
@@ -16,11 +16,11 @@
 <template>
     <div class="Panel">
         <div class="PanelHeader"> Select Sheet: </div>
+
         <List :data="sheetStore.getSheetNames" :selectedIndex="sheetStore.getSheetIndexWithID(props.sheetID)"
               @onItemClick="SheetClicked" />
+
         <button @click="sheetStore.newSheet(); emit('updateSheetID',sheetStore.sheets.length-1);"
-                style="justify-content:center; align-self:end; width: 30px; height:30px;">
-            +
-        </button>
+                class="newButton">+</button>
     </div>
 </template>

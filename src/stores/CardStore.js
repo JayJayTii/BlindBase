@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import { useSheetStore } from './SheetStore'
+import { getCardType } from '@/helpers/cards.js'
 
 export function getSheetStore() {
     return useSheetStore()
@@ -14,6 +15,7 @@ export const useCardStore = defineStore('cardStore', {
     },
     actions: {
         createCard(sheetID, absoluteCoord) {
+            //Push card to array and save
             const newCard = {
                 algorithm: getSheetStore().getCell(sheetID, absoluteCoord),
                 reference: { sheetID: sheetID, coord: absoluteCoord },
@@ -26,6 +28,7 @@ export const useCardStore = defineStore('cardStore', {
             this.saveState()
         },
         deleteCard(sheetID, absoluteCoord) {
+            //Filter out if the card matches the given reference, then save
             this.cards = this.cards.filter(
                 (card) =>
                     !(
@@ -36,13 +39,12 @@ export const useCardStore = defineStore('cardStore', {
             )
             this.saveState()
         },
-        getCardType(card) {
-            return card.successCount >= 5 ? 'Due' : card.successCount > 0 ? 'Learning' : 'New'
-        },
-        cardComplete(updatedCard) {
+        completeCard(updatedCard) {
+            //If it was new, increment dailyNewCards (successCount already incremented before this is called)
             if (updatedCard.successCount + updatedCard.failCount === 1) {
                 this.dailyStats.dailyNewCards += 1
             }
+            //Loop through all cards, if it matches this card, then replace it with the updated version
             this.cards = this.cards.map((card) => {
                 if (
                     card.reference.sheetID == updatedCard.reference.sheetID &&
@@ -56,51 +58,37 @@ export const useCardStore = defineStore('cardStore', {
             this.saveState()
         },
 
-        getSheetsWithCards(sheetID) {
-            //do this haha
-        },
         getCardsForSheet(sheetID) {
             return this.cards.filter((card) => card.reference.sheetID === sheetID)
         },
-        getNewCards(sheetID) {
+        getCardsOfType(sheetID, type) {
+            //Only include cards which match the sheetID, match the type, and are due for practice
             const now = new Date().toISOString()
-            const newCards = this.cards.filter(
+            const cards = this.cards.filter(
                 (card) =>
-                    card.nextPracticeTime < now &&
-                    card.successCount === 0 &&
-                    card.reference.sheetID === sheetID,
+                    card.reference.sheetID === sheetID &&
+                    getCardType(card) === type &&
+                    card.nextPracticeTime < now
             )
-            const dailyNewCardsRemaining = 20 - this.dailyStats.dailyNewCards
-            return newCards.slice(0, dailyNewCardsRemaining)
-        },
-        getLearningCards(sheetID) {
-            const now = new Date().toISOString()
-            return this.cards.filter(
-                (card) =>
-                    card.nextPracticeTime < now &&
-                    card.successCount > 0 &&
-                    card.successCount < 5 &&
-                    card.reference.sheetID === sheetID,
-            )
-        },
-        getDueCards(sheetID) {
-            const now = new Date().toISOString()
-            return this.cards.filter(
-                (card) =>
-                    card.nextPracticeTime < now &&
-                    card.successCount >= 5 &&
-                    card.reference.sheetID === sheetID,
-            )
+            //Take daily new card limit into account
+            if (type === "New") {
+                const dailyNewCardsRemaining = 20 - this.dailyStats.dailyNewCards
+                return cards.slice(0, dailyNewCardsRemaining)
+            }
+            return cards
         },
         getCardsToPracticeCount(sheetID) {
+            //A better way would be to just get the length of cards for a sheet which
+            //are due for practice, but this runs into issues with new card limits
             return (
-                this.getNewCards(sheetID).length +
-                this.getLearningCards(sheetID).length +
-                this.getDueCards(sheetID).length
+                this.getCardsOfType(sheetID, "New").length +
+                this.getCardsOfType(sheetID, "Learning").length +
+                this.getCardsOfType(sheetID, "Due").length
             )
         },
 
         checkCards() {
+            //Remove any cards if their contents have been edited in the sheet
             this.cards = this.cards.filter(
                 (card) =>
                     card.algorithm ===
@@ -109,6 +97,7 @@ export const useCardStore = defineStore('cardStore', {
             this.saveState()
         },
         checkDailyStats() {
+            //Reset daily limit for new cards if it is a new day!
             if (new Date().setHours(0, 0, 0, 0) === this.dailyStats.date) return
 
             this.dailyStats.date = new Date().setHours(0, 0, 0, 0)
@@ -131,8 +120,8 @@ export const useCardStore = defineStore('cardStore', {
                 this.cards = data.cards
                 this.dailyStats = data.dailyStats
             } catch {}
-            this.checkCards() //Remove cards that have changed
-            this.checkDailyStats() //Set new date if its the next day
+            this.checkCards()
+            this.checkDailyStats()
         },
     },
     getters: {},

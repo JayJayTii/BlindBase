@@ -11,5 +11,8 @@ provide('confirmDialog', confirmDialog)
 <template>
     <ConfirmationBox ref="confirmDialog" />
     <Navbar />
-    <RouterView />
+    <!--Offset other content by navbar height-->
+    <div style="padding-top:var(--navbar-height)">
+        <RouterView />
+    </div>
 </template>

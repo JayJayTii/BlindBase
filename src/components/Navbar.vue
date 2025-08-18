@@ -1,16 +1,17 @@
 <script setup>
-import { ref } from 'vue'
-import SettingsView from '@/views/SettingsView.vue'
+    import { ref } from 'vue'
+    import SettingsView from '@/views/SettingsView.vue'
 
-const showSettings = ref(false)
+    const showSettings = ref(false)
 
-function toggleSettings() {
-    showSettings.value = !showSettings.value
-}
+    function toggleSettings() {
+        showSettings.value = !showSettings.value
+    }
 </script>
 
 <template>
-    <div class="navbarBackground">
+    <!--Navbar sticks to the top of the screen-->
+    <div class="Navbar">
         <RouterLink to="/" class="HomeButton">
             <img src="@/assets/logo.png" style="height:5vh;" />
         </RouterLink>
@@ -19,15 +20,10 @@ function toggleSettings() {
         <div v-if="showSettings" @click="toggleSettings" id="settingsBackdrop"></div>
         <SettingsView v-if="showSettings" id="settings" style="position:fixed;" />
     </div>
-    <div class="navbar"></div>
 </template>
 
 <style>
-:root {
-    --navbar-height: 7vh;
-}
-
-    .navbarBackground {
+    .Navbar {
         position: fixed;
         width: 100%;
         height: var(--navbar-height);
@@ -47,11 +43,6 @@ function toggleSettings() {
         height: 6vh;
         right: 0px;
     }
-
-.navbar {
-    width: 100%;
-    height: var(--navbar-height);
-}
 
 #settingsBackdrop {
     position: fixed;

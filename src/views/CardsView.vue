@@ -4,9 +4,9 @@
     import CardPractice from "@/components/cards/CardPractice.vue"
 
     const sheetID = ref(-1)
-
     const practicing = ref(false);
 
+    //Called from Card Selection and Practice
     function sheetEditClicked(id) {
         sheetID.value = (sheetID.value === id) ? -1 : id
     }
@@ -19,7 +19,7 @@
         practicing.value = false
     }
 
-    //Reload stats at a regular interval
+    //Reload stats at a regular interval, shared between components
     let intervalId
     const updateStatsKey = ref(0)
     function updateStats() {

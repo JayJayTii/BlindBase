@@ -3,8 +3,9 @@ function StringToSequence(str) {
 
 }
 
-export class Sequence { //Just a turn sequence, not an algorithm because that implies a goal
-    turns = [];
+//Just a turn sequence, not an algorithm because that implies a goal
+export class Sequence { 
+    turns = []
 
     constructor() {
         this.turns = []
@@ -15,8 +16,9 @@ export class Sequence { //Just a turn sequence, not an algorithm because that im
             return
         }
 
+        //Run through and collapse turns until we cannot collapse any more
         let collapsed = true
-        while (collapsed) { //Run through and collapse turns until we cannot collapse any more
+        while (collapsed) { 
             collapsed = false
             for (var i = this.turns.length - 1; i > 0; i--) {
                 if ((this.turns[i - 1][0] === "U" && this.turns[i][0] === "D")
@@ -29,27 +31,31 @@ export class Sequence { //Just a turn sequence, not an algorithm because that im
                     this.turns[i] = temp
                 }
 
+                //Collapse same face in a row
+                //e.g. D D2 => D'
                 if (this.turns[i][0] === this.turns[i - 1][0]) { //Same face as previous
                     this.turns[i - 1][1] = (this.turns[i][1] + this.turns[i - 1][1]) % 4
                     this.turns.splice(i, 1)
                     collapsed = true
                 }
             }
-        }
 
-        //Remove any turns with magnitude of 0
-        let index = 0
-        while (index < this.turns.length) {
-            if (this.turns[index][1] === 0) {
-                this.turns.splice(index, 1)
+            //Remove any turns with magnitude of 0 (from previous collapsing steps)
+            //e.g.  => 
+            let index = 0
+            while (index < this.turns.length) {
+                if (this.turns[index][1] === 0) {
+                    this.turns.splice(index, 1)
+                    collapsed = true
+                }
+                index++
             }
-            index++
         }
     }
 
     add(turn) {
         this.turns.push(turn)
-        this.collapse();
+        this.collapse()
     }
 
     toString() {

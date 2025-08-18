@@ -1,29 +1,31 @@
 <script setup>
-import { ref, defineExpose } from 'vue'
+    import { ref, defineExpose } from 'vue'
 
-const visible = ref(false)
-const message = ref('')
-let resolveFn
+    const visible = ref(false)
+    const message = ref('')
+    let resolveFn
 
-function open(msg) {
-    message.value = msg
-    visible.value = true
-    return new Promise((resolve) => {
-        resolveFn = resolve
+    function open(msg) {
+        message.value = msg
+        visible.value = true
+        return new Promise((resolve) => {
+            resolveFn = resolve
+        })
+    }
+
+    function confirm() {
+        visible.value = false
+        resolveFn(true)
+    }
+
+    function cancel() {
+        visible.value = false
+        resolveFn(false)
+    }
+
+    defineExpose({
+        open
     })
-}
-
-function confirm() {
-    visible.value = false
-    resolveFn(true)
-}
-
-function cancel() {
-    visible.value = false
-    resolveFn(false)
-}
-
-defineExpose({ open })
 </script>
 
 <template>
@@ -66,7 +68,7 @@ defineExpose({ open })
     left: 0;
     width: 100vw;
     height: 93vh;
-    background: rgba(256, 256, 256, 0.1); /* semi-transparent */
+    background: rgba(256, 256, 256, 0.1);
     z-index: 99;
 }
 </style>

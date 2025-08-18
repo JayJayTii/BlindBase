@@ -1,7 +1,12 @@
 <script setup>
     import { ref, reactive, watch, computed, nextTick } from 'vue'
+    import { getXHeadings, getYHeadings } from '@/helpers/sheets.js'
     import { useSheetStore } from '../stores/SheetStore'
     import { useSettingsStore } from '../stores/SettingsStore'
+    const sheetStore = useSheetStore()
+    sheetStore.loadState()
+    const settingsStore = useSettingsStore()
+    settingsStore.loadState()
 
     const props = defineProps({
         sheetID: Number,
@@ -10,11 +15,11 @@
     })
     const emit = defineEmits(['update:selected-cell'])
 
-    const sheetStore = useSheetStore()
-    sheetStore.loadState()
-    const settingsStore = useSettingsStore()
-    settingsStore.loadState()
+    const sheet = computed({
+        get: () => sheetStore.getSheet(props.sheetID),
+    })
 
+    //Grid and headings are separate, so their scrolls need to be synchronised
     const leftColumn = ref(null)
     const topRow = ref(null)
     const mainGrid = ref(null)
@@ -25,7 +30,7 @@
         }
     }
 
-    //Highlighted cells are all absolute
+    //Highlighted cells are visual coords
     const highlightedCells = ref([{ x: -1, y: -1 }])
     function changeHighlightedCells(newValue) {
         //New values will be absolute, not visual
@@ -36,41 +41,42 @@
         changeHighlightedCells,
     })
 </script>
+
 <template>
     <div class="SheetGridContainer" v-if="sheetStore.isValidSheetID(sheetID)">
+        <!-----BLANK CORNER----->
         <div class="SheetGridCorner">
             <div class="SheetGridCell" style="cursor: default"></div>
         </div>
+
+        <!-----COLUMN HEADINGS----->
         <div class="SheetGridTopRow" ref="topRow">
-            <div
-                v-for="char in sheetStore.getXHeadings(sheetID)"
-                class="SheetGridCell"
-                style="cursor: default"
-            >
+            <div v-for="char in getXHeadings(sheet)"
+                 class="SheetGridCell"
+                 style="cursor: default">
                 {{ char }}
             </div>
             <div class="SheetGridCell" style="background-color:transparent;"></div>
         </div>
+
+        <!-----ROW HEADINGS----->
         <div class="SheetGridLeftColumn" ref="leftColumn">
-            <div
-                v-for="char in sheetStore.getYHeadings(sheetID)"
-                class="SheetGridCell"
-                style="cursor: default"
-            >
+            <div v-for="char in getYHeadings(sheet)"
+                 class="SheetGridCell"
+                 style="cursor: default">
                 {{ char }}
             </div>
         </div>
+
+        <!---------GRID--------->
         <div class="SheetGrid" ref="mainGrid" @scroll="syncScroll">
             <div v-for="(row, y) in 24">
-                <div
-                    v-for="(col, x) in 24"
-                    @click="emit('update:selected-cell', sheetStore.visualToAbsolute({ x, y }))"
-                    :class="['SheetGridCell',
-                      formatEmpty && sheetStore.getCell(sheetID, sheetStore.absoluteToVisual({ x, y })) === '' ? 'SheetGridCellEmpty' : 'SheetGridCellHoverable',
-                      Array.isArray(highlightedCells) && highlightedCells.some((cell) => cell.x === x && cell.y === y) ? 'SheetGridCellHightlighted' : '',
-                    ]"
-                >
-                    {{ sheetStore.getCell(sheetID, sheetStore.absoluteToVisual({ x, y })) }}
+                <div v-for="(col, x) in 24"
+                     @click="emit('update:selected-cell', sheetStore.visualToAbsolute({ x, y }))"
+                     :class="['SheetGridCell', formatEmpty && sheetStore.getCell(sheetID, sheetStore.visualToAbsolute({x, y }))==='' ? 'SheetGridCellEmpty' : 'SheetGridCellHoverable' ,
+                     Array.isArray(highlightedCells) && highlightedCells.some((cell)=>cell.x === x && cell.y === y) ? 'SheetGridCellHightlighted' : '']"
+                    >
+                    {{ sheetStore.getCell(sheetID, sheetStore.visualToAbsolute({ x, y })) }}
                 </div>
             </div>
         </div>
