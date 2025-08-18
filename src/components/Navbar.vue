@@ -10,14 +10,15 @@ function toggleSettings() {
 </script>
 
 <template>
-    <div class="navbarBackground"></div>
-    <RouterLink to="/" class="HomeButton">
-        <img src="@/assets/logo.png" style="height:5vh;" />
-    </RouterLink>
+    <div class="navbarBackground">
+        <RouterLink to="/" class="HomeButton">
+            <img src="@/assets/logo.png" style="height:5vh;" />
+        </RouterLink>
 
-    <img src="@/assets/settings.svg" @click="toggleSettings" class="SettingsButton" />
-    <div v-if="showSettings" @click="toggleSettings" id="settingsBackdrop"></div>
-    <SettingsView v-if="showSettings" id="settings" style="position:fixed;" />
+        <img src="@/assets/settings.svg" @click="toggleSettings" class="SettingsButton" />
+        <div v-if="showSettings" @click="toggleSettings" id="settingsBackdrop"></div>
+        <SettingsView v-if="showSettings" id="settings" style="position:fixed;" />
+    </div>
     <div class="navbar"></div>
 </template>
 
@@ -31,6 +32,7 @@ function toggleSettings() {
         width: 100%;
         height: var(--navbar-height);
         background-color: var(--brand-700);
+        z-index: 20;
     }
 
     .HomeButton {
