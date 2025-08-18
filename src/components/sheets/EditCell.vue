@@ -5,6 +5,7 @@
     const sheetStore = useSheetStore()
     import { useSettingsStore } from "@/stores/SettingsStore"
     const settingsStore = useSettingsStore()
+    import List from "@/components/List.vue"
 
     const props = defineProps({
         sheetID: Number,
@@ -46,6 +47,13 @@
         }
     });
 
+    const options = sheetStore.isValidSheetID(props.sheetID)
+                    ? getRecommendations(sheetStore.getSheet(props.sheetID).type, sheetStore.coordToKey(props.sheetID, props.selectedCell))
+                    : []
+    function OptionClicked(index) {
+        selectedCellValue.value = options[index]
+    }
+
     const cellValueInputBox = ref(null)
     defineExpose({
         cellValueInputBox
@@ -53,31 +61,29 @@
 </script>
 
 <template>
-    <div class="EditCell" v-if="sheetID !== -1">
-        <div class="header-row"> <h3>Edit cell:</h3>  </div>
+    <div class="Panel" v-if="sheetID !== -1">
+        <div class="PanelHeader"> Edit cell:  </div>
         <div class="SheetEditingRow">
             Current cell: <input v-model="selectedCellInput" class="editCurCellKey" />
         </div>
         <div class="SheetEditingRow">
             Value: <input v-model="selectedCellValue"
-                            ref="cellValueInputBox"
-                            :key="settingsStore.sheets_pairorder"
-                            style="width:100%;" />
+                          ref="cellValueInputBox"
+                          :key="settingsStore.sheets_pairorder"
+                          style="width:100%;" />
         </div>
-        <div class="CellOptions" v-if="sheetStore.getSheet(props.sheetID).type != 0">
-            Recommendations:
-            <div v-for="algorithm in getRecommendations(sheetStore.getSheet(props.sheetID).type, sheetStore.coordToKey(props.sheetID, selectedCell))"
-                 :class="['ListItem']"
-                 @click="selectedCellValue = algorithm;">
-                {{ algorithm }}
-            </div>
+        Recommendations:
+        <div style="height:100%;overflow-y:auto;" v-if="sheetStore.getSheet(props.sheetID).type != 0">
+            <List :data="options"
+                  :selectedIndex="-1"
+                  @onItemClick="OptionClicked" />
         </div>
         <div v-else class="CellOptions" style="color:var(--info-300)">
             Select a type for this sheet to show algorithm recommendations.
         </div>
     </div>
-    <div v-else class="EditCell">
-        <div class="header-row"> <h3>Edit cell:</h3>  </div>
+    <div v-else class="Panel">
+        <div class="PanelHeader"> Edit cell:  </div>
         <div style="color:var(--info-200)">
             Select a sheet to get started
         </div>
@@ -85,24 +91,9 @@
 </template>
 
 <style>
-    .EditCell {
-        padding: 2px;
-        background-color: var(--panel-color);
-        display: flex;
-        flex-direction: column;
-        color: var(--text-color);
-    }
-
     .editCurCellKey {
         font-size: 2rem;
         width: min(100%, 4ch);
         text-transform: uppercase;
-    }
-
-    .CellOptions {
-        width: 100%;
-        height: 100%;
-        overflow-x: hidden;
-        overflow-y: auto;
     }
 </style>

@@ -9,8 +9,8 @@
 </script>
 
 <template>
-    <div class="SessionDetails">
-        <div class="header-row"> <h3>Session Details:</h3>  </div>
+    <div class="Panel">
+        <div class="PanelHeader"> Session Details:  </div>
         <div class="SessionDetailsGrid">
             <template v-for="statRow in timerStore.getSessionStatistics(sessionID)">
                 <div class="SessionDetailBorder"></div>
@@ -25,14 +25,6 @@
 </template>
 
 <style>
-    .SessionDetails {
-        padding: 2px;
-        border-block-end: 3px solid var(--border-color);
-        background-color: var(--panel-color);
-        overflow-x: hidden;
-        overflow-y: auto;
-    }
-
     .SessionDetailsGrid {
         width: 100%;
         display: grid;

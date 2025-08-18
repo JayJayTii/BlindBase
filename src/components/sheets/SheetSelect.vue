@@ -1,38 +1,26 @@
 <script setup>
     import { useSheetStore } from "@/stores/SheetStore";
     const sheetStore = useSheetStore();
+    import List from "@/components/List.vue";
 
     const props = defineProps({
         sheetID: Number,
     })
     const emit = defineEmits(['updateSheetID']);
+
+    function SheetClicked(index) {
+        emit('updateSheetID', index)
+    }
 </script>
 
 <template>
-    <div class="SheetSelect">
-        <div class="header-row">
-            <h3>Select Sheet:</h3>
-        </div>
-        <div v-for="(sheetName, index) in sheetStore.getSheetNames"
-             :key="sheetStore.sheets[index].id"
-             :class="['ListItem', props.sheetID === sheetStore.sheets[index].id ? 'ListItemSelected' : 'ListItemUnselected']"
-             @click="emit('updateSheetID',index)">
-            {{ sheetName != "" ? sheetName : "&nbsp;" }}
-        </div>
+    <div class="Panel">
+        <div class="PanelHeader"> Select Sheet: </div>
+        <List :data="sheetStore.getSheetNames" :selectedIndex="sheetStore.getSheetIndexWithID(props.sheetID)"
+              @onItemClick="SheetClicked" />
         <button @click="sheetStore.newSheet(); emit('updateSheetID',sheetStore.sheets.length-1);"
-                style="justify-content:center;">
+                style="justify-content:center; align-self:end; width: 30px; height:30px;">
             +
         </button>
     </div>
 </template>
-
-<style>
-    .SheetSelect {
-        padding: 2px;
-        border-block-end: 3px solid var(--border-color);
-        background-color: var(--panel-color);
-        overflow-x: hidden;
-        overflow-y: auto;
-    }
-
-</style>

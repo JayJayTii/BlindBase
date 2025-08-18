@@ -44,8 +44,8 @@
 </script>
 
 <template>
-    <div class="TimerView" :key="sessionID">
-        <div class="SideColumn">
+    <div style="display: flex; flex-direction: row;" :key="sessionID">
+        <div class="PanelColumn">
             <SessionSelect style="width: 100%; height: 33%;"
                           :sessionID="sessionID"
                            :solveIndex="solveIndex"
@@ -55,23 +55,28 @@
                              @deleteSession="deleteSession"/>
         </div>
 
-        <div style="width: 60vw; height: 93vh;">
+        <div style="width: 60vw; height: 93vh; border: 3px solid var(----border-color);">
             <Timer v-if="timerStore.isValidSessionID(sessionID)"
                    :sessionID="sessionID"
                    @update:solve-complete="onSolveComplete" 
                    :key="sessionID + '-' + timerStore.sessions[timerStore.getSessionIndexWithID(sessionID)].solves.length"/>
         </div>
 
-        <div class="SideColumn" v-if="timerStore.isValidSessionID(sessionID)">
+        <div class="PanelColumn" v-if="timerStore.isValidSessionID(sessionID)">
             <SessionDetails style="width:100%;height:50%" :sessionID="sessionID"/>
-            <div class="SolvePanel">
+
+            <div style="position: relative; height: 50%;">
                 <SolveDetails v-if="solveIndex > -1" 
+                              style="position: absolute; z-index: 10; width: 100%; height: 100%; "
                               :sessionID="sessionID" :solveIndex="solveIndex"
                               @deleteSolve="DeleteSolve" @unselectSolve="solveIndex = -1"/>
-                <SolveList :sessionID="sessionID" @selectSolve="selectSolve"/>
+
+                <SolveList style="width:100%;height:100%;"
+                           :sessionID="sessionID" 
+                           @selectSolve="selectSolve"/>
             </div>
         </div>
-        <div v-else class="SideColumn">
+        <div v-else class="PanelColumn">
             <div style="color:var(--info-200)">
                 Select a session to get started
             </div>
@@ -79,24 +84,3 @@
     </div>
 
 </template>
-
-<style>
-    .TimerView {
-        display: flex;
-        flex-direction: row;
-    }
-
-    .SideColumn {
-        display: flex;
-        flex-direction: column;
-        width: 20vw;
-        height: 93vh;
-        color: var(--text-color);
-        border: 3px solid var(--border-color);
-    }
-
-    .SolvePanel {
-        position: relative;
-        height: 50%;
-    }
-</style>

@@ -15,8 +15,8 @@
 </script>
 
 <template>
-    <div class="SolveDetailsContainer">
-        <div class="header-row"> <h3>Solve {{props.solveIndex + 1}}:</h3>  </div>
+    <div class="Panel">
+        <div class="PanelHeader"> Solve {{props.solveIndex + 1}}: </div>
         <div class="SolveDetails">
             <div>{{selectedSolve.scramble}}</div>
             <h1>{{timerStore.getSolveTimeString(props.sessionID, props.solveIndex)}}</h1>
@@ -30,7 +30,7 @@
                 </template>
             </div>
             <button @click="emit('unselectSolve')" style="width:30%;">back</button>
-            <RouterLink to="/recons" class="header-row">
+            <RouterLink to="/recons" class="PanelHeader">
                 RECONSTRUCT
             </RouterLink>
             <button @click="emit('deleteSolve')" style="width:30%;">delete</button>
@@ -39,17 +39,6 @@
 </template>
 
 <style>
-    .SolveDetailsContainer {
-        padding: 2px;
-        position: absolute;
-        height: 100%;
-        width: 100%;
-        display: flex;
-        flex-direction: column;
-        background-color: var(--panel-color);
-        z-index: 10;
-    }
-
     .SolveDetails {
         display: flex;
         flex-direction: column;

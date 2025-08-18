@@ -79,23 +79,27 @@
 </template>
 
 <style>
-.SheetGridContainer {
-    background-color: var(--panel-color);
-    display: grid;
-    grid-template-columns: auto 1fr;
-    grid-template-rows: auto 1fr;
-    grid-template-areas:
-        'corner top'
-        'left grid';
-    overflow: hidden;
-}
+    .SheetGridContainer {
+        --sheet-cell-height: 2rem;
+        --sheet-cell-width: 100px;
+
+        border: 3px solid var(--border-color);
+        background-color: var(--panel-color);
+        display: grid;
+        grid-template-columns: auto 1fr;
+        grid-template-rows: auto 1fr;
+        grid-template-areas:
+            'corner top'
+            'left grid';
+        overflow: hidden;
+    }
 
 .SheetGrid {
     grid-area: grid;
     display: grid;
     grid-template-rows: repeat(24, var(--sheet-cell-height));
     grid-template-columns: repeat(24, var(--sheet-cell-width));
-    height: calc(100%);
+    height: 100%;
     overflow: auto;
 }
 
@@ -145,7 +149,7 @@
     border: 1px solid var(--border-color);
     overflow: hidden;
     text-overflow: ellipsis;
-    color: white;
+    color: var(--text-color);
     white-space: nowrap;
     background-color: transparent;
     font-size: 14px;
@@ -165,6 +169,6 @@
 }
 
 .SheetGridCellHightlighted {
-    border: 3px solid white;
+    border: 3px solid var(--grey-100);
 }
 </style>

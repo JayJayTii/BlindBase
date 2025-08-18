@@ -71,19 +71,18 @@ const Sheets_ExtraXImages = computed({
 </template>
 
 <style>
-.Settings {
-    width: 50vw;
-    height: 50vh;
-    background-color: var(--grey-800);
-    border: 4px solid var(--grey-900);
-    z-index: 100;
-    color: var(--grey-100);
-    padding: 4px;
+    .Settings {
+        width: 50vw;
+        height: 50vh;
+        background-color: var(--grey-800);
+        border: 4px solid var(--grey-900);
+        z-index: 100;
+        color: var(--text-color);
+        padding: 4px;
+        overflow: auto;
+    }
 
-    overflow: auto;
-}
-
-.Subsettings {
-    border-top: 2px solid white;
-}
+    .Subsettings {
+        border-top: 2px solid var(--text-color);
+    }
 </style>

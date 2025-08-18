@@ -235,7 +235,6 @@ onUnmounted(() => {
             display: grid;
             grid-template-columns: repeat(4, 24vw);
             max-width: 100%;
-            color: white;
             font-size: 1.5rem;
             justify-self: start;
             margin-top: 10px;
@@ -375,7 +374,6 @@ onUnmounted(() => {
     flex-direction: column;
     justify-self: center;
     padding-top: 15vh;
-    color: white;
     gap: 20px;
     font-size: 2rem;
 }

@@ -31,10 +31,8 @@
 </script>
 
 <template>
-    <div class="SessionSettings" v-if="props.sessionID !== -1">
-        <div class="header-row">
-            <h3>Session Settings:</h3>
-        </div>
+    <div class="Panel" v-if="props.sessionID !== -1">
+        <div class="PanelHeader"> Session Settings: </div>
         <div class="SessionEditingRow">
             <input v-model="currentSessionName"
                    maxlength="20"
@@ -63,13 +61,6 @@
 </template>
 
 <style>
-
-    .SessionSettings {
-        padding: 2px;
-        display: flex;
-        flex-direction: column;
-        background-color: var(--panel-color);
-    }
     .SessionEditingRow {
         display: flex;
         flex-direction: row;

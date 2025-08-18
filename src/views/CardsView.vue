@@ -277,8 +277,8 @@
         justify-content: center;
         width: 80vw;
         display: grid;
+        color: var(--text-color);
         grid-template-columns: 0.5fr 1fr 1fr 0.5fr 1fr 1fr 1fr 1fr;
-        color: white;
     }
         .MenuLayout > * {
         }

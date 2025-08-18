@@ -29,10 +29,8 @@
 </script>
 
 <template>
-    <div class="SheetSettings" v-if="props.sheetID !== -1">
-        <div class="header-row">
-            <h3>Sheet settings:</h3>
-        </div>
+    <div class="Panel" v-if="sheetStore.isValidSheetID(props.sheetID)">
+        <div class="PanelHeader"> Sheet settings: </div>
         <div class="SheetEditingRow">
             <input v-model="currentSheetName"
                    maxlength="20"
@@ -54,9 +52,7 @@
         </div>
     </div>
     <div v-else class="SheetSettings">
-        <div class="header-row">
-            <h3>Sheet settings:</h3>
-        </div>
+        <div class="PanelHeader"> Sheet settings: </div>
         <div style="color:var(--info-200)">
             Select a sheet to get started
         </div>
@@ -64,12 +60,6 @@
 </template>
 
 <style>
-    .SheetSettings {
-        padding: 2px;
-        display: flex;
-        flex-direction: column;
-        background-color: var(--panel-color);
-    }
 
     .SheetEditingRow {
         display: flex;
