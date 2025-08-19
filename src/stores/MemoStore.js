@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 
 export const modes = ['Endless', 'One mistake', 'Multiblind']
+export const maxCubes = 200
 
 export const useMemoStore = defineStore('memoStore', {
     state: () => {
