@@ -91,8 +91,8 @@ export const useCardStore = defineStore('cardStore', {
             //Remove any cards if their contents have been edited in the sheet
             this.cards = this.cards.filter(
                 (card) =>
-                    card.algorithm ===
-                    getSheetStore().getCell(card.reference.sheetID, card.reference.coord),
+                    card.algorithm.toUpperCase() ===
+                    getSheetStore().getCell(card.reference.sheetID, card.reference.coord).toUpperCase(),
             )
             this.saveState()
         },
