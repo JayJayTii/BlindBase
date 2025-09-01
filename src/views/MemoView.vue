@@ -22,7 +22,7 @@
     var userSequences = []
 
     function updateCubes(newValue) {
-        cubes.value = Math.max(2, Math.min(newValue, maxCubes))
+        cubes.value = mode.value === 2 ? Math.max(2, Math.min(newValue, maxCubes)) : newValue
     }
     function updateMode(newValue) {
         mode.value = newValue

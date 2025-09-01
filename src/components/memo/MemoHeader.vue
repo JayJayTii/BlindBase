@@ -16,7 +16,8 @@
     <div class="MemoHeader">
         <img src="@/assets/arrow-left-long.svg"
              @click="emit('quitRun')"
-             class="BackButton" />
+             class="BackButton"
+             style="width:70px;height:50px;margin-left:10px;"/>
         <div>Mode: {{ modes[props.mode] }}</div>
         <div v-if="props.mode !== 2">Length: {{ props.length }}</div>
         <div v-else>Cubes: {{ props.cubes }}</div>

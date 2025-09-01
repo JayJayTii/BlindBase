@@ -17,7 +17,14 @@
 
 <template>
     <div class="Panel">
-        <div class="PanelHeader"> Solve {{props.solveIndex + 1}}: </div>
+        <div style="display:flex;flex-direction:row;height:">
+
+            <img @click="emit('unselectSolve')"
+                 src="@/assets/arrow-left-long.svg"
+                 class="BackButton"
+                 style="height:2rem;width:30%;"/>
+            <div class="PanelHeader"> Solve {{props.solveIndex + 1}}: </div>
+        </div>
         <div class="SolveDetails">
             <!------SOLVE RESULTS------>
             <div>{{selectedSolve.scramble}}</div>
@@ -34,7 +41,6 @@
             </div>
 
             <!------CONTROLS------>
-            <button @click="emit('unselectSolve')" style="width:30%;">back</button>
             <RouterLink to="/recons" class="PanelHeader">
                 RECONSTRUCT
             </RouterLink>

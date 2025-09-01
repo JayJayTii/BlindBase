@@ -45,7 +45,8 @@
         <!------BACK------>
         <img @click="emit('quitPractice')"
              src="@/assets/arrow-left-long.svg"
-             class="BackButton" />
+             class="BackButton"
+             style="margin-left: 10px; width:70px;height:50px;"/>
 
         <!------SHEET NAME------>
         <h3 class="PracticeSheetName">{{sheetStore.getSheet(props.sheetID).name}}</h3>
@@ -79,9 +80,6 @@
         background-color: var(--brand-600);
         border-radius: 5px;
         cursor: pointer;
-        height: 50px;
-        width: 70px;
-        margin-left: 10px;
     }
         .BackButton:hover {
             background-color: var(--brand-500);
