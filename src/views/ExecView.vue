@@ -1,11 +1,22 @@
 <script setup>
     import { onMounted, onUnmounted, ref } from 'vue'
     import { CubieCube } from "@/helpers/kociemba/CubieCube.js"
+    import { CornOriMoveTable, GenerateCornOriMoveTable } from "@/helpers/kociemba/MoveTable.js"
     import CubieCubeVisual from "@/components/CubieCubeVisual.vue"
 
+    //GenerateCornOriMoveTable()
     const a = ref(new CubieCube())
 
     function handleKeydown(event) {
+        if (event.code === 'Space') {
+            a.value.Randomise()
+        }
+        if (event.code === 'KeyE') {
+            a.value.RandomiseEdges()
+        }
+        if (event.code === 'KeyC') {
+            a.value.RandomiseCorners()
+        }
         if (event.code === 'KeyU') {
             a.value.Turn(0)
         }

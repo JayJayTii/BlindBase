@@ -45,7 +45,7 @@ const router = createRouter({
             component: MemoView,
             meta: {
                 tool: true,
-                description: 'Improve your long-term memo',
+                description: 'Improve your long-term memorisation',
                 iconPath: new URL('@/assets/MemoIcon.png', import.meta.url).href,
             },
         },

@@ -31,6 +31,74 @@ export class CubieCube {
         }
     }
 
+    Randomise() {
+        const epIndex = Math.floor(Math.random() * 479001600); //Random EP
+        this.SetEdgePermCoord(epIndex)
+        const edgeParity = this.EdgeParity()
+        console.log("=====RANDOM SCRAMBLE=====")
+        console.log("EP: " + epIndex)
+        //Edge and corner parity must be the same to be solvable
+        do {
+            const cpIndex = Math.floor(Math.random() * 40320)
+            this.SetCornPermCoord(cpIndex)
+        } while (edgeParity != this.CornerParity())
+        console.log("CP: " + this.CornPermCoord())
+        console.log("Edge Parity: " + edgeParity)
+        console.log("Corner Parity: " + this.CornerParity())
+
+        const eoIndex = Math.floor(Math.random() * 2048)
+        this.SetEdgeOriCoord(eoIndex)
+        console.log("EO: " + eoIndex)
+
+        const coIndex = Math.floor(Math.random() * 2187)
+        this.SetCornOriCoord(coIndex)
+        console.log("CO: " + coIndex)
+        console.log("=========================")
+    }
+    RandomiseEdges() {
+        do {
+            const epIndex = Math.floor(Math.random() * 479001600)
+            this.SetEdgePermCoord(epIndex)
+        } while (this.EdgeParity() != this.CornerParity())
+
+        const eoIndex = Math.floor(Math.random() * 2048)
+        this.SetEdgeOriCoord(eoIndex)
+    }
+    RandomiseCorners() {
+        do {
+            const cpIndex = Math.floor(Math.random() * 40320)
+            this.SetCornPermCoord(cpIndex)
+        } while (this.EdgeParity() != this.CornerParity())
+
+        const coIndex = Math.floor(Math.random() * 2187)
+        this.SetCornOriCoord(coIndex)
+    }
+
+    //Edges and corners have the same parity on a solved cube
+    //mod 2, number of swaps needed to solve
+    EdgeParity() {
+        let sum = 0
+        for (var i = 11; i >= 0; i--) {
+            for (var j = i - 1; j >= 0; j--) {
+                if (this.edges[j][0] > this.edges[i][0]) {
+                    sum += 1
+                }
+            }
+        }
+        return sum % 2
+    }
+    CornerParity() {
+        let sum = 0
+        for (var i = 7; i >= 0; i--) {
+            for (var j = i - 1; j >= 0; j--) {
+                if (this.corners[j][0] > this.corners[i][0]) {
+                    sum += 1
+                }
+            }
+        }
+        return sum % 2
+    }
+
     //Corner Orientation Coordinate
     CornOriCoord() { //0 => 2,186 (3^7 - 1)
         let sum = 0
@@ -38,6 +106,16 @@ export class CubieCube {
             sum = sum * 3 + this.corners[i][1]
         }
         return sum
+    }
+    SetCornOriCoord(CornOri) {
+        let sum = 0
+        let remaining = CornOri
+        for (var i = 6; i >= 0; i--) {
+            sum += remaining % 3
+            this.corners[i][1] = remaining % 3
+            remaining = Math.floor(remaining / 3)
+        }
+        this.corners[7][1] = (-sum + 30) % 3 //Last corner is deterministic
     }
     //Edge Orientation Coordinate
     EdgeOriCoord() { //0 => 2,047 (2^11 - 1)
@@ -47,33 +125,84 @@ export class CubieCube {
         }
         return sum
     }
+    SetEdgeOriCoord(EdgeOri) {
+        let sum = 0
+        let remaining = EdgeOri
+        for (var i = 10; i >= 0; i--) {
+            sum += remaining % 2
+            this.edges[i][1] = remaining % 2
+            remaining = Math.floor(remaining / 2)
+        }
+        this.edges[11][1] = (-sum + 40) % 2 //Last edge is deterministic
+    }
     //Corner Permutation Coordinate
     CornPermCoord() { //0 => 40,319 (8! - 1)
-        var x = 0
-        for (var i = 7; i >= 1; i--) {
-            let s = 0
-            for (var j = i - 1; j >= 0; j--) {
-                if (this.corners[j][0] > this.corners[i][0]) {
-                    s += 1
-                }
+        let corns = [...this.corners]
+        let b = 0
+        for (var j = 7; j >= 0; j--) {
+            let k = 0
+            while (corns[j][0] != j) {
+                corns = RotateLeft(corns, 0, j)
+                k += 1
             }
-            x = (x + s) * i
+            b = (j + 1) * b + k
         }
-        return x
+        return b
     }
+    SetCornPermCoord(CornPerm) {
+        let perm = []
+        for (var i = 0; i < 8; i++) {
+            perm.push(i)
+        }
+
+        let idx = CornPerm
+        for (var j = 0; j < 8; j++) {
+            let k = idx % (j + 1)
+            idx = Math.floor(idx / (j + 1))
+            while (k > 0) {
+                perm = RotateRight(perm, 0, j)
+                k -= 1
+            }
+        }
+
+        for (var i = 0; i < 8; i++) {
+            this.corners[i][0] = perm[i]
+        }
+    }
+
     //Edge Permutation Coordinate
     EdgePermCoord() { //0 => 479,001,599 (12! - 1)
-        var x = 0
-        for (var i = 11; i >= 1; i--) {
-            let s = 0
-            for (var j = i - 1; j >= 0; j--) {
-                if (this.edges[j][0] > this.edges[i][0]) {
-                    s += 1
-                }
+        let edges = [...this.edges]
+        let b = 0
+        for (var j = 11; j >= 0; j--) {
+            let k = 0
+            while (edges[j][0] != j) {
+                edges = RotateLeft(edges, 0, j)
+                k += 1
             }
-            x = (x + s) * i
+            b = (j + 1) * b + k
         }
-        return x
+        return b
+    }
+    SetEdgePermCoord(EdgePerm) {
+        let perm = []
+        for (var i = 0; i < 12; i++) {
+            perm.push(i)
+        }
+
+        let idx = EdgePerm
+        for (var j = 0; j < 12; j++) {
+            let k = idx % (j + 1)
+            idx = Math.floor(idx / (j + 1))
+            while (k > 0) {
+                perm = RotateRight(perm, 0, j)
+                k -= 1
+            }
+        }
+
+        for (var i = 0; i < 12; i++) {
+            this.edges[i][0] = perm[i]
+        }
     }
 
     //Phase 1 UD-Slice Coordinate (0 when UD-edges are in UD-Slice)
@@ -126,8 +255,25 @@ export class CubieCube {
         }
         return x
     }
+
 }
 
+function RotateLeft(arr, start, end) {
+    const temp = arr[start]
+    for (var i = start; i < end; i++) {
+        arr[i] = arr[i + 1]
+    }
+    arr[end] = temp
+    return arr
+}
+function RotateRight(arr, start, end) {
+    const temp = arr[end]
+    for (var i = end; i > start; i--) {
+        arr[i] = arr[i - 1]
+    }
+    arr[start] = temp
+    return arr
+}
 
 
 
@@ -149,4 +295,8 @@ function choose(n, k) {
     }
 
     return Math.round(res);
+}
+
+function factorial(n) {
+    return (n === 0 || n === 1) ? 1 : n * factorial(n-1)
 }
