@@ -1,4 +1,5 @@
 <script setup>
+    import { computed } from 'vue'
     import { CubieCube } from '@/helpers/kociemba/CubieCube'
 
     const props = defineProps({
@@ -43,8 +44,18 @@
         [5, 1], //BR
     ]
 
+    function mirrored() {
+        for (var i = 0; i < 8; i++) {
+            if (props.cube.corners[i][1] >= 3) {
+                return true
+            }
+        }
+        return false
+    }
+
     function getCornerCubieSticker(cubie, sticker) {
-        return faceColours[cornerCubies[props.cube.corners[cubie][0]][(sticker + 3 - props.cube.corners[cubie][1]) % 3]]
+        let stickerIndex = ((sticker * (mirrored() ? -1 : 1)) + 9 - props.cube.corners[cubie][1]) % 3
+        return faceColours[cornerCubies[props.cube.corners[cubie][0]][stickerIndex]]
     }
     function getEdgeCubieSticker(cubie, sticker) {
         return faceColours[edgeCubies[props.cube.edges[cubie][0]][(sticker + 2 - props.cube.edges[cubie][1]) % 2]]

@@ -58,6 +58,15 @@ export class Sequence {
         this.collapse()
     }
 
+    //Each move is 0->17
+    setKociembaMoves(arr) {
+        const faces = ['U','R','F','D','L','B']
+        const turns = ["","2",'\'']
+        this.turns = arr.map((move) => {
+            return [faces[Math.floor(move / 3)], move % 3 + 1]
+        })
+    }
+
     toString() {
         this.collapse()
         let out = ""

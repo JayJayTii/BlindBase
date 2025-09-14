@@ -14,64 +14,51 @@ export class CubieCube {
 
     Turn(move) {
         const face = Math.floor(move / 3)
-        const turn = move % 3
-        //(A*B)(x).c=A(B(x).c).c
-        //(A*B)(x).o=A(B(x).c).o+B(x).o
-        for (var j = 0; j <= turn; j++) {
-            var newCorns = []
-            for (var i = 0; i < 8; i++) {
-                newCorns.push([this.corners[cornerCubieMove[face][i][0]][0], (this.corners[cornerCubieMove[face][i][0]][1] + cornerCubieMove[face][i][1])%3])
-            }
-            var newEdges = []
-            for (var i = 0; i < 12; i++) {
-                newEdges.push([this.edges[edgeCubieMove[face][i][0]][0], (this.edges[edgeCubieMove[face][i][0]][1] + edgeCubieMove[face][i][1])%2])
-            }
-            this.corners = newCorns
-            this.edges = newEdges
+        let turnCube = new CubieCube()
+        turnCube.corners = cornerCubieMove[face]
+        turnCube.edges = edgeCubieMove[face]
+        for (var i = 0; i <= move % 3; i++) {
+            this.Multiply(turnCube)
         }
     }
 
-    Randomise() {
-        const epIndex = Math.floor(Math.random() * 479001600); //Random EP
-        this.SetEdgePermCoord(epIndex)
-        const edgeParity = this.EdgeParity()
-        console.log("=====RANDOM SCRAMBLE=====")
-        console.log("EP: " + epIndex)
-        //Edge and corner parity must be the same to be solvable
-        do {
-            const cpIndex = Math.floor(Math.random() * 40320)
-            this.SetCornPermCoord(cpIndex)
-        } while (edgeParity != this.CornerParity())
-        console.log("CP: " + this.CornPermCoord())
-        console.log("Edge Parity: " + edgeParity)
-        console.log("Corner Parity: " + this.CornerParity())
-
-        const eoIndex = Math.floor(Math.random() * 2048)
-        this.SetEdgeOriCoord(eoIndex)
-        console.log("EO: " + eoIndex)
-
-        const coIndex = Math.floor(Math.random() * 2187)
-        this.SetCornOriCoord(coIndex)
-        console.log("CO: " + coIndex)
-        console.log("=========================")
-    }
-    RandomiseEdges() {
-        do {
-            const epIndex = Math.floor(Math.random() * 479001600)
-            this.SetEdgePermCoord(epIndex)
-        } while (this.EdgeParity() != this.CornerParity())
-
-        const eoIndex = Math.floor(Math.random() * 2048)
-        this.SetEdgeOriCoord(eoIndex)
-    }
-    RandomiseCorners() {
-        do {
-            const cpIndex = Math.floor(Math.random() * 40320)
-            this.SetCornPermCoord(cpIndex)
-        } while (this.EdgeParity() != this.CornerParity())
-
-        const coIndex = Math.floor(Math.random() * 2187)
-        this.SetCornOriCoord(coIndex)
+    Multiply(other) {
+        //(A*B)(x).c=A(B(x).c).c
+        //(A*B)(x).o=A(B(x).c).o+B(x).o
+        var newCorns = []
+        for (var i = 0; i < 8; i++) {
+            let newCorn = [this.corners[other.corners[i][0]][0]]
+            const ori_a = this.corners[other.corners[i][0]][1]
+            const ori_b = other.corners[i][1]
+            if (ori_a < 3 && ori_b < 3) { //Neither is mirrored
+                //Result is not mirrored
+                newCorn.push((ori_a + ori_b) % 3)
+            }
+            else if (ori_a < 3 && ori_b >= 3) { //Other is mirrored
+                let ori = ori_a + ori_b
+                //Result is mirrored
+                newCorn.push(ori >= 6 ? (ori - 3) : ori)
+            }
+            else if (this.corners[i][1] >= 3 && other.corners[i][1] < 3) { //This is mirrored
+                let ori = ori_a - ori_b
+                //Result is mirrored
+                newCorn.push(ori < 3 ? (ori + 3) : ori)
+            }
+            else if(this.corners[i][1] >= 3 && other.corners[i][1] >= 3) { //Both mirrored
+                let ori = ori_a - ori_b
+                //Result is not mirrored
+                newCorn.push(ori < 0 ? (ori + 3) : ori)
+            }
+            newCorns.push(newCorn)
+        }
+        var newEdges = []
+        for (var i = 0; i < 12; i++) {
+            let newEdge = [this.edges[other.edges[i][0]][0]]
+            newEdge.push((other.edges[i][1] + this.edges[other.edges[i][0]][1]) % 2)
+            newEdges.push(newEdge)
+        }
+        this.corners = newCorns
+        this.edges = newEdges
     }
 
     //Edges and corners have the same parity on a solved cube
@@ -256,6 +243,43 @@ export class CubieCube {
         return x
     }
 
+    Randomise() {
+        const epIndex = Math.floor(Math.random() * 479001600); //Random EP
+        this.SetEdgePermCoord(epIndex)
+        const edgeParity = this.EdgeParity()
+
+        //Edge and corner parity must be the same to be solvable
+        do {
+            const cpIndex = Math.floor(Math.random() * 40320)
+            this.SetCornPermCoord(cpIndex)
+        } while (edgeParity != this.CornerParity())
+
+        this.RandomiseEO()
+        this.RandomiseCO()
+    }
+    RandomiseEdges() {
+        do {
+            const epIndex = Math.floor(Math.random() * 479001600)
+            this.SetEdgePermCoord(epIndex)
+        } while (this.EdgeParity() != this.CornerParity())
+
+    }
+    RandomiseCorners() {
+        do {
+            const cpIndex = Math.floor(Math.random() * 40320)
+            this.SetCornPermCoord(cpIndex)
+        } while (this.EdgeParity() != this.CornerParity())
+
+        this.RandomiseCO()
+    }
+    RandomiseCO() {
+        const coIndex = Math.floor(Math.random() * 2187)
+        this.SetCornOriCoord(coIndex)
+    }
+    RandomiseEO() {
+        const eoIndex = Math.floor(Math.random() * 2048)
+        this.SetEdgeOriCoord(eoIndex)
+    }
 }
 
 function RotateLeft(arr, start, end) {
@@ -274,8 +298,6 @@ function RotateRight(arr, start, end) {
     arr[start] = temp
     return arr
 }
-
-
 
 function choose(n, k) {
     //https://www.geeksforgeeks.org/javascript/how-to-evaluate-binomial-coefficient-of-two-integers-n-and-k-in-javascript/
