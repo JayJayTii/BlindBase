@@ -1,25 +1,27 @@
 <script setup>
     import { onMounted, onUnmounted, ref } from 'vue'
     import { CubieCube } from "@/helpers/kociemba/CubieCube.js"
-    import { SYMS, SYM_INV } from "@/helpers/kociemba/Symmetries.js"
-    import { GenerateCornOriMoveTable, GenerateEdgeOriMoveTable } from "@/helpers/kociemba/MoveTable.js"
-    import { GenerateCornOriPrune, GenerateEdgeOriPrune } from "@/helpers/kociemba/PruningTable.js"
-    import { SolveCO, SolveEO } from "@/helpers/kociemba/Solver.js"
+    import { SYMS, SYM_INV, SYM_MOVE } from "@/helpers/kociemba/Symmetries.js"
+    import { GenerateCornOriMove, GenerateCornPermMove, GenerateEdgeOriMove } from "@/helpers/kociemba/MoveTable.js"
+    import { GenerateCornOriPrune, GenerateCornPermPrune, GenerateEdgeOriPrune } from "@/helpers/kociemba/PruningTable.js"
+    import { SolveCO, SolveCP, SolveEO } from "@/helpers/kociemba/Solver.js"
     import { Sequence } from "@/helpers/sequence.js"
     import CubieCubeVisual from "@/components/CubieCubeVisual.vue"
 
     console.time("GenerateEverything")
     GenerateCornOriPrune()
-    GenerateCornOriMoveTable()
+    GenerateCornPermMove()
+    GenerateCornPermPrune()
+    GenerateCornOriMove()
     GenerateEdgeOriPrune()
-    GenerateEdgeOriMoveTable()
+    GenerateEdgeOriMove()
     console.timeEnd("GenerateEverything")
     const a = ref(new CubieCube())
     const e = ref(0)
 
     function handleKeydown(event) {
         if (event.code === 'Space') {
-            //e.value++
+            e.value++
             console.log(e.value)
             a.value = new CubieCube()
             a.value.Multiply(SYMS[e.value])
@@ -38,13 +40,6 @@
             a.value.Turn(5)
             a.value.Turn(2)
             a.value.Multiply(SYMS[SYM_INV[e.value]])
-            e.value++
-
-            /*console.time("TestEdgeOriPruneGen")
-            for (var i = 0; i < 10; i++) {
-                GenerateEdgeOriPrune()
-            }
-            console.timeEnd("TestEdgeOriPruneGen")*/
         }
         if (event.code === 'KeyW') {
             a.value.Multiply(SYMS[1])
@@ -84,6 +79,11 @@
         seq.setKociembaMoves(SolveCO(a.value))
         return seq.toString()
     }
+    function GetCPSolution() {
+        let seq = new Sequence()
+        seq.setKociembaMoves(SolveCP(a.value))
+        return seq.toString()
+    }
     function GetEOSolution() {
         let seq = new Sequence()
         seq.setKociembaMoves(SolveEO(a.value))
@@ -101,5 +101,6 @@
 <template>
     <CubieCubeVisual :cube="a" />
     <h1 style="color:white">To fix CO: {{GetCOSolution()}}</h1>
+    <h1 style="color:white">To fix CP: {{GetCPSolution()}}</h1>
     <h1 style="color:white">To fix EO: {{GetEOSolution()}}</h1>
 </template>

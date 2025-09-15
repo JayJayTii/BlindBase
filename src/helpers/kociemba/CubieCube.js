@@ -17,14 +17,35 @@ export class CubieCube {
         let turnCube = new CubieCube()
         turnCube.corners = cornerCubieMove[face]
         turnCube.edges = edgeCubieMove[face]
+        //Maybe for anticlockwise moves figure out inverting a move?
         for (var i = 0; i <= move % 3; i++) {
             this.Multiply(turnCube)
+        }
+    }
+    TurnCorners(move) {
+        const face = Math.floor(move / 3)
+        let turnCube = new CubieCube()
+        turnCube.corners = cornerCubieMove[face]
+        for (var i = 0; i <= move % 3; i++) {
+            this.MultiplyCorners(turnCube)
+        }
+    }
+    TurnEdges(move) {
+        const face = Math.floor(move / 3)
+        let turnCube = new CubieCube()
+        turnCube.edges = edgeCubieMove[face]
+        for (var i = 0; i <= move % 3; i++) {
+            this.MultiplyEdges(turnCube)
         }
     }
 
     Multiply(other) {
         //(A*B)(x).c=A(B(x).c).c
         //(A*B)(x).o=A(B(x).c).o+B(x).o
+        this.MultiplyCorners(other)
+        this.MultiplyEdges(other)
+    }
+    MultiplyCorners(other) {
         var newCorns = []
         for (var i = 0; i < 8; i++) {
             let newCorn = [this.corners[other.corners[i][0]][0]]
@@ -44,20 +65,22 @@ export class CubieCube {
                 //Result is mirrored
                 newCorn.push(ori < 3 ? (ori + 3) : ori)
             }
-            else if(this.corners[i][1] >= 3 && other.corners[i][1] >= 3) { //Both mirrored
+            else if (this.corners[i][1] >= 3 && other.corners[i][1] >= 3) { //Both mirrored
                 let ori = ori_a - ori_b
                 //Result is not mirrored
                 newCorn.push(ori < 0 ? (ori + 3) : ori)
             }
             newCorns.push(newCorn)
         }
+        this.corners = newCorns
+    }
+    MultiplyEdges(other) {
         var newEdges = []
         for (var i = 0; i < 12; i++) {
             let newEdge = [this.edges[other.edges[i][0]][0]]
             newEdge.push((other.edges[i][1] + this.edges[other.edges[i][0]][1]) % 2)
             newEdges.push(newEdge)
         }
-        this.corners = newCorns
         this.edges = newEdges
     }
 
@@ -85,7 +108,6 @@ export class CubieCube {
         }
         return sum % 2
     }
-
     //Corner Orientation Coordinate
     CornOriCoord() { //0 => 2,186 (3^7 - 1)
         let sum = 0
@@ -156,7 +178,6 @@ export class CubieCube {
             this.corners[i][0] = perm[i]
         }
     }
-
     //Edge Permutation Coordinate
     EdgePermCoord() { //0 => 479,001,599 (12! - 1)
         let edges = [...this.edges]
@@ -191,7 +212,6 @@ export class CubieCube {
             this.edges[i][0] = perm[i]
         }
     }
-
     //Phase 1 UD-Slice Coordinate (0 when UD-edges are in UD-Slice)
     P1UDSliceCoord() { //0 => 494 (12C4 - 1)
         var k = 3
@@ -211,7 +231,6 @@ export class CubieCube {
     FlipUDSliceCoord() { //0 => 1,013,759 (2048 * 495 – 1)
         return this.EdgeOriCoord() * 495 + this.P1UDSliceCoord()
     }
-
     //Phase 2 Edge Orientation Coordinate (Exclude UD-slice edges)
     P2EdgePermCoord() { //0 => 40,319 (8! - 1)
         var x = 0
@@ -243,6 +262,28 @@ export class CubieCube {
         return x
     }
 
+    Matches(other) {
+        return MatchesCorners(other) && MatchesEdges(other)
+    }
+    MatchesCorners(other) {
+        for (var i = 0; i < 8; i++) {
+            if (this.corners[i][0] !== other.corners[i][0])
+                return false
+            if (this.corners[i][1] !== other.corners[i][1])
+                return false
+        }
+        return true
+    }
+    MatchesEdges(other) {
+        for (var i = 0; i < 12; i++) {
+            if (this.edges[i][0] !== other.edges[i][0])
+                return false
+            if (this.edges[i][1] !== other.edges[i][1])
+                return false
+        }
+        return true
+    }
+
     Randomise() {
         const epIndex = Math.floor(Math.random() * 479001600); //Random EP
         this.SetEdgePermCoord(epIndex)
@@ -263,6 +304,7 @@ export class CubieCube {
             this.SetEdgePermCoord(epIndex)
         } while (this.EdgeParity() != this.CornerParity())
 
+        this.RandomiseEO()
     }
     RandomiseCorners() {
         do {

@@ -49,21 +49,51 @@ for (var urf3 = 0; urf3 < 3; urf3++) {
     cube.Multiply(SYM_URF3)
 }
 
-let SYM_INV = new Array(48).fill(-1) //Every symmetry needs to be inverted after conjugated, returns index of inverse symmetry
+//console.time("SYM INV creation")
+let SYM_INV = new Array(48) //Every symmetry needs to be inverted after conjugated, returns index of inverse symmetry
+const solved = new CubieCube()
 for (var i = 0; i < 48; i++) {
     for (var j = 0; j < 48; j++) {
         let cube = new CubieCube()
-        cube.Multiply(SYMS[i]) //Cube with the symmetry
-        cube.Multiply(SYMS[j]) //Inverse sym being tested
-        //This sucks
-        if (cube.corners[0][0] === 0 && cube.corners[1][0] === 1 && cube.corners[2][0] === 2 && cube.corners[3][0] === 3
-            && cube.corners[4][0] === 4 && cube.corners[5][0] === 5 && cube.corners[6][0] === 6 && cube.corners[7][0] === 7
-            && cube.corners[0][1] === 0 && cube.corners[1][1] === 0 && cube.corners[2][1] === 0 && cube.corners[3][1] === 0
-            && cube.corners[4][1] === 0 && cube.corners[5][1] === 0 && cube.corners[6][1] === 0 && cube.corners[7][1] === 0) {
+        cube.MultiplyCorners(SYMS[i]) //Cube with the symmetry
+        cube.MultiplyCorners(SYMS[j]) //Inverse sym being tested
+        if (solved.MatchesCorners(cube)) {
             SYM_INV[i] = j
         }
     }
 }
-console.log(SYM_INV)
+//console.timeEnd("SYM INV creation")
 
-export { SYMS, SYM_INV }
+//console.time("Sym move generation")
+let SYM_MOVE = new Array(48 * 18) //Each symmetry of each move
+for (var move = 0; move < 18; move++) {
+    for (var sym = 0; sym < 48; sym++) {
+        let symMoveCube = new CubieCube()
+        symMoveCube.Multiply(SYMS[sym])
+        symMoveCube.Turn(move)
+        symMoveCube.Multiply(SYMS[SYM_INV[sym]])
+        SYM_MOVE[move * 48 + sym] = symMoveCube
+    }
+}
+//console.timeEnd("Sym move generation")
+
+//console.time("SYM MULT generation")
+let SYM_MULT = new Array(48 * 48) //One symmetry multiplied by another
+for (var s1 = 0; s1 < 48; s1++) {
+    for (var s2 = 0; s2 < 48; s2++) {
+        let symMultCube = new CubieCube()
+        symMultCube.corners = SYMS[s1].corners
+        symMultCube.MultiplyCorners(SYMS[s2])
+        //Test this new state with every symmetry
+        for (var testIndex = 0; testIndex < 48; testIndex++) {
+            let testCube = { corners: SYMS[testIndex].corners }
+            if (symMultCube.MatchesCorners(testCube)) {
+                SYM_MULT[s1 * 48 + s2] = testIndex
+                break
+            }
+        }
+    }
+}
+//console.timeEnd("SYM MULT generation")
+
+export { SYMS, SYM_INV, SYM_MOVE, SYM_MULT }

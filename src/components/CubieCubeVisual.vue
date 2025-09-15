@@ -1,5 +1,4 @@
 <script setup>
-    import { computed } from 'vue'
     import { CubieCube } from '@/helpers/kociemba/CubieCube'
 
     const props = defineProps({
