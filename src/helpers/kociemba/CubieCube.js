@@ -13,44 +13,27 @@ export class CubieCube {
              [6, 0], [7, 0], [8, 0], [9, 0], [10, 0], [11, 0]]
 
     Turn(move) {
-        const face = Math.floor(move / 3)
-        let turnCube = new CubieCube()
-        turnCube.corners = cornerCubieMove[face]
-        turnCube.edges = edgeCubieMove[face]
-        //Maybe for anticlockwise moves figure out inverting a move?
-        for (var i = 0; i <= move % 3; i++) {
-            this.Multiply(turnCube)
-        }
+        this.Multiply({ corners: cornerCubieMove[move], edges: edgeCubieMove[move] })
     }
     TurnCorners(move) {
-        const face = Math.floor(move / 3)
-        let turnCube = new CubieCube()
-        turnCube.corners = cornerCubieMove[face]
-        for (var i = 0; i <= move % 3; i++) {
-            this.MultiplyCorners(turnCube)
-        }
+        this.MultiplyCorners(cornerCubieMove[move])
     }
     TurnEdges(move) {
-        const face = Math.floor(move / 3)
-        let turnCube = new CubieCube()
-        turnCube.edges = edgeCubieMove[face]
-        for (var i = 0; i <= move % 3; i++) {
-            this.MultiplyEdges(turnCube)
-        }
+        this.MultiplyEdges(edgeCubieMove[move])
     }
 
     Multiply(other) {
         //(A*B)(x).c=A(B(x).c).c
         //(A*B)(x).o=A(B(x).c).o+B(x).o
-        this.MultiplyCorners(other)
-        this.MultiplyEdges(other)
+        this.MultiplyCorners(other.corners)
+        this.MultiplyEdges(other.edges)
     }
-    MultiplyCorners(other) {
+    MultiplyCorners(otherCorners) {
         var newCorns = []
         for (var i = 0; i < 8; i++) {
-            let newCorn = [this.corners[other.corners[i][0]][0]]
-            const ori_a = this.corners[other.corners[i][0]][1]
-            const ori_b = other.corners[i][1]
+            let newCorn = [this.corners[otherCorners[i][0]][0]]
+            const ori_a = this.corners[otherCorners[i][0]][1]
+            const ori_b = otherCorners[i][1]
             if (ori_a < 3 && ori_b < 3) { //Neither is mirrored
                 //Result is not mirrored
                 newCorn.push((ori_a + ori_b) % 3)
@@ -60,12 +43,12 @@ export class CubieCube {
                 //Result is mirrored
                 newCorn.push(ori >= 6 ? (ori - 3) : ori)
             }
-            else if (this.corners[i][1] >= 3 && other.corners[i][1] < 3) { //This is mirrored
+            else if (ori_a >= 3 && ori_b < 3) { //This is mirrored
                 let ori = ori_a - ori_b
                 //Result is mirrored
                 newCorn.push(ori < 3 ? (ori + 3) : ori)
             }
-            else if (this.corners[i][1] >= 3 && other.corners[i][1] >= 3) { //Both mirrored
+            else if (ori_a >= 3 && ori_b >= 3) { //Both mirrored
                 let ori = ori_a - ori_b
                 //Result is not mirrored
                 newCorn.push(ori < 0 ? (ori + 3) : ori)
@@ -74,11 +57,11 @@ export class CubieCube {
         }
         this.corners = newCorns
     }
-    MultiplyEdges(other) {
+    MultiplyEdges(otherEdges) {
         var newEdges = []
         for (var i = 0; i < 12; i++) {
-            let newEdge = [this.edges[other.edges[i][0]][0]]
-            newEdge.push((other.edges[i][1] + this.edges[other.edges[i][0]][1]) % 2)
+            let newEdge = [this.edges[otherEdges[i][0]][0]]
+            newEdge.push((otherEdges[i][1] + this.edges[otherEdges[i][0]][1]) % 2)
             newEdges.push(newEdge)
         }
         this.edges = newEdges

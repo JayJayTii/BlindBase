@@ -2,20 +2,10 @@
     import { onMounted, onUnmounted, ref } from 'vue'
     import { CubieCube } from "@/helpers/kociemba/CubieCube.js"
     import { SYMS, SYM_INV, SYM_MOVE } from "@/helpers/kociemba/Symmetries.js"
-    import { GenerateCornOriMove, GenerateCornPermMove, GenerateEdgeOriMove } from "@/helpers/kociemba/MoveTable.js"
-    import { GenerateCornOriPrune, GenerateCornPermPrune, GenerateEdgeOriPrune } from "@/helpers/kociemba/PruningTable.js"
     import { SolveCO, SolveCP, SolveEO } from "@/helpers/kociemba/Solver.js"
     import { Sequence } from "@/helpers/sequence.js"
     import CubieCubeVisual from "@/components/CubieCubeVisual.vue"
 
-    console.time("GenerateEverything")
-    GenerateCornOriPrune()
-    GenerateCornPermMove()
-    GenerateCornPermPrune()
-    GenerateCornOriMove()
-    GenerateEdgeOriPrune()
-    GenerateEdgeOriMove()
-    console.timeEnd("GenerateEverything")
     const a = ref(new CubieCube())
     const e = ref(0)
 

@@ -32,7 +32,6 @@ async function GenerateCornOriMove() {
             }
         }
 	}
-
 	WriteToDatabase("CornOriMove", CornOriMove)
 }
 async function GenerateCornPermMove() {
@@ -62,6 +61,7 @@ async function GenerateCornPermMove() {
 			}
 		}
 	}
+
 	WriteToDatabase("CornPermMove", CornPermMove)
 }
 
@@ -95,4 +95,4 @@ async function GenerateEdgeOriMove() {
 	WriteToDatabase("EdgeOriMove", EdgeOriMove)
 }
 
-export { CornOriMove, GenerateCornOriMove, CornPermMove, GenerateCornPermMove, EdgeOriMove, GenerateEdgeOriMove }
+export { GenerateCornOriMove, GenerateCornPermMove, GenerateEdgeOriMove, CornOriMove, CornPermMove, EdgeOriMove }

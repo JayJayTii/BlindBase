@@ -9,6 +9,7 @@ async function GenerateCornOriPrune() {
     try {
         CornOriPrune = await FetchFromDatabase("CornOriPrune")
 
+
         if (CornOriPrune !== undefined) {
             //console.log("Already cached CornOriPrune, skipping...")
             return
@@ -271,4 +272,10 @@ function ToUint8Array(arr) {
     return out
 }
 
-export { ReadCornOriPrune, GenerateCornOriPrune, ReadCornPermPrune, GenerateCornPermPrune, ReadEdgeOriPrune, GenerateEdgeOriPrune }
+/*
+GenerateCornOriPrune()
+GenerateCornPermPrune()
+GenerateEdgeOriPrune()
+*/
+
+export { GenerateEdgeOriPrune, GenerateCornPermPrune, GenerateCornOriPrune, ReadCornOriPrune, ReadCornPermPrune, ReadEdgeOriPrune }
