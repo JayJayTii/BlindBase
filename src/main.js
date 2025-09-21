@@ -5,7 +5,7 @@ import App from './App.vue'
 import router from './router'
 import { GenerateSolverTables } from '@/helpers/startupExecutor.js'
 
-GenerateSolverTables()
+//GenerateSolverTables()
 
 createApp(App).use(router).use(createPinia()).mount('#app')
 
