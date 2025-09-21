@@ -197,22 +197,49 @@ export class CubieCube {
     }
     //Phase 1 UD-Slice Coordinate (0 when UD-edges are in UD-Slice)
     P1UDSliceCoord() { //0 => 494 (12C4 - 1)
-        var k = 3
-        var i = 11
         var sum = 0
-        while (k >= 0) {
-            if (this.edges[i][0] >= 8) //Occupied with UD-edge
-                k -= 1
-            else
-                sum += choose(i, k)
-
-            i -= 1
+        var x = 0
+        //Compute the index sum < (12 choose 4)
+        for (var j = 11; j >= 0; j--) {
+            if (this.edges[j][0] >= 8) { //Occupied with UD-edge
+                sum += choose(11 - j, x + 1)
+                x += 1
+            }
         }
         return sum
+    }
+    SetP1UDSliceCoord(P1UDSlice) {
+        let slice_edge = [8,9,10,11]
+        let other_edge = [0,1,2,3,4,5,6,7]
+        let a = P1UDSlice
+        for (var e = 0; e < 12; e++) {
+            this.edges[e][0] = -1
+        }
+
+        let x = 4
+        for (var j = 0; j < 12; j++) {
+            if (a - choose(11 - j, x) >= 0) {
+                this.edges[j][0] = slice_edge[4 - x]
+                a -= choose(11 - j, x)
+                x -= 1
+            }
+        }
+
+        x = 0 
+        for (var j = 0; j < 12; j++) {
+            if (this.edges[j][0] === -1) {
+                this.edges[j][0] = other_edge[x]
+                x += 1
+            }
+        }
     }
     //Flip UD-Slice Coordinate (0 when Edges Oriented and UD-edges in UD-slice)
     FlipUDSliceCoord() { //0 => 1,013,759 (2048 * 495 – 1)
         return this.EdgeOriCoord() * 495 + this.P1UDSliceCoord()
+    }
+    SetFlipUDSliceCoord(FlipUDSlice) {
+        this.SetEdgeOriCoord(Math.floor(FlipUDSlice / 495))
+        this.SetP1UDSliceCoord(FlipUDSlice % 495)
     }
     //Phase 2 Edge Orientation Coordinate (Exclude UD-slice edges)
     P2EdgePermCoord() { //0 => 40,319 (8! - 1)

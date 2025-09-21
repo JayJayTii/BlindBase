@@ -1,5 +1,7 @@
 import { CubieCube } from "./CubieCube.js"
 import { WriteToDatabase, FetchFromDatabase } from "@/helpers/indexedDB.js"
+import { SYMS, SYM_INV } from "./Symmetries.js"
+import { FUSClassToRepresentant, RawFUSToSymFUS } from "./ClassToRepresentant.js"
 
 let CornOriMove = new Array(2187 * 18) //Uses raw coords
 let CornPermMove = new Array(40320 * 18) //Uses raw coords
@@ -95,4 +97,40 @@ async function GenerateEdgeOriMove() {
 	WriteToDatabase("EdgeOriMove", EdgeOriMove)
 }
 
-export { GenerateCornOriMove, GenerateCornPermMove, GenerateEdgeOriMove, CornOriMove, CornPermMove, EdgeOriMove }
+async function GenerateFUSMove() {
+	try {
+		FUSMove = await FetchFromDatabase("FUSMove")
+
+		if (FUSMove !== undefined) {
+			//console.log("Already cached FUSMove, skipping...")
+			return
+		}
+	} catch (error) {
+		console.error("Error fetching data:", error)
+	}
+
+	console.time("GenerateFUSMove")
+	FUSMove = new Array(64430 * 18)
+	let cube = new CubieCube()
+	for (var symFUS = 0; symFUS < 64430; symFUS++) {
+		let rawFUS = FUSClassToRepresentant[symFUS]
+		cube.SetFlipUDSliceCoord(rawFUS)
+		for (var face = 0; face < 6; face++) {
+			for (var turn = 0; turn < 4; turn++) { //Turn the cube 4 times to put it back to normal by end
+
+				cube.TurnEdges(3 * face)
+				if (turn < 3) {
+					const moveIndex = 3 * face + turn
+					FUSMove[symFUS * 18 + moveIndex] = RawFUSToSymFUS[cube.FlipUDSliceCoord()]
+					if (symFUS === 0)
+						console.log(face + " " + turn + " " + RawFUSToSymFUS[cube.FlipUDSliceCoord()])
+				}
+			}
+		}
+	}
+	console.timeEnd("GenerateFUSMove")
+
+	WriteToDatabase("FUSMove", FUSMove)
+}
+
+export { GenerateCornOriMove, GenerateCornPermMove, GenerateEdgeOriMove, GenerateFUSMove, CornOriMove, CornPermMove, EdgeOriMove, FUSMove }
