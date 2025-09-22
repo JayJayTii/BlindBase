@@ -1,5 +1,10 @@
 <script setup>
-    import { computed, ref } from "vue"
+    import { computed, watch, ref } from "vue"
+
+    const emit = defineEmits(['update:on-selected'])
+    defineExpose({
+        selectionFinished
+    })
 
     const pieceType = ref(-1)
     const pieceTypeSelected = computed({
@@ -26,6 +31,21 @@
             mode.value == 0 ||
             mode.value == 1 && scrambleModeSelected.value)
     }
+
+
+    watch(selectionFinished, () => {
+        if (selectionFinished()) {
+            let pairs = []
+            const letters = "ABCDEFGHIJKLMNOPQRSTUVWX"
+            for (var i = 0; i < 24; i++) {
+                for (var j = 0; j < 24; j++) {
+                    pairs.push(letters[i] + letters[j])
+                }
+            }
+
+            emit('update:on-selected', pairs)
+        }
+    })
 </script>
 
 <template>
@@ -52,7 +72,6 @@
             <option value="1">No scramble</option>
         </select>
     </div>
-    <div v-if="selectionFinished()" style="color:white">finished</div>
 </template>
 
 <style>
