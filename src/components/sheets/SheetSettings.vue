@@ -69,6 +69,7 @@
     .SheetEditingRow {
         display: flex;
         flex-direction: row;
+        justify-content: center;
         padding: 2px;
         gap: 5px;
         width: 100%;

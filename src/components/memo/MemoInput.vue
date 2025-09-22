@@ -34,6 +34,7 @@
     <input v-for="cube in cubes"
            v-model="userSequences[cube - 1]"
            ref="inputRef"
+           :maxlength="props.maxSequenceLength"
            :style="{
                 textTransform: 'uppercase',
                 fontSize: '2rem',

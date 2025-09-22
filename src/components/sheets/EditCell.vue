@@ -75,19 +75,20 @@
         <div class="PanelHeader"> Edit cell:  </div>
         <!------CELL KEY------>
         <div class="SheetEditingRow">
-            Current cell: <input v-model="selectedCellInput" class="editCurCellKey" />
+            <input v-model="selectedCellInput" class="editCurCellKey" />
         </div>
 
         <!------CELL VALUE------>
         <div class="SheetEditingRow">
-            Value: <input v-model="selectedCellValue"
-                          ref="cellValueInputBox"
-                          :key="settingsStore.sheets_pairorder"
-                          style="width:100%;" />
+            <input v-model="selectedCellValue"
+                   ref="cellValueInputBox"
+                   maxlength="50"
+                   :key="settingsStore.sheets_pairorder"
+                   style="width:100%;" />
         </div>
 
         <!------RECOMMENDATIONS------>
-        Recommendations:
+        <div class="SheetEditingRow">Recommendations:</div>
         <div style="height:100%;overflow-y:auto;" v-if="sheetStore.getSheet(props.sheetID).type != 0">
             <List :data="options"
                   :selectedIndex="-1"
