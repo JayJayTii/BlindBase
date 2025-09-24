@@ -59,13 +59,13 @@
         }
         //Status change keybinds
         else if (event.code === "ArrowRight") {
-            if (solve.value.status < timerStore.solveStatuses.length - 1) {
+            if (timerStage.value === 0 && solve.value.status < timerStore.solveStatuses.length - 1) {
                 solve.value.status++
                 timerStore.saveState()
             }
         }
         else if (event.code === "ArrowLeft") {
-            if (solve.value.status > 0) {
+            if (timerStage.value === 0 && solve.value.status > 0) {
                 solve.value.status--
                 timerStore.saveState()
             }

@@ -6,15 +6,14 @@
     const timer = ref(null)
     const timerKey = ref(0)
     function solveComplete() {
-        timer.value.setScramble(possiblePairs[Math.floor(Math.random() * 576)])
+        timer.value.setScramble(possiblePairs[Math.floor(Math.random() * possiblePairs.length)])
     }
 
     const select = ref(null)
     function updatePossiblePairs(newPairs) {
         possiblePairs = newPairs
-
         nextTick(() => {
-            timer.value.setScramble(possiblePairs[Math.floor(Math.random() * 576)])
+            timer.value.setScramble(possiblePairs[Math.floor(Math.random() * possiblePairs.length)])
         })
     }
     let possiblePairs = []
