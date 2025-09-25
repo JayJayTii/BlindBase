@@ -30,6 +30,65 @@
         }
     }
 
+    function columnClicked(columnIndex) {
+        //If the column is full, deselect all
+        //If the column is not full, select the unselected ones
+        const flipped = (settingsStore.sheets_pairorder === 1)
+
+        let filledCellsInColumn = 0
+        for (var i = 0; i < sheet.value.yHeadings.length; i++) {
+            if ((!flipped && sheet.value.grid[columnIndex][i] !== "") || (flipped && sheet.value.grid[i][columnIndex] !== ""))
+                filledCellsInColumn++
+        }
+        let highlightedCellsInColumn = highlightedCells.value.filter((coord) => (coord.y === columnIndex))
+        const columnFilled = highlightedCellsInColumn.length >= filledCellsInColumn
+
+        if (columnFilled) {
+            for (var i = 0; i < highlightedCellsInColumn.length; i++) {
+                emit('update:selected-cell', !flipped ? highlightedCellsInColumn[i] : { x: highlightedCellsInColumn[i].y, y: highlightedCellsInColumn[i].x })
+            }
+        }
+        else {
+            highlightedCellsInColumn = highlightedCellsInColumn.map((coord) => coord.x)
+            for (var i = 0; i < sheet.value.yHeadings.length; i++) {
+                //Select every cell that is in the column and not highlighted
+                if (((!flipped && sheet.value.grid[columnIndex][i] !== "") || (flipped && sheet.value.grid[i][columnIndex] !== ""))
+                    && highlightedCellsInColumn.indexOf(i) == -1) {
+                    emit('update:selected-cell', !flipped ? { x: i, y: columnIndex } : { x: columnIndex, y: i })
+                }
+            }
+        }
+    }
+    function rowClicked(rowIndex) {
+        //If the row is full, deselect all
+        //If the row is not full, select the unselected ones
+        const flipped = (settingsStore.sheets_pairorder === 1)
+
+        let filledCellsInRow = 0
+        for (var i = 0; i < sheet.value.xHeadings.length; i++) {
+            if ((!flipped && sheet.value.grid[i][rowIndex] !== "") || (flipped && sheet.value.grid[rowIndex][i] !== ""))
+                filledCellsInRow++
+        }
+        let highlightedCellsInRow = highlightedCells.value.filter((coord) => (coord.x === rowIndex))
+        const rowFilled = highlightedCellsInRow.length >= filledCellsInRow
+
+        if (rowFilled) {
+            for (var i = 0; i < highlightedCellsInRow.length; i++) {
+                emit('update:selected-cell', !flipped ? highlightedCellsInRow[i] : { x: highlightedCellsInRow[i].y, y: highlightedCellsInRow[i].x })
+            }
+        }
+        else {
+            highlightedCellsInRow = highlightedCellsInRow.map((coord) => coord.y)
+            for (var i = 0; i < sheet.value.xHeadings.length; i++) {
+                //Select every cell that is in the row and not highlighted
+                if (((!flipped && sheet.value.grid[i][rowIndex] !== "") || (flipped && sheet.value.grid[rowIndex][i] !== ""))
+                    && highlightedCellsInRow.indexOf(i) == -1) {
+                    emit('update:selected-cell', !flipped ? { x: rowIndex, y: i } : { x: i, y: rowIndex })
+                }
+            }
+        }
+    }
+
     //Highlighted cells are visual coords
     const highlightedCells = ref([{ x: -1, y: -1 }])
     function changeHighlightedCells(newValue) {
@@ -51,9 +110,10 @@
 
         <!-----COLUMN HEADINGS----->
         <div class="SheetGridTopRow" ref="topRow">
-            <div v-for="char in getXHeadings(sheet)"
+            <div v-for="(char,index) in getXHeadings(sheet)"
                  class="SheetGridCell"
-                 style="cursor: default">
+                 style="cursor: pointer"
+                 @click="columnClicked(index)">
                 {{ char }}
             </div>
             <div class="SheetGridCell" style="background-color:transparent;"></div>
@@ -61,9 +121,10 @@
 
         <!-----ROW HEADINGS----->
         <div class="SheetGridLeftColumn" ref="leftColumn">
-            <div v-for="char in getYHeadings(sheet)"
+            <div v-for="(char, index) in getYHeadings(sheet)"
                  class="SheetGridCell"
-                 style="cursor: default">
+                 style="cursor: pointer"
+                 @click="rowClicked(index)">
                 {{ char }}
             </div>
         </div>
