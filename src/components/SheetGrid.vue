@@ -12,6 +12,7 @@
         sheetID: Number,
         formatEmpty: Boolean,
         showIfNull: Boolean,
+        fullLineSelection: Boolean,
     })
     const emit = defineEmits(['update:selected-cell'])
 
@@ -33,6 +34,9 @@
     function columnClicked(columnIndex) {
         //If the column is full, deselect all
         //If the column is not full, select the unselected ones
+        if (!props.fullLineSelection)
+            return
+
         const flipped = (settingsStore.sheets_pairorder === 1)
 
         let filledCellsInColumn = 0
@@ -62,6 +66,9 @@
     function rowClicked(rowIndex) {
         //If the row is full, deselect all
         //If the row is not full, select the unselected ones
+        if (!props.fullLineSelection)
+            return
+
         const flipped = (settingsStore.sheets_pairorder === 1)
 
         let filledCellsInRow = 0
@@ -112,7 +119,7 @@
         <div class="SheetGridTopRow" ref="topRow">
             <div v-for="(char,index) in getXHeadings(sheet)"
                  class="SheetGridCell"
-                 style="cursor: pointer"
+                 :style="{ cursor: props.fullLineSelection ? 'pointer' : 'default' }"
                  @click="columnClicked(index)">
                 {{ char }}
             </div>
@@ -123,7 +130,7 @@
         <div class="SheetGridLeftColumn" ref="leftColumn">
             <div v-for="(char, index) in getYHeadings(sheet)"
                  class="SheetGridCell"
-                 style="cursor: pointer"
+                 :style="{ cursor: props.fullLineSelection ? 'pointer' : 'default' }"
                  @click="rowClicked(index)">
                 {{ char }}
             </div>

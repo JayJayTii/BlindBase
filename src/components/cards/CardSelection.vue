@@ -122,6 +122,7 @@
 
         <SheetGrid :sheetID="sheetID"
                    :formatEmpty="true"
+                   :fullLineSelection="true"
                    @update:selected-cell="onCellClicked"
                    ref="gridRef"
                    style="width:100%; height:79vh;" />
