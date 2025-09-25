@@ -71,7 +71,7 @@
         <!------------GRID------------->
         <SheetGrid ref="gridRef"
                    style="width: 60vw; height: 93vh;"
-                   :sheetID="sheetID"
+                   :sheet="sheetStore.getSheet(sheetID)"
                    :showIfNull="true"
                    :key="sheetID"
                    @update:selected-cell="onCellClicked" />

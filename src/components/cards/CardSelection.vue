@@ -20,7 +20,6 @@
     const emit = defineEmits(['sheetEditClicked','beginPractice'])
 
     const columnHeaders = ['','Sheet','Flashcards','','New','Learning','Due','']
-
     const gridRef = ref(null)
     const selectedCells = ref([])
     function UpdateSelectedCells() {
@@ -87,7 +86,7 @@
             <!------SHEET ROWS------>
             <template v-for="(name,index) in sheetStore.getSheetNames">
                 <div>
-                    <img @click="emit('sheetEditClicked', sheetStore.sheets[index].id);nextTick(()=>UpdateSelectedCells())"
+                    <img @click="emit('sheetEditClicked', sheetStore.sheets[index].id);nextTick(()=>{UpdateSelectedCells()})"
                          src="@/assets/edit.svg"
                          :class="['editButton', (sheetID === sheetStore.sheets[index].id) ? 'editButtonSelected': '']" />
                 </div>
@@ -120,7 +119,7 @@
             </div>
         </div>
 
-        <SheetGrid :sheetID="sheetID"
+        <SheetGrid :sheet="sheetStore.getSheet(sheetID)"
                    :formatEmpty="true"
                    :fullLineSelection="true"
                    @update:selected-cell="onCellClicked"

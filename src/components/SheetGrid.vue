@@ -1,23 +1,24 @@
 <script setup>
     import { ref, reactive, watch, computed, nextTick } from 'vue'
     import { getXHeadings, getYHeadings } from '@/helpers/sheets.js'
-    import { useSheetStore } from '../stores/SheetStore'
     import { useSettingsStore } from '../stores/SettingsStore'
-    const sheetStore = useSheetStore()
-    sheetStore.loadState()
     const settingsStore = useSettingsStore()
     settingsStore.loadState()
 
     const props = defineProps({
-        sheetID: Number,
+        sheet: Object,
         formatEmpty: Boolean,
         showIfNull: Boolean,
         fullLineSelection: Boolean,
     })
+
     const emit = defineEmits(['update:selected-cell'])
 
     const sheet = computed({
-        get: () => sheetStore.getSheet(props.sheetID),
+        get: () => props.sheet
+    })
+    const flipped = computed({
+        get: () => settingsStore.sheets_pairorder === 1
     })
 
     //Grid and headings are separate, so their scrolls need to be synchronised
@@ -100,7 +101,7 @@
     const highlightedCells = ref([{ x: -1, y: -1 }])
     function changeHighlightedCells(newValue) {
         //New values will be absolute, not visual
-        highlightedCells.value = newValue.map(coord => sheetStore.absoluteToVisual(coord))
+        highlightedCells.value = !flipped.value ? newValue : newValue.map(coord => ({ x: coord.y, y: coord.x }))
     }
 
     defineExpose({
@@ -109,7 +110,7 @@
 </script>
 
 <template>
-    <div class="SheetGridContainer" v-if="sheetStore.isValidSheetID(sheetID)">
+    <div class="SheetGridContainer" v-if="props.sheet">
         <!-----BLANK CORNER----->
         <div class="SheetGridCorner">
             <div class="SheetGridCell" style="cursor: default"></div>
@@ -140,11 +141,11 @@
         <div class="SheetGrid" ref="mainGrid" @scroll="syncScroll">
             <div v-for="(row, y) in 24">
                 <div v-for="(col, x) in 24"
-                     @click="emit('update:selected-cell', sheetStore.visualToAbsolute({ x, y }))"
-                     :class="['SheetGridCell', formatEmpty && sheetStore.getCell(sheetID, sheetStore.visualToAbsolute({x, y }))==='' ? 'SheetGridCellEmpty' : 'SheetGridCellHoverable' ,
+                     @click="emit('update:selected-cell', !flipped ? {x:x,y:y} : {x:y,y:x})"
+                     :class="['SheetGridCell', formatEmpty && props.sheet.grid[!flipped ? y : x][!flipped ? x : y] === '' ? 'SheetGridCellEmpty' : 'SheetGridCellHoverable' ,
                      Array.isArray(highlightedCells) && highlightedCells.some((cell)=>cell.x === x && cell.y === y) ? 'SheetGridCellHightlighted' : '']"
                     >
-                    {{ sheetStore.getCell(sheetID, sheetStore.visualToAbsolute({ x, y })) }}
+                    {{ props.sheet.grid[!flipped ? y : x][!flipped ? x : y] }}
                 </div>
             </div>
         </div>
