@@ -3,6 +3,10 @@
     import { useSheetStore } from '@/stores/SheetStore'
     const sheetStore = useSheetStore()
     sheetStore.loadState()
+    import { useCardStore } from '@/stores/CardStore'
+    const cardStore = useCardStore()
+    cardStore.loadState()
+
 
     const emit = defineEmits(['update:on-selected'])
     defineExpose({
@@ -49,7 +53,8 @@
     const pairModeSelected = computed({
         get: () => modeSelected.value &&
             (pairMode.value == 0 ||
-            (pairMode.value == 1 && pairModeSheetID.value >= 0))
+            (pairMode.value == 1 && pairModeSheetID.value >= 0) ||
+            (pairMode.value == 2 && pairModeSheetID.value >= 0))
     })
 
     const scrambleMode = ref(-1)
@@ -86,7 +91,12 @@
                     }
                     break
                 case 2: //All pairs from cards
-
+                    const cards = cardStore.cards
+                        .filter((card) => card.reference.sheetID == pairModeSheetID.value
+                            && card.successCount > 0)
+                    for (var i = 0; i < cards.length; i++) {
+                        pairs.push(sheetStore.coordToKey(pairModeSheetID.value, cards[i].reference.coord))
+                    }
                     break
                 case 3: //All pairs from custom
 
@@ -97,6 +107,17 @@
             emit('update:on-selected', pairs)
         }
     })
+
+    function getValidCardDecks() {
+        const out = [
+            ...new Set(
+                cardStore.cards
+                    .filter((card) => card.successCount > 0)
+                    .map((card) => card.reference.sheetID),
+            ),
+        ].map((sheetID) => sheetStore.getSheet(sheetID))
+        return out.filter((sheet) => sheet.type === Number(pieceType.value)) //Filter for image sheets
+    }
 </script>
 
 <template>
@@ -116,13 +137,19 @@
         <select style="font-size: 2rem" v-model="pairMode" v-if="modeSelected">
             <option value="0">From all pairs</option>
             <option value="1" v-if="sheetStore.getSheetsOfType(Number(pieceType)).length > 0">From sheet</option>
-            <!--<option value="2">From cards</option>
-    <option value="3">From custom</option>-->
+            <option value="2" v-if="getValidCardDecks().length">From cards</option>
+            <!--<option value="3">From custom</option>-->
         </select>
 
         <div class="ExecSelectLine" v-if="pairMode == 1 || pairMode == 2" />
         <select style="font-size: 2rem" v-model="pairModeSheetID" v-if="pairMode == 1">
             <option v-for="sheet in sheetStore.getSheetsOfType(Number(pieceType))"
+                    :value="sheet.id">
+                {{sheet.name}}
+            </option>
+        </select>
+        <select style="font-size: 2rem" v-model="pairModeSheetID" v-if="pairMode == 2">
+            <option v-for="sheet in getValidCardDecks()"
                     :value="sheet.id">
                 {{sheet.name}}
             </option>

@@ -39,7 +39,10 @@
         selectedCell.y = newValue.y
         gridRef.value.changeHighlightedCells([selectedCell])
         //Focus the input box in nextTick as it needs to start being rendered again before being accessible
-        nextTick(() => { editCellRef.value.cellValueInputBox.focus() })
+        nextTick(() => {
+            if (editCellRef.value.cellValueInputBox)
+                editCellRef.value.cellValueInputBox.focus()
+        })
     }
 
     //Grid cannot dynamically update highlighted cells after setting change, so just reset them
