@@ -44,8 +44,8 @@
         if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.isContentEditable)
             return
 
-        if (event.code === 'Space') {
-            if (timerStage.value === stages.finished) {
+        if (timerStage.value === stages.finished) {
+            if (event.code === 'Space') {
                 timerStage.value = stages.waiting //Wait for space up
                 solve.value = {}
                 solve.value.memoTime = 0
@@ -53,14 +53,14 @@
                 solve.value.status = 0
                 solve.value.scramble = scramble
             }
-            else if (timerStage.value === stages.executing) { //Stop timer
-                clearInterval(timerUpdate)
-                solve.value.solveTime = new Date().getTime() - stopwatchStartTime
-                solve.value.status = 0 //Default to no penalty
-                timerStage.value = stages.stopping
-                ratioTextSolve.value = solve.value
-                emit('update:solve-complete', solve.value)
-            }
+        }
+        if (timerStage.value === stages.executing) { //Stop timer
+            clearInterval(timerUpdate)
+            solve.value.solveTime = new Date().getTime() - stopwatchStartTime
+            solve.value.status = 0 //Default to no penalty
+            timerStage.value = stages.stopping
+            ratioTextSolve.value = solve.value
+            emit('update:solve-complete', solve.value)
         }
     }
     function handleKeyup(event) {
@@ -68,22 +68,20 @@
         if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.isContentEditable)
             return
 
-        if (event.code === 'Space') {
-            if (timerStage.value === stages.waiting) { //Begin timer
-                timerStage.value = props.twoStage ? stages.memoing : stages.executing
-                stopwatchStartTime = new Date().getTime()
-                //Update the stopwatch text every 0.01 seconds
-                timerUpdate = setInterval(() => {
-                    solve.value.solveTime = new Date().getTime() - stopwatchStartTime
-                }, 10) 
-            }
-            else if (timerStage.value === stages.memoing) { //Begin exec stage
-                timerStage.value = stages.executing
-                solve.value.memoTime = solve.value.solveTime //Copy current time into memoTime
-            }
-            else if (timerStage.value === stages.stopping) { //Go back to default screen
-                timerStage.value = stages.finished
-            }
+        if (timerStage.value === stages.waiting) { //Begin timer
+            timerStage.value = props.twoStage ? stages.memoing : stages.executing
+            stopwatchStartTime = new Date().getTime()
+            //Update the stopwatch text every 0.01 seconds
+            timerUpdate = setInterval(() => {
+                solve.value.solveTime = new Date().getTime() - stopwatchStartTime
+            }, 10)
+        }
+        else if (timerStage.value === stages.memoing) { //Begin exec stage
+            timerStage.value = stages.executing
+            solve.value.memoTime = solve.value.solveTime //Copy current time into memoTime
+        }
+        else if (timerStage.value === stages.stopping) { //Go back to default screen
+            timerStage.value = stages.finished
         }
     }
 
