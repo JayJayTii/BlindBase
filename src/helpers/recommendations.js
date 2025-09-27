@@ -4,19 +4,33 @@ import imageData from '../assets/recommendations/imageRecommendations.json'
 import { useSettingsStore } from '../stores/SettingsStore'
 import { adjacentCornerStickers, adjacentEdgeStickers } from '@/helpers/stickers.js'
 
-export function getRecommendations(sheetType, key) {
-    if (sheetType == 0)
-        //No sheet type, no recommendations
-        return []
-    if (sheetType == 1)
-        //Corners
-        return getCornerRecommendations(key)
-    if (sheetType == 2)
-        //Edges
-        return getEdgeRecommendations(key)
-    if (sheetType == 3)
-        //Images
-        return getImageRecommendations(key)
+export function getRecommendations(pieceType, key) {
+    switch (pieceType) {
+        case 0:
+            //No sheet type, no recommendations
+            return []
+        case 1:
+            //Corners
+            return getCornerRecommendations(key, useSettingsStore().sheets_notationtype)
+        case 2:
+            //Edges
+            return getEdgeRecommendations(key, useSettingsStore().sheets_notationtype)
+        case 3:
+            //Images
+            return getImageRecommendations(key)
+    }
+}
+
+export function GetRandomRecommendation(pieceType, key) {
+    let recommendations = []
+    if (pieceType === 1) {
+        recommendations = getCornerRecommendations(key, 0)
+    }
+    if (pieceType === 2) {
+        recommendations = getEdgeRecommendations(key, 0)
+    }
+    const index = Math.floor(Math.random() * recommendations.length)
+    return recommendations[index]
 }
 
 function getEquivalentCornerComms(key) {
@@ -57,8 +71,7 @@ function getEquivalentEdgeComms(key) {
     return output
 }
 
-function getCornerRecommendations(baseKey) {
-    const notation = useSettingsStore().sheets_notationtype
+function getCornerRecommendations(baseKey, notationType) {
     //buffer is always included in the comm
     baseKey = 'C' + baseKey
     const equivalentKeys = getEquivalentCornerComms(baseKey)
@@ -68,13 +81,12 @@ function getCornerRecommendations(baseKey) {
 
         //Each of these equivalent keys could have multiple algs
         for (var alg of cornerData[key]) {
-            allComms.push(alg[notation])
+            allComms.push(alg[notationType])
         }
     }
     return allComms
 }
-function getEdgeRecommendations(baseKey) {
-    const notation = useSettingsStore().sheets_notationtype
+function getEdgeRecommendations(baseKey, notationType) {
     //buffer is always included in the comm
     baseKey = 'C' + baseKey
     const equivalentKeys = getEquivalentEdgeComms(baseKey)
@@ -84,7 +96,7 @@ function getEdgeRecommendations(baseKey) {
 
         //Each of these equivalent keys could have multiple algs
         for (var alg of edgeData[key]) {
-            allComms.push(alg[notation])
+            allComms.push(alg[notationType])
         }
     }
     return allComms

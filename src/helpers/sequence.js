@@ -1,8 +1,3 @@
-
-function StringToSequence(str) {
-
-}
-
 //Just a turn sequence, not an algorithm because that implies a goal
 export class Sequence { 
     turns = []
@@ -58,6 +53,15 @@ export class Sequence {
         this.collapse()
     }
 
+    reverse() {
+        const oldTurns = this.turns
+        this.turns = []
+        for (var i = oldTurns.length - 1; i >= 0; i--) {
+            const oldTurn = oldTurns[i]
+            this.turns.push([oldTurn[0], 4 - oldTurn[1]])
+        }
+    }
+
     //Each move is 0->17
     setKociembaMoves(arr) {
         const faces = ['U','R','F','D','L','B']
@@ -65,6 +69,23 @@ export class Sequence {
         this.turns = arr.map((move) => {
             return [faces[Math.floor(move / 3)], move % 3 + 1]
         })
+    }
+    setAlgorithmNotation(str) {
+        const turnArr = str.split(' ')
+        this.turns = []
+        for (var i = 0; i < turnArr.length; i++) {
+            const turn = turnArr[i]
+            //Doesn't work with moves like Lw
+            let turnType = 0
+            if (turn.length === 1)
+                turnType = 1
+            else if (turn[1] === '2')
+                turnType = 2
+            else if (turn[1] === '\'')
+                turnType = 3
+
+            this.turns.push([turn[0], turnType])
+        }
     }
 
     toString() {

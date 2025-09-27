@@ -2,25 +2,44 @@
     import { nextTick, onMounted, onUnmounted, ref } from 'vue'
     import ExecSelect from '@/components/exec/ExecSelect.vue'
     import ExecTimer from '@/components/exec/ExecTimer.vue'
+    import { Sequence } from '@/helpers/sequence.js'
+    import { GetRandomRecommendation } from '@/helpers/recommendations.js'
+
+    let possiblePairs = []
+    let pieceType = 0
+    let useScramble = false
 
     const timer = ref(null)
     const timerKey = ref(0)
     function solveComplete() {
-        timer.value.setScramble(possiblePairs[Math.floor(Math.random() * possiblePairs.length)])
+        const pair = possiblePairs[Math.floor(Math.random() * possiblePairs.length)]
+        if (!useScramble) {
+            timer.value.setScramble(pair)
+            return
+        }
+
+        //Generate a scramble
+        const solution = GetRandomRecommendation(pieceType, pair)
+        let scramble = new Sequence()
+        scramble.setAlgorithmNotation(solution)
+        scramble.reverse()
+        timer.value.setScramble(scramble.toString())
     }
 
     const select = ref(null)
-    function updatePossiblePairs(newPairs) {
+    function updatePossiblePairs(newPairs, newPieceType, newUseScramble) {
         possiblePairs = newPairs
+        pieceType = newPieceType
+        useScramble = newUseScramble
+
         if (newPairs == []) 
             return
         nextTick(() => {
             if(!timer.value)
                 return
-            timer.value.setScramble(possiblePairs[Math.floor(Math.random() * possiblePairs.length)])
+            solveComplete()
         })
     }
-    let possiblePairs = []
 
     function selectionFinished() {
         return select.value ? select.value.selectionFinished() : false

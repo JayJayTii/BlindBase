@@ -59,17 +59,15 @@
     const pairMode = computed({
         get: () => pairModeValue.value,
         set: (newValue) => {
-            if (newValue == 1) {
-                if (pieceType.value === 1)
-                    pairs = allCornerPairs
-                else
-                    pairs = allEdgePairs
-            }
+            pairModeValue.value = newValue
+
+            pairModeSheetID.value = -1
+            scrambleMode.value = -1
+
             if (newValue == 3) {
                 highlightedCells.value = []
                 generateCustomPairSheet()
             }
-            pairModeValue.value = newValue
         }
     })
     const pairModeSheetID = ref(-1)
@@ -81,7 +79,16 @@
             (pairMode.value == 3 && highlightedCells.value.length > 0))
     })
 
-    const scrambleMode = ref(-1)
+    const scrambleModeValue = ref(-1)
+    const scrambleMode = computed({
+        get: () => scrambleModeValue.value,
+        set: (newValue) => {
+            scrambleModeValue.value = newValue
+
+            if (selectionFinished())
+                GeneratePairsAndEmit()
+        }
+    })
     const scrambleModeSelected = computed({
         get: () => pairModeSelected.value && scrambleMode.value >= 0
     })
@@ -92,41 +99,44 @@
             mode.value == 1 && scrambleModeSelected.value)
     }
 
-    watch(selectionFinished, () => {
-        if (selectionFinished()) {
-            let pairs = []
-            switch (Number(pairMode.value)) {
-                case 0: //All pairs
-                    if (pieceType.value === 1)
-                        pairs = allCornerPairs
-                    else
-                        pairs = allEdgePairs
-                    break
-                case 1: //All pairs from sheet
-                    const sheet = sheetStore.getSheet(pairModeSheetID.value)
-                    for (var y = 0; y < sheet.yHeadings.length; y++) {
-                        for (var x = 0; x < sheet.xHeadings.length; x++) {
-                            if (sheet.grid[y][x] !== "") {
-                                pairs.push(sheet.xHeadings.split('')[x] + sheet.yHeadings.split('')[y])
-                            }
+    function GeneratePairsAndEmit() {
+        let pairs = []
+        switch (Number(pairMode.value)) {
+            case 0: //All pairs
+                if (pieceType.value === 1)
+                    pairs = allCornerPairs
+                else
+                    pairs = allEdgePairs
+                break
+            case 1: //All pairs from sheet
+                const sheet = sheetStore.getSheet(pairModeSheetID.value)
+                for (var y = 0; y < sheet.yHeadings.length; y++) {
+                    for (var x = 0; x < sheet.xHeadings.length; x++) {
+                        if (sheet.grid[y][x] !== "") {
+                            pairs.push(sheet.xHeadings.split('')[x] + sheet.yHeadings.split('')[y])
                         }
                     }
-                    break
-                case 2: //All pairs from cards
-                    const cards = cardStore.cards
-                        .filter((card) => card.reference.sheetID == pairModeSheetID.value
-                            && card.successCount > 0)
-                    for (var i = 0; i < cards.length; i++) {
-                        pairs.push(sheetStore.coordToKey(pairModeSheetID.value, cards[i].reference.coord))
-                    }
-                    break
-                case 3: //All pairs from custom
-                    pairs = highlightedCells.value.map((cell) => customSheet.value.grid[cell.y][cell.x])
-                    break
-                default:
-            }
+                }
+                break
+            case 2: //All pairs from cards
+                const cards = cardStore.cards
+                    .filter((card) => card.reference.sheetID == pairModeSheetID.value
+                        && card.successCount > 0)
+                for (var i = 0; i < cards.length; i++) {
+                    pairs.push(sheetStore.coordToKey(pairModeSheetID.value, cards[i].reference.coord))
+                }
+                break
+            case 3: //All pairs from custom
+                pairs = highlightedCells.value.map((cell) => customSheet.value.grid[cell.y][cell.x])
+                break
+            default:
+        }
 
-            emit('update:on-selected', pairs)
+        emit('update:on-selected', pairs, Number(pieceType.value), scrambleMode.value == 0)
+    }
+    watch(selectionFinished, () => {
+        if (selectionFinished()) {
+            GeneratePairsAndEmit()
         }
     })
 
@@ -241,7 +251,7 @@
         </select>
     </div>
 
-    <SheetGrid v-if="editingCustomPairs === true"
+    <SheetGrid v-if="editingCustomPairs === true && pairMode == 3"
                style="height:83vh;"
                :sheet="customSheet.value"
                :key="customSheet.value"
