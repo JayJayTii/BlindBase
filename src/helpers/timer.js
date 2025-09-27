@@ -28,6 +28,6 @@ export function getSolveTimeString(solve) {
 export function getSolveRatioString(solve) {
     //Ratio of memo to exec does not take any penalties into account
     //E.g: (12.11 memo : 13.21 exec)
-    return solve.memoTime === 0 ? "" :
+    return (solve.memoTime === 0 || !solve.hasOwnProperty('memoTime')) ? "" :
         (formatTime(solve.memoTime) + " memo : " + formatTime(solve.solveTime - solve.memoTime) + " exec")
 }

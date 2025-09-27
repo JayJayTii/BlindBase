@@ -1,5 +1,5 @@
 <script setup>
-    import { ref, inject } from 'vue'
+    import { ref, nextTick, watch, inject, computed } from 'vue'
     import { useTimerStore } from "../stores/TimerStore"
     const timerStore = useTimerStore()
     timerStore.loadState()
@@ -9,17 +9,21 @@
     import SessionDetails from "@/components/timer/SessionDetails.vue"
     import SolveDetails from "@/components/timer/SolveDetails.vue"
     import SolveList from "@/components/timer/SolveList.vue"
-    import Timer from "@/components/timer/Timer.vue"
+    import Timer from "@/components/Timer.vue"
+    import TimerStatusOverlay from "@/components/timer/TimerStatusOverlay.vue"
     const confirmDialog = inject('confirmDialog')
+    import { Scramble } from '@/helpers/scramble.js'
 
     //-1 means unselected
     const sessionID = ref(-1)
     const solveIndex = ref(-1)
-
+    const timer = ref(null)
+    const timerKey = ref(0)
     function updateSessionID(index) { //Called from SessionSelect component
         if (sessionID.value != timerStore.sessions[index].id) {
             sessionID.value = timerStore.sessions[index].id
             solveIndex.value = -1
+            nextTick(() => { generateNewScramble() })
         }
     }
     async function deleteSession() {
@@ -30,10 +34,19 @@
         sessionID.value = -1
     }
 
+    let currentScramble = ""
+    function generateNewScramble() {
+        currentScramble = new Scramble(20).toString()
+        nextTick(() => { if (timer.value) { timer.value.setScramble(currentScramble) }})
+    }
+    generateNewScramble()
+
     function onSolveComplete(newSolve) {
         timerStore.addSolve(sessionID.value, newSolve)
         //Set solve to latest after finishing
-        solveIndex.value = timerStore.getSession(sessionID.value).solves.length - 1 
+        solveIndex.value = timerStore.getSession(sessionID.value).solves.length - 1
+
+        generateNewScramble()
     }
     function selectSolve(index) {
         solveIndex.value = index
@@ -45,6 +58,25 @@
         timerStore.deleteSolve(sessionID.value, solveIndex.value)
         solveIndex.value = -1 //Unselect any solve
     }
+
+    //The following is done to detect updates to the status of the last solve and update the timer text
+    let oldLength = 0
+    watch(
+        () => sessionID.value === -1 ? -1
+            : (timerStore.getSession(sessionID.value).solves.length === 0 ? -1
+                : timerStore.getSession(sessionID.value).solves.at(-1).status + timerStore.getSession(sessionID.value).solves.length),
+        (newVal) => {
+            if (sessionID.value === -1)
+                return
+            if (oldLength !== timerStore.getSession(sessionID.value).solves.length) {
+                //If it's just a new solve that changes the status, ignore it
+                oldLength = timerStore.getSession(sessionID.value).solves.length
+                return
+            }
+            timerKey.value++
+            nextTick(() => { timer.value.setScramble(currentScramble) })
+        }
+    )
 </script>
 
 <template>
@@ -61,11 +93,20 @@
         </div>
 
         <!-----------TIMER------------>
-        <div style="width: 60vw; height: 93vh; border: 3px solid var(----border-color);">
-            <Timer v-if="timerStore.isValidSessionID(sessionID)"
-                   :sessionID="sessionID"
+        <div style="width: 60vw; height: 93vh; position: relative; border: 3px solid var(--border-color);">
+            <Timer style="width:100%; height:100%;"
+                   v-if="timerStore.isValidSessionID(sessionID)"
+                   :lastSolve="timerStore.sessions[timerStore.getSessionIndexWithID(sessionID)].solves.at(-1)"
+                   :twoStage="true"
                    @update:solve-complete="onSolveComplete"
-                   :key="sessionID + '-' + timerStore.sessions[timerStore.getSessionIndexWithID(sessionID)].solves.length" />
+                   ref="timer"
+                   :key="timerKey"/>
+                   <!--:key="sessionID + '-' + JSON.stringify(timerStore.sessions[timerStore.getSessionIndexWithID(sessionID)].solves.at(-1))"--> 
+
+            <TimerStatusOverlay v-if="timer && !timer.isSolving"
+                                id="timerStatusOverlay"
+                                @update:solve-status="timerKey++"
+                                :sessionID="sessionID" />
         </div>
 
         <!--------RIGHT COLUMN-------->
@@ -91,3 +132,13 @@
     </div>
 
 </template>
+
+<style>
+    #timerStatusOverlay {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        margin-top: 3rem;
+    }
+</style>

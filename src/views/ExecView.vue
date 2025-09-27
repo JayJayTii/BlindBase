@@ -1,13 +1,14 @@
 <script setup>
     import { nextTick, onMounted, onUnmounted, ref } from 'vue'
     import ExecSelect from '@/components/exec/ExecSelect.vue'
-    import ExecTimer from '@/components/exec/ExecTimer.vue'
+    import Timer from '@/components/Timer.vue'
     import { Sequence } from '@/helpers/sequence.js'
     import { GetRandomRecommendation } from '@/helpers/recommendations.js'
     import { scramblers } from '@/helpers/solver/scramble_333_edit.js'
 
-    scramblers['333'].initialize(null, Math);
+    nextTick(() => { scramblers['333'].initialize(null, Math) })
 
+    let fullScramble = false
     let possiblePairs = []
     let pieceType = 0
     let useScramble = false
@@ -15,6 +16,12 @@
     const timer = ref(null)
     const timerKey = ref(0)
     function solveComplete() {
+        if (fullScramble) {
+            const scramble = (pieceType === 1) ? scramblers['333'].getCornerScramble() : scramblers['333'].getEdgeScramble()
+            timer.value.setScramble(scramble)
+            return
+        }
+
         const pair = possiblePairs[Math.floor(Math.random() * possiblePairs.length)]
         if (!useScramble) {
             timer.value.setScramble(pair)
@@ -30,7 +37,8 @@
     }
 
     const select = ref(null)
-    function updatePossiblePairs(newPairs, newPieceType, newUseScramble) {
+    function updatePossiblePairs(newFullScramble, newPairs, newPieceType, newUseScramble) {
+        fullScramble = newFullScramble
         possiblePairs = newPairs
         pieceType = newPieceType
         useScramble = newUseScramble
@@ -52,7 +60,7 @@
 <template>
     <ExecSelect ref="select" @update:on-selected="updatePossiblePairs"/>
 
-    <ExecTimer v-if="selectionFinished()"
+    <Timer v-if="selectionFinished()"
                :key="timerKey"
                ref="timer"
                @update:solve-complete="solveComplete" 

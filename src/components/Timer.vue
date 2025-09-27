@@ -1,15 +1,12 @@
 <script setup>
     import { ref, reactive, computed, onMounted, onUnmounted } from 'vue'
     import { getSolveTimeString, getSolveRatioString } from '@/helpers/timer.js'
-    import { Scramble } from '@/helpers/scramble.js'
-    import { useTimerStore } from '@/stores/TimerStore'
-    const timerStore = useTimerStore()
-    timerStore.loadState()
 
-    const props = defineProps({
-        sessionID: Number,
-    })
     const emit = defineEmits(['update:solve-complete'])
+    const props = defineProps({
+        lastSolve: Object,
+        twoStage: Boolean,
+    })
 
     const stages = {
         finished: 0,
@@ -18,19 +15,28 @@
         executing: 3,
         stopping: 4
     }
+    const timerStage = ref(0)
+    const ratioTextSolve = reactive({})
+    if (props.lastSolve)
+        ratioTextSolve.value = props.lastSolve
+
     const isSolving = computed({
         get: () => timerStage.value === stages.memoing || timerStage.value === stages.executing
     })
-    const timerStage = ref(0)
-    //Initialise solve with last solve of the session
     const solve = reactive({})
-    solve.value = timerStore.sessions[timerStore.getSessionIndexWithID(props.sessionID)].solves.at(-1)
-    if (!solve.value) {
-        solve.value = {solveTime: 0} //Initialise timer to 0.00 if this is the first solve
+    if (props.lastSolve) {
+        solve.value = props.lastSolve
     }
-    let scramble = new Scramble(20).toString()
-    let stopwatchStartTime = 0
+    else {
+        solve.value = { solveTime: 0 } //Initialise timer to 0.00 if this is the first solve
+    }
 
+    const scramble = ref("")
+    function setScramble(newScramble) {
+        scramble.value = newScramble
+    }
+
+    let stopwatchStartTime = 0
     let timerUpdate = null
     function handleKeydown(event) {
         const el = document.activeElement
@@ -52,22 +58,8 @@
                 solve.value.solveTime = new Date().getTime() - stopwatchStartTime
                 solve.value.status = 0 //Default to no penalty
                 timerStage.value = stages.stopping
+                ratioTextSolve.value = solve.value
                 emit('update:solve-complete', solve.value)
-
-                scramble = new Scramble(20).toString() //Generate new scramble
-            }
-        }
-        //Status change keybinds
-        else if (event.code === "ArrowRight") {
-            if (timerStage.value === 0 && solve.value.status < timerStore.solveStatuses.length - 1) {
-                solve.value.status++
-                timerStore.saveState()
-            }
-        }
-        else if (event.code === "ArrowLeft") {
-            if (timerStage.value === 0 && solve.value.status > 0) {
-                solve.value.status--
-                timerStore.saveState()
             }
         }
     }
@@ -78,11 +70,12 @@
 
         if (event.code === 'Space') {
             if (timerStage.value === stages.waiting) { //Begin timer
-                timerStage.value = stages.memoing
+                timerStage.value = props.twoStage ? stages.memoing : stages.executing
                 stopwatchStartTime = new Date().getTime()
+                //Update the stopwatch text every 0.01 seconds
                 timerUpdate = setInterval(() => {
                     solve.value.solveTime = new Date().getTime() - stopwatchStartTime
-                }, 10) //Update the stopwatch text every 0.01 seconds
+                }, 10) 
             }
             else if (timerStage.value === stages.memoing) { //Begin exec stage
                 timerStage.value = stages.executing
@@ -93,6 +86,7 @@
             }
         }
     }
+
     onMounted(() => {
         window.addEventListener('keydown', handleKeydown)
         window.addEventListener('keyup', handleKeyup)
@@ -100,6 +94,11 @@
     onUnmounted(() => {
         window.removeEventListener('keydown', handleKeydown)
         window.removeEventListener('keyup', handleKeyup)
+    })
+
+    defineExpose({
+        setScramble,
+        isSolving,
     })
 </script>
 
@@ -109,44 +108,37 @@
         <div class="ScrambleText" v-if="!isSolving">
             {{scramble}}
         </div>
-        <!---------MEMO/EXEC--------->
-        <div class="StageText" v-if="isSolving">{{timerStage === stages.memoing ? "MEMO" : "EXEC"}}</div>
 
-        <div id="TimerCenterColumn">
+        <!---------MEMO/EXEC--------->
+        <div class="StageText" v-if="isSolving && props.twoStage">{{timerStage === stages.memoing ? "MEMO" : "EXEC"}}</div>
+
+        <div class="StopwatchContainer">
             <!------STOPWATCH------>
             <div :class="['StopwatchText',
-             timerStage === stages.waiting ? 'StopwatchStartSpaceDown' :
-             timerStage === stages.stopping ? 'StopwatchEndSpaceDown' : '']"
+            timerStage === stages.waiting ? 'StopwatchStartSpaceDown' :
+            timerStage === stages.stopping ? 'StopwatchEndSpaceDown' : '']"
                  :key="solve">
                 {{getSolveTimeString(solve.value)}}
             </div>
             <!---LAST SOLVE RATIO--->
-            <div class="RatioText" v-if="!isSolving && solve.value && solve.value.memoTime > 0">
-                {{getSolveRatioString(solve.value)}}
-            </div>
-            <!---LAST SOLVE STATUS--->
-            <div class="StatusRow" v-if="!isSolving && timerStage !== 1 && 'status' in solve.value">
-                <template v-for="status in timerStore.solveStatuses">
-                    <div :class="['ListItem', solve.value.status === status.id ? 'ListItemSelected' : 'ListItemUnselected']"
-                         @click="solve.value.status = status.id;timerStore.saveState()">
-                        {{status.name}}
-                    </div>
-                </template>
+            <div class="RatioText" v-if="!isSolving && ratioTextSolve.value && ratioTextSolve.value.hasOwnProperty('memoTime') && ratioTextSolve.value.memoTime > 0">
+                {{getSolveRatioString(ratioTextSolve.value)}}
             </div>
         </div>
     </div>
 </template>
 
 <style>
-    .TimerContainer {
-        --timer-font-size: 7rem;
-        width: 100%;
-        height: 100%;
-        position: relative;
+    .StopwatchContainer {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction:column;
+        height: 70%;
     }
 
     .ScrambleText {
-        width:100%;
+        width: 100%;
         text-align: center;
         position: absolute;
         left: 50%;
@@ -164,20 +156,13 @@
         font-weight: bold;
         color: var(--grey-100);
     }
-    #TimerCenterColumn {
-        display: flex;
-        flex-direction: column;
-        position: absolute;
-        left:50%;
-        top:40%;
-        transform: translate(-50%,-50%);
-    }
+
     .StopwatchText {
         width: 100%;
         text-align: center;
-        font-size: var(--timer-font-size);
+        font-size: 7rem;
         font-weight: bold;
-        white-space: nowrap; 
+        white-space: nowrap;
         overflow: hidden;
         color: var(--grey-100);
     }
@@ -187,26 +172,11 @@
     .StopwatchEndSpaceDown {
         color: var(--error-200);
     }
+
     .RatioText {
         width: 100%;
         font-size: 1.5rem;
         text-align: center;
         color: var(--grey-100);
-    }
-    .StatusRow {
-        display: grid;
-        grid-template-columns: repeat(3, 70px);
-        font-size: 1.5rem;
-        align-self: center;
-        text-align: center;
-        color: var(--grey-100);
-    }
-    .StatusButton {
-        background-color: var(--grey-600);
-        border: 1px solid var(--panel-color);
-        border-radius: 5px;
-        color: var(--grey-100);
-        cursor: pointer;
-        font-size: 1rem;
     }
 </style>
