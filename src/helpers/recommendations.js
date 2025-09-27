@@ -2,10 +2,7 @@
 import edgeData from '../assets/recommendations/edgeManmade_formatted.json'
 import imageData from '../assets/recommendations/imageRecommendations.json'
 import { useSettingsStore } from '../stores/SettingsStore'
-
-export function getSettingsStore() {
-    return useSettingsStore()
-}
+import { adjacentCornerStickers, adjacentEdgeStickers } from '@/helpers/stickers.js'
 
 export function getRecommendations(sheetType, key) {
     if (sheetType == 0)
@@ -61,7 +58,7 @@ function getEquivalentEdgeComms(key) {
 }
 
 function getCornerRecommendations(baseKey) {
-    const notation = getSettingsStore().sheets_notationtype
+    const notation = useSettingsStore().sheets_notationtype
     //buffer is always included in the comm
     baseKey = 'C' + baseKey
     const equivalentKeys = getEquivalentCornerComms(baseKey)
@@ -77,7 +74,7 @@ function getCornerRecommendations(baseKey) {
     return allComms
 }
 function getEdgeRecommendations(baseKey) {
-    const notation = getSettingsStore().sheets_notationtype
+    const notation = useSettingsStore().sheets_notationtype
     //buffer is always included in the comm
     baseKey = 'C' + baseKey
     const equivalentKeys = getEquivalentEdgeComms(baseKey)
@@ -95,7 +92,7 @@ function getEdgeRecommendations(baseKey) {
 
 function getImageRecommendations(baseKey) {
     let result = imageData[baseKey]
-    if (!(baseKey.includes('X') && getSettingsStore().sheets_extraximages == true)) return result
+    if (!(baseKey.includes('X') && useSettingsStore().sheets_extraximages == true)) return result
 
     //Get every combination of X/ʧ options
     if (baseKey[0] == 'X') {
@@ -109,60 +106,4 @@ function getImageRecommendations(baseKey) {
     }
 
     return result
-}
-
-//These should maybe go in a rubik's cube script instead
-//Connects a corner sticker to all stickers on the piece that it is on (in clockwise direction)
-const adjacentCornerStickers = {
-    A: ['A', 'E', 'R'],
-    B: ['B', 'Q', 'N'],
-    C: ['C', 'M', 'J'],
-    D: ['D', 'I', 'F'],
-    E: ['E', 'R', 'A'],
-    F: ['F', 'D', 'I'],
-    G: ['G', 'L', 'U'],
-    H: ['H', 'X', 'S'],
-    I: ['I', 'F', 'D'],
-    J: ['J', 'C', 'M'],
-    K: ['K', 'P', 'V'],
-    L: ['L', 'U', 'G'],
-    M: ['M', 'J', 'C'],
-    N: ['N', 'B', 'Q'],
-    O: ['O', 'T', 'W'],
-    P: ['P', 'V', 'K'],
-    Q: ['Q', 'N', 'B'],
-    R: ['R', 'A', 'E'],
-    S: ['S', 'H', 'X'],
-    T: ['T', 'W', 'O'],
-    U: ['U', 'G', 'L'],
-    V: ['V', 'K', 'P'],
-    W: ['W', 'O', 'T'],
-    X: ['X', 'S', 'H'],
-}
-//Connects a edge sticker to all stickers on the piece that it is on
-const adjacentEdgeStickers = {
-    A: ['A', 'Q'],
-    B: ['B', 'M'],
-    C: ['C', 'I'],
-    D: ['D', 'E'],
-    E: ['E', 'D'],
-    F: ['F', 'L'],
-    G: ['G', 'X'],
-    H: ['H', 'R'],
-    I: ['I', 'C'],
-    J: ['J', 'P'],
-    K: ['K', 'U'],
-    L: ['L', 'F'],
-    M: ['M', 'B'],
-    N: ['N', 'T'],
-    O: ['O', 'V'],
-    P: ['P', 'J'],
-    Q: ['Q', 'A'],
-    R: ['R', 'H'],
-    S: ['S', 'W'],
-    T: ['T', 'N'],
-    U: ['U', 'K'],
-    V: ['V', 'O'],
-    W: ['W', 'S'],
-    X: ['X', 'G'],
 }

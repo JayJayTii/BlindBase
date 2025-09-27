@@ -1,7 +1,7 @@
 <script setup>
     import { ref, reactive, watch, computed, nextTick } from 'vue'
     import { getXHeadings, getYHeadings } from '@/helpers/sheets.js'
-    import { useSettingsStore } from '../stores/SettingsStore'
+    import { useSettingsStore } from '@/stores/SettingsStore'
     const settingsStore = useSettingsStore()
     settingsStore.loadState()
 

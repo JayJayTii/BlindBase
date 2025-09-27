@@ -12,7 +12,11 @@
     const select = ref(null)
     function updatePossiblePairs(newPairs) {
         possiblePairs = newPairs
+        if (newPairs == []) 
+            return
         nextTick(() => {
+            if(!timer.value)
+                return
             timer.value.setScramble(possiblePairs[Math.floor(Math.random() * possiblePairs.length)])
         })
     }
