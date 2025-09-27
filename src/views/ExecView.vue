@@ -4,6 +4,9 @@
     import ExecTimer from '@/components/exec/ExecTimer.vue'
     import { Sequence } from '@/helpers/sequence.js'
     import { GetRandomRecommendation } from '@/helpers/recommendations.js'
+    import { scramblers } from '@/helpers/solver/scramble_333_edit.js'
+
+    scramblers['333'].initialize(null, Math);
 
     let possiblePairs = []
     let pieceType = 0
