@@ -3,7 +3,7 @@ import { createApp, nextTick } from 'vue'
 import { createPinia } from 'pinia'
 import App from './App.vue'
 import router from './router'
-import { GenerateSolverTables } from '@/helpers/startupExecutor.js'
+//import { GenerateSolverTables } from '@/helpers/startupExecutor.js'
 
 //GenerateSolverTables()
 
