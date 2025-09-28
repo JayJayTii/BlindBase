@@ -18,7 +18,6 @@
 <template>
     <div class="Panel">
         <div style="display:flex;flex-direction:row;height:">
-
             <img @click="emit('unselectSolve')"
                  src="@/assets/arrow-left-long.svg"
                  class="BackButton"
@@ -41,7 +40,7 @@
             </div>
 
             <!------CONTROLS------>
-            <RouterLink to="/recons" class="PanelHeader">
+            <RouterLink :to="'/recons/' + selectedSolve.scramble" class="PanelHeader">
                 RECONSTRUCT
             </RouterLink>
             <button @click="emit('deleteSolve')" style="width:30%;">delete</button>

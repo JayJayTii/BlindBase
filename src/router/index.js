@@ -79,6 +79,20 @@ const router = createRouter({
             },
         },
         {
+            path: '/recons/:catchAll(.*)*',
+            name: 'Recons ',
+            component: ReconsView,
+            meta: { tool: false },
+        },
+        { 
+            path: '/reconCreate', //This is moved to temporarily when a new recon is created
+            name: 'Recons  ',
+            component: NotFoundView,
+            meta: {
+                tool: false,
+            },
+        },
+        {
             path: '/:catchAll(.*)*',
             name: 'NotFound',
             component: NotFoundView,
