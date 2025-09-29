@@ -131,7 +131,10 @@
                 break
             default:
         }
-
+        console.log(mode.value === 0)
+        console.log(pairs)
+        console.log(Number(pieceType.value))
+        console.log(scrambleMode.value)
         emit('update:on-selected', mode.value == 0, pairs, Number(pieceType.value), scrambleMode.value == 0)
     }
     watch(selectionFinished, () => {
@@ -190,8 +193,8 @@
         }
         gridRef.value.changeHighlightedCells(highlightedCells.value)
         if (selectionFinished()) {
-            let pairs = highlightedCells.value.map((cell) => customSheet.value.grid[cell.y][cell.x])
-            emit('update:on-selected', pairs)
+            //let pairs = highlightedCells.value.map((cell) => customSheet.value.grid[cell.y][cell.x])
+            GeneratePairsAndEmit()
         }
     }
 

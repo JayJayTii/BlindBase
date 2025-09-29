@@ -7,7 +7,16 @@ import router from './router'
 
 //GenerateSolverTables()
 
-createApp(App).use(router).use(createPinia()).mount('#app')
+const app = createApp(App)
+app.use(router).use(createPinia())
+
+const redirectPath = sessionStorage.redirect
+if (redirectPath) {
+    sessionStorage.removeItem('redirect')
+    router.replace(redirectPath)
+}
+
+app.mount('#app')
 
 //https://stackoverflow.com/questions/51639850/how-to-change-page-titles-when-using-vue-router
 router.afterEach((to, from) => {

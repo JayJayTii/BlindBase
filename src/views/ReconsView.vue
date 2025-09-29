@@ -5,8 +5,8 @@
     import ReconCreate from '@/components/recons/ReconCreate.vue'
 
     const route = useRoute()
-    const scramble = decodeURIComponent(route.params.catchAll)
-    const newRecon = (scramble != 'undefined') //Also add checking if recon aleady exists for scramble
+    const scramble = decodeURIComponent(route.params.pathMatch)
+    const newRecon = (scramble != "") //Also add checking if recon aleady exists for scramble
 
     const scrambleSequence = new Sequence()
     scrambleSequence.setAlgorithmNotation(scramble)

@@ -3,11 +3,11 @@
 <html>
 <head>
     <script>
-        if (!sessionStorage.redirect) {
-            sessionStorage.redirect = location.href;
-        }
+        // Extract the full path from the current URL
+        const redirectTo = location.pathname + location.search + location.hash;
+        sessionStorage.redirect = redirectTo;
+        window.location.replace('/'); // Redirect to root
     </script>
-    <meta http-equiv="refresh" content="0;URL='/'">
     <title>BlindBase</title>
 </head>
 <body>

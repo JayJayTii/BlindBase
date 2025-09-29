@@ -70,19 +70,13 @@ const router = createRouter({
             },
         },
         {
-            path: '/recons',
+            path: '/recons/:pathMatch(.*)*',
             name: 'Recons',
             component: ReconsView,
             meta: {
                 tool: true,
                 description: ''
             },
-        },
-        {
-            path: '/recons/:catchAll(.*)*',
-            name: 'Recons ',
-            component: ReconsView,
-            meta: { tool: false },
         },
         { 
             path: '/reconCreate', //This is moved to temporarily when a new recon is created

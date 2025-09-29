@@ -5,7 +5,7 @@
 </script>
 
 <template>
-    <RouterLink :to="route.path" class="home-button">
+    <RouterLink :to="route.path.split(':')[0]" class="home-button">
         <div class="button">
             <div style="background-color: transparent">{{ route.name }}</div>
             <img :src="route.meta.iconPath" />
