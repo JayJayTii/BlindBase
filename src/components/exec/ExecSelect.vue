@@ -273,7 +273,7 @@
     }
 
     .ExecSelectLine{
-        border-block-end: 5px solid white;
+        border-block-end: 5px solid var(--brand-700);
         border-radius:5px;
     }
 </style>

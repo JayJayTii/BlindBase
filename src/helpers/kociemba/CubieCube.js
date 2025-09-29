@@ -22,6 +22,25 @@ export class CubieCube {
         this.MultiplyEdges(edgeCubieMove[move])
     }
 
+
+    //Takes a letter and looks at what letter is at that place on the cube
+    //E.g. with scramble R U, C => J
+    TraceEdgeSticker(letter) {
+        switch (letter) {
+            case 'A':
+                edges[1]
+        }
+    }
+    TraceCornerSticker(letter) {
+
+    }
+
+
+
+
+
+
+
     Multiply(other) {
         //(A*B)(x).c=A(B(x).c).c
         //(A*B)(x).o=A(B(x).c).o+B(x).o
