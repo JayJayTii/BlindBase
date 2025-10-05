@@ -3,7 +3,6 @@ import { adjacentCornerIndices, adjacentEdgeIndices } from '@/helpers/stickers.j
 
 export function FinishCornerCycle(cube) {
     const bufferStickers = [2, 9, 12]
-
     const cycle = []
     while (!bufferStickers.includes(cube.corners[2])) { //While not at end of cycle
         cycle.push(cube.corners[2])
