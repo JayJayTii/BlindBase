@@ -106,7 +106,7 @@ export const useSheetStore = defineStore('sheetStore', {
                     "Failed to save '" +
                         newValue +
                         "' to sheet " +
-                        sheetIndex +
+                        id +
                         ' at cell ' +
                         absoluteCoord.x +
                         ', ' +

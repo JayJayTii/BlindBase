@@ -131,10 +131,6 @@
                 break
             default:
         }
-        console.log(mode.value === 0)
-        console.log(pairs)
-        console.log(Number(pieceType.value))
-        console.log(scrambleMode.value)
         emit('update:on-selected', mode.value == 0, pairs, Number(pieceType.value), scrambleMode.value == 0)
     }
     watch(selectionFinished, () => {
