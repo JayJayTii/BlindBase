@@ -17,6 +17,8 @@
 
     let updating = false //Prevents recursion in watchers
     const edgeInputRef = ref(null)
+    const cornerInputRef = ref(null)
+    nextTick(() => { cornerInputRef.value.focus()})
 
     const cycleResult = FinishCornerCycle(cube)
     const letterSolution = ref([cycleResult[0],[]])
@@ -86,19 +88,24 @@
 </script>
 
 <template>
-    <div class="ReconHeader">Corners:</div>
-    <input style="font-size: 2rem;" v-model="cornerInput" />
+    <div style="display:flex; justify-content:space-between;padding:10px;">
+        <div>
+            <div class="ReconHeader">Corners:</div>
+            <input style="font-size: 2rem;" ref="cornerInputRef" v-model="cornerInput" />
 
-    <div v-if="pieceType > 0" class="ReconHeader">Edges:</div>
-    <input v-if="pieceType > 0" ref="edgeInputRef" style="font-size: 2rem;" v-model="edgeInput" />
+            <div v-if="pieceType > 0" class="ReconHeader">Edges:</div>
+            <input v-if="pieceType > 0" ref="edgeInputRef" style="font-size: 2rem;" v-model="edgeInput" />
 
-    <div style="display:flex;flex-direction:row;">
-        <div v-for="(letterIndex, index) in letterOptions" @click="letterSelected(letterIndex)" class="newBufferOption">
-            <i>{{ToLetters([letterIndex])[0]}}</i>
+            <div style="display:flex;flex-direction:row;">
+                <div v-for="(letterIndex, index) in letterOptions" @click="letterSelected(letterIndex)" class="newBufferOption">
+                    <i>{{ToLetters([letterIndex])[0]}}</i>
+                </div>
+            </div>
         </div>
+        <FaceletCubeVisual style="width: 45%;"
+                           :cube="cube"
+                           :key="cube.corners.toString() + cube.edges.toString() + cube.centers.toString()" />
     </div>
-
-    <FaceletCubeVisual style="position:absolute;right:20px;top:15vh;" :cube="cube" :key="cube.corners.toString() + cube.edges.toString() +cube.centers.toString()" />
 </template>
 
 <style>

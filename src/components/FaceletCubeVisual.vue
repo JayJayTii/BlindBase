@@ -111,20 +111,22 @@
 
 <style>
     .FaceletCubeVis {
+        aspect-ratio: 4/3;
         display: grid;
-        grid-template-columns: 150px 150px 150px 150px;
+        grid-template-columns: 1fr 1fr 1fr 1fr;
     }
 
     .FaceletCubeVisSide {
         display: grid;
-        grid-template-columns: 50px 50px 50px;
-        grid-template-rows: 50px 50px 50px;
+        grid-template-columns: 1fr 1fr 1fr;
         background-color: black;
+        border: 1px solid black;
         border-radius: 3px;
+        aspect-ratio: 1;
     }
 
      .FaceletVisFacelet {
-        border-radius: 3px;
+        border-radius: 5%;
         margin: 2px;
     }
 </style>

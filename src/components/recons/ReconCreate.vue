@@ -15,7 +15,8 @@
 
 <style>
     #scrambleText{
-        font-size: 4rem;
+        font-size: 3rem;
         color: var(--grey-100);
+        border-block-end: 4px solid white;
     }
 </style>
