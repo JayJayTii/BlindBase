@@ -2,13 +2,14 @@
     import { nextTick, ref, watch }from 'vue'
     import { FaceletCube } from '@/helpers/FaceletCube/FaceletCube.js'
     import { Sequence } from '@/helpers/sequence.js'
-    import { FinishCornerCycle, FinishEdgeCycle } from '@/helpers/reconstruct.js'
+    import { FinishCornerCycle, FinishEdgeCycle, ToLetters } from '@/helpers/reconstruct.js'
     import FaceletCubeVisual from '@/components/FaceletCubeVisual.vue'
     import ReconCreateLetters from '@/components/recons/ReconCreateLetters.vue'
 
     const props = defineProps({
         scramble: Sequence,
     })
+    const emit = defineEmits(['lettersFinished'])
 
     let cube = new FaceletCube()
     for (var i = 0; i < props.scramble.turns.length; i++) {
@@ -20,24 +21,13 @@
     const cornerInputRef = ref(null)
     nextTick(() => { cornerInputRef.value.focus()})
 
-    const cycleResult = FinishCornerCycle(cube)
-    const letterSolution = ref([cycleResult[0],[]])
-    const cornerInput = ref(ToLetters(letterSolution.value[0]))
+    const letterSolution = ref([[],[]])
+    const cornerInput = ref("")
     const edgeInput = ref("")
-    const letterOptions = ref(cycleResult[1])
-    const pieceType = ref(0)
+    const letterOptions = ref([])
+    const pieceType = ref(0) //Use corners = 0 for pieceType here due to indexing
 
-    if (letterOptions.value.length === 0) {
-        pieceType.value++
-        letterSelected(2)
-    }
-
-    function ToLetters(arr) {
-        //Convert array of numbers to pairs of letters
-        if (arr.length == 0)
-            return ""
-        return arr.map(i => String.fromCharCode(i + 65)).join('').match(/.{1,2}/g).join(' ')
-    }
+    letterSelected(2)
 
     function letterSelected(letterIndex) {
         updating = true;
@@ -80,16 +70,20 @@
         nextTick(() => { updating = false })
     }
     watch(cornerInput, (newValue, oldValue) => {
-        inputUpdated(cornerInput, newValue,oldValue)
+        inputUpdated(cornerInput, newValue, oldValue)
     })
     watch(edgeInput, (newValue, oldValue) => {
         inputUpdated(edgeInput, newValue, oldValue)
     })
+
+    function letterSelectionFinished() {
+        emit('lettersFinished', letterSolution.value)
+    }
 </script>
 
 <template>
     <div style="display:flex; justify-content:space-between;padding:10px;">
-        <div>
+        <div style="display:flex;flex-direction:column;gap:5px;">
             <div class="ReconHeader">Corners:</div>
             <input style="font-size: 2rem;" ref="cornerInputRef" v-model="cornerInput" />
 
@@ -101,6 +95,11 @@
                     <i>{{ToLetters([letterIndex])[0]}}</i>
                 </div>
             </div>
+
+                <img v-if="pieceType > 1"
+                     src="@/assets/arrow-right-long.svg"
+                     class="PracticeButton"
+                     @click="letterSelectionFinished()" />
         </div>
         <FaceletCubeVisual style="width: 45%;"
                            :cube="cube"
@@ -109,12 +108,6 @@
 </template>
 
 <style>
-    .ReconHeader{
-        color: var(--grey-100);
-        font-size: 2rem;
-        display:flex;
-        flex-direction: row;
-    }
 
     .newBufferOption {
         border: 2px solid var(--grey-200);

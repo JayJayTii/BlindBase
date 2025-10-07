@@ -37,3 +37,10 @@ export function FinishEdgeCycle(cube) {
     }
     return [cycle, availableBuffers]
 }
+
+export function ToLetters(arr) {
+    //Convert array of numbers to pairs of letters
+    if (arr.length == 0)
+        return ""
+    return arr.map(i => String.fromCharCode(i + 65)).join('').match(/.{1,2}/g).join(' ')
+}

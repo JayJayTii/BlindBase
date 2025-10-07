@@ -22,6 +22,9 @@ export function getRecommendations(pieceType, key) {
 }
 
 export function GetRandomRecommendation(pieceType, key) {
+    if (key.length !== 2)
+        return ""
+
     let recommendations = []
     if (pieceType === 1) {
         recommendations = getCornerRecommendations(key, 0)
