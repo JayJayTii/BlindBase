@@ -1,5 +1,5 @@
 <script setup>
-    import { nextTick, computed, watch, ref } from 'vue'
+    import { nextTick, onMounted, onUnmounted, computed, watch, ref } from 'vue'
     import { FaceletCube } from '@/helpers/FaceletCube/FaceletCube.js'
     import { Sequence } from '@/helpers/sequence.js'
     import { GetRandomRecommendation, getRecommendations } from '@/helpers/recommendations.js'
@@ -22,7 +22,9 @@
     }
 
     const cornerInput = ref([])
+    const cornerInputBox = ref([])
     const edgeInput = ref([])
+    const edgeInputBox = ref([])
 
     const cornerPairs = ToLetters(props.letterSolution[0]).split(' ')
     for (const pair of cornerPairs) {
@@ -40,14 +42,6 @@
             edgeInput.value.push("")
     }
 
-    //Ad-hoc v-models for spans
-    function cornerInputUpdated(index, event) {
-        cornerInput.value[index] = event.target.innerText
-    }
-    function edgeInputUpdated(index, event) {
-        edgeInput.value[index] = event.target.innerText
-    }
-
     const cornerSheets = sheetStore.getSheetsOfType(1)
     const cornerSheetID = ref(cornerSheets.length === 0 ? -1 : cornerSheets[0].id)
     const edgeSheets = sheetStore.getSheetsOfType(2)
@@ -60,18 +54,22 @@
                 break
             const letter1 = props.letterSolution[0][2*i]
             const letter2 = props.letterSolution[0][2 * i + 1]
-            cornerInput.value.push(sheetStore.getSheet(cornerSheetID.value).grid[letter2][letter1])
+            const newValue = cornerSheetID.value == -1 ? "" : sheetStore.getSheet(cornerSheetID.value).grid[letter2][letter1]
+            cornerInput.value.push(newValue)
         }
+        cornerInput.value.push("") //For the extra bit at the end
     }
-    function FillEdges() {
+    function FillAllEdges() {
         edgeInput.value = []
         for (var i = 0; i < edgePairs.length; i++) {
             if (props.letterSolution[1].length === 2 * i + 1) //Break if this pair is one letter long
                 break
             const letter1 = props.letterSolution[1][2 * i]
             const letter2 = props.letterSolution[1][2 * i + 1]
-            edgeInput.value.push(sheetStore.getSheet(edgeSheetID.value).grid[letter2][letter1])
+            const newValue = edgeSheetID.value == -1 ? "" : sheetStore.getSheet(edgeSheetID.value).grid[letter2][letter1]
+            edgeInput.value.push(newValue)
         }
+        edgeInput.value.push("") //For the extra bit at the end
     }
     function FillCornerRecommendation(index) {
         const recs = getRecommendations(1, cornerPairs[index])
@@ -91,7 +89,7 @@
     }
 
     FillAllCorners()
-    FillEdges()
+    FillAllEdges()
 
 
     let curSelectionStart = 0
@@ -131,6 +129,51 @@
 
         cube.value.TurnSequence(currentAlgorithm)
     }, 50)
+
+    onMounted(() => {
+        window.addEventListener('keydown', handleKeydown)
+    })
+    onUnmounted(() => {
+        window.removeEventListener('keydown', handleKeydown)
+    })
+    function handleKeydown(event) {
+        const el = document.activeElement
+        const isCornerInput = (el.id[0] == 'C')
+        if (!el.id.includes('C') && !el.id.includes('E'))
+            return
+        const inputIndex = parseInt(selectedID.substring(5))
+        if (event.code === 'ArrowRight') {
+            const inputLength = isCornerInput ? cornerInput.value[inputIndex].length : edgeInput.value[inputIndex].length
+            if (el.selectionStart == inputLength) {
+                if (isCornerInput && inputIndex === cornerInput.value.length - 1)
+                    edgeInputBox.value[0].focus()
+                else if(isCornerInput)
+                    cornerInputBox.value[inputIndex + 1].focus()
+                else if (!isCornerInput && inputIndex < edgeInput.value.length - 1)
+                    edgeInputBox.value[inputIndex + 1].focus()
+                else
+                    return //End of last input box! Don't want to do anything
+                event.preventDefault() // stop broken update order
+                document.activeElement.selectionStart = 0
+                document.activeElement.selectionEnd = 0
+            }
+        }
+        else if (event.code === 'ArrowLeft') {
+            if (el.selectionStart == 0) {
+                if (!isCornerInput && inputIndex === 0)
+                    cornerInputBox.value[cornerInputBox.value.length - 1].focus()
+                else if (!isCornerInput)
+                    edgeInputBox.value[inputIndex - 1].focus()
+                else if (isCornerInput && inputIndex > 0)
+                    cornerInputBox.value[inputIndex - 1].focus()
+                else
+                    return //Start of first input box! Don't want to do anything
+                event.preventDefault() // stop broken update order
+                document.activeElement.selectionStart = document.activeElement.value.length
+                document.activeElement.selectionEnd = document.activeElement.value.length
+            }
+        }
+    }
 </script>
 
 <template>
@@ -153,9 +196,15 @@
                     <textarea style="field-sizing: content; resize:none;"
                               class="ReconNotationInput"
                               v-model="cornerInput[index]"
-                              :id="'Corns' + index.toString()"/>
+                              :id="'Corns' + index.toString()"
+                              :ref="el => cornerInputBox[index] = el "/>
                     <button style="height:40px;min-width:40px;" @click="FillCornerRecommendation(index)">?</button>
                 </div>
+                <textarea style="field-sizing: content; resize:none;"
+                          class="ReconNotationInput"
+                          v-model="cornerInput[cornerInput.length - 1]"
+                          :id="'Corns' + (cornerInput.length - 1).toString()"
+                          :ref="el => cornerInputBox[cornerInput.length - 1] = el"/>
             </div>
         </div>
         <FaceletCubeVisual :cube="cube"
@@ -165,7 +214,7 @@
             <div class="ReconHeader">Edges:</div>
             <div style="color:white" v-if="edgeSheets.length > 0">
                 Algs from
-                <select v-model="edgeSheetID" @change="FillEdges()">
+                <select v-model="edgeSheetID" @change="FillAllEdges()">
                     <option v-for="sheet in edgeSheets"
                             :value="sheet.id">
                         {{sheet.name}}
@@ -178,9 +227,15 @@
                 <textarea style="field-sizing: content; resize:none;"
                           class="ReconNotationInput"
                           v-model="edgeInput[index]"
-                          :id="'Edges' + index.toString()" />
+                          :id="'Edges' + index.toString()"
+                          :ref="el => edgeInputBox[index] = el"/>
                 <button style="height:40px;min-width:40px;" @click="FillEdgeRecommendation(index)">?</button>
             </div>
+            <textarea style="field-sizing: content; resize:none;"
+                      class="ReconNotationInput"
+                      v-model="edgeInput[edgeInput.length - 1]"
+                      :id="'Edges' + (edgeInput.length - 1).toString()"
+                      :ref="el => edgeInputBox[cornerInput.length - 1] = el" />
         </div>
     </div>
 </template>

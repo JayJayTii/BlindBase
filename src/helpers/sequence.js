@@ -74,8 +74,10 @@ export class Sequence {
         const turnArr = str.split(' ')
         this.turns = []
         for (var i = 0; i < turnArr.length; i++) {
-            const turn = turnArr[i]
-            //Doesn't work with moves like Lw
+            let turn = turnArr[i]
+            if (turn.includes('w')) { //All "Lw" turned into "l" e.g
+                turn = turn[0].toLowerCase() + turn.substring(2)
+            }
             let turnType = 0
             if (turn.length === 1)
                 turnType = 1
