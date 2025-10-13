@@ -1,3 +1,4 @@
+import { Sequence } from '@/helpers/sequence.js'
 import { cornerFaceletMove, edgeFaceletMove, centerFaceletMove } from '@/helpers/FaceletCube/FaceletMove.js'
 import { adjacentCornerIndices, adjacentEdgeIndices } from '@/helpers/stickers.js'
 
@@ -8,11 +9,16 @@ export class FaceletCube {
 
 
     Turn(move) { //Expect an internal representation of a move e.g. ['R', 2]
-        const faces = ['U', 'R', 'F', 'D', 'L', 'B']
+        const faces = ['U', 'R', 'F', 'D', 'L', 'B', 'x', 'y', 'z', 'u', 'r', 'f', 'd', 'l', 'b', 'M', 'E', 'S']
         const moveIndex = faces.indexOf(move[0])
 
         for(var i = 0; i < move[1]; i++) {
             this.Multiply({ corners: cornerFaceletMove[moveIndex], edges: edgeFaceletMove[moveIndex], centers: centerFaceletMove[moveIndex] })
+        }
+    }
+    TurnSequence(sequence) {
+        for (var i = 0; i < sequence.turns.length; i++) {
+            this.Turn(sequence.turns[i])
         }
     }
 
@@ -64,5 +70,21 @@ export class FaceletCube {
             this.edges[cubie1[i]] = this.edges[cubie2[i]]
             this.edges[cubie2[i]] = temp
         }
+    }
+
+    Print() {
+        let cornerArrStr = "["
+        cornerArrStr += this.corners.map((corn) => (corn.toString()))
+        cornerArrStr += "]"
+        console.log("corners: " + cornerArrStr)
+        let edgeArrStr = "["
+        edgeArrStr += this.edges.map((edge) => (edge.toString()))
+        edgeArrStr += "]"
+        console.log("edges: " + edgeArrStr)
+        let cenArrStr = "["
+        cenArrStr += this.centers.map((cen) => (cen.toString()))
+        cenArrStr += "]"
+        console.log("centers: " + cenArrStr)
+
     }
 }
