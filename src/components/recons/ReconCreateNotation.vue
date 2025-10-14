@@ -14,6 +14,7 @@
         scramble: Sequence,
         letterSolution: Array,
     })
+    const emit = defineEmits(['notationFinished'])
 
     const cube = ref(new FaceletCube())
     function ScrambleCube() {
@@ -174,6 +175,10 @@
             }
         }
     }
+
+    function notationSelectionFinished() {
+        emit('notationFinished', {corners: cornerInput.value, edges: edgeInput.value})
+    }
 </script>
 
 <template>
@@ -183,7 +188,7 @@
             <div style="color:white" v-if="cornerSheets.length > 0">
                 Algs from
                 <select v-model="cornerSheetID" @change="FillAllCorners()">
-                    <option v-for="sheet in cornerSheets" 
+                    <option v-for="sheet in cornerSheets"
                             :value="sheet.id">
                         {{sheet.name}}
                     </option>
@@ -197,19 +202,19 @@
                               class="ReconNotationInput"
                               v-model="cornerInput[index]"
                               :id="'Corns' + index.toString()"
-                              :ref="el => cornerInputBox[index] = el "/>
+                              :ref="el => cornerInputBox[index] = el " />
                     <button style="height:40px;min-width:40px;" @click="FillCornerRecommendation(index)">?</button>
                 </div>
                 <textarea style="field-sizing: content; resize:none;"
                           class="ReconNotationInput"
                           v-model="cornerInput[cornerInput.length - 1]"
                           :id="'Corns' + (cornerInput.length - 1).toString()"
-                          :ref="el => cornerInputBox[cornerInput.length - 1] = el"/>
+                          :ref="el => cornerInputBox[cornerInput.length - 1] = el" />
             </div>
         </div>
         <FaceletCubeVisual :cube="cube"
                            :key="cube.corners.toString() + cube.edges.toString() + cube.centers.toString()"
-                           style="align-self: center;"/>
+                           style="align-self: center;" />
         <div style="display:flex;flex-direction:column;gap:10px;">
             <div class="ReconHeader">Edges:</div>
             <div style="color:white" v-if="edgeSheets.length > 0">
@@ -228,7 +233,7 @@
                           class="ReconNotationInput"
                           v-model="edgeInput[index]"
                           :id="'Edges' + index.toString()"
-                          :ref="el => edgeInputBox[index] = el"/>
+                          :ref="el => edgeInputBox[index] = el" />
                 <button style="height:40px;min-width:40px;" @click="FillEdgeRecommendation(index)">?</button>
             </div>
             <textarea style="field-sizing: content; resize:none;"
@@ -238,6 +243,9 @@
                       :ref="el => edgeInputBox[cornerInput.length - 1] = el" />
         </div>
     </div>
+    <img src="@/assets/arrow-right-long.svg"
+         class="NextButton"
+         @click="notationSelectionFinished()" />
 </template>
 
 <style>

@@ -3,6 +3,13 @@
     import ReconCreateLetters from '@/components/recons/ReconCreateLetters.vue'
     import ReconCreateNotation from '@/components/recons/ReconCreateNotation.vue'
     import { Sequence } from '@/helpers/sequence.js'
+    import { GenerateReconBody } from '@/helpers/reconstruct.js'
+
+    import { useReconsStore } from "@/stores/ReconsStore"
+    const reconsStore = useReconsStore()
+    import { useRouter } from 'vue-router'
+    const router = useRouter()
+
     const props = defineProps({
         scramble: Sequence,
     })
@@ -13,6 +20,24 @@
     function lettersFinished(_letterSolution) {
         letterSolution.value = _letterSolution
         stage.value++
+    }
+
+    const notationSolution = ref({})
+    function notationFinished(_notationSolution) {
+        notationSolution.value = _notationSolution
+        stage.value++
+        let newRecon = {
+            name: "Untitled",
+            scramble: props.scramble.toString(),
+            letters: letterSolution.value,
+            notation: notationSolution.value,
+        }
+        newRecon.body = GenerateReconBody(newRecon)
+        const newReconIndex = reconsStore.createRecon(newRecon)
+
+        router.push(`/reconCreate`).then(() => {
+            router.push(`/recons/${props.scramble.toString()}`)
+        })
     }
 </script>
 
@@ -25,7 +50,8 @@
                         @lettersFinished="lettersFinished"/>
     <ReconCreateNotation v-if="stage === 1"
                          :scramble="props.scramble"
-                         :letterSolution="letterSolution"/>
+                         :letterSolution="letterSolution"
+                         @notationFinished="notationFinished"/>
 </template>
 
 <style>

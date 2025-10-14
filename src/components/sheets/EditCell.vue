@@ -1,11 +1,11 @@
 <script setup>
     import { computed, watch, ref } from 'vue'
     import { getRecommendations } from "@/helpers/Recommendations"
+    import List from "@/components/List.vue"
     import { useSheetStore } from "@/stores/SheetStore"
     const sheetStore = useSheetStore()
     import { useSettingsStore } from "@/stores/SettingsStore"
     const settingsStore = useSettingsStore()
-    import List from "@/components/List.vue"
 
     const props = defineProps({
         sheetID: Number,

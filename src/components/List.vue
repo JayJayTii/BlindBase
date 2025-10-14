@@ -24,7 +24,6 @@
         display: flex;
         justify-content:center;
         text-align:center;
-        font-size: 1rem;
         text-overflow: ellipsis;
     }
         .ListItem:hover {

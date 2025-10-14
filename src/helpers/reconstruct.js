@@ -1,3 +1,4 @@
+import { Sequence } from '@/helpers/sequence.js'
 import { FaceletCube } from '@/helpers/FaceletCube/FaceletCube.js'
 import { adjacentCornerIndices, adjacentEdgeIndices } from '@/helpers/stickers.js'
 
@@ -43,4 +44,21 @@ export function ToLetters(arr) {
     if (arr.length == 0)
         return ""
     return arr.map(i => String.fromCharCode(i + 65)).join('').match(/.{1,2}/g).join(' ')
+}
+
+export function GenerateReconBody(recon) {
+    let summary = ""
+    summary += recon.scramble.toString()
+    summary += "\n\n//Corners\n"
+    const cornerPairs = ToLetters(recon.letters[0]).split(' ')
+    for (var i = 0; i < cornerPairs.length; i++) {
+        summary += recon.notation.corners[i] + " //" + cornerPairs[i] + "\n"
+    }
+    summary += "\n//Edges\n"
+    const edgePairs = ToLetters(recon.letters[1]).split(' ')
+    for (var i = 0; i < edgePairs.length; i++) {
+        summary += recon.notation.edges[i] + " //" + edgePairs[i] + "\n"
+    }
+
+    return summary
 }

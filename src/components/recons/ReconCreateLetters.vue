@@ -96,10 +96,10 @@
                 </div>
             </div>
 
-                <img v-if="pieceType > 1"
-                     src="@/assets/arrow-right-long.svg"
-                     class="PracticeButton"
-                     @click="letterSelectionFinished()" />
+            <img v-if="pieceType > 1"
+                 src="@/assets/arrow-right-long.svg"
+                 class="NextButton"
+                 @click="letterSelectionFinished()" />
         </div>
         <FaceletCubeVisual style="width: 45%;"
                            :cube="cube"
