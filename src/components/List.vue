@@ -25,6 +25,8 @@
         justify-content:center;
         text-align:center;
         text-overflow: ellipsis;
+        overflow: hidden;
+        white-space: nowrap;
     }
         .ListItem:hover {
             background-color: var(--grey-500);

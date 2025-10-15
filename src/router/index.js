@@ -75,7 +75,8 @@ const router = createRouter({
             component: ReconsView,
             meta: {
                 tool: true,
-                description: ''
+                description: '',
+                iconPath: new URL('@/assets/ReconsIcon.png', import.meta.url).href,
             },
         },
         { 

@@ -177,6 +177,10 @@
         position: fixed;
         left: 90%;
         top: 90%;
+        display:flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--brand-900);
         transform: translate(-100%, -100%);
     }
         .NextButton:hover {

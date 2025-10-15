@@ -240,7 +240,7 @@
                       class="ReconNotationInput"
                       v-model="edgeInput[edgeInput.length - 1]"
                       :id="'Edges' + (edgeInput.length - 1).toString()"
-                      :ref="el => edgeInputBox[cornerInput.length - 1] = el" />
+                      :ref="el => edgeInputBox[edgeInput.length - 1] = el" />
         </div>
     </div>
     <img src="@/assets/arrow-right-long.svg"

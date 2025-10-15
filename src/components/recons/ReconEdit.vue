@@ -33,15 +33,15 @@
 
 <template>
     <div style="display: flex; flex-direction: column; gap: 10px; width: 40%; transform: translate(10px, 5px); ">
-        <input v-model="reconName" id="reconNameInput" />
+        <input v-model="reconName" maxlength="30" id="reconNameInput" />
         <textarea v-model="reconBody"
                   id="reconBodyInput" />
     </div>
     <button @click="reconsStore.deleteRecon(reconIndex);ExitEdit()">DELETE</button>
 
-    <img src="@/assets/arrow-right-long.svg"
+    <div style="font-size: 1.5rem;"
          class="NextButton"
-         @click="ExitEdit()" />
+         @click="ExitEdit()" >DONE</div>
 </template>
 
 <style>
