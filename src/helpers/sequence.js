@@ -75,6 +75,8 @@ export class Sequence {
         this.turns = []
         for (var i = 0; i < turnArr.length; i++) {
             let turn = turnArr[i]
+            if (turn == '')
+                continue
             if (turn.includes('w')) { //All "Lw" turned into "l" e.g
                 turn = turn[0].toLowerCase() + turn.substring(2)
             }

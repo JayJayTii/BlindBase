@@ -92,49 +92,51 @@
     FillAllCorners()
     FillAllEdges()
 
-
+    let intervalID = null
     let curSelectionStart = 0
     let selectedID = ""
-    setInterval(() => {
-        if (curSelectionStart === document.activeElement.selectionStart
-            && selectedID == document.activeElement.id)
-            return
-        curSelectionStart = document.activeElement.selectionStart
-        selectedID = document.activeElement.id
-
-        ScrambleCube()
-        if (curSelectionStart == undefined || selectedID == "")
-            return
-
-        const isCornerInput = (selectedID[0] == 'C')
-        const inputIndex = parseInt(selectedID.substring(5))
-        for (var i = 0; i < (isCornerInput ? inputIndex : cornerInput.value.length); i++) {
-            const algorithm = new Sequence()
-            algorithm.setAlgorithmNotation(cornerInput.value[i])
-            cube.value.TurnSequence(algorithm)
-        }
-        for (var i = 0; i < (isCornerInput ? 0 : inputIndex); i++) {
-            const algorithm = new Sequence()
-            algorithm.setAlgorithmNotation(edgeInput.value[i])
-            cube.value.TurnSequence(algorithm)
-        }
-        const currentAlgorithm = new Sequence()
-        let inputText = isCornerInput ? cornerInput.value[inputIndex] : edgeInput.value[inputIndex]
-        let sampleIndex = curSelectionStart
-        while (!(inputText[sampleIndex - 1] == ' '
-            || inputText[sampleIndex] == ' '
-            || sampleIndex == 0 || sampleIndex >= inputText.length)){
-            sampleIndex++
-        }
-        currentAlgorithm.setAlgorithmNotation(inputText.substring(0, sampleIndex))
-
-        cube.value.TurnSequence(currentAlgorithm)
-    }, 50)
-
     onMounted(() => {
         window.addEventListener('keydown', handleKeydown)
+        intervalID = setInterval(() => {
+            if (curSelectionStart === document.activeElement.selectionStart
+                && selectedID == document.activeElement.id)
+                return
+            curSelectionStart = document.activeElement.selectionStart
+            selectedID = document.activeElement.id
+
+            ScrambleCube()
+            if (curSelectionStart == undefined || selectedID == "")
+                return
+
+            const isCornerInput = (selectedID[0] == 'C')
+            const inputIndex = parseInt(selectedID.substring(5))
+            for (var i = 0; i < (isCornerInput ? inputIndex : cornerInput.value.length); i++) {
+                const algorithm = new Sequence()
+                algorithm.setAlgorithmNotation(cornerInput.value[i])
+                cube.value.TurnSequence(algorithm)
+            }
+            for (var i = 0; i < (isCornerInput ? 0 : inputIndex); i++) {
+                const algorithm = new Sequence()
+                algorithm.setAlgorithmNotation(edgeInput.value[i])
+                cube.value.TurnSequence(algorithm)
+            }
+            const currentAlgorithm = new Sequence()
+            let inputText = isCornerInput ? cornerInput.value[inputIndex] : edgeInput.value[inputIndex]
+            let sampleIndex = curSelectionStart
+            while (!(inputText[sampleIndex - 1] == ' '
+                || inputText[sampleIndex] == ' '
+                || sampleIndex == 0 || sampleIndex >= inputText.length)) {
+                sampleIndex++
+            }
+            currentAlgorithm.setAlgorithmNotation(inputText.substring(0, sampleIndex))
+
+            cube.value.TurnSequence(currentAlgorithm)
+        }, 50)
     })
     onUnmounted(() => {
+        if (intervalID !== null) {
+            clearInterval(intervalID)
+        }
         window.removeEventListener('keydown', handleKeydown)
     })
     function handleKeydown(event) {

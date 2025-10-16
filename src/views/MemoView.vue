@@ -175,8 +175,8 @@
         height: 3rem;
         width: 80px;
         position: fixed;
-        right: 30px;
-        bottom: 30px;
+        right: 0px;
+        bottom: 0px;
         display:flex;
         align-items: center;
         justify-content: center;

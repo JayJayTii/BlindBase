@@ -65,7 +65,7 @@ export function GenerateReconBody(recon) {
         summary += recon.notation.corners[i]
         summary += (i < cornerPairs.length ? (" //" + cornerPairs[i] + "\n") : "\n")
     }
-    summary += "\n//Edges\n"
+    summary += "//Edges\n"
     const edgePairs = ToLetters(recon.letters[1]).split(' ')
     for (var i = 0; i < recon.notation.edges.length; i++) {
         summary += recon.notation.edges[i]
@@ -76,7 +76,7 @@ export function GenerateReconBody(recon) {
 
     const solve = JSON.parse(recon.solve)
     const moveCount = GetReconMoveCount(recon)
-    summary += "\n\n//" + moveCount.toString() + " move" + (moveCount != 1 ? "s" : "") + "\n"
+    summary += "//" + moveCount.toString() + " move" + (moveCount != 1 ? "s" : "") + "\n"
     
     summary += "//" + getSolveTimeString(solve) + " (" + getSolveRatioString(solve) + ")\n"
     const tps = moveCount / (solve.solveTime - solve.memoTime) * 1000 //times are stored in milliseconds

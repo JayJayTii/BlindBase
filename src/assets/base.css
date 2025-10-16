@@ -161,3 +161,20 @@ body {
     width: 30px;
     height: 30px;
 }
+
+.CustomButton {
+    background-color: var(--brand-600);
+    border-radius: 5px;
+    cursor: pointer;
+    color: var(--brand-900);
+    font-weight: bold;
+    font-size: 1rem;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center
+}
+
+    .CustomButton:hover {
+        background-color: var(--brand-500);
+    }
