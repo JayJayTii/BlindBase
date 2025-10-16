@@ -1,5 +1,5 @@
 <script setup>
-    import { computed } from 'vue'
+    import { computed, nextTick } from 'vue'
     import { useReconsStore } from "@/stores/ReconsStore"
     const reconsStore = useReconsStore()
     reconsStore.loadState()
@@ -29,19 +29,26 @@
             router.push(`/recons`)
         })
     }
+
+    function Delete() {
+        reconsStore.deleteRecon(props.reconIndex)
+        ExitEdit()
+    }
 </script>
 
 <template>
-    <div style="display: flex; flex-direction: column; gap: 10px; width: 40%; transform: translate(10px, 5px); ">
-        <input v-model="reconName" maxlength="30" id="reconNameInput" />
-        <textarea v-model="reconBody"
-                  id="reconBodyInput" />
-    </div>
-    <button @click="reconsStore.deleteRecon(reconIndex);ExitEdit()">DELETE</button>
+    <div v-if="reconIndex < reconsStore.recons.length">
+        <div style="display: flex; flex-direction: column; gap: 10px; width: 40%; transform: translate(10px, 5px); ">
+            <input v-model="reconName" maxlength="30" id="reconNameInput" />
+            <textarea v-model="reconBody"
+                      id="reconBodyInput" />
+        </div>
+        <button @click="Delete()">DELETE</button>
 
-    <div style="font-size: 1.5rem;"
-         class="NextButton"
-         @click="ExitEdit()" >DONE</div>
+        <div style="font-size: 1.5rem;"
+             class="NextButton"
+             @click="ExitEdit()">DONE</div>
+    </div>
 </template>
 
 <style>

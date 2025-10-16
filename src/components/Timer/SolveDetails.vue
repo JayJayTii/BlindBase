@@ -3,6 +3,8 @@
     import { getSolveTimeString, getSolveRatioString } from "@/helpers/timer.js"
     import { useTimerStore } from "@/stores/TimerStore"
     const timerStore = useTimerStore()
+    import { useRouter } from 'vue-router'
+    const router = useRouter()
 
     const props = defineProps({
         sessionID: Number,
@@ -13,6 +15,11 @@
     const selectedSolve = computed({
         get: () => props.solveIndex > -1 ? timerStore.getSession(props.sessionID).solves[props.solveIndex] : null
     })
+
+    function Reconstruct() {
+        sessionStorage.reconstructionSolve = JSON.stringify(selectedSolve.value)
+        router.push('/recons/' + selectedSolve.value.scramble)
+    }
 </script>
 
 <template>
@@ -40,9 +47,7 @@
             </div>
 
             <!------CONTROLS------>
-            <RouterLink :to="'/recons/' + selectedSolve.scramble" class="PanelHeader">
-                RECONSTRUCT
-            </RouterLink>
+            <button @click="Reconstruct()" class="PanelHeader">RECONSTRUCT</button>
             <button @click="emit('deleteSolve')" style="width:30%;">delete</button>
         </div>
     </div>

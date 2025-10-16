@@ -1,5 +1,6 @@
 import { Sequence } from '@/helpers/sequence.js'
 import { FaceletCube } from '@/helpers/FaceletCube/FaceletCube.js'
+import { getSolveTimeString, getSolveRatioString } from '@/helpers/timer.js'
 import { adjacentCornerIndices, adjacentEdgeIndices } from '@/helpers/stickers.js'
 
 export function FinishCornerCycle(cube) {
@@ -46,6 +47,15 @@ export function ToLetters(arr) {
     return arr.map(i => String.fromCharCode(i + 65)).join('').match(/.{1,2}/g).join(' ')
 }
 
+export function GetReconMoveCount(recon) {
+    const notation = recon.notation.corners.concat(recon.notation.edges)
+    let turnCount = 0
+    for (var i = 0; i < notation.length; i++) {
+        turnCount += notation[i].split(' ').filter(move => move != '').length
+    }
+    return turnCount
+}
+
 export function GenerateReconBody(recon) {
     let summary = ""
     summary += recon.scramble.toString()
@@ -59,6 +69,15 @@ export function GenerateReconBody(recon) {
     for (var i = 0; i < edgePairs.length; i++) {
         summary += recon.notation.edges[i] + " //" + edgePairs[i] + "\n"
     }
+    if (!recon.hasOwnProperty("solve"))
+        return summary
 
+    const solve = JSON.parse(recon.solve)
+    const moveCount = GetReconMoveCount(recon)
+    summary += "\n\n//" + moveCount.toString() + " move" + (moveCount != 1 ? "s" : "") + "\n"
+    
+    summary += "//" + getSolveTimeString(solve) + " (" + getSolveRatioString(solve) + ")\n"
+    const tps = moveCount / (solve.solveTime - solve.memoTime) * 1000 //times are stored in milliseconds
+    summary += "//" + (Math.round(Math.pow(10, 1) * tps) / Math.pow(10, 1)).toString() + "TPS\n"
     return summary
 }

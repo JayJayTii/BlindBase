@@ -3,7 +3,7 @@
     import ReconCreateLetters from '@/components/recons/ReconCreateLetters.vue'
     import ReconCreateNotation from '@/components/recons/ReconCreateNotation.vue'
     import { Sequence } from '@/helpers/sequence.js'
-    import { GenerateReconBody } from '@/helpers/reconstruct.js'
+    import { GenerateReconBody, GetReconMoveCount } from '@/helpers/reconstruct.js'
 
     import { useReconsStore } from "@/stores/ReconsStore"
     const reconsStore = useReconsStore()
@@ -32,6 +32,16 @@
             letters: letterSolution.value,
             notation: notationSolution.value,
         }
+        let reconSolve = ""
+        //Only use the stored solve if its not an old scramble
+        if (sessionStorage.reconstructionSolve) {
+            reconSolve = JSON.parse(sessionStorage.reconstructionSolve)
+            if (newRecon.scramble == reconSolve.scramble) {
+                newRecon.solve = sessionStorage.reconstructionSolve
+            }
+        }
+        sessionStorage.removeItem('reconstructionSolve') //Remove no matter what
+
         newRecon.body = GenerateReconBody(newRecon)
         const newReconIndex = reconsStore.createRecon(newRecon)
 
