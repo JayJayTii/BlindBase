@@ -50,9 +50,7 @@
         </div>
         <!------DELETE------>
         <div class="SessionEditingRow">
-            <button @click="emit('deleteSession')">
-                Delete
-            </button>
+            <img src="@/assets/delete-bin.svg" @click="emit('deleteSession')" class="DeleteButton" />
         </div>
     </div>
     <div class="SessionSettings" v-else>

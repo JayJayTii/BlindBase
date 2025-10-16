@@ -47,8 +47,10 @@
             </div>
 
             <!------CONTROLS------>
-            <button @click="Reconstruct()" class="PanelHeader">RECONSTRUCT</button>
-            <button @click="emit('deleteSolve')" style="width:30%;">delete</button>
+            <div style="display:flex; justify-content:space-between;  width:100%;">
+                <img src="@/assets/ReconsIcon.png" class="DeleteButton" @click="Reconstruct()" />
+                <img src="@/assets/delete-bin.svg" @click="emit('deleteSolve')" class="DeleteButton" />
+            </div>
         </div>
     </div>
 </template>

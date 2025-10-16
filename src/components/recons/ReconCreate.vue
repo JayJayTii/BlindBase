@@ -4,6 +4,7 @@
     import ReconCreateNotation from '@/components/recons/ReconCreateNotation.vue'
     import { Sequence } from '@/helpers/sequence.js'
     import { GenerateReconBody, GetReconMoveCount } from '@/helpers/reconstruct.js'
+    import { getSolveTimeString } from '@/helpers/timer.js'
 
     import { useReconsStore } from "@/stores/ReconsStore"
     const reconsStore = useReconsStore()
@@ -38,6 +39,7 @@
             reconSolve = JSON.parse(sessionStorage.reconstructionSolve)
             if (newRecon.scramble == reconSolve.scramble) {
                 newRecon.solve = sessionStorage.reconstructionSolve
+                newRecon.name += " " + getSolveTimeString(reconSolve)
             }
         }
         sessionStorage.removeItem('reconstructionSolve') //Remove no matter what

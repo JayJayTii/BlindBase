@@ -49,12 +49,15 @@
     justify-self: center;
     left: 50%;
     top: 50%;
-    max-width: 20vw;
+    width: 300px;
     transform: translate(-50%, -50%);
     padding: 10px;
     border-radius: 5px;
     z-index: 100;
-    background-color: var(--brand-100);
+    background-color: var(--error-200);
+    color: var(--grey-800);
+    font-weight: 600;
+    text-align: center;
 }
 
 .ConfirmationButtonRow {
@@ -68,7 +71,7 @@
     left: 0;
     width: 100vw;
     height: 93vh;
-    background: rgba(256, 256, 256, 0.1);
+    background: rgba(0, 0, 0, 0.7);
     z-index: 99;
 }
 </style>

@@ -56,7 +56,6 @@
     .StatusRow {
         display: grid;
         grid-template-columns: repeat(3, 70px);
-        font-size: 1.5rem;
         align-self: center;
         text-align: center;
         color: var(--grey-100);
@@ -67,6 +66,5 @@
         border-radius: 5px;
         color: var(--grey-100);
         cursor: pointer;
-        font-size: 1rem;
     }
 </style>

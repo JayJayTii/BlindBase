@@ -61,13 +61,15 @@ export function GenerateReconBody(recon) {
     summary += recon.scramble.toString()
     summary += "\n\n//Corners\n"
     const cornerPairs = ToLetters(recon.letters[0]).split(' ')
-    for (var i = 0; i < cornerPairs.length; i++) {
-        summary += recon.notation.corners[i] + " //" + cornerPairs[i] + "\n"
+    for (var i = 0; i < recon.notation.corners.length; i++) {
+        summary += recon.notation.corners[i]
+        summary += (i < cornerPairs.length ? (" //" + cornerPairs[i] + "\n") : "\n")
     }
     summary += "\n//Edges\n"
     const edgePairs = ToLetters(recon.letters[1]).split(' ')
-    for (var i = 0; i < edgePairs.length; i++) {
-        summary += recon.notation.edges[i] + " //" + edgePairs[i] + "\n"
+    for (var i = 0; i < recon.notation.edges.length; i++) {
+        summary += recon.notation.edges[i]
+        summary += (i < edgePairs.length ? (" //" + edgePairs[i] + "\n") : "\n")
     }
     if (!recon.hasOwnProperty("solve"))
         return summary

@@ -52,9 +52,7 @@
 
         <!------DELETE------>
         <div class="SheetEditingRow">
-            <button @click="emit('deleteSheet')">
-                Delete
-            </button>
+            <img src="@/assets/delete-bin.svg" @click="emit('deleteSheet')" class="DeleteButton" />
         </div>
     </div>
     <div v-else class="SheetSettings">

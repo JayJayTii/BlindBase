@@ -38,14 +38,17 @@
 <template>
     <div class="ReconSelect">
         <div />
-        <div style="font-size:3rem;text-align:center;"><u><b>Reconstructions:</b></u></div>
+        <div style="font-size: 3rem; text-align: center; text-decoration: underline;">
+            Reconstructions:
+        </div>
         <div />
 
         <div id="COLUMN1">
-            <div v-if="selectedRecon != -1">
+            <div v-if="selectedRecon != -1" id="reconPreviewBody">
                 <h1 style="font-size:2rem;" id="reconPreview"><u>{{reconsStore.recons[selectedRecon].name}}</u></h1>
                 <pre style="font-size:1.3rem;line-height:1.5rem;" id="reconPreview">{{reconsStore.recons[selectedRecon].body}}</pre>
             </div>
+            <div style="height:4rem" />
         </div>
         <div id="COLUMN2">
             <div style="width:100%;font-size:1.5rem;">
@@ -60,7 +63,7 @@
             </div>
         </div>
         <div id="COLUMN3" v-if="selectedRecon != -1">
-            <FaceletCubeVisual style="width: 90%;position:relative;left:5%;"
+            <FaceletCubeVisual style="width: 90%;position:relative;left:5%;border:3px solid white;padding:10px;"
                                :cube="reconPreviewCube"
                                :key="reconPreviewCube.corners.toString() + reconPreviewCube.edges.toString() + reconPreviewCube.centers.toString()" />
         </div>
@@ -76,11 +79,18 @@
         height: 93vh;
     }
 
-    #reconPreview {
+    #reconPreviewBody {
         width: 90%;
+        border-inline: 3px solid white;
+        border-block: 3px solid white;
+        transform: translate(5%, 0%);
+        padding-inline: 10px;
+    }
+
+    #reconPreview {
         text-wrap: pretty;
         word-break: break-word;
-        transform: translate(5%, 0%);
+        transform: translate(0px, -5px);
     }
 
     #COLUMN2{

@@ -1,6 +1,7 @@
 <script setup>
-    import { computed, nextTick } from 'vue'
+    import { computed, inject } from 'vue'
     import { useReconsStore } from "@/stores/ReconsStore"
+    const confirmDialog = inject('confirmDialog')
     const reconsStore = useReconsStore()
     reconsStore.loadState()
     import { useRouter } from 'vue-router'
@@ -30,7 +31,10 @@
         })
     }
 
-    function Delete() {
+    async function Delete() {
+        if (!await confirmDialog.value.open('Are you sure you want to delete this reconstruction?')) {
+            return
+        }
         reconsStore.deleteRecon(props.reconIndex)
         ExitEdit()
     }
@@ -42,8 +46,8 @@
             <input v-model="reconName" maxlength="30" id="reconNameInput" />
             <textarea v-model="reconBody"
                       id="reconBodyInput" />
+            <img src="@/assets/delete-bin.svg" @click="Delete()" style="width:50px;" class="DeleteButton" />
         </div>
-        <button @click="Delete()">DELETE</button>
 
         <div style="font-size: 1.5rem;"
              class="NextButton"
@@ -62,6 +66,15 @@
     #reconNameInput {
         font-size: 3rem;
         border-block-end: 4px solid white;
-       
+    }
+
+    .DeleteButton{
+        height:50px;
+        background-color: var(--brand-600);
+        border-radius: 5px;
+        cursor:pointer;
+    }
+    .DeleteButton:hover{
+        background-color: var(--brand-500);
     }
 </style>

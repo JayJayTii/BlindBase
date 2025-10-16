@@ -77,6 +77,7 @@ const router = createRouter({
                 tool: true,
                 description: '',
                 iconPath: new URL('@/assets/ReconsIcon.png', import.meta.url).href,
+                description: 'Create reconstructions of your best solves',
             },
         },
         { 
