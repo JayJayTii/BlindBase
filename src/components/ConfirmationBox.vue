@@ -53,7 +53,7 @@
     transform: translate(-50%, -50%);
     padding: 10px;
     border-radius: 5px;
-    z-index: 100;
+    z-index: 151;
     background-color: var(--error-200);
     color: var(--grey-800);
     font-weight: 600;
@@ -63,15 +63,14 @@
 .ConfirmationButtonRow {
     display: grid;
     grid-template-columns: 1fr 1fr;
+    gap: 10px;
 }
 
 #confirmationBoxBackdrop {
     position: fixed;
-    top: var(--navbar-height);
-    left: 0;
     width: 100vw;
-    height: 93vh;
+    height: 100vh;
     background: rgba(0, 0, 0, 0.7);
-    z-index: 99;
+    z-index: 150;
 }
 </style>

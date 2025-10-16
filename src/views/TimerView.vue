@@ -93,15 +93,15 @@
         </div>
 
         <!-----------TIMER------------>
-        <div style="width: 60vw; height: 93vh; position: relative; border: 3px solid var(--border-color);">
+        <div class="Panel" style="width: 60vw; height: 93vh; position: relative; border: 3px solid var(--border-color);">
             <Timer style="width:100%; height:100%;"
                    v-if="timerStore.isValidSessionID(sessionID)"
                    :lastSolve="timerStore.sessions[timerStore.getSessionIndexWithID(sessionID)].solves.at(-1)"
                    :twoStage="true"
                    @update:solve-complete="onSolveComplete"
                    ref="timer"
-                   :key="timerKey"/>
-                   <!--:key="sessionID + '-' + JSON.stringify(timerStore.sessions[timerStore.getSessionIndexWithID(sessionID)].solves.at(-1))"--> 
+                   :key="timerKey" />
+            <!--:key="sessionID + '-' + JSON.stringify(timerStore.sessions[timerStore.getSessionIndexWithID(sessionID)].solves.at(-1))"-->
 
             <TimerStatusOverlay v-if="timer && !timer.isSolving"
                                 id="timerStatusOverlay"
@@ -110,7 +110,7 @@
         </div>
 
         <!--------RIGHT COLUMN-------->
-        <div class="PanelColumn" v-if="timerStore.isValidSessionID(sessionID)">
+        <div class="PanelColumn">
             <SessionDetails style="width:100%;height:50%" :sessionID="sessionID" />
 
             <div style="position: relative; height: 50%;">
@@ -122,11 +122,6 @@
                 <SolveList style="width:100%;height:100%;"
                            :sessionID="sessionID"
                            @selectSolve="selectSolve" />
-            </div>
-        </div>
-        <div v-else class="PanelColumn">
-            <div style="color:var(--info-200)">
-                Select a session to get started
             </div>
         </div>
     </div>

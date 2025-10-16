@@ -90,7 +90,7 @@ const router = createRouter({
         },
         {
             path: '/:catchAll(.*)*',
-            name: 'NotFound',
+            name: '404 Not Found',
             component: NotFoundView,
             meta: { tool: false },
         }, //Catch-all route

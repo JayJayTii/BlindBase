@@ -112,7 +112,7 @@
 
         <!------EDITING------>
         <div v-if="sheetStore.isValidSheetID(sheetID)" style="display:flex;flex-direction:column;gap:5px;">
-            <h3 class="PanelHeader" style="font-size:5vh;">Select flashcards to create from this sheet</h3>
+            <h3 class="PanelHeader" style="font-size:5vh;padding-inline:10px;">Select flashcards to create from this sheet</h3>
             <div style="display:flex;flex-direction:row;gap:5px;justify-content:center">
                 <div class="cardSelectButton" @click="SelectAll()"><h3>Select all</h3></div>
                 <div class="cardSelectButton" @click="SelectNone()"><h3>Select none</h3></div>
@@ -136,6 +136,7 @@
         text-align: center;
         text-justify: distribute;
         font-size: 1.5rem;
+        gap: 10px;
     }
 
     .CardsMenuGrid {
@@ -151,7 +152,7 @@
     .RowGap {
         height: 2px;
         width: 110%;
-        background-color: var(--grey-900);
+        background-color: var(--border-color);
     }
 
     .editButton {
@@ -169,7 +170,7 @@
     }
 
     .PracticeButton {
-        background-color: var(--brand-600);
+        background-color: var(--brand-700);
         border-radius: 5px;
         cursor: pointer;
         height: 45px;
@@ -184,7 +185,7 @@
         color: var(--brand-900);
         font-size: 1rem;
         width: 110px;
-        border-radius: 10px;
+        border-radius: 5px;
         cursor: pointer;
     }
         .cardSelectButton:hover {

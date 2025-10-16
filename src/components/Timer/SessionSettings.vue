@@ -53,7 +53,8 @@
             <img src="@/assets/delete-bin.svg" @click="emit('deleteSession')" class="DeleteButton" />
         </div>
     </div>
-    <div class="SessionSettings" v-else>
+    <div v-else class="Panel">
+        <div class="PanelHeader"> Session settings: </div>
         <div style="color:var(--info-200)">
             Select a session to get started
         </div>

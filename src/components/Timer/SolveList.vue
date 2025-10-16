@@ -36,13 +36,19 @@
 </script>
 
 <template>
-    <div class="Panel">
+    <div class="Panel" v-if="timerStore.isValidSessionID(sessionID)">
         <div class="PanelHeader"> Solves: </div>
         <div style="overflow:auto;"
              ref="solveListRef">
             <List :data="timerStore.getSession(props.sessionID).solves.map((solve,index) => (index+1).toString() + ' | ' + getSolveTimeString(solve))"
                   :selectedIndex="-1"
-                  @onItemClick="SolveClicked"/>
+                  @onItemClick="SolveClicked" />
+        </div>
+    </div>
+    <div v-else class="Panel">
+        <div class="PanelHeader"> Solves: </div>
+        <div style="color:var(--info-200)">
+            Select a session to get started
         </div>
     </div>
 </template>

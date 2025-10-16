@@ -124,7 +124,7 @@
                  @click="columnClicked(index)">
                 {{ char }}
             </div>
-            <div class="SheetGridCell" style="background-color:transparent;"></div>
+            <div class="SheetGridCell" style="background-color: var(--border-color);"></div>
         </div>
 
         <!-----ROW HEADINGS----->
@@ -135,6 +135,7 @@
                  @click="rowClicked(index)">
                 {{ char }}
             </div>
+            <div class="SheetGridCell" style="background-color: var(--border-color);"></div>
         </div>
 
         <!---------GRID--------->

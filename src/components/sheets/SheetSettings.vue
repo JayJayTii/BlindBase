@@ -55,7 +55,7 @@
             <img src="@/assets/delete-bin.svg" @click="emit('deleteSheet')" class="DeleteButton" />
         </div>
     </div>
-    <div v-else class="SheetSettings">
+    <div v-else class="Panel">
         <div class="PanelHeader"> Sheet settings: </div>
         <div style="color:var(--info-200)">
             Select a sheet to get started

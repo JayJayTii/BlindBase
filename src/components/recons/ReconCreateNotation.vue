@@ -183,9 +183,9 @@
 
 <template>
     <div id="ReconCreateNotationLayout">
-        <div style="display: flex; flex-direction: column;">
+        <div style="display: flex; flex-direction: column;gap:5px;padding: 10px;">
             <div class="ReconHeader">Corners:</div>
-            <div style="color:white" v-if="cornerSheets.length > 0">
+            <div style="color:var(--grey-100)" v-if="cornerSheets.length > 0">
                 Algs from
                 <select v-model="cornerSheetID" @change="FillAllCorners()">
                     <option v-for="sheet in cornerSheets"
@@ -203,7 +203,7 @@
                               v-model="cornerInput[index]"
                               :id="'Corns' + index.toString()"
                               :ref="el => cornerInputBox[index] = el " />
-                    <button style="height:40px;min-width:40px;" @click="FillCornerRecommendation(index)">?</button>
+                    <img src="@/assets/lightbulb-line.svg" class="DeleteButton" style="height:40px;min-width:40px;" @click="FillCornerRecommendation(index)"></img>
                 </div>
                 <textarea style="field-sizing: content; resize:none;"
                           class="ReconNotationInput"
@@ -215,9 +215,9 @@
         <FaceletCubeVisual :cube="cube"
                            :key="cube.corners.toString() + cube.edges.toString() + cube.centers.toString()"
                            style="align-self: center;" />
-        <div style="display:flex;flex-direction:column;gap:10px;">
+        <div style="display: flex; flex-direction: column; gap: 10px; padding: 10px;">
             <div class="ReconHeader">Edges:</div>
-            <div style="color:white" v-if="edgeSheets.length > 0">
+            <div style="color:var(--grey-100)" v-if="edgeSheets.length > 0">
                 Algs from
                 <select v-model="edgeSheetID" @change="FillAllEdges()">
                     <option v-for="sheet in edgeSheets"
@@ -234,7 +234,7 @@
                           v-model="edgeInput[index]"
                           :id="'Edges' + index.toString()"
                           :ref="el => edgeInputBox[index] = el" />
-                <button style="height:40px;min-width:40px;" @click="FillEdgeRecommendation(index)">?</button>
+                <img src="@/assets/lightbulb-line.svg" class="DeleteButton" style="height:40px;min-width:40px;" @click="FillEdgeRecommendation(index)" />
             </div>
             <textarea style="field-sizing: content; resize:none;"
                       class="ReconNotationInput"
@@ -258,8 +258,6 @@
 
     .ReconNotationInput {
         width: 100%;
-        background-color: white;
-        color: black;
         font-size: 1.5rem;
     }
 </style>

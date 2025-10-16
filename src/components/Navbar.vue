@@ -44,15 +44,15 @@
         right: 0px;
     }
 
-#settingsBackdrop {
-    position: fixed;
-    top: var(--navbar-height);
-    left: 0;
-    width: 100vw;
-    height: 93vh;
-    background: rgba(256, 256, 256, 0.1); /* semi-transparent */
-    z-index: 99;
-}
+    #settingsBackdrop {
+        position: fixed;
+        top: var(--navbar-height);
+        left: 0;
+        width: 100vw;
+        height: 93vh;
+        background: rgba(0, 0, 0, 0.7);
+        z-index: 99;
+    }
 
 #settings {
     position: absolute;

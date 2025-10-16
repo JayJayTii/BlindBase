@@ -65,7 +65,6 @@
 
     #reconNameInput {
         font-size: 3rem;
-        border-block-end: 4px solid white;
     }
 
     .DeleteButton{

@@ -60,6 +60,38 @@
     --grey-900: hsl(10, 3%, 8%);
 }
 
+input {
+    background-color: var(--grey-700);
+    color: var(--grey-100);
+    border: 1px solid var(--brand-100);
+    border-radius: 4px;
+}
+textarea {
+    background-color: var(--grey-700);
+    color: var(--grey-100);
+    border: 1px solid var(--brand-100);
+    border-radius: 4px;
+}
+select {
+    background-color: var(--grey-700);
+    color: var(--grey-100);
+    border: 1px solid var(--brand-100);
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+button {
+    background-color: var(--grey-700);
+    color: var(--grey-100);
+    border: 1px solid var(--brand-100);
+    border-radius: 4px;
+    cursor: pointer;
+}
+button:hover{
+    background-color: var(--grey-600);
+}
+
+
 * {
     box-sizing: border-box;
     margin: 0;
@@ -69,12 +101,14 @@ body {
     min-height: 100vh;
     --navbar-height: 7vh;
 
-    background-color: var(--grey-800);
-    --panel-color: var(--grey-800);
-    --border-color: var(--grey-900);
+    background-color: var(--grey-900);
+    --panel-color: var(--grey-900);
+    --border-color: var(--grey-800);
     --panel-header-color: var(--brand-700);
     --panel-header-text-color: var(--grey-100);
     --text-color: var(--grey-100);
+
+    scrollbar-color: var(--brand-700) var(--border-color);
 
     user-select: none;
     transition: color 0.5s, background-color 0.5s;

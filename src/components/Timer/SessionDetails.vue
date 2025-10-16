@@ -9,13 +9,19 @@
 
 <template>
     <!--Contains info like single, mo3, ao5, etc. for this session-->
-    <div class="Panel">
+    <div class="Panel" v-if="timerStore.isValidSessionID(sessionID)">
         <div class="PanelHeader"> Session Details:  </div>
         <div class="SessionDetailsGrid">
             <template v-for="statRow in timerStore.getSessionStatistics(sessionID)">
                 <div class="SessionDetail">{{statRow[0]}}</div>
                 <div class="SessionDetail">{{statRow[1]}} ({{statRow[2]}} : {{statRow[3]}})</div>
             </template>
+        </div>
+    </div>
+    <div v-else class="Panel">
+        <div class="PanelHeader"> Session Details: </div>
+        <div style="color:var(--info-200)">
+            Select a session to get started
         </div>
     </div>
 </template>

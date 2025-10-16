@@ -70,7 +70,7 @@
     #scrambleText{
         font-size: 3rem;
         color: var(--grey-100);
-        border-block-end: 4px solid white;
+        border-block-end: 4px solid var(--grey-100);
     }
 
     .ReconHeader {

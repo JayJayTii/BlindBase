@@ -38,8 +38,10 @@
 <template>
     <div class="ReconSelect">
         <div />
-        <div style="font-size: 3rem; text-align: center; text-decoration: underline;">
-            Reconstructions:
+        <div style="align-content:center;">
+            <div class="PanelHeader" style="font-size:2.5rem;line-height:3.5rem;">
+                Reconstructions:
+            </div>
         </div>
         <div />
 
@@ -63,7 +65,7 @@
             </div>
         </div>
         <div id="COLUMN3" v-if="selectedRecon != -1">
-            <FaceletCubeVisual style="width: 90%;position:relative;left:5%;border:3px solid white;padding:10px;"
+            <FaceletCubeVisual style="width: 90%; position: relative; left: 5%; border: 3px solid var(--grey-100); padding: 10px; border-radius: 5px;"
                                :cube="reconPreviewCube"
                                :key="reconPreviewCube.corners.toString() + reconPreviewCube.edges.toString() + reconPreviewCube.centers.toString()" />
         </div>
@@ -74,15 +76,16 @@
     .ReconSelect {
         display: grid;
         grid-template-columns: 35% 30% 35%;
-        grid-template-rows: auto 1fr;
+        grid-template-rows: 5rem 1fr;
         color: var(--grey-100);
         height: 93vh;
     }
 
     #reconPreviewBody {
         width: 90%;
-        border-inline: 3px solid white;
-        border-block: 3px solid white;
+        border-inline: 3px solid var(--grey-100);
+        border-block: 3px solid var(--grey-100);
+        border-radius: 5px;
         transform: translate(5%, 0%);
         padding-inline: 10px;
     }
@@ -97,6 +100,7 @@
         display:flex;
         flex-direction: column;
         align-items: center;
+        gap: 5px;
     }
 
     #newReconRow{
