@@ -81,7 +81,7 @@
                 return
             curSelectionEnd = document.activeElement.selectionEnd
             selectedID = document.activeElement.id
-            if (curSelectionEnd == undefined || selectedID == "") {
+            if (curSelectionEnd == undefined || selectedID !== "reconBodyInput") {
                 cube.value = new FaceletCube()
                 cube.value.TurnSequence(scramble)
                 return

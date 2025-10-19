@@ -71,7 +71,7 @@ export class Sequence {
         })
     }
     setAlgorithmNotation(str) {
-        const turnArr = str.split(' ')
+        const turnArr = str.split(/[ \n]/)
         this.turns = []
         for (var i = 0; i < turnArr.length; i++) {
             let turn = turnArr[i]

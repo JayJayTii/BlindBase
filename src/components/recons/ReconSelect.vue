@@ -1,5 +1,5 @@
 <script setup>
-    import { ref } from 'vue'
+    import { ref, onMounted, onUnmounted } from 'vue'
     import List from '@/components/List.vue'
     import FaceletCubeVisual from '@/components/FaceletCubeVisual.vue'
     import { Sequence } from '@/helpers/sequence.js'
@@ -33,6 +33,24 @@
         scramble.setAlgorithmNotation(reconsStore.recons[index].scramble)
         reconPreviewCube.TurnSequence(scramble)
     }
+
+    function handleKeydown(event) {
+        if (event.code === "ArrowUp" || event.code === "ArrowLeft") {
+            ReconClicked((selectedRecon.value == -1) ? (reconsStore.recons.length - 1) : ((selectedRecon.value - 1 + reconsStore.recons.length) % reconsStore.recons.length))
+        }
+        else if (event.code === "ArrowDown" || event.code === "ArrowRight") {
+            ReconClicked((selectedRecon.value == -1) ? 0 : (selectedRecon.value + 1) % reconsStore.recons.length)
+        }
+        else if (event.code === "Enter") {
+            ReconClicked(selectedRecon.value)
+        }
+    }
+    onMounted(() => {
+        window.addEventListener('keydown', handleKeydown)
+    })
+    onUnmounted(() => {
+        window.removeEventListener('keydown', handleKeydown)
+    })
 </script>
 
 <template>
@@ -47,7 +65,7 @@
 
         <div id="COLUMN1">
             <div v-if="selectedRecon != -1" id="reconPreviewBody">
-                <h1 style="font-size:2rem;" id="reconPreview"><u>{{reconsStore.recons[selectedRecon].name}}</u></h1>
+                <h1 style="font-size:2rem;" id="reconPreview"><u>{{reconsStore.recons[selectedRecon].name || "&nbsp"}}</u></h1>
                 <pre style="font-size:1.3rem;line-height:1.5rem;" id="reconPreview">{{reconsStore.recons[selectedRecon].body}}</pre>
             </div>
             <div style="height:4rem" />

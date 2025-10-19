@@ -120,8 +120,8 @@
             const currentAlgorithm = new Sequence()
             let inputText = isCornerInput ? cornerInput.value[inputIndex] : edgeInput.value[inputIndex]
             let sampleIndex = curSelectionStart
-            while (!(inputText[sampleIndex - 1] == ' '
-                || inputText[sampleIndex] == ' '
+            while (!([' ', '\n'].includes(inputText[sampleIndex - 1])
+                || [' ', '\n'].includes(inputText[sampleIndex])
                 || sampleIndex == 0 || sampleIndex >= inputText.length)) {
                 sampleIndex++
             }

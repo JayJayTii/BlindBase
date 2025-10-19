@@ -37,7 +37,7 @@
         else
             cube.SwapEdgeCubies(2, letterIndex)
         //Generate the rest of the cycle
-        const newCycle = pieceType.value === 0 ? FinishCornerCycle(cube) : FinishEdgeCycle(cube)
+        const newCycle = pieceType.value === 0 ? FinishCornerCycle(cube) : FinishEdgeCycle(cube, letterSolution.value[0].length % 2 == 1)
         letterSolution.value[pieceType.value] = letterSolution.value[pieceType.value].concat(newCycle[0])
         letterOptions.value = newCycle[1]
 

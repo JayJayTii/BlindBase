@@ -21,12 +21,7 @@ export function FinishCornerCycle(cube) {
     return [cycle, availableBuffers]
 }
 
-export function FinishEdgeCycle(cube) {
-    //Expecting a cube with parity to not have corners completely solved (i.e. leaving last letter swapped)
-    const parity = JSON.stringify(cube.corners) !== JSON.stringify([0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23])
-    console.log(JSON.stringify(cube.corners))
-    console.log(JSON.stringify([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23]))
-    console.log(parity)
+export function FinishEdgeCycle(cube, parity) {
     if (parity)
         cube.SwapEdgeCubies(cube.edges.indexOf(2), cube.edges.indexOf(1))
     const bufferStickers = [2, 8]
@@ -61,7 +56,7 @@ export function GetReconMoveCount(recon) {
     const notation = recon.notation.corners.concat(recon.notation.edges)
     let turnCount = 0
     for (var i = 0; i < notation.length; i++) {
-        turnCount += notation[i].split(' ').filter(move => move != '').length
+        turnCount += notation[i].split(' ').filter(move => move != '' && !move.includes('x') && !move.includes('y') && !move.includes('z')).length
     }
     return turnCount
 }
@@ -75,7 +70,7 @@ export function GenerateReconBody(recon) {
         summary += recon.notation.corners[i]
         summary += (i < cornerPairs.length ? (" //" + cornerPairs[i] + "\n") : "\n")
     }
-    summary += "//Edges\n"
+    summary += "\n//Edges\n"
     const edgePairs = ToLetters(recon.letters[1]).split(' ')
     for (var i = 0; i < recon.notation.edges.length; i++) {
         summary += recon.notation.edges[i]
