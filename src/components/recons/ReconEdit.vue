@@ -29,9 +29,7 @@
     })
 
     function ExitEdit() {
-        router.push(`/reconCreate`).then(() => {
-            router.push(`/recons`)
-        })
+        router.push(`/recons`)
     }
 
     const recon = computed({

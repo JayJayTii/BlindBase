@@ -14,7 +14,7 @@
         scramble: Sequence,
         letterSolution: Array,
     })
-    const emit = defineEmits(['notationFinished'])
+    const emit = defineEmits(['notationFinished', 'revertToLetterSelection'])
 
     const cube = ref(new FaceletCube())
     function ScrambleCube() {
@@ -178,6 +178,9 @@
     function notationSelectionFinished() {
         emit('notationFinished', {corners: cornerInput.value, edges: edgeInput.value})
     }
+    function revertToLetterSelection() {
+        emit('revertToLetterSelection')
+    }
 </script>
 
 <template>
@@ -242,6 +245,10 @@
                       :ref="el => edgeInputBox[edgeInput.length - 1] = el" />
         </div>
     </div>
+
+    <img src="@/assets/arrow-left-long.svg"
+         class="NextButton" style="left:0px;transform:translate(100%,-100%);"
+         @click="revertToLetterSelection()" />
     <img src="@/assets/arrow-right-long.svg"
          class="NextButton"
          @click="notationSelectionFinished()" />

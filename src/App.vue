@@ -13,6 +13,6 @@ provide('confirmDialog', confirmDialog)
     <Navbar />
     <!--Offset other content by navbar height-->
     <div style="padding-top:var(--navbar-height)">
-        <RouterView />
+        <RouterView :key="$route.fullPath"/>
     </div>
 </template>

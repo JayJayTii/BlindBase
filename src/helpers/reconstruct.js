@@ -56,6 +56,7 @@ export function GetReconMoveCount(recon) {
     const notation = recon.notation.corners.concat(recon.notation.edges)
     let turnCount = 0
     for (var i = 0; i < notation.length; i++) {
+        //Ignore rotations as moves
         turnCount += notation[i].split(' ').filter(move => move != '' && !move.includes('x') && !move.includes('y') && !move.includes('z')).length
     }
     return turnCount
@@ -76,13 +77,14 @@ export function GenerateReconBody(recon) {
         summary += recon.notation.edges[i]
         summary += (i < edgePairs.length ? (" //" + edgePairs[i] + "\n") : "\n")
     }
+
+    const moveCount = GetReconMoveCount(recon)
+    summary += "\n//" + moveCount.toString() + " move" + (moveCount != 1 ? "s" : "") + "\n"
+
     if (!recon.hasOwnProperty("solve"))
         return summary
 
     const solve = JSON.parse(recon.solve)
-    const moveCount = GetReconMoveCount(recon)
-    summary += "\n//" + moveCount.toString() + " move" + (moveCount != 1 ? "s" : "") + "\n"
-    
     summary += "//" + getSolveTimeString(solve) + " (" + getSolveRatioString(solve) + ")\n"
     const tps = moveCount / (solve.solveTime - solve.memoTime) * 1000 //times are stored in milliseconds
     summary += "//" + (Math.round(Math.pow(10, 1) * tps) / Math.pow(10, 1)).toString() + "TPS\n"

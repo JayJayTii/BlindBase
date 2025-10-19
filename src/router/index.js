@@ -80,14 +80,6 @@ const router = createRouter({
                 description: 'Create reconstructions of your best solves',
             },
         },
-        { 
-            path: '/reconCreate', //This is moved to temporarily when a new recon is created
-            name: 'Recons  ',
-            component: NotFoundView,
-            meta: {
-                tool: false,
-            },
-        },
         {
             path: '/:catchAll(.*)*',
             name: '404 Not Found',

@@ -12,19 +12,17 @@
 
     const newScramble = ref("")
     function createRecon() {
-        //Needed to actually reload the page, otherwise nothing happens
-        router.push(`/reconCreate`).then(() => {
-            router.push(`/recons/${newScramble.value}`)
-        })
+        //Done to avoid invalid scrambles in URL allowing for duplicate of the same real scramble
+        const scrambleSequence = new Sequence()
+        scrambleSequence.setAlgorithmNotation(newScramble.value)
+        router.push(`/recons/${scrambleSequence.toString()}`)
     }
 
     const selectedRecon = ref(-1)
     let reconPreviewCube = new FaceletCube()
     function ReconClicked(index) {
         if (index == selectedRecon.value) { //Edit this recon
-            router.push(`/reconCreate`).then(() => {
-                router.push(`/recons/${reconsStore.recons[index].scramble}`)
-            })
+            router.push(`/recons/${reconsStore.recons[index].scramble}`)
             return
         }
         selectedRecon.value = index

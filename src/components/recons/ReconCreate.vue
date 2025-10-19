@@ -14,7 +14,6 @@
     const props = defineProps({
         scramble: Sequence,
     })
-
     const stage = ref(0)
 
     const letterSolution = ref([[],[]]) //First array is edges, second is corners
@@ -47,9 +46,17 @@
         newRecon.body = GenerateReconBody(newRecon)
         const newReconIndex = reconsStore.createRecon(newRecon)
 
-        router.push(`/reconCreate`).then(() => {
+        router.replace(`/recons`).then(() => {
             router.push(`/recons/${props.scramble.toString()}`)
         })
+    }
+
+    function revertToReconPage() {
+        router.push(`/recons`)
+    }
+    function revertToLetterSelection() {
+        letterSolution.value = [[], []]
+        stage.value = 0
     }
 </script>
 
@@ -57,13 +64,15 @@
     <div id="scrambleText">
         {{props.scramble}}
     </div>
-    <ReconCreateLetters v-if="stage === 0"
+    <ReconCreateLetters v-show="stage === 0"
                         :scramble="props.scramble" 
-                        @lettersFinished="lettersFinished"/>
+                        @lettersFinished="lettersFinished"
+                        @revertToReconPage="revertToReconPage"/>
     <ReconCreateNotation v-if="stage === 1"
                          :scramble="props.scramble"
                          :letterSolution="letterSolution"
-                         @notationFinished="notationFinished"/>
+                         @notationFinished="notationFinished"
+                         @revertToLetterSelection="revertToLetterSelection"/>
 </template>
 
 <style>

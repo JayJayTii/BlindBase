@@ -1,5 +1,5 @@
 <script setup>
-    import { nextTick, ref, watch }from 'vue'
+    import { nextTick, ref, watch, onMounted, onUnmounted }from 'vue'
     import { FaceletCube } from '@/helpers/FaceletCube/FaceletCube.js'
     import { Sequence } from '@/helpers/sequence.js'
     import { FinishCornerCycle, FinishEdgeCycle, ToLetters } from '@/helpers/reconstruct.js'
@@ -9,7 +9,7 @@
     const props = defineProps({
         scramble: Sequence,
     })
-    const emit = defineEmits(['lettersFinished'])
+    const emit = defineEmits(['lettersFinished', 'revertToReconPage'])
 
     let cube = new FaceletCube()
     cube.TurnSequence(props.scramble)
@@ -23,14 +23,17 @@
     const cornerInput = ref("")
     const edgeInput = ref("")
     const letterOptions = ref([])
+    const cycleHistory = [] //A stack where each entry is [curlettersolution, piecetype, curletteroptions, cube state], used for undoing
     const pieceType = ref(0) //Use corners = 0 for pieceType here due to indexing
 
     letterSelected(2)
 
     function letterSelected(letterIndex) {
         updating = true;
-        if(letterIndex !== 2) //Skip if the buffer is swapping with itself
+        if (letterIndex !== 2) { //Skip if the buffer is swapping with itself
+            cycleHistory.push([JSON.stringify(letterSolution.value), pieceType.value, JSON.stringify(letterOptions.value), JSON.stringify(cube)])
             letterSolution.value[pieceType.value].push(letterIndex) //Add the letter to the solution
+        }
         //Simulate swapping the stickers
         if(pieceType.value === 0)
             cube.SwapCornerCubies(2, letterIndex)
@@ -69,6 +72,29 @@
             input.value = oldValue
         nextTick(() => { updating = false })
     }
+    function undoCycle() {
+        if(cycleHistory.length == 0) return
+        updating = true
+
+        const lastCycle = cycleHistory.pop()
+
+        letterSolution.value = JSON.parse(lastCycle[0])
+        cornerInput.value = ToLetters(letterSolution.value[0])
+        edgeInput.value = ToLetters(letterSolution.value[1])
+
+        pieceType.value = lastCycle[1]
+        if (pieceType.value == 0)
+            cornerInputRef.value.focus()
+        else if (pieceType.value == 1)
+            edgeInputRef.value.focus()
+
+        letterOptions.value = JSON.parse(lastCycle[2])
+
+        cube = Object.assign(new FaceletCube(), JSON.parse(lastCycle[3]))
+
+        nextTick(() => { updating = false })
+    }
+
     watch(cornerInput, (newValue, oldValue) => {
         inputUpdated(cornerInput, newValue, oldValue)
     })
@@ -79,6 +105,25 @@
     function letterSelectionFinished() {
         emit('lettersFinished', letterSolution.value)
     }
+    function revertToReconPage() {
+        emit('revertToReconPage')
+    }
+
+    function handleKeydown(event) {
+        if (event.code === 'Backspace') {
+            undoCycle()
+        }
+        if (event.code === 'Enter') {
+            if (pieceType.value > 1)
+                letterSelectionFinished()
+        }
+    }
+    onMounted(() => {
+        window.addEventListener('keydown', handleKeydown)
+    })
+    onUnmounted(() => {
+        window.removeEventListener('keydown', handleKeydown)
+    })
 </script>
 
 <template>
@@ -96,6 +141,9 @@
                 </div>
             </div>
 
+            <img src="@/assets/arrow-left-long.svg"
+                 class="NextButton" style="left:0px;transform:translate(100%,-100%);"
+                 @click="revertToReconPage()" />
             <img v-if="pieceType > 1"
                  src="@/assets/arrow-right-long.svg"
                  class="NextButton"

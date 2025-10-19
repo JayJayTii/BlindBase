@@ -15,10 +15,11 @@
 
     const scrambleSequence = new Sequence()
     scrambleSequence.setAlgorithmNotation(scramble)
+
 </script>
 
 <template>
-    <ReconCreate v-if="newRecon" :scramble="scrambleSequence"/>
+    <ReconCreate v-if="newRecon" :scramble="scrambleSequence" />
     <ReconEdit v-else-if="reconIndex > -1" :reconIndex="reconIndex" />
     <ReconSelect v-else />
 </template>
