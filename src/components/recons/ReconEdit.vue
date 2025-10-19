@@ -74,6 +74,7 @@
     let selectedID = ""
     const bodyRef = ref(null)
     onMounted(() => {
+        window.addEventListener('keydown', handleKeydown)
         intervalID = setInterval(() => {
             if (curSelectionEnd === document.activeElement.selectionEnd && selectedID == document.activeElement.id)
                 return
@@ -109,10 +110,20 @@
         }, 50)
     })
     onUnmounted(() => {
+        window.removeEventListener('keydown', handleKeydown)
         if (intervalID !== null) {
             clearInterval(intervalID)
         }
     })
+
+    function handleKeydown(event) {
+        const el = document.activeElement
+        if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.isContentEditable)
+            return
+        if (event.code === 'Enter') {
+            ExitEdit()
+        }
+    }
 </script>
 
 <template>
@@ -126,7 +137,7 @@
 
         <div></div>
     </div>
-    <div style="position:fixed;right: 5%; top: 10%; width:45%;">
+    <div style="position:fixed;right: 5%; top: 10%; width:45%;display:flex;flex-direction:column;gap:10px;">
         <FaceletCubeVisual :cube="cube" />
         <div style="display: flex; flex-direction: row; justify-content:space-between; width:100%;">
             <img src="@/assets/delete-bin.svg" @click="Delete()" style="width:50px;" class="DeleteButton" />

@@ -3,7 +3,7 @@
     import { FaceletCube } from '@/helpers/FaceletCube/FaceletCube.js'
     import { Sequence } from '@/helpers/sequence.js'
     import { GetRandomRecommendation, getRecommendations } from '@/helpers/recommendations.js'
-    import { ToLetters } from '@/helpers/reconstruct.js'
+    import { GetInspectionMoves, ToLetters } from '@/helpers/reconstruct.js'
     import FaceletCubeVisual from '@/components/FaceletCubeVisual.vue'
 
     import { useSheetStore } from '@/stores/SheetStore'
@@ -17,6 +17,8 @@
     const emit = defineEmits(['notationFinished', 'revertToLetterSelection'])
 
     const cube = ref(new FaceletCube())
+    cube.value.TurnSequence(props.scramble)
+    const inspection = Object.assign(new Sequence(), GetInspectionMoves(cube.value))
     function ScrambleCube() {
         cube.value = new FaceletCube()
         cube.value.TurnSequence(props.scramble)
@@ -32,7 +34,7 @@
         cornerInput.value.push("")
     }
 
-    const edgePairs = ToLetters(props.letterSolution[1]).split(' ')
+    const edgePairs = ToLetters(props.letterSolution[1]).split(' ').filter(pair => pair.length > 1)
     for (const pair of edgePairs) {
         if (pair.length == 2)
             edgeInput.value.push(GetRandomRecommendation(2, pair))
@@ -94,41 +96,7 @@
     let selectedID = ""
     onMounted(() => {
         window.addEventListener('keydown', handleKeydown)
-        intervalID = setInterval(() => {
-            if (curSelectionStart === document.activeElement.selectionStart
-                && selectedID == document.activeElement.id)
-                return
-            curSelectionStart = document.activeElement.selectionStart
-            selectedID = document.activeElement.id
-
-            ScrambleCube()
-            if (curSelectionStart == undefined || selectedID == "")
-                return
-
-            const isCornerInput = (selectedID[0] == 'C')
-            const inputIndex = parseInt(selectedID.substring(5))
-            for (var i = 0; i < (isCornerInput ? inputIndex : cornerInput.value.length); i++) {
-                const algorithm = new Sequence()
-                algorithm.setAlgorithmNotation(cornerInput.value[i])
-                cube.value.TurnSequence(algorithm)
-            }
-            for (var i = 0; i < (isCornerInput ? 0 : inputIndex); i++) {
-                const algorithm = new Sequence()
-                algorithm.setAlgorithmNotation(edgeInput.value[i])
-                cube.value.TurnSequence(algorithm)
-            }
-            const currentAlgorithm = new Sequence()
-            let inputText = isCornerInput ? cornerInput.value[inputIndex] : edgeInput.value[inputIndex]
-            let sampleIndex = curSelectionStart
-            while (!([' ', '\n'].includes(inputText[sampleIndex - 1])
-                || [' ', '\n'].includes(inputText[sampleIndex])
-                || sampleIndex == 0 || sampleIndex >= inputText.length)) {
-                sampleIndex++
-            }
-            currentAlgorithm.setAlgorithmNotation(inputText.substring(0, sampleIndex))
-
-            cube.value.TurnSequence(currentAlgorithm)
-        }, 50)
+        intervalID = setInterval(() => { UpdateCubeToSelection() }, 50)
     })
     onUnmounted(() => {
         if (intervalID !== null) {
@@ -136,21 +104,65 @@
         }
         window.removeEventListener('keydown', handleKeydown)
     })
+
+    function UpdateCubeToSelection() {
+        if (curSelectionStart === document.activeElement.selectionStart
+            && selectedID == document.activeElement.id)
+            return
+        curSelectionStart = document.activeElement.selectionStart
+        selectedID = document.activeElement.id
+
+        ScrambleCube()
+        if (curSelectionStart == undefined || selectedID == "")
+            return
+
+        cube.value.TurnSequence(inspection)
+        const isEdgeInput = (selectedID[0] == 'E')
+        const inputIndex = parseInt(selectedID.substring(5))
+        for (var i = 0; i < (isEdgeInput ? inputIndex : edgeInput.value.length); i++) {
+            const algorithm = new Sequence()
+            algorithm.setAlgorithmNotation(edgeInput.value[i])
+            cube.value.TurnSequence(algorithm)
+        }
+        for (var i = 0; i < (isEdgeInput ? 0 : inputIndex); i++) {
+            const algorithm = new Sequence()
+            algorithm.setAlgorithmNotation(cornerInput.value[i])
+            cube.value.TurnSequence(algorithm)
+        }
+        const currentAlgorithm = new Sequence()
+        let inputText = isEdgeInput ? edgeInput.value[inputIndex] : cornerInput.value[inputIndex]
+        let sampleIndex = curSelectionStart
+        while (!([' ', '\n'].includes(inputText[sampleIndex - 1])
+            || [' ', '\n'].includes(inputText[sampleIndex])
+            || sampleIndex == 0 || sampleIndex >= inputText.length)) {
+            sampleIndex++
+        }
+        currentAlgorithm.setAlgorithmNotation(inputText.substring(0, sampleIndex))
+
+        cube.value.TurnSequence(currentAlgorithm)
+    }
+
     function handleKeydown(event) {
+        if (event.code === 'Enter' && !(['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName) || document.activeElement.isContentEditable)) {
+            notationSelectionFinished()
+            return
+        }
+
+        //Update caret to next or last textbox if necessary
         const el = document.activeElement
-        const isCornerInput = (el.id[0] == 'C')
+        const isEdgeInput = (el.id[0] == 'E')
         if (!el.id.includes('C') && !el.id.includes('E'))
             return
         const inputIndex = parseInt(selectedID.substring(5))
         if (event.code === 'ArrowRight') {
-            const inputLength = isCornerInput ? cornerInput.value[inputIndex].length : edgeInput.value[inputIndex].length
+            const inputLength = isEdgeInput ? edgeInput.value[inputIndex].length : cornerInput.value[inputIndex].length
             if (el.selectionStart == inputLength) {
-                if (isCornerInput && inputIndex === cornerInput.value.length - 1)
-                    edgeInputBox.value[0].focus()
-                else if(isCornerInput)
-                    cornerInputBox.value[inputIndex + 1].focus()
-                else if (!isCornerInput && inputIndex < edgeInput.value.length - 1)
+                if (isEdgeInput && inputIndex === edgeInput.value.length - 1)
+                    cornerInputBox.value[0].focus()
+                else if(isEdgeInput)
                     edgeInputBox.value[inputIndex + 1].focus()
+                else if (!isEdgeInput && inputIndex < cornerInput.value.length - 1)
+                    cornerInputBox.value[inputIndex + 1].focus()
                 else
                     return //End of last input box! Don't want to do anything
                 event.preventDefault() // stop broken update order
@@ -160,12 +172,12 @@
         }
         else if (event.code === 'ArrowLeft') {
             if (el.selectionStart == 0) {
-                if (!isCornerInput && inputIndex === 0)
-                    cornerInputBox.value[cornerInputBox.value.length - 1].focus()
-                else if (!isCornerInput)
-                    edgeInputBox.value[inputIndex - 1].focus()
-                else if (isCornerInput && inputIndex > 0)
+                if (!isEdgeInput && inputIndex === 0)
+                    edgeInputBox.value[edgeInputBox.value.length - 1].focus()
+                else if (!isEdgeInput)
                     cornerInputBox.value[inputIndex - 1].focus()
+                else if (isEdgeInput && inputIndex > 0)
+                    edgeInputBox.value[inputIndex - 1].focus()
                 else
                     return //Start of first input box! Don't want to do anything
                 event.preventDefault() // stop broken update order
@@ -185,6 +197,41 @@
 
 <template>
     <div id="ReconCreateNotationLayout">
+        <div style="display: flex; flex-direction: column; gap: 10px; padding: 10px;">
+            <div class="ReconHeader">Edges:</div>
+            <div style="color:var(--grey-100)" v-if="edgeSheets.length > 0">
+                Algs from
+                <select v-model="edgeSheetID" @change="FillAllEdges()">
+                    <option v-for="sheet in edgeSheets"
+                            :value="sheet.id">
+                        {{sheet.name}}
+                    </option>
+                </select>
+            </div>
+            <div style="display:flex;color: var(--grey-100); font-size: 1.5rem; gap: 10px;" v-if="inspection.turns.length > 0">
+                <input class="ReconNotationInput" readonly :value="inspection.toString()"/>
+            </div>
+            <div style="display:flex;color: var(--grey-100); font-size: 1.5rem; gap: 10px;"
+                 v-for="(pair, index) in edgePairs">
+                {{pair}}:
+                <textarea style="field-sizing: content; resize:none;"
+                          class="ReconNotationInput"
+                          v-model="edgeInput[index]"
+                          :id="'Edges' + index.toString()"
+                          :ref="el => edgeInputBox[index] = el" />
+                <img src="@/assets/lightbulb-line.svg" class="DeleteButton" style="height:40px;min-width:40px;" @click="FillEdgeRecommendation(index)" />
+            </div>
+            <textarea style="field-sizing: content; resize:none;"
+                      class="ReconNotationInput"
+                      v-model="edgeInput[edgeInput.length - 1]"
+                      :id="'Edges' + (edgeInput.length - 1).toString()"
+                      :ref="el => edgeInputBox[edgeInput.length - 1] = el" />
+        </div>
+
+        <FaceletCubeVisual :cube="cube"
+                           :key="cube.corners.toString() + cube.edges.toString() + cube.centers.toString()"
+                           style="align-self: center;" />
+
         <div style="display: flex; flex-direction: column;gap:5px;padding: 10px;">
             <div class="ReconHeader">Corners:</div>
             <div style="color:var(--grey-100)" v-if="cornerSheets.length > 0">
@@ -214,38 +261,8 @@
                           :ref="el => cornerInputBox[cornerInput.length - 1] = el" />
             </div>
         </div>
-        <FaceletCubeVisual :cube="cube"
-                           :key="cube.corners.toString() + cube.edges.toString() + cube.centers.toString()"
-                           style="align-self: center;" />
-        <div style="display: flex; flex-direction: column; gap: 10px; padding: 10px;">
-            <div class="ReconHeader">Edges:</div>
-            <div style="color:var(--grey-100)" v-if="edgeSheets.length > 0">
-                Algs from
-                <select v-model="edgeSheetID" @change="FillAllEdges()">
-                    <option v-for="sheet in edgeSheets"
-                            :value="sheet.id">
-                        {{sheet.name}}
-                    </option>
-                </select>
-            </div>
-            <div style="display:flex;color: var(--grey-100); font-size: 1.5rem; gap: 10px;"
-                 v-for="(pair, index) in ToLetters(props.letterSolution[1]).split(' ')">
-                {{pair}}:
-                <textarea style="field-sizing: content; resize:none;"
-                          class="ReconNotationInput"
-                          v-model="edgeInput[index]"
-                          :id="'Edges' + index.toString()"
-                          :ref="el => edgeInputBox[index] = el" />
-                <img src="@/assets/lightbulb-line.svg" class="DeleteButton" style="height:40px;min-width:40px;" @click="FillEdgeRecommendation(index)" />
-            </div>
-            <textarea style="field-sizing: content; resize:none;"
-                      class="ReconNotationInput"
-                      v-model="edgeInput[edgeInput.length - 1]"
-                      :id="'Edges' + (edgeInput.length - 1).toString()"
-                      :ref="el => edgeInputBox[edgeInput.length - 1] = el" />
-        </div>
     </div>
-
+    <div style="height:100px;" />
     <img src="@/assets/arrow-left-long.svg"
          class="NextButton" style="left:0px;transform:translate(100%,-100%);"
          @click="revertToLetterSelection()" />

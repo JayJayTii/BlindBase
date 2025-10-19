@@ -3,7 +3,8 @@
     import ReconCreateLetters from '@/components/recons/ReconCreateLetters.vue'
     import ReconCreateNotation from '@/components/recons/ReconCreateNotation.vue'
     import { Sequence } from '@/helpers/sequence.js'
-    import { GenerateReconBody, GetReconMoveCount } from '@/helpers/reconstruct.js'
+    import { FaceletCube } from '@/helpers/FaceletCube/FaceletCube.js'
+    import { GetInspectionMoves, GenerateReconBody, GetReconMoveCount } from '@/helpers/reconstruct.js'
     import { getSolveTimeString } from '@/helpers/timer.js'
 
     import { useReconsStore } from "@/stores/ReconsStore"
@@ -14,7 +15,12 @@
     const props = defineProps({
         scramble: Sequence,
     })
+
     const stage = ref(0)
+
+    let inspectionCube = new FaceletCube()
+    inspectionCube.TurnSequence(props.scramble)
+    const inspectionSolution = ref(GetInspectionMoves(inspectionCube))
 
     const letterSolution = ref([[],[]]) //First array is edges, second is corners
     function lettersFinished(_letterSolution) {
@@ -29,6 +35,7 @@
         let newRecon = {
             name: "Untitled",
             scramble: props.scramble.toString(),
+            inspection: inspectionSolution.value,
             letters: letterSolution.value,
             notation: notationSolution.value,
         }
@@ -64,7 +71,7 @@
     <div id="scrambleText">
         {{props.scramble}}
     </div>
-    <ReconCreateLetters v-show="stage === 0"
+    <ReconCreateLetters v-if="stage === 0"
                         :scramble="props.scramble" 
                         @lettersFinished="lettersFinished"
                         @revertToReconPage="revertToReconPage"/>

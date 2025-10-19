@@ -3,6 +3,36 @@ import { FaceletCube } from '@/helpers/FaceletCube/FaceletCube.js'
 import { getSolveTimeString, getSolveRatioString } from '@/helpers/timer.js'
 import { adjacentCornerIndices, adjacentEdgeIndices } from '@/helpers/stickers.js'
 
+export function GetInspectionMoves(cube) {
+    //Gets the rotations from the start of the solve
+    const startCube = Object.assign(new FaceletCube(), JSON.parse(JSON.stringify(cube)))
+    const inspection = []
+    if (startCube.centers[0] != 0) {
+        for (const rot of [['x', 1], ['x', 2], ['x', 3], ['y', 1], ['y', 2], ['y', 3], ['z', 1], ['z', 2], ['z', 3]]) {
+            let testCube = Object.assign(new FaceletCube(), JSON.parse(JSON.stringify(startCube)))
+            testCube.Turn(rot)
+            if (testCube.centers[0] == 0) {
+                inspection.push(rot)
+                startCube.Turn(inspection[0])
+                break
+            }
+        }
+    }
+
+    if (startCube.centers[1] == 1)
+        return { turns: inspection }
+
+    for (const rot of [['x', 1], ['x', 2], ['x', 3], ['y', 1], ['y', 2], ['y', 3], ['z', 1], ['z', 2], ['z', 3]]) {
+        let testCube = Object.assign(new FaceletCube(), JSON.parse(JSON.stringify(startCube)))
+        testCube.Turn(rot)
+        if (testCube.centers[1] == 1) {
+            inspection.push(rot)
+            break
+        }
+    }
+    return { turns: inspection }
+}
+
 export function FinishCornerCycle(cube) {
     const bufferStickers = [2, 9, 12]
     const cycle = []
@@ -65,17 +95,26 @@ export function GetReconMoveCount(recon) {
 export function GenerateReconBody(recon) {
     let summary = ""
     summary += recon.scramble.toString()
-    summary += "\n\n//Corners\n"
-    const cornerPairs = ToLetters(recon.letters[0]).split(' ').filter(pair => pair.length > 1)
-    for (var i = 0; i < cornerPairs.length; i++) {
-        summary += recon.notation.corners[i]
-        summary += (i < cornerPairs.length ? (" //" + cornerPairs[i] + "\n") : "\n")
+
+    if (recon.inspection.turns.length > 0) {
+        let inspectionSequence = Object.assign(new Sequence(), recon.inspection)
+        summary += "\n\n//Inspection\n" + inspectionSequence.toString()
     }
-    summary += "\n//Edges\n"
-    const edgePairs = ToLetters(recon.letters[1]).split(' ')
+
+    const edgesEmpty = (recon.notation.edges.length == 1 && recon.notation.edges[0] == '')
+    summary += edgesEmpty ? "" : "\n\n//Edges\n"
+    const edgePairs = ToLetters(recon.letters[1]).split(' ').filter(pair => pair.length > 1)
     for (var i = 0; i < recon.notation.edges.length; i++) {
         summary += recon.notation.edges[i]
         summary += (i < edgePairs.length ? (" //" + edgePairs[i] + "\n") : "\n")
+    }
+
+    const cornersEmpty = (recon.notation.corners.length == 1 && recon.notation.corners[0] == '')
+    summary += cornersEmpty ? "" : "\n//Corners\n"
+    const cornerPairs = ToLetters(recon.letters[0]).split(' ').filter(pair => pair.length > 1)
+    for (var i = 0; i < recon.notation.corners.length; i++) {
+        summary += recon.notation.corners[i]
+        summary += (i < cornerPairs.length ? (" //" + cornerPairs[i] + "\n") : "\n")
     }
 
     const moveCount = GetReconMoveCount(recon)

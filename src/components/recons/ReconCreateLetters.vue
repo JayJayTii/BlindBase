@@ -2,7 +2,7 @@
     import { nextTick, ref, watch, onMounted, onUnmounted }from 'vue'
     import { FaceletCube } from '@/helpers/FaceletCube/FaceletCube.js'
     import { Sequence } from '@/helpers/sequence.js'
-    import { FinishCornerCycle, FinishEdgeCycle, ToLetters } from '@/helpers/reconstruct.js'
+    import { GetInspectionMoves, FinishCornerCycle, FinishEdgeCycle, ToLetters } from '@/helpers/reconstruct.js'
     import FaceletCubeVisual from '@/components/FaceletCubeVisual.vue'
     import ReconCreateLetters from '@/components/recons/ReconCreateLetters.vue'
 
@@ -13,6 +13,9 @@
 
     let cube = new FaceletCube()
     cube.TurnSequence(props.scramble)
+    const inspection = Object.assign(new Sequence(), GetInspectionMoves(cube))
+    cube.TurnSequence(inspection)
+    let displayCube = Object.assign(new FaceletCube(), JSON.parse(JSON.stringify(cube)))
 
     let updating = false //Prevents recursion in watchers
     const edgeInputRef = ref(null)
@@ -60,6 +63,7 @@
 
         nextTick(() => { updating = false })
     }
+
     function inputUpdated(input, newValue, oldValue) {
         if (updating) return
         updating = true
@@ -72,6 +76,7 @@
             input.value = oldValue
         nextTick(() => { updating = false })
     }
+
     function undoCycle() {
         if(cycleHistory.length == 0) return
         updating = true
@@ -106,7 +111,8 @@
         emit('lettersFinished', letterSolution.value)
     }
     function revertToReconPage() {
-        emit('revertToReconPage')
+        history.back()
+        //emit('revertToReconPage')
     }
 
     function handleKeydown(event) {
@@ -117,23 +123,93 @@
             if (pieceType.value > 1)
                 letterSelectionFinished()
         }
+
+        //Update caret to next or last textbox if necessary
+        const el = document.activeElement
+        if (event.code === 'ArrowRight' && el.id == "cornerInput" && el.selectionStart == cornerInput.value.length && edgeInputRef.value) {
+            edgeInputRef.value.focus()
+            event.preventDefault() // stop broken update order
+            document.activeElement.selectionStart = 0
+            document.activeElement.selectionEnd = 0
+        }
+        else if (event.code === 'ArrowLeft' && el.id == "edgeInput" && el.selectionStart == 0) {
+            cornerInputRef.value.focus()
+            event.preventDefault() // stop broken update order
+            document.activeElement.selectionStart = document.activeElement.value.length
+            document.activeElement.selectionEnd = document.activeElement.value.length
+        }
     }
+
+    let intervalID = null
+    let curSelectionStart = 0
+    let selectedID = ""
+    const cubeKey = ref(0)
+    function UpdateCubeToSelection() {
+        if (curSelectionStart === document.activeElement.selectionStart
+            && selectedID == document.activeElement.id)
+            return
+        curSelectionStart = document.activeElement.selectionStart
+        selectedID = document.activeElement.id
+
+        displayCube = new FaceletCube()
+        displayCube.TurnSequence(props.scramble)
+        if (curSelectionStart == undefined || selectedID == "") {
+            cubeKey.value++
+            return
+        }
+
+        displayCube.TurnSequence(inspection)
+        const isCornerInput = (selectedID[0] == 'c')
+        if (!isCornerInput) { //Complete full corner sequence
+            const cornerPairs = cornerInput.value.split(' ').filter(pair => pair.length > 1)
+            for (const pair of cornerPairs) {
+                displayCube.SwapCornerCubies(2, (pair.charCodeAt(0) - 'A'.charCodeAt(0)))
+                displayCube.SwapCornerCubies(2, (pair.charCodeAt(1) - 'A'.charCodeAt(0)))
+            }
+        }
+        let currentLetterSequence = ""
+        let inputText = isCornerInput ? cornerInput.value : edgeInput.value
+        let sampleIndex = curSelectionStart
+        while ((sampleIndex + 2) % 3 != 0) {
+            sampleIndex++
+        }
+
+        currentLetterSequence = inputText.substring(0, sampleIndex)
+        for (const pair of currentLetterSequence.split(' ').filter(pair => pair.length > 1)) {
+            if (isCornerInput) {
+                displayCube.SwapCornerCubies(2, (pair.charCodeAt(0) - 'A'.charCodeAt(0)))
+                displayCube.SwapCornerCubies(2, (pair.charCodeAt(1) - 'A'.charCodeAt(0)))
+            } else {
+                displayCube.SwapEdgeCubies(2, (pair.charCodeAt(0) - 'A'.charCodeAt(0)))
+                displayCube.SwapEdgeCubies(2, (pair.charCodeAt(1) - 'A'.charCodeAt(0)))
+            }
+        }
+        cubeKey.value++
+    }
+
     onMounted(() => {
         window.addEventListener('keydown', handleKeydown)
+        intervalID = setInterval(() => { UpdateCubeToSelection() }, 50)
     })
     onUnmounted(() => {
         window.removeEventListener('keydown', handleKeydown)
+        if (intervalID !== null) {
+            clearInterval(intervalID)
+        }
     })
 </script>
 
 <template>
     <div style="display:flex; justify-content:space-between;padding:10px;">
         <div style="display:flex;flex-direction:column;gap:5px;">
+            <div v-if="inspection.turns.length !== 0" class="ReconHeader">Inspection:</div>
+            <input v-if="inspection.turns.length !== 0" style="font-size: 2rem;" :value="inspection.toString()" readonly />
+
             <div class="ReconHeader">Corners:</div>
-            <input style="font-size: 2rem;" ref="cornerInputRef" v-model="cornerInput" />
+            <input style="font-size: 2rem;" ref="cornerInputRef" v-model="cornerInput" id="cornerInput" />
 
             <div v-if="pieceType > 0" class="ReconHeader">Edges:</div>
-            <input v-if="pieceType > 0" ref="edgeInputRef" style="font-size: 2rem;" v-model="edgeInput" />
+            <input v-if="pieceType > 0" ref="edgeInputRef" style="font-size: 2rem;" v-model="edgeInput" id="edgeInput" />
 
             <div style="display:flex;flex-direction:row;">
                 <div v-for="(letterIndex, index) in letterOptions" @click="letterSelected(letterIndex)" class="newBufferOption">
@@ -150,8 +226,8 @@
                  @click="letterSelectionFinished()" />
         </div>
         <FaceletCubeVisual style="width: 45%;"
-                           :cube="cube"
-                           :key="cube.corners.toString() + cube.edges.toString() + cube.centers.toString()" />
+                           :cube="displayCube"
+                           :key="cubeKey" />
     </div>
 </template>
 

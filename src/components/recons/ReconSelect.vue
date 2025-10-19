@@ -21,6 +21,9 @@
     const selectedRecon = ref(-1)
     let reconPreviewCube = new FaceletCube()
     function ReconClicked(index) {
+        if (index == -1)
+            return
+
         if (index == selectedRecon.value) { //Edit this recon
             router.push(`/recons/${reconsStore.recons[index].scramble}`)
             return
@@ -86,6 +89,7 @@
                                :key="reconPreviewCube.corners.toString() + reconPreviewCube.edges.toString() + reconPreviewCube.centers.toString()" />
         </div>
     </div>
+    <div style="height:100px" />
 </template>
 
 <style>
