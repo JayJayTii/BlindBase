@@ -27,12 +27,9 @@
     const edgeInput = ref([])
     const edgeInputBox = ref([])
 
-    const cornerPairs = ToLetters(props.letterSolution[0]).split(' ')
+    const cornerPairs = ToLetters(props.letterSolution[0]).split(' ').filter(pair => pair.length > 1)
     for (const pair of cornerPairs) {
-        if(false  && pair.length == 2)
-            cornerInput.value.push(GetRandomRecommendation(1, pair))
-        else
-            cornerInput.value.push("")
+        cornerInput.value.push("")
     }
 
     const edgePairs = ToLetters(props.letterSolution[1]).split(' ')

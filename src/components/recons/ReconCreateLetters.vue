@@ -12,9 +12,7 @@
     const emit = defineEmits(['lettersFinished'])
 
     let cube = new FaceletCube()
-    for (var i = 0; i < props.scramble.turns.length; i++) {
-        cube.Turn(props.scramble.turns[i])
-    }
+    cube.TurnSequence(props.scramble)
 
     let updating = false //Prevents recursion in watchers
     const edgeInputRef = ref(null)
@@ -51,6 +49,8 @@
             pieceType.value++
             if (pieceType.value < 2) {
                 nextTick(() => { edgeInputRef.value.focus() })
+                if (letterSolution.value[0].length % 2 == 1) //Parity, swap the last corner back to keep solvable
+                    cube.SwapCornerCubies(2, letterSolution.value[0].at(-1))
                 letterSelected(2) //Trigger next cycle from buffer
             }
         }

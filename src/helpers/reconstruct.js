@@ -22,12 +22,20 @@ export function FinishCornerCycle(cube) {
 }
 
 export function FinishEdgeCycle(cube) {
+    //Expecting a cube with parity to not have corners completely solved (i.e. leaving last letter swapped)
+    const parity = JSON.stringify(cube.corners) !== JSON.stringify([0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23])
+    console.log(JSON.stringify(cube.corners))
+    console.log(JSON.stringify([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23]))
+    console.log(parity)
+    if (parity)
+        cube.SwapEdgeCubies(cube.edges.indexOf(2), cube.edges.indexOf(1))
     const bufferStickers = [2, 8]
 
     const cycle = []
     while (!bufferStickers.includes(cube.edges[2])) { //While not at end of cycle
-        cycle.push(cube.edges[2])
-        cube.SwapEdgeCubies(2, cube.edges[2])
+        let nextSwap = cube.edges[2]
+        cycle.push(nextSwap)
+        cube.SwapEdgeCubies(2, nextSwap)
     }
 
     const availableBuffers = []
@@ -37,6 +45,8 @@ export function FinishEdgeCycle(cube) {
             availableBuffers.push(i)
         }
     }
+    if (parity)
+        cube.SwapEdgeCubies(cube.edges.indexOf(2), cube.edges.indexOf(1))
     return [cycle, availableBuffers]
 }
 
@@ -60,8 +70,8 @@ export function GenerateReconBody(recon) {
     let summary = ""
     summary += recon.scramble.toString()
     summary += "\n\n//Corners\n"
-    const cornerPairs = ToLetters(recon.letters[0]).split(' ')
-    for (var i = 0; i < recon.notation.corners.length; i++) {
+    const cornerPairs = ToLetters(recon.letters[0]).split(' ').filter(pair => pair.length > 1)
+    for (var i = 0; i < cornerPairs.length; i++) {
         summary += recon.notation.corners[i]
         summary += (i < cornerPairs.length ? (" //" + cornerPairs[i] + "\n") : "\n")
     }
@@ -76,7 +86,7 @@ export function GenerateReconBody(recon) {
 
     const solve = JSON.parse(recon.solve)
     const moveCount = GetReconMoveCount(recon)
-    summary += "//" + moveCount.toString() + " move" + (moveCount != 1 ? "s" : "") + "\n"
+    summary += "\n//" + moveCount.toString() + " move" + (moveCount != 1 ? "s" : "") + "\n"
     
     summary += "//" + getSolveTimeString(solve) + " (" + getSolveRatioString(solve) + ")\n"
     const tps = moveCount / (solve.solveTime - solve.memoTime) * 1000 //times are stored in milliseconds
