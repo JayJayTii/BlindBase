@@ -9,6 +9,9 @@
     import { useSheetStore } from '@/stores/SheetStore'
     const sheetStore = useSheetStore()
     sheetStore.loadState()
+    import { useReconsStore } from '@/stores/ReconsStore'
+    const reconsStore = useReconsStore()
+    reconsStore.loadState()
 
     const props = defineProps({
         scramble: Sequence,
@@ -43,9 +46,15 @@
     }
 
     const cornerSheets = sheetStore.getSheetsOfType(1)
-    const cornerSheetID = ref(cornerSheets.length === 0 ? -1 : cornerSheets[0].id)
+    const cornerSheetID = computed({
+        get: () => reconsStore.GetCornerAlgsheet(),
+        set: (newValue) => { reconsStore.algsheets.corners = newValue; reconsStore.saveState(); }
+    })
     const edgeSheets = sheetStore.getSheetsOfType(2)
-    const edgeSheetID = ref(edgeSheets.length === 0 ? -1 : edgeSheets[0].id)
+    const edgeSheetID = computed({
+        get: () => reconsStore.GetEdgeAlgsheet(),
+        set: (newValue) => { reconsStore.algsheets.edges = newValue; reconsStore.saveState(); }
+    })
 
     function FillAllCorners() {
         cornerInput.value = []

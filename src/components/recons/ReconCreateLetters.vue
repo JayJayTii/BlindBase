@@ -9,7 +9,7 @@
     const props = defineProps({
         scramble: Sequence,
     })
-    const emit = defineEmits(['lettersFinished', 'revertToReconPage'])
+    const emit = defineEmits(['lettersFinished'])
 
     let cube = new FaceletCube()
     cube.TurnSequence(props.scramble)
@@ -54,14 +54,19 @@
         if (letterOptions.value.length === 0) {
             pieceType.value++
             if (pieceType.value < 2) {
-                nextTick(() => { edgeInputRef.value.focus() })
                 if (letterSolution.value[0].length % 2 == 1) //Parity, swap the last corner back to keep solvable
                     cube.SwapCornerCubies(2, letterSolution.value[0].at(-1))
                 letterSelected(2) //Trigger next cycle from buffer
             }
         }
 
-        nextTick(() => { updating = false })
+        nextTick(() => {
+            if (pieceType.value == 0)
+                cornerInputRef.value.focus()
+            else
+                edgeInputRef.value.focus()
+            updating = false
+        })
     }
 
     function inputUpdated(input, newValue, oldValue) {
@@ -112,7 +117,6 @@
     }
     function revertToReconPage() {
         history.back()
-        //emit('revertToReconPage')
     }
 
     function handleKeydown(event) {

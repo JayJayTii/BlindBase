@@ -58,9 +58,6 @@
         })
     }
 
-    function revertToReconPage() {
-        router.push(`/recons`)
-    }
     function revertToLetterSelection() {
         letterSolution.value = [[], []]
         stage.value = 0
@@ -73,8 +70,7 @@
     </div>
     <ReconCreateLetters v-if="stage === 0"
                         :scramble="props.scramble" 
-                        @lettersFinished="lettersFinished"
-                        @revertToReconPage="revertToReconPage"/>
+                        @lettersFinished="lettersFinished" />
     <ReconCreateNotation v-if="stage === 1"
                          :scramble="props.scramble"
                          :letterSolution="letterSolution"

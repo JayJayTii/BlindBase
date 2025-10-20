@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia'
+import { useSheetStore } from './SheetStore'
 import { Sequence } from '@/helpers/sequence.js'
 
 export function getReconsStore() {
@@ -9,6 +10,7 @@ export const useReconsStore = defineStore('reconsStore', {
     state: () => {
         return {
             recons: [],
+            algsheets: {corners: -1, edges: -1}, //Algsheets to take recommendations from
         }
     },
     actions: {
@@ -38,11 +40,36 @@ export const useReconsStore = defineStore('reconsStore', {
             }
             return -1
         },
+        GetCornerAlgsheet() {
+            if (!this.algsheets)
+                this.algsheets = { corners: -1, edges: -1 }
+
+            //If the sheet doesn't exist or is of the wrong type, override it
+            if (useSheetStore().getType(this.algsheets.corners) != 1) {
+                const cornerSheets = useSheetStore().getSheetsOfType(1)
+                this.algsheets.corners = (cornerSheets.length > 0) ? cornerSheets[0].id : -1
+            }
+            this.saveState()
+            return this.algsheets.corners
+        },
+        GetEdgeAlgsheet() {
+            if (!this.algsheets)
+                this.algsheets = { corners: -1, edges: -1 }
+
+            //If the sheet doesn't exist or is of the wrong type, override it
+            if (useSheetStore().getType(this.algsheets.edges) != 2) {
+                const edgeSheets = useSheetStore().getSheetsOfType(2)
+                this.algsheets.edges = (edgeSheets.length > 0) ? edgeSheets[0].id : -1
+            }
+            this.saveState()
+            return this.algsheets.edges
+        },
         saveState() {
             localStorage.setItem(
                 'reconsStore',
                 JSON.stringify({
                     recons: this.recons,
+                    algsheets: this.algsheets,
                 }),
             )
         },
@@ -50,6 +77,7 @@ export const useReconsStore = defineStore('reconsStore', {
             try {
                 const data = JSON.parse(localStorage.getItem('reconsStore'))
                 this.recons = data.recons
+                this.algsheets = data.algsheets
             } catch { }
         },
     },
