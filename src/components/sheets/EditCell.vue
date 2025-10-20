@@ -89,18 +89,18 @@
 
         <!------RECOMMENDATIONS------>
         <div class="SheetEditingRow">Recommendations:</div>
-        <div style="height:100%;overflow-y:auto;" v-if="sheetStore.getSheet(props.sheetID).type != 0">
+        <div v-if="sheetStore.getSheet(props.sheetID).type != 0" style="height:100%;overflow-y:auto;">
             <List :data="options"
                   :selectedIndex="-1"
                   @onItemClick="OptionClicked" />
         </div>
-        <div v-else class="CellOptions" style="color:var(--info-300)">
+        <div v-else class="CellOptions" style="color:var(--info-300);text-align:center;">
             Select a type for this sheet to show algorithm recommendations.
         </div>
     </div>
     <div v-else class="Panel">
         <div class="PanelHeader"> Edit cell:  </div>
-        <div style="color:var(--info-200)">
+        <div style="color:var(--info-200);text-align:center;">
             Select a sheet to get started
         </div>
     </div>

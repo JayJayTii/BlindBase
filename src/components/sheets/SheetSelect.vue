@@ -17,10 +17,16 @@
     <div class="Panel">
         <div class="PanelHeader"> Select Sheet: </div>
 
-        <List :data="sheetStore.getSheetNames" :selectedIndex="sheetStore.getSheetIndexWithID(props.sheetID)"
-              @onItemClick="SheetClicked" />
-
-        <button @click="sheetStore.newSheet(); emit('updateSheetID',sheetStore.sheets.length-1);"
-                class="newButton">+</button>
+        <div style="overflow-x:hidden; overflow-y:auto;">
+            <List :data="sheetStore.getSheetNames" :selectedIndex="sheetStore.getSheetIndexWithID(props.sheetID)"
+                  @onItemClick="SheetClicked" />
+            
+            <div style="display:flex;justify-content:end;">
+                <button @click="sheetStore.newSheet(); emit('updateSheetID',sheetStore.sheets.length-1);"
+                        class="newButton">
+                    +
+                </button>
+            </div>
+        </div>
     </div>
 </template>

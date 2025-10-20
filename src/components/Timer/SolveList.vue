@@ -47,7 +47,7 @@
     </div>
     <div v-else class="Panel">
         <div class="PanelHeader"> Solves: </div>
-        <div style="color:var(--info-200)">
+        <div style="color:var(--info-200);text-align:center;">
             Select a session to get started
         </div>
     </div>

@@ -20,7 +20,7 @@
     </div>
     <div v-else class="Panel">
         <div class="PanelHeader"> Session Details: </div>
-        <div style="color:var(--info-200)">
+        <div style="color:var(--info-200);text-align:center;">
             Select a session to get started
         </div>
     </div>

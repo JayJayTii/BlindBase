@@ -80,7 +80,7 @@
         <div class="PanelColumn">
             <EditCell style="width:100%; height: 100%;"
                       ref="editCellRef"
-                      :key="sheetID + '-' + selectedCell.x+ '-' + selectedCell.y"
+                      :key="sheetID + '-' + selectedCell.x+ '-' + selectedCell.y + '-' + (sheetStore.getSheet(sheetID)?.type || -1)"
                       :sheetID="sheetID" :selectedCell="selectedCell"
                       @cellKeyChanged="onCellClicked" />
         </div>

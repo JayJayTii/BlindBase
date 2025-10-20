@@ -1,4 +1,6 @@
 import json
+import html
+import codecs
 import requests
 import concurrent.futures
 import re
@@ -20,7 +22,7 @@ for i in range(len(filenames)):
     response = requests.get(url, params=None)
     
     if response.status_code != 200:
-        print("OOPS IT DIDN'T WORK")
+        print("Failed to fetch " + url)
         quit()
         
     print("Reformatting json")
@@ -48,6 +50,8 @@ print("Now fetching images")
 def CleanRecommendation(unclean):
     out = ""
     capitalise = False
+    #Remove things like pok\\xc3mon
+    unclean = codecs.escape_decode(unclean)[0].decode('utf-8')
     while(len(unclean) > 0):
         if(unclean[0] != "<"):
             out += unclean[0].upper() if(capitalise) else unclean[0].lower()
@@ -57,7 +61,7 @@ def CleanRecommendation(unclean):
         capitalise = not (unclean[1] == "/")
         unclean = unclean[unclean.index(">")+1:]
         
-    return out
+    return html.unescape(out)
 
 def ParseResult(result):
     matches = re.findall(r"""<td class='wlWord'[^>]*>(.*?)</td>""", result, re.DOTALL)
@@ -69,13 +73,14 @@ def ParseResult(result):
 #https://stackoverflow.com/questions/62007674/multi-thread-requests-python3
 #You can find the parameters for the query in the source section when you inspect the colpi webpage
 def request_get(key):
-    url="https://bestsiteever.ru/colpi/api/lpiquery.php?lp="+key+"&includeSmForm=1"
+    url="https://bestsiteever.net/colpi/api/lpiquery.php?lp="+key+"&includeSmForm=1"
     print(key + "\n")
-    result = str(requests.get(url).content)
-    parsed= ParseResult(result)
+    result = str(requests.get(url).content) 
+    parsed = ParseResult(result)
     return {"key":key, "result":parsed}
 
 allKeys = []
+#ABCDEFGHIJKLMNOPQRSTUVWXʧ
 for letter1 in "ABCDEFGHIJKLMNOPQRSTUVWXʧ":
     for letter2 in "ABCDEFGHIJKLMNOPQRSTUVWXʧ":
         allKeys.append(letter1+letter2)
@@ -85,7 +90,8 @@ with concurrent.futures.ThreadPoolExecutor() as executor: # optimally defined nu
 
 jsonResult = {}
 for keyResult in res:
-    jsonResult[keyResult.result()["key"]] = keyResult.result()["result"]
+    result_data = keyResult.result()
+    jsonResult[result_data["key"]] = result_data["result"]
 
 with open('imageRecommendations.json', 'w') as f:
     json.dump(jsonResult, f)
