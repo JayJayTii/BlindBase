@@ -35,11 +35,14 @@
         const sheet = sheetStore.getSheet(props.sheetID)
         const flipped = settingsStore.sheets_pairorder === 1
 
-        let csvString = "," + sheet.xHeadings.split('').join(',') + "\n"
+        let csvString = "," + sheet.xHeadings.split('').join(',') + ",\n"
         for (var i = 0; i < sheet.yHeadings.length; i++) {
             csvString += sheet.yHeadings[i] + ","
             for (var j = 0; j < sheet.xHeadings.length; j++) {
-                csvString += sheet.grid[flipped ? i : j][flipped ? j : i] + ","
+                let cellVal = sheet.grid[flipped ? i : j][flipped ? j : i]
+                if (cellVal.includes(','))
+                    cellVal = '\"' + cellVal + '\"'
+                csvString += cellVal + ","
             }
             csvString += "\n"
         }
@@ -52,15 +55,6 @@
         link.click();
         document.body.removeChild(link)
     }
-
-    /*// Example usage
-    const csv = [
-        ["Name", "Age", "City"],
-        ["Alice", "30", "London"],
-        ["Bob", "25", "Manchester"]
-    ].map(row => row.join(",")).join("\n");
-
-    downloadCSV("people.csv", csv);*/
 </script>
 
 <template>
@@ -86,14 +80,10 @@
 
         <div style="display: flex; flex-direction: row; justify-content:space-between; width:100%;">
             <!------DOWNLOAD------>
-            <div class="SheetEditingRow">
-                <img src="@/assets/download.svg" @click="downloadSheet()" class="DeleteButton" />
-            </div>
+            <img src="@/assets/download.svg" @click="downloadSheet()" class="CustomButton"  style="height:50px;"/>
 
             <!------DELETE------>
-            <div class="SheetEditingRow">
-                <img src="@/assets/delete-bin.svg" @click="emit('deleteSheet')" class="DeleteButton" />
-            </div>
+            <img src="@/assets/delete-bin.svg" @click="emit('deleteSheet')" class="CustomButton" style="height:50px;" />
         </div>
     </div>
     <div v-else class="Panel">

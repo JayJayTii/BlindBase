@@ -129,6 +129,8 @@
 
         //Scroll to make sure if there is one highlightedCell, it is visible
         const parent = mainGrid.value
+        if (!parent)
+            return
         const child = document.getElementById(highlightedCells.value[0].x.toString() + ',' + highlightedCells.value[0].y.toString())
         const parentRect = parent.getBoundingClientRect()
         const childRect = child.getBoundingClientRect()

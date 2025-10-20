@@ -48,9 +48,10 @@
                 </option>
             </select>
         </div>
-        <!------DELETE------>
-        <div class="SessionEditingRow">
-            <img src="@/assets/delete-bin.svg" @click="emit('deleteSession')" class="DeleteButton" />
+        <div style="display: flex; flex-direction: row; justify-content:space-between; width:100%;">
+            <div></div>
+            <!------DELETE------>
+            <img src="@/assets/delete-bin.svg" @click="emit('deleteSession')" class="CustomButton" style="height:40px;" />
         </div>
     </div>
     <div v-else class="Panel">

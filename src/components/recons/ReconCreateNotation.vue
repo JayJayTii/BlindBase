@@ -228,7 +228,7 @@
                           v-model="edgeInput[index]"
                           :id="'Edges' + index.toString()"
                           :ref="el => edgeInputBox[index] = el" />
-                <img src="@/assets/lightbulb-line.svg" class="DeleteButton" style="height:40px;min-width:40px;" @click="FillEdgeRecommendation(index)" />
+                <img src="@/assets/lightbulb-line.svg" class="CustomButton" style="height:40px;min-width:40px;" @click="FillEdgeRecommendation(index)" />
             </div>
             <textarea style="field-sizing: content; resize:none;"
                       class="ReconNotationInput"
@@ -261,7 +261,7 @@
                               v-model="cornerInput[index]"
                               :id="'Corns' + index.toString()"
                               :ref="el => cornerInputBox[index] = el " />
-                    <img src="@/assets/lightbulb-line.svg" class="DeleteButton" style="height:40px;min-width:40px;" @click="FillCornerRecommendation(index)"></img>
+                    <img src="@/assets/lightbulb-line.svg" class="CustomButton" style="height:40px;min-width:40px;" @click="FillCornerRecommendation(index)"></img>
                 </div>
                 <textarea style="field-sizing: content; resize:none;"
                           class="ReconNotationInput"

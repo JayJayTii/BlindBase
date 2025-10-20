@@ -140,7 +140,7 @@
     <div style="position:fixed;right: 5%; top: 10%; width:45%;display:flex;flex-direction:column;gap:10px;">
         <FaceletCubeVisual :cube="cube" />
         <div style="display: flex; flex-direction: row; justify-content:space-between; width:100%;">
-            <img src="@/assets/delete-bin.svg" @click="Delete()" style="width:50px;" class="DeleteButton" />
+            <img src="@/assets/delete-bin.svg" @click="Delete()" style="width:50px;" class="CustomButton" />
             <div class="CustomButton" style=" width: 100px; height: 50px;"
                  @click="CopyRecon()">
                 {{copyText}}
@@ -175,15 +175,5 @@
 
     #reconNameInput {
         font-size: 3rem;
-    }
-
-    .DeleteButton{
-        height:50px;
-        background-color: var(--brand-600);
-        border-radius: 5px;
-        cursor:pointer;
-    }
-    .DeleteButton:hover{
-        background-color: var(--brand-500);
     }
 </style>
