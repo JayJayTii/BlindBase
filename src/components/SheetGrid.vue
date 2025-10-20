@@ -1,6 +1,7 @@
 <script setup>
     import { ref, reactive, watch, computed, nextTick } from 'vue'
     import { getXHeadings, getYHeadings } from '@/helpers/sheets.js'
+    import { allEdgePairs, allCornerPairs } from '@/helpers/pairs.js'
     import { useSettingsStore } from '@/stores/SettingsStore'
     const settingsStore = useSettingsStore()
     settingsStore.loadState()
@@ -162,6 +163,25 @@
     defineExpose({
         changeHighlightedCells,
     })
+
+    function calculateCellClasses(x, y) {
+        let classes = ['SheetGridCell']
+        if (props.formatEmpty && props.sheet.grid[!flipped.value ? y : x][!flipped.value ? x : y] === '')
+            classes.push('SheetGridCellEmpty')
+        else {
+            const letters = "ABCDEFGHIJKLMNOPQRSTUVWX"
+            if ((props.sheet.type == 1 && !allCornerPairs.includes(letters[x] + letters[y]))
+                || (props.sheet.type == 2 && !allEdgePairs.includes(letters[x] + letters[y]))) {
+                classes.push('SheetGridCellGreyed')
+            }
+            classes.push('SheetGridCellHoverable')
+        }
+
+        if (Array.isArray(highlightedCells.value) && highlightedCells.value.some((cell) => cell.x === x && cell.y === y))
+            classes.push('SheetGridCellHightlighted')
+
+        return classes
+    }
 </script>
 
 <template>
@@ -199,8 +219,7 @@
                 <div v-for="(col, x) in 24"
                      @click="emit('update:selected-cell', !flipped ? {x:x,y:y} : {x:y,y:x})"
                      :id="x.toString() + ',' + y.toString()"
-                     :class="['SheetGridCell', formatEmpty && props.sheet.grid[!flipped ? y : x][!flipped ? x : y] === '' ? 'SheetGridCellEmpty' : 'SheetGridCellHoverable' ,
-                     Array.isArray(highlightedCells) && highlightedCells.some((cell)=>cell.x === x && cell.y === y) ? 'SheetGridCellHightlighted' : '']"
+                     :class="calculateCellClasses(x,y)"
                     >
                     {{ props.sheet.grid[!flipped ? y : x][!flipped ? x : y] }}
                 </div>
@@ -301,7 +320,11 @@
         background-color: var(--brand-800);
         cursor: default;
     }
-    
+
+    .SheetGridCellGreyed{
+        background-color: var(--border-color);
+    }
+
     .SheetGridCellHightlighted {
         border: 3px solid var(--grey-100);
     }
