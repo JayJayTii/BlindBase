@@ -2,6 +2,9 @@
     import { computed } from 'vue'
     import { useSheetStore } from "@/stores/SheetStore"
     const sheetStore = useSheetStore()
+    import { useSettingsStore } from '@/stores/SettingsStore'
+    const settingsStore = useSettingsStore()
+    settingsStore.loadState()
 
     const props = defineProps({
         sheetID: Number,
@@ -27,6 +30,37 @@
             }
         }
     })
+
+    function downloadSheet() {
+        const sheet = sheetStore.getSheet(props.sheetID)
+        const flipped = settingsStore.sheets_pairorder === 1
+
+        let csvString = "," + sheet.xHeadings.split('').join(',') + "\n"
+        for (var i = 0; i < sheet.yHeadings.length; i++) {
+            csvString += sheet.yHeadings[i] + ","
+            for (var j = 0; j < sheet.xHeadings.length; j++) {
+                csvString += sheet.grid[flipped ? i : j][flipped ? j : i] + ","
+            }
+            csvString += "\n"
+        }
+        const encodedUri = "data:text/csv;charset=utf-8," + encodeURIComponent(csvString)
+
+        const link = document.createElement("a")
+        link.setAttribute("href", encodedUri)
+        link.setAttribute("download", sheet.name + ".csv")
+        document.body.appendChild(link)
+        link.click();
+        document.body.removeChild(link)
+    }
+
+    /*// Example usage
+    const csv = [
+        ["Name", "Age", "City"],
+        ["Alice", "30", "London"],
+        ["Bob", "25", "Manchester"]
+    ].map(row => row.join(",")).join("\n");
+
+    downloadCSV("people.csv", csv);*/
 </script>
 
 <template>
@@ -50,9 +84,16 @@
             </select>
         </div>
 
-        <!------DELETE------>
-        <div class="SheetEditingRow">
-            <img src="@/assets/delete-bin.svg" @click="emit('deleteSheet')" class="DeleteButton" />
+        <div style="display: flex; flex-direction: row; justify-content:space-between; width:100%;">
+            <!------DOWNLOAD------>
+            <div class="SheetEditingRow">
+                <img src="@/assets/download.svg" @click="downloadSheet()" class="DeleteButton" />
+            </div>
+
+            <!------DELETE------>
+            <div class="SheetEditingRow">
+                <img src="@/assets/delete-bin.svg" @click="emit('deleteSheet')" class="DeleteButton" />
+            </div>
         </div>
     </div>
     <div v-else class="Panel">

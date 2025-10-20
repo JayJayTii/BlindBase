@@ -1,5 +1,5 @@
 <script setup>
-    import { computed, watch, ref } from 'vue'
+    import { computed, watch, nextTick, ref } from 'vue'
     import { getRecommendations } from "@/helpers/Recommendations"
     import List from "@/components/List.vue"
     import { useSheetStore } from "@/stores/SheetStore"
@@ -10,6 +10,7 @@
     const props = defineProps({
         sheetID: Number,
         selectedCell: Object,
+        focusCellKey: Boolean,
     })
     const emit = defineEmits(['cellKeyChanged'])
 
@@ -63,10 +64,16 @@
         selectedCellValue.value = options[index]
     }
 
-    //If the grid is clicked to set a new cell, this is the way to inform this component
     const cellValueInputBox = ref(null)
-    defineExpose({
-        cellValueInputBox
+    const cellKeyInputBox = ref(null)
+    nextTick(() => {
+        if (props.focusCellKey) {
+            if (cellKeyInputBox.value)
+                cellKeyInputBox.value.focus()
+        } else {
+            if (cellValueInputBox.value)
+                cellValueInputBox.value.focus()
+        }
     })
 </script>
 
@@ -75,7 +82,7 @@
         <div class="PanelHeader"> Edit cell:  </div>
         <!------CELL KEY------>
         <div class="SheetEditingRow">
-            <input v-model="selectedCellInput" class="editCurCellKey" />
+            <input v-model="selectedCellInput" class="editCurCellKey" ref="cellKeyInputBox" />
         </div>
 
         <!------CELL VALUE------>

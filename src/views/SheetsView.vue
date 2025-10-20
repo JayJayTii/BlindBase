@@ -23,7 +23,7 @@
     function updateSheetID(index) { //Triggered by SheetSelect component
         if (sheetID.value != sheetStore.sheets[index].id) {
             sheetID.value = sheetStore.sheets[index].id
-            onCellClicked({ x: 0, y: 0 })
+            nextTick(() => { onCellClicked({ x: 0, y: 0 }) })
         }
     }
     async function deleteSheet() {
@@ -34,15 +34,11 @@
         sheetID.value = -1
     }
 
+    const focusCellKey = ref(false)
     function onCellClicked(newValue) {
         selectedCell.x = newValue.x
         selectedCell.y = newValue.y
         gridRef.value.changeHighlightedCells([selectedCell])
-        //Focus the input box in nextTick as it needs to start being rendered again before being accessible
-        nextTick(() => {
-            if (editCellRef.value.cellValueInputBox)
-                editCellRef.value.cellValueInputBox.focus()
-        })
     }
 
     //Grid cannot dynamically update highlighted cells after setting change, so just reset them
@@ -74,7 +70,7 @@
                    :sheet="sheetStore.getSheet(sheetID)"
                    :showIfNull="true"
                    :key="sheetID"
-                   @update:selected-cell="onCellClicked" />
+                   @update:selected-cell="(event) => {onCellClicked(event);focusCellKey=false;}" />
 
         <!--------RIGHT COLUMN-------->
         <div class="PanelColumn">
@@ -82,7 +78,8 @@
                       ref="editCellRef"
                       :key="sheetID + '-' + selectedCell.x+ '-' + selectedCell.y + '-' + (sheetStore.getSheet(sheetID)?.type || -1)"
                       :sheetID="sheetID" :selectedCell="selectedCell"
-                      @cellKeyChanged="onCellClicked" />
+                      :focusCellKey="focusCellKey"
+                      @cellKeyChanged="(event) => {onCellClicked(event);focusCellKey=true;}" />
         </div>
     </div>
 </template>

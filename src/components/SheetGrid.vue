@@ -25,10 +25,31 @@
     const leftColumn = ref(null)
     const topRow = ref(null)
     const mainGrid = ref(null)
-    function syncScroll() {
+    let suppressScrollSync = false
+    let prevScrollX = 0
+    let prevScrollY = 0
+    function syncScrollToGrid() {
         if (leftColumn.value && topRow.value && mainGrid.value) {
             leftColumn.value.scrollTop = mainGrid.value.scrollTop
             topRow.value.scrollLeft = mainGrid.value.scrollLeft
+        }
+    }
+    function syncScrollToLeftColumn() {
+        if (suppressScrollSync)
+            return
+        if (leftColumn.value && topRow.value && mainGrid.value) {
+            mainGrid.value.scrollTop = leftColumn.value.scrollTop
+            if (mainGrid.value.scrollTop < leftColumn.value.scrollTop) //Gone past grid height
+                leftColumn.value.scrollTop = mainGrid.value.scrollTop
+        }
+    }
+    function syncScrollToTopRow() {
+        if (suppressScrollSync)
+            return
+        if (leftColumn.value && topRow.value && mainGrid.value) {
+            mainGrid.value.scrollLeft = topRow.value.scrollLeft
+            if (mainGrid.value.scrollLeft < topRow.value.scrollLeft) //Gone past grid width
+                topRow.value.scrollLeft = mainGrid.value.scrollLeft
         }
     }
 
@@ -102,6 +123,40 @@
     function changeHighlightedCells(newValue) {
         //New values will be absolute, not visual
         highlightedCells.value = !flipped.value ? newValue : newValue.map(coord => ({ x: coord.y, y: coord.x }))
+        if (highlightedCells.value.length > 1)
+            return
+
+        //Scroll to make sure if there is one highlightedCell, it is visible
+        const parent = mainGrid.value
+        const child = document.getElementById(highlightedCells.value[0].x.toString() + ',' + highlightedCells.value[0].y.toString())
+        const parentRect = parent.getBoundingClientRect()
+        const childRect = child.getBoundingClientRect()
+
+        const isVisible = childRect.top >= parentRect.top &&
+            childRect.bottom <= parentRect.bottom &&
+            childRect.left >= parentRect.left &&
+            childRect.right <= parentRect.right
+        if (isVisible)
+            return
+
+        suppressScrollSync = true
+        const offsetTop = childRect.top - parentRect.top + parent.scrollTop - (parent.clientHeight / 2) + (child.clientHeight / 2)
+        const offsetLeft = childRect.left - parentRect.left + parent.scrollLeft - (parent.clientWidth / 2) + (child.clientWidth / 2)
+        parent.scrollTo({ top: offsetTop, left: offsetLeft, behavior: 'smooth' })
+
+        //Suppress scroll syncing until scroll delta between frames is 0
+        prevScrollX = parent.scrollLeft
+        prevScrollY = parent.scrollTop
+
+        let intervalID
+        intervalID = setInterval(() => {
+            if (Math.abs(prevScrollX - parent.scrollLeft) == 0 && Math.abs(prevScrollY - parent.scrollTop) == 0) {
+                suppressScrollSync = false
+                clearInterval(intervalID)
+            }
+            prevScrollX = parent.scrollLeft
+            prevScrollY = parent.scrollTop
+        }, 50)
     }
 
     defineExpose({
@@ -117,7 +172,7 @@
         </div>
 
         <!-----COLUMN HEADINGS----->
-        <div class="SheetGridTopRow" ref="topRow">
+        <div class="SheetGridTopRow" ref="topRow" @scroll="syncScrollToTopRow">
             <div v-for="(char,index) in getXHeadings(sheet)"
                  class="SheetGridCell"
                  :style="{ cursor: props.fullLineSelection ? 'pointer' : 'default' }"
@@ -128,7 +183,7 @@
         </div>
 
         <!-----ROW HEADINGS----->
-        <div class="SheetGridLeftColumn" ref="leftColumn">
+        <div class="SheetGridLeftColumn" ref="leftColumn" @scroll="syncScrollToLeftColumn">
             <div v-for="(char, index) in getYHeadings(sheet)"
                  class="SheetGridCell"
                  :style="{ cursor: props.fullLineSelection ? 'pointer' : 'default' }"
@@ -139,10 +194,11 @@
         </div>
 
         <!---------GRID--------->
-        <div class="SheetGrid" ref="mainGrid" @scroll="syncScroll">
+        <div class="SheetGrid" ref="mainGrid" @scroll="syncScrollToGrid">
             <div v-for="(row, y) in 24">
                 <div v-for="(col, x) in 24"
                      @click="emit('update:selected-cell', !flipped ? {x:x,y:y} : {x:y,y:x})"
+                     :id="x.toString() + ',' + y.toString()"
                      :class="['SheetGridCell', formatEmpty && props.sheet.grid[!flipped ? y : x][!flipped ? x : y] === '' ? 'SheetGridCellEmpty' : 'SheetGridCellHoverable' ,
                      Array.isArray(highlightedCells) && highlightedCells.some((cell)=>cell.x === x && cell.y === y) ? 'SheetGridCellHightlighted' : '']"
                     >
@@ -186,65 +242,67 @@
         border-inline-end: 2px solid var(--border-color);
     }
 
-.SheetGridTopRow {
-    display: flex;
-    flex-direction: row;
-    grid-area: top;
-    overflow-x: hidden;
-}
-
-.SheetGridTopRow .SheetGridCell {
-    background-color: var(--brand-700);
-    min-width: var(--sheet-cell-width);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.SheetGridLeftColumn {
-    grid-area: left;
-    overflow-y: hidden;
-}
-    .SheetGridLeftColumn::after {
-        content: '';
-        display: block;
-        height: 50px;
+    .SheetGridTopRow {
+        display: flex;
+        flex-direction: row;
+        grid-area: top;
+        overflow-x: auto;
+        scrollbar-width: none;
     }
-    .SheetGridLeftColumn .SheetGridCell {
+
+    .SheetGridTopRow .SheetGridCell {
         background-color: var(--brand-700);
-        height: var(--sheet-cell-height);
-        width: var(--sheet-cell-height);
+        min-width: var(--sheet-cell-width);
         display: flex;
         justify-content: center;
         align-items: center;
-        border-inline-end: 2px solid var(--border-color);
     }
-
-.SheetGridCell {
-    padding: 0px 4px;
-    border: 1px solid var(--border-color);
-    overflow: hidden;
-    text-overflow: ellipsis;
-    color: var(--text-color);
-    white-space: nowrap;
-    background-color: transparent;
-    font-size: 14px;
-    word-break: break-word;
-    height: var(--sheet-cell-height);
-    line-height: var(--sheet-cell-height);
-    width: var(--sheet-cell-width);
-    cursor: pointer;
-}
-.SheetGridCellHoverable:hover {
-    background-color: var(--grey-700);
-}
-
-.SheetGridCellEmpty {
-    background-color: var(--brand-800);
-    cursor: default;
-}
-
-.SheetGridCellHightlighted {
-    border: 3px solid var(--grey-100);
-}
+    
+    .SheetGridLeftColumn {
+        grid-area: left;
+        overflow-y: auto;
+        scrollbar-width:none;
+    }
+        .SheetGridLeftColumn::after {
+            content: '';
+            display: block;
+            height: 50px;
+        }
+        .SheetGridLeftColumn .SheetGridCell {
+            background-color: var(--brand-700);
+            height: var(--sheet-cell-height);
+            width: var(--sheet-cell-height);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-inline-end: 2px solid var(--border-color);
+        }
+    
+    .SheetGridCell {
+        padding: 0px 4px;
+        border: 1px solid var(--border-color);
+        overflow: hidden;
+        text-overflow: ellipsis;
+        color: var(--text-color);
+        white-space: nowrap;
+        background-color: transparent;
+        font-size: 14px;
+        word-break: break-word;
+        height: var(--sheet-cell-height);
+        line-height: var(--sheet-cell-height);
+        width: var(--sheet-cell-width);
+        cursor: pointer;
+    }
+    .SheetGridCellHoverable:hover {
+        background-color: var(--grey-700);
+    }
+    
+    .SheetGridCellEmpty {
+        background-color: var(--brand-800);
+        cursor: default;
+    }
+    
+    .SheetGridCellHightlighted {
+        border: 3px solid var(--grey-100);
+    }
 </style>
