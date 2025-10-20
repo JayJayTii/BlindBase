@@ -108,7 +108,7 @@ export async function CreateSheetFromFile(file) {
     let sheetGrid = Array.from({ length: 24 }, () =>
         Array.from({ length: 24 }, () => ""),
     )
-    const flipped = useSettingsStore().sheets_pairorder === 1
+    const flipped = useSettingsStore().settings.sheets_pairorder === 1
     for (var i = 0; i < yHeadingsLength; i++) {
         for (var j = 0; j < xHeadingsLength; j++) {
             const y = yHeadings[i].charCodeAt(0) - 'A'.charCodeAt(0)

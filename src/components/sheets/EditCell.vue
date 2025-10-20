@@ -90,7 +90,7 @@
             <input v-model="selectedCellValue"
                    ref="cellValueInputBox"
                    maxlength="50"
-                   :key="settingsStore.sheets_pairorder"
+                   :key="settingsStore.settings.sheets_pairorder"
                    style="width:100%;" />
         </div>
 

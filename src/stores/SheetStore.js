@@ -143,7 +143,7 @@ export const useSheetStore = defineStore('sheetStore', {
         //Coord conversions are duplicated for clarity
         absoluteToVisual(absoluteCoord) {
             var visualCoord = { ...absoluteCoord }
-            if (getSettingsStore().sheets_pairorder == 1) {
+            if (getSettingsStore().settings.sheets_pairorder == 1) {
                 visualCoord.x = absoluteCoord.y
                 visualCoord.y = absoluteCoord.x
             }
@@ -151,7 +151,7 @@ export const useSheetStore = defineStore('sheetStore', {
         },
         visualToAbsolute(visualCoord) {
             var absoluteCoord = { ...visualCoord }
-            if (getSettingsStore().sheets_pairorder == 1) {
+            if (getSettingsStore().settings.sheets_pairorder == 1) {
                 absoluteCoord.x = visualCoord.y
                 absoluteCoord.y = visualCoord.x
             }

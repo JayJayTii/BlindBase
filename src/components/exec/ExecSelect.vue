@@ -195,7 +195,7 @@
     }
 
     watch(
-        () => settingsStore.sheets_pairorder,
+        () => settingsStore.settings.sheets_pairorder,
         (newVal) => {
             generateCustomPairSheet()
         }

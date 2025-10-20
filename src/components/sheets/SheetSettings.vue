@@ -33,7 +33,7 @@
 
     function downloadSheet() {
         const sheet = sheetStore.getSheet(props.sheetID)
-        const flipped = settingsStore.sheets_pairorder === 1
+        const flipped = settingsStore.settings.sheets_pairorder === 1
 
         let csvString = "," + sheet.xHeadings.split('').join(',') + ",\n"
         for (var i = 0; i < sheet.yHeadings.length; i++) {

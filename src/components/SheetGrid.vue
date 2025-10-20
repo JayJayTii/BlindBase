@@ -19,7 +19,7 @@
         get: () => props.sheet
     })
     const flipped = computed({
-        get: () => settingsStore.sheets_pairorder === 1
+        get: () => settingsStore.settings.sheets_pairorder === 1
     })
 
     //Grid and headings are separate, so their scrolls need to be synchronised
@@ -60,7 +60,7 @@
         if (!props.fullLineSelection)
             return
 
-        const flipped = (settingsStore.sheets_pairorder === 1)
+        const flipped = (settingsStore.settings.sheets_pairorder === 1)
 
         let filledCellsInColumn = 0
         for (var i = 0; i < sheet.value.yHeadings.length; i++) {
@@ -92,7 +92,7 @@
         if (!props.fullLineSelection)
             return
 
-        const flipped = (settingsStore.sheets_pairorder === 1)
+        const flipped = (settingsStore.settings.sheets_pairorder === 1)
 
         let filledCellsInRow = 0
         for (var i = 0; i < sheet.value.xHeadings.length; i++) {
@@ -121,6 +121,7 @@
 
     //Highlighted cells are visual coords
     const highlightedCells = ref([{ x: -1, y: -1 }])
+    let intervalID = null
     function changeHighlightedCells(newValue) {
         //New values will be absolute, not visual
         highlightedCells.value = !flipped.value ? newValue : newValue.map(coord => ({ x: coord.y, y: coord.x }))
@@ -142,6 +143,9 @@
         if (isVisible)
             return
 
+        if (intervalID != null)
+            clearInterval(intervalID)
+
         suppressScrollSync = true
         const offsetTop = childRect.top - parentRect.top + parent.scrollTop - (parent.clientHeight / 2) + (child.clientHeight / 2)
         const offsetLeft = childRect.left - parentRect.left + parent.scrollLeft - (parent.clientWidth / 2) + (child.clientWidth / 2)
@@ -151,7 +155,6 @@
         prevScrollX = parent.scrollLeft
         prevScrollY = parent.scrollTop
 
-        let intervalID
         intervalID = setInterval(() => {
             if (Math.abs(prevScrollX - parent.scrollLeft) == 0 && Math.abs(prevScrollY - parent.scrollTop) == 0) {
                 suppressScrollSync = false
@@ -172,8 +175,9 @@
             classes.push('SheetGridCellEmpty')
         else {
             const letters = "ABCDEFGHIJKLMNOPQRSTUVWX"
-            if ((props.sheet.type == 1 && !allCornerPairs.includes(letters[x] + letters[y]))
-                || (props.sheet.type == 2 && !allEdgePairs.includes(letters[x] + letters[y]))) {
+            if (settingsStore.settings.sheets_greyoutinvalidpairs && (
+                (props.sheet.type == 1 && !allCornerPairs.includes(letters[x] + letters[y]))
+                || (props.sheet.type == 2 && !allEdgePairs.includes(letters[x] + letters[y])))) {
                 classes.push('SheetGridCellGreyed')
             }
             classes.push('SheetGridCellHoverable')

@@ -1,10 +1,5 @@
 import { defineStore } from 'pinia'
-import { useSettingsStore } from './SettingsStore'
 import { formatTime } from '@/helpers/timer.js'
-
-export function getSettingsStore() {
-    return useSettingsStore()
-}
 
 const DEFAULT_SESSION_TYPES = [
     { name: '3x3 Blindfolded', id: 0 },

@@ -1,30 +1,12 @@
 <script setup>
     import { computed } from 'vue'
-    import { useSettingsStore } from '.././stores/SettingsStore'
+    import { defaults, useSettingsStore } from '.././stores/SettingsStore'
     const settingsStore = useSettingsStore()
     settingsStore.loadState()
 
-    const Sheets_PairOrder = computed({
-        get: () => settingsStore.sheets_pairorder,
-        set: (newValue) => {
-            settingsStore.sheets_pairorder = newValue
-            settingsStore.saveState()
-        },
-    })
-    const Sheets_NotationType = computed({
-        get: () => settingsStore.sheets_notationtype,
-        set: (newValue) => {
-            settingsStore.sheets_notationtype = newValue
-            settingsStore.saveState()
-        },
-    })
-    const Sheets_ExtraXImages = computed({
-        get: () => settingsStore.sheets_extraximages,
-        set: (newValue) => {
-            settingsStore.sheets_extraximages = newValue
-            settingsStore.saveState()
-        },
-    })
+    function SettingUpdated() {
+        settingsStore.saveState()
+    }
 </script>
 
 <template>
@@ -32,38 +14,34 @@
         <h1>Settings</h1>
         <div class="Subsettings">
             <h2>Sheets Settings</h2>
-            <div class="Settings_Sheets_PairOrder">
-                {{ settingsStore.sheets_pairorder_definition.name }}:
-                <select v-model="Sheets_PairOrder">
-                    <option
-                        v-for="(type, index) in settingsStore.sheets_pairorder_definition.options"
-                        :key="index"
-                        :value="index"
-                    >
+            <div id="Sheets pair order">
+                {{ defaults.sheets_pairorder.name }}:
+                <select v-model="settingsStore.settings.sheets_pairorder" @change="SettingUpdated">
+                    <option v-for="(type, index) in defaults.sheets_pairorder.options"
+                            :key="index"
+                            :value="index">
                         {{ type.name }}
                     </option>
                 </select>
             </div>
-            <div class="Settings_Sheets_NotationType">
-                {{ settingsStore.sheets_notationtype_definition.name }}:
-                <select v-model="Sheets_NotationType">
-                    <option
-                        v-for="(type, index) in settingsStore.sheets_notationtype_definition
+            <div id="Sheets Notation Type">
+                {{ defaults.sheets_notationtype.name }}:
+                <select v-model="settingsStore.settings.sheets_notationtype" @change="SettingUpdated">
+                    <option v-for="(type, index) in defaults.sheets_notationtype
                             .options"
-                        :key="index"
-                        :value="index"
-                    >
+                            :key="index"
+                            :value="index">
                         {{ type.name }}
                     </option>
                 </select>
             </div>
-            <div class="Settings_Sheets_ExtraXImages">
-                {{ settingsStore.sheets_extraximages_definition.name }}:
-                <input
-                    v-model="Sheets_ExtraXImages"
-                    type="checkbox"
-                    class="Settings_Sheets_ExtraXImages"
-                />
+            <div id="Sheets Extra X Images">
+                {{ defaults.sheets_extraximages.name }}:
+                <input v-model="settingsStore.settings.sheets_extraximages" type="checkbox"  @change="SettingUpdated"/>
+            </div>
+            <div id="Sheets Grey Out Invalid Pairs">
+                {{ defaults.sheets_greyoutinvalidpairs.name }}:
+                <input v-model="settingsStore.settings.sheets_greyoutinvalidpairs" type="checkbox"  @change="SettingUpdated"/>
             </div>
             <h2>Cards Settings</h2>
         </div>

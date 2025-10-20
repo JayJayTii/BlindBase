@@ -11,10 +11,10 @@ export function getRecommendations(pieceType, key) {
             return []
         case 1:
             //Corners
-            return getCornerRecommendations(key, useSettingsStore().sheets_notationtype)
+            return getCornerRecommendations(key, useSettingsStore().settings.sheets_notationtype)
         case 2:
             //Edges
-            return getEdgeRecommendations(key, useSettingsStore().sheets_notationtype)
+            return getEdgeRecommendations(key, useSettingsStore().settings.sheets_notationtype)
         case 3:
             //Images
             return getImageRecommendations(key)
@@ -84,6 +84,8 @@ function getCornerRecommendations(baseKey, notationType) {
 
         //Each of these equivalent keys could have multiple algs
         for (var alg of cornerData[key]) {
+            if (alg[notationType] == "Not found.")
+                continue
             allComms.push(alg[notationType])
         }
     }
@@ -99,6 +101,8 @@ function getEdgeRecommendations(baseKey, notationType) {
 
         //Each of these equivalent keys could have multiple algs
         for (var alg of edgeData[key]) {
+            if (alg[notationType] == "Not found.")
+                continue
             allComms.push(alg[notationType])
         }
     }
@@ -107,7 +111,7 @@ function getEdgeRecommendations(baseKey, notationType) {
 
 function getImageRecommendations(baseKey) {
     let result = imageData[baseKey]
-    if (!(baseKey.includes('X') && useSettingsStore().sheets_extraximages == true)) return result
+    if (!(baseKey.includes('X') && useSettingsStore().settings.sheets_extraximages == true)) return result
 
     //Get every combination of X/ʧ options
     if (baseKey[0] == 'X') {

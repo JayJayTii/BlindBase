@@ -43,7 +43,7 @@
 
     //Grid cannot dynamically update highlighted cells after setting change, so just reset them
     watch(
-        () => settingsStore.sheets_pairorder,
+        () => settingsStore.settings.sheets_pairorder,
         (newVal) => {
             onCellClicked({ x: 0, y: 0 })
         }
@@ -76,7 +76,7 @@
         <div class="PanelColumn">
             <EditCell style="width:100%; height: 100%;"
                       ref="editCellRef"
-                      :key="sheetID + '-' + selectedCell.x+ '-' + selectedCell.y + '-' + (sheetStore.getSheet(sheetID)?.type || -1)"
+                      :key="sheetID + '-' + selectedCell.x+ '-' + selectedCell.y + '-' + (sheetStore.getSheet(sheetID)?.type || -1) + '-' + settingsStore.settings.sheets_notationtype.toString() + '-' + settingsStore.settings.sheets_extraximages.toString()"
                       :sheetID="sheetID" :selectedCell="selectedCell"
                       :focusCellKey="focusCellKey"
                       @cellKeyChanged="(event) => {onCellClicked(event);focusCellKey=true;}" />
