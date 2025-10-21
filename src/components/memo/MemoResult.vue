@@ -55,6 +55,6 @@
         <div style="height:20vh;"></div>
     </div>
     <img src="@/assets/arrow-right-long.svg"
-         class="NextButton"
+         :class="['CustomButton','NextButton']"
          @click="emit('endTurn')" />
 </template>

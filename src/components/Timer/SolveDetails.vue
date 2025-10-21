@@ -48,8 +48,8 @@
 
             <!------CONTROLS------>
             <div style="display:flex; justify-content:space-between;  width:100%;">
-                <img src="@/assets/ReconsIcon.png" class="DeleteButton" @click="Reconstruct()" />
-                <img src="@/assets/delete-bin.svg" @click="emit('deleteSolve')" class="DeleteButton" />
+                <img src="@/assets/ReconsIcon.png" class="CustomButton" style="width:65px; height:50px;" @click="Reconstruct()" />
+                <img src="@/assets/delete-bin.svg" @click="emit('deleteSolve')" class="CustomButton" style="width:50px; height:50px;" />
             </div>
         </div>
     </div>

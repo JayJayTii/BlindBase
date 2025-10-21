@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import { useSheetStore } from './SheetStore'
+import { useSettingsStore } from './SettingsStore'
 import { getCardType } from '@/helpers/cards.js'
 
 export function getSheetStore() {
@@ -72,7 +73,7 @@ export const useCardStore = defineStore('cardStore', {
             )
             //Take daily new card limit into account
             if (type === "New") {
-                const dailyNewCardsRemaining = 20 - this.dailyStats.dailyNewCards
+                const dailyNewCardsRemaining = Math.max(0, useSettingsStore().settings.cards_dailymaximumnewcards - this.dailyStats.dailyNewCards)
                 return cards.slice(0, dailyNewCardsRemaining)
             }
             return cards

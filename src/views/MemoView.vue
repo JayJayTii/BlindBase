@@ -169,23 +169,13 @@
     }
 
     .NextButton {
-        background-color: var(--brand-600);
-        border-radius: 5px;
-        cursor: pointer;
         height: 3rem;
         width: 80px;
         position: fixed;
         right: 0px;
         bottom: 0px;
-        display:flex;
-        align-items: center;
-        justify-content: center;
-        color: var(--brand-900);
         transform: translate(-100%, -100%);
     }
-        .NextButton:hover {
-            background-color: var(--brand-500);
-        }
 
     .MemoPair {
         border: 4px solid var(--brand-900);

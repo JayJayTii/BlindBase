@@ -88,7 +88,8 @@
                 <div>
                     <img @click="emit('sheetEditClicked', sheetStore.sheets[index].id);nextTick(()=>{UpdateSelectedCells()})"
                          src="@/assets/edit.svg"
-                         :class="['editButton', (sheetID === sheetStore.sheets[index].id) ? 'editButtonSelected': '']" />
+                         :class="['CustomButton', (sheetID === sheetStore.sheets[index].id) ? 'CustomButtonHovered': '']"
+                         style="height: 45px;"/>
                 </div>
                 <div>{{name}}</div>
                 <div>{{cardStore.getCardsForSheet(sheetStore.sheets[index].id).length}}/{{sheetStore.getFilledCellCount(sheetStore.sheets[index].id)}}</div>
@@ -99,7 +100,8 @@
                 <div>
                     <img v-if="cardStore.getCardsToPracticeCount(sheetStore.sheets[index].id) > 0"
                          src="@/assets/arrow-right-long.svg"
-                         class="PracticeButton"
+                         class="CustomButton"
+                         style="height: 45px; width: 100px;"
                          @click="emit('beginPractice',sheetStore.sheets[index].id)" />
                 </div>
                 <div class="RowGap" v-for="x in 8" v-if="index + 1 < sheetStore.sheets.length"></div>
@@ -114,8 +116,8 @@
         <div v-if="sheetStore.isValidSheetID(sheetID)" style="display:flex;flex-direction:column;gap:5px;">
             <h3 class="PanelHeader" style="font-size:5vh;padding-inline:10px;">Select flashcards to create from this sheet</h3>
             <div style="display:flex;flex-direction:row;gap:5px;justify-content:center">
-                <div class="cardSelectButton" @click="SelectAll()"><h3>Select all</h3></div>
-                <div class="cardSelectButton" @click="SelectNone()"><h3>Select none</h3></div>
+                <div class="CustomButton" style="font-size:1rem;width:110px;" @click="SelectAll()"><h3>Select all</h3></div>
+                <div class="CustomButton" style="font-size:1rem;width:110px;" @click="SelectNone()"><h3>Select none</h3></div>
             </div>
         </div>
 
@@ -154,31 +156,6 @@
         width: 110%;
         background-color: var(--border-color);
     }
-
-    .editButton {
-        cursor: pointer;
-        background-color: var(--brand-700);
-        border-radius: 5px;
-        height: 45px;
-    }
-        .editButton:hover {
-            background-color: var(--brand-500);
-        }
-
-    .editButtonSelected {
-        background-color: var(--brand-500);
-    }
-
-    .PracticeButton {
-        background-color: var(--brand-700);
-        border-radius: 5px;
-        cursor: pointer;
-        height: 45px;
-        width: 100px;
-    }
-        .PracticeButton:hover {
-            background-color: var(--brand-500);
-        }
 
     .cardSelectButton {
         background-color: var(--brand-700);

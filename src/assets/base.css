@@ -164,7 +164,8 @@ body {
 
 .CustomButton {
     background-color: var(--brand-600);
-    border-radius: 5px;
+    border: 1px solid var(--brand-100);
+    border-radius: 4px;
     cursor: pointer;
     color: var(--brand-900);
     font-weight: bold;
@@ -178,3 +179,6 @@ body {
     .CustomButton:hover {
         background-color: var(--brand-500);
     }
+.CustomButtonHovered {
+    background-color: var(--brand-500);
+}

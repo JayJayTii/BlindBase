@@ -19,6 +19,6 @@
 <template>
     <div style="font-size: 2rem">DISTRACTION GRAAAHHH</div>
     <img src="@/assets/arrow-right-long.svg"
-         class="NextButton"
+         :class="['CustomButton','NextButton']"
          @click="emit('setStage', 3)" />
 </template>

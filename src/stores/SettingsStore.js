@@ -18,6 +18,18 @@ export const defaults = {
     sheets_greyoutinvalidpairs: {
         name: 'Grey out invalid pairs',
         default: true,
+    },
+    cards_learningtoduethreshold: {
+        name: 'Card revisions before starting spaced repetition',
+        default: 5,
+        min: 2,
+        max: 20,
+    },
+    cards_dailymaximumnewcards: {
+        name: 'Daily maximum new cards',
+        default: 20,
+        min: 1,
+        max: 500,
     }
 }
 
@@ -26,7 +38,26 @@ export const useSettingsStore = defineStore('settingsStore', {
         return {}
     },
     actions: {
+        ValidateValues(data) {
+            const out = { ...data }
+            //Fill in any missing settings with defaults
+            for (const [key, value] of Object.entries(defaults)) {
+                if (!(out.hasOwnProperty(key)))
+                    out[key] = value.default
+                else {
+                    //Bound any number values
+                    if (defaults[key].hasOwnProperty("min") && out[key] < defaults[key].min)
+                        out[key] = defaults[key].min
+                    if (defaults[key].hasOwnProperty("max") && out[key] > defaults[key].max)
+                        out[key] = defaults[key].max
+                }
+            }
+            return out
+        },
+
         saveState() {
+            this.settings = this.ValidateValues(this.settings)
+
             localStorage.setItem(
                 'settingsStore',
                 JSON.stringify({
@@ -38,13 +69,8 @@ export const useSettingsStore = defineStore('settingsStore', {
             const data = JSON.parse(localStorage.getItem('settingsStore')) || {settings: {}}
             if (!data.hasOwnProperty("settings"))
                 data.settings = {}
-            const stored = data.settings
-            //Fill in any missing settings with defaults
-            for (const [key, value] of Object.entries(defaults)) {
-                if (!(stored.hasOwnProperty(key)))
-                    stored[key] = value.default
-            }
-            this.settings = stored
+            
+            this.settings = this.ValidateValues(data.settings)
             this.saveState()
         },
     },

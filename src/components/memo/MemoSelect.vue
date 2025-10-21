@@ -180,7 +180,9 @@
             </option>
         </select>
     </div>
-    <img src="@/assets/arrow-right-long.svg" class="NextButton" @click="StartRun()" />
+    <img src="@/assets/arrow-right-long.svg" 
+         :class="['CustomButton','NextButton']"
+         @click="StartRun()" />
 </template>
 
 <style>
