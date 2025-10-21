@@ -2,7 +2,7 @@
     import { nextTick, onMounted, onUnmounted, computed, watch, ref } from 'vue'
     import { FaceletCube } from '@/helpers/FaceletCube/FaceletCube.js'
     import { Sequence } from '@/helpers/sequence.js'
-    import { GetRandomRecommendation, getRecommendations } from '@/helpers/recommendations.js'
+    import { GetRandomRecommendation, getRecommendations, getCornerRecommendations, getEdgeRecommendations } from '@/helpers/recommendations.js'
     import { GetInspectionMoves, ToLetters } from '@/helpers/reconstruct.js'
     import FaceletCubeVisual from '@/components/FaceletCubeVisual.vue'
 
@@ -63,7 +63,13 @@
                 break
             const letter1 = props.letterSolution[0][2*i]
             const letter2 = props.letterSolution[0][2 * i + 1]
-            const newValue = cornerSheetID.value == -1 ? "" : sheetStore.getSheet(cornerSheetID.value).grid[letter2][letter1]
+            let newValue = cornerSheetID.value == -1 ? "" : sheetStore.getSheet(cornerSheetID.value).grid[letter2][letter1]
+            //If it's in comm notation, convert to alg notation
+            if (newValue.includes('[') && newValue.includes(',') && newValue.includes(']')) {
+                let commSequence = new Sequence()   
+                commSequence.setCommNotation(newValue)
+                newValue = commSequence.toString()
+            }
             cornerInput.value.push(newValue)
         }
         cornerInput.value.push("") //For the extra bit at the end
@@ -75,13 +81,19 @@
                 break
             const letter1 = props.letterSolution[1][2 * i]
             const letter2 = props.letterSolution[1][2 * i + 1]
-            const newValue = edgeSheetID.value == -1 ? "" : sheetStore.getSheet(edgeSheetID.value).grid[letter2][letter1]
+            let newValue = edgeSheetID.value == -1 ? "" : sheetStore.getSheet(edgeSheetID.value).grid[letter2][letter1]
+            //If it's in comm notation, convert to alg notation
+            if (newValue.includes('[') && newValue.includes(',') && newValue.includes(']')) {
+                let commSequence = new Sequence()
+                commSequence.setCommNotation(newValue)
+                newValue = commSequence.toString()
+            }
             edgeInput.value.push(newValue)
         }
         edgeInput.value.push("") //For the extra bit at the end
     }
     function FillCornerRecommendation(index) {
-        const recs = getRecommendations(1, cornerPairs[index])
+        const recs = getCornerRecommendations(cornerPairs[index], 0)
         let newRec = "" //Avoid giving the same recommendation again
         do {
             newRec = recs[Math.floor(Math.random() * recs.length)]
@@ -89,7 +101,7 @@
         cornerInput.value[index] = newRec
     }
     function FillEdgeRecommendation(index) {
-        const recs = getRecommendations(2, edgePairs[index])
+        const recs = getEdgeRecommendations(edgePairs[index], 0)
         let newRec = ""
         do {
             newRec = recs[Math.floor(Math.random() * recs.length)]

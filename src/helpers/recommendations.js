@@ -74,7 +74,7 @@ function getEquivalentEdgeComms(key) {
     return output
 }
 
-function getCornerRecommendations(baseKey, notationType) {
+export function getCornerRecommendations(baseKey, notationType) {
     //buffer is always included in the comm
     baseKey = 'C' + baseKey
     const equivalentKeys = getEquivalentCornerComms(baseKey)
@@ -91,7 +91,7 @@ function getCornerRecommendations(baseKey, notationType) {
     }
     return allComms
 }
-function getEdgeRecommendations(baseKey, notationType) {
+export function getEdgeRecommendations(baseKey, notationType) {
     //buffer is always included in the comm
     baseKey = 'C' + baseKey
     const equivalentKeys = getEquivalentEdgeComms(baseKey)

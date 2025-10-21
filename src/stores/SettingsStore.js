@@ -36,6 +36,8 @@ export const useSettingsStore = defineStore('settingsStore', {
         },
         loadState() {
             const data = JSON.parse(localStorage.getItem('settingsStore')) || {settings: {}}
+            if (!data.hasOwnProperty("settings"))
+                data.settings = {}
             const stored = data.settings
             //Fill in any missing settings with defaults
             for (const [key, value] of Object.entries(defaults)) {

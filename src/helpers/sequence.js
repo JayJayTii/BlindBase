@@ -91,6 +91,43 @@ export class Sequence {
             this.turns.push([turn[0], turnType])
         }
     }
+    setCommNotation(str) { //e.g. [U', R' D R] or U' R U':[R' U R,D'] or [R2 : [D, R' U R]]
+        let setup = str.match(/\[?(.*):/) //After [ (if there is one) and before :
+        setup = (setup == null) ? "" : setup[1]
+        const setupSeq = new Sequence()
+        setupSeq.setAlgorithmNotation(setup)
+
+        let part1 = str.match(/:.*\[(.*),/) //After : and [ and before ,
+        if (part1 == null) {//Comm notation must have at least stuff between [ and ,
+            this.turns = []
+            return
+        } else {
+            part1 = part1[1]
+        }
+        const part1Seq = new Sequence()
+        part1Seq.setAlgorithmNotation(part1)
+
+        let part2 = str.match(/,(.*)\]/) //After , and before ]
+        if (part2 == null) {
+            this.turns = []
+            return
+        } else {
+            part2 = part2[1].replace(']', '')
+        }
+        const part2Seq = new Sequence()
+        part2Seq.setAlgorithmNotation(part2)
+
+        part2Seq.setAlgorithmNotation(part2)
+        setupSeq.turns.forEach(turn => this.add([...turn]))
+        part1Seq.turns.forEach(turn => this.add([...turn]))
+        part2Seq.turns.forEach(turn => this.add([...turn]))
+        part1Seq.reverse()
+        part1Seq.turns.forEach(turn => this.add([...turn]))
+        part2Seq.reverse()
+        part2Seq.turns.forEach(turn => this.add([...turn]))
+        setupSeq.reverse()
+        setupSeq.turns.forEach(turn => this.add([...turn]))
+    }
 
     toString() {
         this.collapse()
