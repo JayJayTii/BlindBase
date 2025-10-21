@@ -2,10 +2,8 @@
     import { reactive} from "vue"
     import { useSheetStore } from "@/stores/SheetStore"
     const sheetStore = useSheetStore()
-    sheetStore.loadState()
     import { useCardStore } from "@/stores/CardStore"
     const cardStore = useCardStore()
-    cardStore.loadState()
 
     import Flashcard from "@/components/cards/Flashcard.vue"
 
@@ -79,12 +77,14 @@
         justify-content: center;
         align-items: center;
         text-align: center;
-        width: auto;
+        width: 100%;
+        height:100%;
         background-color: var(--brand-700);
         font-size: 2rem;
         color: var(--grey-100);
         border-radius: 10px;
-        font-size: 4vw;
+        font-size: 3rem;
+        word-break: break-all;
     }
 
     .RemainingPanel {

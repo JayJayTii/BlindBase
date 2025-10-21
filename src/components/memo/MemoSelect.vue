@@ -41,7 +41,7 @@
             ...new Set(
                 cardStore.cards
                     .filter((card) => card.successCount > 0)
-                    .map((card) => card.reference.sheetID),
+                    .map((card) => card.sheetID),
             ),
         ].map((sheetID) => sheetStore.getSheet(sheetID))
         return out.filter((sheet) => sheet.type === 3) //Filter for image sheets
@@ -49,7 +49,7 @@
     function GetLearnedCards() {
         const out = cardStore.cards.filter((card) => card.successCount > 0)
         //Filter for image sheets
-        return out.filter((card) => sheetStore.getSheet(card.reference.sheetID).type === 3) 
+        return out.filter((card) => sheetStore.getSheet(card.sheetID).type === 3) 
     }
 
     function getPossiblePairs() {
@@ -79,13 +79,13 @@
         else if (props.pairSelect === 2) {
             //All cards for a sheet
             const relevantCards = GetLearnedCards().filter(
-                (card) => card.reference.sheetID === pairSelectSheet.value.id,
+                (card) => card.sheetID === pairSelectSheet.value.id,
             )
             //Each card only has a coordinate, map it to the key in the sheet
             possiblePairs = relevantCards.map(
                 (card) =>
-                    pairSelectSheet.value.xHeadings[card.reference.coord.x] +
-                    pairSelectSheet.value.yHeadings[card.reference.coord.y],
+                    pairSelectSheet.value.xHeadings[card.coord.x] +
+                    pairSelectSheet.value.yHeadings[card.coord.y],
             )
         }
         return possiblePairs

@@ -117,8 +117,9 @@ export async function CreateSheetFromFile(file) {
         }
     }
 
-    //console.log(sheetGrid)
-    const name = file.name.slice(0, file.name.lastIndexOf('.')) //Remove file extension
+    let name = file.name.slice(0, file.name.lastIndexOf('.')) //Remove file extension
+    if (name.length > 20)
+        name = name.substr(0,20)
     useSheetStore().sheets.push({
         name: name,
         id: useSheetStore().getNewSheetID(),

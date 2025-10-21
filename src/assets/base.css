@@ -164,7 +164,7 @@ body {
 
 .CustomButton {
     background-color: var(--brand-600);
-    border: 1px solid var(--brand-100);
+    border: 1px solid var(--brand-900);
     border-radius: 4px;
     cursor: pointer;
     color: var(--brand-900);

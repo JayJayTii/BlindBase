@@ -5,6 +5,9 @@
     import { Sequence } from '@/helpers/sequence.js'
     import { GetRandomRecommendation } from '@/helpers/recommendations.js'
     import { scramblers } from '@/helpers/solver/scramble_333_edit.js'
+    import { useSettingsStore } from '@/stores/SettingsStore'
+    const settingsStore = useSettingsStore()
+    settingsStore.loadState()
 
     nextTick(() => { scramblers['333'].initialize(null, Math) })
 
@@ -58,7 +61,8 @@
 </script>
 
 <template>
-    <ExecSelect ref="select" @update:on-selected="updatePossiblePairs"/>
+    <ExecSelect ref="select" :key="settingsStore.settings.sheets_pairorder" 
+                @update:on-selected="updatePossiblePairs"/>
 
     <Timer v-if="selectionFinished()"
                :key="timerKey"

@@ -30,7 +30,7 @@ export const useSheetStore = defineStore('sheetStore', {
         getNewSheetID() {
             //Every sheet has a unique ID so that the names can be the same
             //Consider making it a big random number? Currently a new ID can be created that has been used before
-            //Which means things like reconStore saving preferred algsheet ID will be wrong
+            //which means things like reconStore saving preferred algsheet ID will be wrong
             const existingIDs = new Set(this.sheets.map((s) => s.id))
             let newID = 1
             while (existingIDs.has(newID)) {
@@ -80,9 +80,8 @@ export const useSheetStore = defineStore('sheetStore', {
             const grid = this.sheets[this.getSheetIndexWithID(id)].grid
             const rows = Object.values(grid)
             return rows.reduce(function (a, b) {
-                    return a.concat(b)
-                })
-                .filter((val) => val != '').length
+                return a.concat(b)
+            }).filter((val) => val != '').length
         },
 
         getSheetIndexWithID(id) {

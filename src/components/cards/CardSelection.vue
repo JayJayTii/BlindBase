@@ -2,10 +2,8 @@
     import { inject, ref, watch, nextTick } from 'vue'
     import { useSheetStore } from "@/stores/SheetStore"
     const sheetStore = useSheetStore()
-    sheetStore.loadState()
     import { useCardStore } from "@/stores/CardStore"
     const cardStore = useCardStore()
-    cardStore.loadState()
     import { useSettingsStore } from "@/stores/SettingsStore"
     const settingsStore = useSettingsStore()
     settingsStore.loadState()
@@ -19,50 +17,110 @@
     })
     const emit = defineEmits(['sheetEditClicked','beginPractice'])
 
-    const columnHeaders = ['','Sheet','Flashcards','','New','Learning','Due','']
+    const columnHeaders = ['Sheet','Flashcards','','New','Learning','Due', '']
     const gridRef = ref(null)
-    const selectedCells = ref([])
+    const selectedCells = ref(Array.from({ length: 24 }, () =>
+        Array.from({ length: 24 }, () => false),
+    )) //Selected cells stored as a matrix of booleans which say if that cell is selected
+
     function UpdateSelectedCells() {
-        selectedCells.value = cardStore.getCardsForSheet(props.sheetID).map(card => card.reference.coord)
-        gridRef.value.changeHighlightedCells(selectedCells.value)
+        const cardsInSheet = cardStore.getCardsForSheet(props.sheetID)
+        selectedCells.value = Array.from({ length: 24 }, () => Array.from({ length: 24 }, () => false))
+        for (const card of cardsInSheet) {
+             selectedCells.value[card.coord.y][card.coord.x] = true
+        }
+        const formattedSelectedCells = selectedCells.value.map((row, rowIndex) =>
+            row.map((cell, colIndex) => {
+                    return cell ? { x: colIndex, y: rowIndex } : null
+            }).filter(cell => cell != null)).flat()
+        gridRef.value.changeHighlightedCells(formattedSelectedCells)
     }
+    nextTick(() => { UpdateSelectedCells() }) 
 
     function SelectAll() {
+        const sheet = sheetStore.getSheet(props.sheetID)
+        const cardsToCreate = []
         for (var i = 0; i < 24; i++) {
             for (var j = 0; j < 24; j++) {
-                if (selectedCells.value.filter(cell => cell.y === i && cell.x === j).length > 0) {
-                    continue //Already in the array
+                const wasSelected = selectedCells.value[i][j]
+                selectedCells.value[i][j] = (sheet.grid[i][j] != "")
+                if (!wasSelected && selectedCells.value[i][j]) {
+                    cardsToCreate.push({ x: j, y: i })
                 }
-                onCellClicked({ x: j, y: i }) //Takes care of if its already empty
             }
         }
+        cardStore.createCards(props.sheetID, cardsToCreate)
+        UpdateSelectedCells()
     }
     async function SelectNone() {
         if (!(await confirmDialog.value.open('Are you sure you want deselect all? This will delete all cards for this sheet.'))) {
             return
         }
 
-        const selectedCellsCopy = [...selectedCells.value]
-        selectedCellsCopy.forEach((card) => {
-            onCellClicked(card)
-        })
+        const cardsToDelete = []
+        for (var i = 0; i < 24; i++) {
+            for (var j = 0; j < 24; j++) {
+                if (selectedCells.value[i][j]) {
+                    cardsToDelete.push({ x: j, y: i })
+                }
+                selectedCells.value[i][j] = false
+            }
+        }
+        cardStore.deleteCards(props.sheetID, cardsToDelete)
+        UpdateSelectedCells()
     }
 
     function onCellClicked(value) {
-        if (sheetStore.getCell(props.sheetID, value) === "") {
+        const sheet = sheetStore.getSheet(props.sheetID)
+        if (sheet.grid[value.y][value.x] === "") {
             return //Empty cell, not allowed!
         }
-        if (selectedCells.value.some(cell => cell.x === value.x && cell.y === value.y)) {
+        if (selectedCells.value[value.y][value.x] == true) {
             //If it already includes it, remove it
-            selectedCells.value = selectedCells.value.filter(cell => !(cell.x === value.x && cell.y === value.y))
+            selectedCells.value[value.y][value.x] = false
             cardStore.deleteCard(props.sheetID, value)
         }
         else {
             //If it wasn't in it, add it
-            selectedCells.value.push(value)
+            selectedCells.value[value.y][value.x] = true
             cardStore.createCard(props.sheetID, value)
         }
-        gridRef.value.changeHighlightedCells(selectedCells.value)
+        UpdateSelectedCells()
+    }
+    function lineClicked(isCol, index) {
+        const sheet = sheetStore.getSheet(props.sheetID)
+        let lineFilled = true
+        for (var i = 0; i < sheet.grid.length; i++) {
+            if (sheet.grid[isCol ? i : index][isCol ? index : i] != ''
+                && !selectedCells.value[isCol ? i : index][isCol ? index : i]) {
+                lineFilled = false
+                break
+            }
+        }
+
+        if (lineFilled) { //Delete cards in line
+            const cardsToDelete = []
+            for (var i = 0; i < 24; i++) {
+                if (selectedCells.value[isCol ? i : index][isCol ? index : i]) {
+                    cardsToDelete.push({ x: (isCol ? index : i), y: (isCol ? i : index) })
+                }
+                selectedCells.value[isCol ? i : index][isCol ? index : i] = false
+            }
+            cardStore.deleteCards(props.sheetID, cardsToDelete)
+        }
+        else { //Add unadded cards
+            const cardsToCreate = []
+            for (var i = 0; i < 24; i++) {
+                const wasSelected = selectedCells.value[isCol ? i : index][isCol ? index : i]
+                const newValue = (sheet.grid[isCol ? i : index][isCol ? index : i] != "")
+                selectedCells.value[isCol ? i : index][isCol ? index : i] = newValue
+                if (!wasSelected && newValue == true) {
+                    cardsToCreate.push({ x: (isCol ? index : i), y: (isCol ? i : index) })
+                }
+            }
+            cardStore.createCards(props.sheetID, cardsToCreate)
+        }
+        UpdateSelectedCells()
     }
 
     watch(
@@ -85,14 +143,13 @@
 
             <!------SHEET ROWS------>
             <template v-for="(name,index) in sheetStore.getSheetNames">
-                <div>
+                <div>{{name}}</div>
+                <div style="display:flex;flex-direction:row; justify-content:center;gap:10px;align-items:center;">{{cardStore.getCardsForSheet(sheetStore.sheets[index].id).length}}/{{sheetStore.getFilledCellCount(sheetStore.sheets[index].id)}}
                     <img @click="emit('sheetEditClicked', sheetStore.sheets[index].id);nextTick(()=>{UpdateSelectedCells()})"
                          src="@/assets/edit.svg"
                          :class="['CustomButton', (sheetID === sheetStore.sheets[index].id) ? 'CustomButtonHovered': '']"
-                         style="height: 45px;"/>
+                         style="height: 2rem;" />
                 </div>
-                <div>{{name}}</div>
-                <div>{{cardStore.getCardsForSheet(sheetStore.sheets[index].id).length}}/{{sheetStore.getFilledCellCount(sheetStore.sheets[index].id)}}</div>
                 <div />
                 <div>{{cardStore.getCardsOfType(sheetStore.sheets[index].id, "New").length}}</div>
                 <div>{{cardStore.getCardsOfType(sheetStore.sheets[index].id, "Learning").length}}</div>
@@ -104,7 +161,7 @@
                          style="height: 45px; width: 100px;"
                          @click="emit('beginPractice',sheetStore.sheets[index].id)" />
                 </div>
-                <div class="RowGap" v-for="x in 8" v-if="index + 1 < sheetStore.sheets.length"></div>
+                <div class="RowGap" v-for="x in columnHeaders.length" v-if="index + 1 < sheetStore.sheets.length"></div>
             </template>
         </div>
         <div v-if="sheetStore.sheets.length === 0" style="color:var(--info-200); font-size:1.5rem;">
@@ -125,6 +182,8 @@
                    :formatEmpty="true"
                    :fullLineSelection="true"
                    @update:selected-cell="onCellClicked"
+                   @update:full-column-selected="lineClicked(true, $event)"
+                   @update:full-row-selected="lineClicked(false, $event)"
                    ref="gridRef"
                    style="width:100%; height:79vh;" />
     </div>
@@ -148,7 +207,7 @@
         column-gap: 5px;
         row-gap:5px;
         color: var(--text-color);
-        grid-template-columns: 0.5fr 1fr 1fr 0.25fr 0.7fr 0.7fr 0.7fr 1fr;
+        grid-template-columns: 1fr 1fr 0.25fr 0.7fr 0.7fr 0.7fr 0.5fr;
     }
 
     .RowGap {

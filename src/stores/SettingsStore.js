@@ -57,7 +57,6 @@ export const useSettingsStore = defineStore('settingsStore', {
 
         saveState() {
             this.settings = this.ValidateValues(this.settings)
-
             localStorage.setItem(
                 'settingsStore',
                 JSON.stringify({

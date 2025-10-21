@@ -10,9 +10,6 @@
     import { useCardStore } from '@/stores/CardStore'
     const cardStore = useCardStore()
     cardStore.loadState()
-    import { useSettingsStore } from '@/stores/SettingsStore'
-    const settingsStore = useSettingsStore()
-    settingsStore.loadState()
 
     const emit = defineEmits(['update:on-selected'])
     defineExpose({
@@ -120,10 +117,10 @@
                 break
             case 2: //All pairs from cards
                 const cards = cardStore.cards
-                    .filter((card) => card.reference.sheetID == pairModeSheetID.value
+                    .filter((card) => card.sheetID == pairModeSheetID.value
                         && card.successCount > 0)
                 for (var i = 0; i < cards.length; i++) {
-                    pairs.push(sheetStore.coordToKey(pairModeSheetID.value, cards[i].reference.coord))
+                    pairs.push(sheetStore.coordToKey(pairModeSheetID.value, cards[i].coord))
                 }
                 break
             case 3: //All pairs from custom
@@ -144,7 +141,7 @@
             ...new Set(
                 cardStore.cards
                     .filter((card) => card.successCount > 0)
-                    .map((card) => card.reference.sheetID),
+                    .map((card) => card.sheetID),
             ),
         ].map((sheetID) => sheetStore.getSheet(sheetID))
         return out.filter((sheet) => sheet.type === Number(pieceType.value)) //Filter for image sheets
@@ -189,17 +186,57 @@
         }
         gridRef.value.changeHighlightedCells(highlightedCells.value)
         if (selectionFinished()) {
-            //let pairs = highlightedCells.value.map((cell) => customSheet.value.grid[cell.y][cell.x])
             GeneratePairsAndEmit()
         }
     }
-
-    watch(
-        () => settingsStore.settings.sheets_pairorder,
-        (newVal) => {
-            generateCustomPairSheet()
+    function columnClicked(columnIndex) {
+        let filledCellsInColumn = 0
+        for (var i = 0; i < customSheet.value.yHeadings.length; i++) {
+            if (customSheet.value.grid[i][columnIndex] !== "")
+                filledCellsInColumn++
         }
-    )
+        let highlightedCellsInColumn = highlightedCells.value.filter((coord) => (coord.y === columnIndex))
+        const columnFilled = highlightedCellsInColumn.length >= filledCellsInColumn
+
+        if (columnFilled) {
+            for (var i = 0; i < highlightedCellsInColumn.length; i++) {
+                onCustomPairClicked(highlightedCellsInColumn[i])
+            }
+        }
+        else {
+            highlightedCellsInColumn = highlightedCellsInColumn.map((coord) => coord.x)
+            for (var i = 0; i < customSheet.value.yHeadings.length; i++) {
+                //Select every cell that is in the column and not highlighted
+                if (customSheet.value.grid[columnIndex][i] !== "" && highlightedCellsInColumn.indexOf(i) == -1) {
+                    onCustomPairClicked({ x: i, y: columnIndex })
+                }
+            }
+        }
+    }
+    function rowClicked(rowIndex) {
+        let filledCellsInRow = 0
+        for (var i = 0; i < customSheet.value.xHeadings.length; i++) {
+            if (customSheet.value.grid[rowIndex][i] !== "")
+                filledCellsInRow++
+        }
+        let highlightedCellsInRow = highlightedCells.value.filter((coord) => (coord.x === rowIndex))
+        const rowFilled = highlightedCellsInRow.length >= filledCellsInRow
+
+        if (rowFilled) {
+            for (var i = 0; i < highlightedCellsInRow.length; i++) {
+                onCustomPairClicked(highlightedCellsInRow[i])
+            }
+        }
+        else {
+            highlightedCellsInRow = highlightedCellsInRow.map((coord) => coord.y)
+            for (var i = 0; i < customSheet.value.xHeadings.length; i++) {
+                //Select every cell that is in the row and not highlighted
+                if (customSheet.value.grid[rowIndex][i] !== "" && highlightedCellsInRow.indexOf(i) == -1) {
+                    onCustomPairClicked({ x: rowIndex, y: i })
+                }
+            }
+        }
+    }
 </script>
 
 <template>
@@ -240,7 +277,8 @@
             <img @click="editingCustomPairs = !editingCustomPairs;
                  nextTick(()=> {if(gridRef){gridRef.changeHighlightedCells(highlightedCells)}})"
             src="@/assets/edit.svg"
-            :class="['editButton', editingCustomPairs ? 'editButtonSelected': '']" />
+            :class="['CustomButton', editingCustomPairs ? 'CustomButtonHovered': '']"
+            style="height: 45px;"/>
         </div>
 
         <div class="ExecSelectLine" v-if="pairModeSelected" />
@@ -256,7 +294,9 @@
                :key="customSheet.value"
                :formatEmpty="true" :fullLineSelection="true"
                ref="gridRef"
-               @update:selected-cell="onCustomPairClicked"/>
+               @update:selected-cell="onCustomPairClicked"
+               @update:full-column-selected="rowClicked"
+               @update:full-row-selected="columnClicked"/>
 </template>
 
 <style>

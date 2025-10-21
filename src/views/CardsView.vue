@@ -2,6 +2,12 @@
     import { ref, onMounted, onUnmounted } from 'vue'
     import CardSelection from "@/components/cards/CardSelection.vue"
     import CardPractice from "@/components/cards/CardPractice.vue"
+    import { useSheetStore } from "@/stores/SheetStore"
+    const sheetStore = useSheetStore()
+    sheetStore.loadState()
+    import { useCardStore } from "@/stores/CardStore"
+    const cardStore = useCardStore()
+    cardStore.loadState()
 
     const sheetID = ref(-1)
     const practicing = ref(false);
@@ -23,11 +29,11 @@
     let intervalId
     const updateStatsKey = ref(0)
     function updateStats() {
-        updateStatsKey.value += 1;
+        updateStatsKey.value += 1
     }
     onMounted(() => {
         updateStats()
-        intervalId = setInterval(updateStats, 500)
+        intervalId = setInterval(updateStats, 5000)
     })
     onUnmounted(() => {
         clearInterval(intervalId)

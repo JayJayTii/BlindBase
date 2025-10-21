@@ -6,7 +6,6 @@
     sheetStore.loadState()
     import { useCardStore } from "@/stores/CardStore"
     const cardStore = useCardStore()
-    cardStore.loadState()
 
     const props = defineProps({
         sheetID: Number,
@@ -44,7 +43,7 @@
         }
     })
 
-    const lastCard = ref({ value: { algorithm: "test", reference: { coord: { x: 0, y: 0 } } } })
+    const lastCard = ref({ value: { sheetID: 0, coord: { x: 0, y: 0 } } })
     const lastFlipValue = ref(false)
     function finishedCard(result) {
         lastCard.value = { ...props.card }
@@ -156,9 +155,9 @@
         </div>
         <div class="FlashcardText">
             <div v-if="!cardFlipped">
-                {{sheetStore.coordToKey(props.sheetID, props.card.value.reference.coord)}}
+                {{sheetStore.coordToKey(props.sheetID, props.card.value.coord)}}
             </div>
-            <div v-else>{{props.card.value.algorithm}}</div>
+            <div v-else>{{sheetStore.getCell(props.sheetID, props.card.value.coord)}}</div>
         </div>
 
     </div>       
@@ -170,9 +169,9 @@
         </div>
         <div class="FlashcardText">
             <div v-if="!lastFlipValue">
-                {{sheetStore.coordToKey(props.sheetID, lastCard.value.reference.coord)}}
+                {{sheetStore.coordToKey(props.sheetID, lastCard.value.coord)}}
             </div>
-            <div v-else>{{lastCard.value.algorithm}}</div>
+            <div v-else>{{sheetStore.getCell(props.sheetID, lastCard.value.coord)}}</div>
         </div>
     </div>
 

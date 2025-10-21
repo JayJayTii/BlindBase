@@ -18,8 +18,9 @@ export const useCardStore = defineStore('cardStore', {
         createCard(sheetID, absoluteCoord) {
             //Push card to array and save
             const newCard = {
-                algorithm: getSheetStore().getCell(sheetID, absoluteCoord),
-                reference: { sheetID: sheetID, coord: absoluteCoord },
+                //algorithm: getSheetStore().getCell(sheetID, absoluteCoord),
+                sheetID: sheetID,
+                coord: absoluteCoord,
                 creationTime: new Date().toISOString(),
                 nextPracticeTime: new Date().toISOString(),
                 successCount: 0,
@@ -28,16 +29,45 @@ export const useCardStore = defineStore('cardStore', {
             this.cards.push(newCard)
             this.saveState()
         },
+        createCards(sheetID, absoluteCoords) {
+            //Push cards to array and save
+            const newCards = []
+            const sheet = getSheetStore().getSheet(sheetID)
+            for (const absoluteCoord of absoluteCoords) {
+                newCards.push({
+                    //algorithm: sheet.grid[absoluteCoord.y][absoluteCoord.x],
+                    sheetID: sheetID,
+                    coord: absoluteCoord,
+                    creationTime: new Date().toISOString(),
+                    nextPracticeTime: new Date().toISOString(),
+                    successCount: 0,
+                    failCount: 0,
+                })
+            }
+            this.cards = this.cards.concat(newCards)
+            this.saveState()
+        },
         deleteCard(sheetID, absoluteCoord) {
             //Filter out if the card matches the given reference, then save
             this.cards = this.cards.filter(
                 (card) =>
                     !(
-                        card.reference.sheetID == sheetID &&
-                        card.reference.coord.x == absoluteCoord.x &&
-                        card.reference.coord.y == absoluteCoord.y
+                        card.sheetID == sheetID &&
+                        card.coord.x == absoluteCoord.x &&
+                        card.coord.y == absoluteCoord.y
                     ),
             )
+            this.saveState()
+        },
+        deleteCards(sheetID, absoluteCoords) {
+            let coordSet = new Set(absoluteCoords.map(coord => coord.y * 24 + coord.x))
+            //Filter out if the card matches the given reference, then save
+            let cards = [...this.cards]
+            cards = cards.filter(x =>
+                x.sheetID !== sheetID ||
+                (x.sheetID === sheetID && !coordSet.has(x.coord.y * 24 + x.coord.x))
+            )
+            this.cards = cards
             this.saveState()
         },
         completeCard(updatedCard) {
@@ -48,9 +78,9 @@ export const useCardStore = defineStore('cardStore', {
             //Loop through all cards, if it matches this card, then replace it with the updated version
             this.cards = this.cards.map((card) => {
                 if (
-                    card.reference.sheetID == updatedCard.reference.sheetID &&
-                    card.reference.coord.x == updatedCard.reference.coord.x &&
-                    card.reference.coord.y == updatedCard.reference.coord.y
+                    card.sheetID == updatedCard.sheetID &&
+                    card.coord.x == updatedCard.coord.x &&
+                    card.coord.y == updatedCard.coord.y
                 ) {
                     return updatedCard
                 }
@@ -60,14 +90,14 @@ export const useCardStore = defineStore('cardStore', {
         },
 
         getCardsForSheet(sheetID) {
-            return this.cards.filter((card) => card.reference.sheetID === sheetID)
+            return this.cards.filter((card) => card.sheetID === sheetID)
         },
         getCardsOfType(sheetID, type) {
             //Only include cards which match the sheetID, match the type, and are due for practice
             const now = new Date().toISOString()
             const cards = this.cards.filter(
                 (card) =>
-                    card.reference.sheetID === sheetID &&
+                    card.sheetID === sheetID &&
                     getCardType(card) === type &&
                     card.nextPracticeTime < now
             )
@@ -88,18 +118,20 @@ export const useCardStore = defineStore('cardStore', {
             )
         },
 
-        checkCards() {
-            //Remove any cards if their contents have been edited in the sheet
-            this.cards = this.cards.map(card => {
-                card.algorithm = getSheetStore().getCell(card.reference.sheetID, card.reference.coord)
-                return card
+        checkInvalidCards() {
+            useSheetStore().loadState()
+            const sheetIDs = new Set(useSheetStore().sheets.map(sheet => sheet.id))
+            this.cards.forEach(card => {
+                if (card.hasOwnProperty("reference")) {
+                    card.sheetID = card.reference.sheetID
+                    card.coord = card.reference.coord
+                    delete card.reference
+                }
+                if (card.hasOwnProperty("algorithm")) {
+                    delete card.algorithm
+                }
             })
-            /*this.cards = this.cards.filter(
-                (card) =>
-                    card.algorithm.toUpperCase() ===
-                    getSheetStore().getCell(card.reference.sheetID, card.reference.coord).toUpperCase(),
-            )*/
-            this.saveState()
+            this.cards = this.cards.filter(card => sheetIDs.has(card.sheetID))
         },
         checkDailyStats() {
             //Reset daily limit for new cards if it is a new day!
@@ -107,7 +139,6 @@ export const useCardStore = defineStore('cardStore', {
 
             this.dailyStats.date = new Date().setHours(0, 0, 0, 0)
             this.dailyStats.dailyNewCards = 0
-            this.saveState()
         },
 
         saveState() {
@@ -124,9 +155,10 @@ export const useCardStore = defineStore('cardStore', {
                 const data = JSON.parse(localStorage.getItem('cardStore'))
                 this.cards = data.cards
                 this.dailyStats = data.dailyStats
-            } catch {}
-            this.checkCards()
+            } catch { }
+            this.checkInvalidCards()
             this.checkDailyStats()
+            this.saveState()
         },
     },
     getters: {},
