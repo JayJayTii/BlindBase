@@ -27,7 +27,7 @@
         <div style="display:flex;flex-direction:row;height:">
             <img @click="emit('unselectSolve')"
                  src="@/assets/arrow-left-long.svg"
-                 class="BackButton"
+                 class="CustomButton"
                  style="height:2rem;width:30%;"/>
             <div class="PanelHeader"> Solve {{props.solveIndex + 1}}: </div>
         </div>

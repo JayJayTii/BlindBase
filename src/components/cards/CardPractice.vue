@@ -43,10 +43,8 @@
 <template>
     <div class="PracticeView">
         <!------BACK------>
-        <img @click="emit('quitPractice')"
-             src="@/assets/arrow-left-long.svg"
-             class="BackButton"
-             style="margin-left: 10px; width:70px;height:50px;"/>
+        <img src="@/assets/arrow-left-long.svg" @click="emit('quitPractice')"
+             class="CustomButton" style="margin-left: 10px; width:70px;height:50px;" />
 
         <!------SHEET NAME------>
         <h3 class="PracticeSheetName">{{sheetStore.getSheet(props.sheetID).name}}</h3>
@@ -76,15 +74,6 @@
         gap: 10px;
     }
 
-    .BackButton {
-        background-color: var(--brand-600);
-        border-radius: 5px;
-        cursor: pointer;
-    }
-        .BackButton:hover {
-            background-color: var(--brand-500);
-        }
-
     .PracticeSheetName {
         display: flex;
         justify-content: center;
@@ -106,5 +95,7 @@
         text-align: center;
         font-size: 2vw;
     }
+
+
 
 </style>

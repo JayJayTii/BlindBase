@@ -173,7 +173,7 @@
         </select>
     </div>
     <div class="MemoViewHeader" v-if="pairSelect === 2">
-        Sheet:
+        Card deck:
         <select v-model="pairSelectSheet" style="font-size: 2rem">
             <option v-for="sheetOption in GetSheetsWithLearnedCards()" :value="sheetOption">
                 {{ sheetOption.name }}

@@ -89,11 +89,15 @@ export const useCardStore = defineStore('cardStore', {
 
         checkCards() {
             //Remove any cards if their contents have been edited in the sheet
-            this.cards = this.cards.filter(
+            this.cards = this.cards.map(card => {
+                card.algorithm = getSheetStore().getCell(card.reference.sheetID, card.reference.coord)
+                return card
+            })
+            /*this.cards = this.cards.filter(
                 (card) =>
                     card.algorithm.toUpperCase() ===
                     getSheetStore().getCell(card.reference.sheetID, card.reference.coord).toUpperCase(),
-            )
+            )*/
             this.saveState()
         },
         checkDailyStats() {
