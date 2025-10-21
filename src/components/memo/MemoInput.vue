@@ -5,13 +5,13 @@
         cubes: Number,
         maxSequenceLength: Number,
     })
-    const emit = defineEmits(['setStage', 'updateUserSequences'])
+    const emit = defineEmits(['stageComplete', 'updateUserSequences'])
 
     let userSequences = Array(props.cubes).fill('')
 
     function FinishStage() {
         emit('updateUserSequences', userSequences)
-        emit('setStage', 4)
+        emit('stageComplete')
     }
 
     function handleKeydown(event) {

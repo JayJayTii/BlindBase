@@ -1,7 +1,15 @@
 <script setup>
     import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue'
     import { GeneratePairSequence, FormatPairSequence, GetLongestStringLength, getCorrect, getScore } from '@/helpers/memo.js'
-    import { useMemoStore, maxCubes } from '../stores/MemoStore'
+
+    //Sheet and card stores for memo header for fetching sheet and card names
+    import { useSheetStore } from '../stores/SheetStore'
+    const sheetStore = useSheetStore()
+    sheetStore.loadState()
+    import { useCardStore } from '../stores/CardStore'
+    const cardStore = useCardStore()
+    cardStore.loadState()
+    import { useMemoStore } from '../stores/MemoStore'
     const memoStore = useMemoStore()
     memoStore.loadState()
     import MemoHeader from '@/components/memo/MemoHeader.vue'
@@ -11,104 +19,82 @@
     import MemoInput from '@/components/memo/MemoInput.vue'
     import MemoResult from '@/components/memo/MemoResult.vue'
 
-    const mode = ref(0)
     const stage = ref(0)
+    let runData = {} //Contains mode, cube count, pair selection mode, pair select sheet, possible pairs
     const length = ref(4)
-    const cubes = ref(2)
-    const pairSelect = ref(0)
-    const pairSelectSheet = ref({})
-    const possiblePairs = ref([])
-    var testSequences = []
-    var userSequences = []
 
-    function updateCubes(newValue) {
-        cubes.value = mode.value === 2 ? Math.max(2, Math.min(newValue, maxCubes)) : newValue
-    }
-    function updateMode(newValue) {
-        mode.value = newValue
-    }
-    function updateLength(newValue){
-        length.value = newValue
-    }
-    function updatePairSelect(newValue) {
-        pairSelect.value = newValue
-    }
-    function updatePairSelectSheet(newValue) {
-        pairSelectSheet.value = newValue
-    }
-    function updateUserSequences(newValue) {
-        userSequences = newValue
+    var testSequences = [] //The sequences the user is tasked to remember
+    var userSequences = [] //The sequences the user remembered
+
+    function startRun(_runData) {
+        runData = _runData
+        length.value = (runData.mode === "Multiblind") ? 10 : 4
+        startTurn()
     }
 
-    function startRun(pairs) {
-        possiblePairs.value = pairs
-        SetStage(1)
-    }
-    function quitRun() {
-        if (stage === 4) {
-            UpdateHighscore()
+    function startTurn() {
+        stage.value = 1
+        //Generate sequences to show to user
+        testSequences = []
+        for (var i = 0; i < runData.cubes; i++) {
+            testSequences.push(GeneratePairSequence(runData.possiblePairs, length.value))
         }
-        SetStage(0)
     }
-    function EndTurn() {
+
+    function OnTurnComplete() {
         UpdateHighscore()
-        switch (mode.value) {
-            case 0: //Endless
+        switch (runData.mode) {
+            case "Corners":
                 length.value += getCorrect(testSequences, userSequences) > 0 ? 1 : -1
                 if (length.value < 1) {
-                    SetStage(0)
+                    stage.value = 0
                     return
                 }
                 break
-            case 1: //One mistake
+            case "Edges":
+                length.value += getCorrect(testSequences, userSequences) > 0 ? 1 : -1
+                if (length.value < 1) {
+                    stage.value = 0
+                    return
+                }
+                break
+            case "One mistake": //One mistake
                 if (getCorrect(testSequences, userSequences) > 0)
                     length.value += 1
                 else {
-                    SetStage(0)
+                    stage.value = 0
                     return
                 }
                 break
-            case 2: //Multiblind
-                SetStage(0)
+            case "Multiblind": //Multiblind
+                stage.value = 0
                 return
         }
-        SetStage(1)
+        startTurn()
     }
+    function quitRun() {
+        if (stage === 4)
+            UpdateHighscore()
 
-    function SetStage(index) {
-        stage.value = index
-        switch (index) {
-            case 1: //Generate sequences to show to user
-                testSequences = []
-                for (var i = 0; i < cubes.value; i++) {
-                    testSequences.push(GeneratePairSequence(possiblePairs.value, length.value))
-                }
-                break
-            case 4: //Format the sequences that the user inputted
-                userSequences = userSequences.map((sequence) => FormatPairSequence(sequence))
-                break
-        }
+        stage.value = 0
     }
 
     function UpdateHighscore() {
-        if (pairSelect.value !== 0) //Only allowed highscores when using all possible pairs
+        if (runData.pairSelect !== 0) //Only allowed highscores when using all possible pairs
             return
 
-        if (mode.value === 2) { //Multiblind uses score for highscore
-            //Score must be higher
-            if (getScore(testSequences, userSequences) <= memoStore.GetHighscore(mode.value))
-                return
-
-            memoStore.SetHighscore(mode.value, getScore(testSequences, userSequences))
-        } else { //Others use length for highscore
-            if (getCorrect(testSequences, userSequences) === 0) //Must be a success
-                return
-            if (length.value <= memoStore.GetHighscore(mode.value)) //Length must be longer
-                return
-
-            memoStore.SetHighscore(mode.value, length.value)
+        if (runData.mode === "Multiblind") {
+            //Multiblind uses points for highscore
+            const MultiblindScore = getScore(testSequences, userSequences)
+            if (MultiblindScore > memoStore.GetHighscore(runData.mode))
+                memoStore.SetHighscore(runData.mode, MultiblindScore)
+            return
         }
-        memoStore.saveState()
+
+        //Other modes use length for highscore
+        //Must be a success and longer length
+        if (getCorrect(testSequences, userSequences) > 0 && length.value > memoStore.GetHighscore(runData.mode))
+            memoStore.SetHighscore(runData.mode, length.value)
     }
 </script>
 
@@ -116,39 +102,37 @@
     <div class="MemoView">
         <!------HEADER------>
         <MemoHeader v-if="stage > 0"
-                    :mode="mode" :length="length" :pairSelect="pairSelect" :cubes="cubes"
+                    :runData="runData" :length="length"
                     @quitRun="quitRun" />
 
         <!------SELECT------>
-        <div v-if="stage === 0" class="MemoViewContainer">
-            <MemoSelect :mode="mode" :cubes="cubes" :pairSelect="pairSelect" :pairSelectSheet="pairSelectSheet"
-                        @updateCubes="updateCubes" @updateLength="updateLength" @updateMode="updateMode"
-                        @updatePairSelect="updatePairSelect" @updatePairSelectSheet="updatePairSelectSheet"
-                        @startRun="startRun" />
+        <div v-if="stage === 0">
+            <MemoSelect @startRun="startRun" />
         </div>
 
         <!------DISPLAY------>
         <div v-else-if="stage === 1" class="MemoViewContainer">
             <MemoDisplay :testSequences="testSequences"
-                         @setStage="SetStage" />
+                         @stageComplete="stage = 2" />
         </div>
 
         <!------DISTRACTION------>
         <div v-else-if="stage === 2" class="MemoViewContainer">
-            <MemoDistraction @setStage="SetStage" />
+            <MemoDistraction @stageComplete="stage = 3" />
         </div>
 
         <!------INPUT------>
         <div v-else-if="stage === 3" class="MemoViewContainer">
-            <MemoInput :cubes="cubes" :maxSequenceLength="GetLongestStringLength(testSequences)"
-                       @setStage='SetStage' @updateUserSequences="updateUserSequences" />
+            <MemoInput :cubes="runData.cubes" :maxSequenceLength="GetLongestStringLength(testSequences)"
+                       @stageComplete='stage = 4;  userSequences = userSequences.map((sequence) => FormatPairSequence(sequence))' 
+                       @updateUserSequences="userSequences = $event" />
         </div>
 
         <!------RESULT------>
         <div v-else-if="stage === 4" class="MemoViewContainer">
-            <MemoResult :mode="mode" :testSequences="testSequences" :userSequences="userSequences"
+            <MemoResult :mode="runData.mode" :testSequences="testSequences" :userSequences="userSequences"
                         :correct="getCorrect(testSequences, userSequences)" :score="getScore(testSequences, userSequences)"
-                        @endTurn="EndTurn" />
+                        @endTurn="OnTurnComplete" />
         </div>
 
     </div>

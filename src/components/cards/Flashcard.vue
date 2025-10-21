@@ -120,13 +120,14 @@
                 nextTick(() => {
                     const goodButton = document.getElementById('GoodButton')
                     const badButton = document.getElementById('BadButton')
-                    console.log(goodButton)
                     goodButton.classList.remove('AnimatedCardFlipBackward')
                     void goodButton.offsetWidth
                     goodButton.classList.add('AnimatedCardFlipBackward')
-                    badButton.classList.remove('AnimatedCardFlipBackward')
-                    void badButton.offsetWidth
-                    badButton.classList.add('AnimatedCardFlipBackward')
+                    if (badButton) {
+                        badButton.classList.remove('AnimatedCardFlipBackward')
+                        void badButton.offsetWidth
+                        badButton.classList.add('AnimatedCardFlipBackward')
+                    }
                 })
             }
 

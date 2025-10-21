@@ -1,11 +1,11 @@
 <script setup>
     import { onMounted, onUnmounted } from "vue"
 
-    const emit = defineEmits(['setStage'])
+    const emit = defineEmits(['stageComplete'])
 
     function handleKeydown(event) {
         if (event.code === 'Enter') {
-            emit('setStage', 3)
+            emit('stageComplete')
         }
     }
     onMounted(() => {
@@ -20,5 +20,5 @@
     <div style="font-size: 2rem">DISTRACTION GRAAAHHH</div>
     <img src="@/assets/arrow-right-long.svg"
          :class="['CustomButton','NextButton']"
-         @click="emit('setStage', 3)" />
+         @click="emit('stageComplete')" />
 </template>

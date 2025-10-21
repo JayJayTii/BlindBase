@@ -4,11 +4,11 @@
     const props = defineProps({
         testSequences: Array,
     })
-    const emit = defineEmits(['setStage'])
+    const emit = defineEmits(['stageComplete'])
 
     function handleKeydown(event) {
         if (event.code === 'Enter') {
-            emit('setStage', 2)
+            emit('stageComplete')
         }
     }
     onMounted(() => {
@@ -29,5 +29,5 @@
     </div>
     <img src="@/assets/arrow-right-long.svg"
          :class="['CustomButton','NextButton']"
-         @click="emit('setStage', 2)" />
+         @click="emit('stageComplete')" />
 </template>

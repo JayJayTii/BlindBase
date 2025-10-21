@@ -1,5 +1,3 @@
-
-
 //Used for calculating how long the user sequence inputboxes should be
 export function GetLongestStringLength(arr) {
     return Math.max(...arr.map((str) => str.length));

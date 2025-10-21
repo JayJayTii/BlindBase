@@ -241,19 +241,19 @@
 
 <template>
     <div id="ExecSelect">
-        <select style="font-size: 2rem" v-model="pieceType">
+        <select style="font-size: 2rem; text-align: center;" v-model="pieceType">
             <option value=1>Corners</option>
             <option value=2>Edges</option>
         </select>
 
         <div class="ExecSelectLine" v-if="pieceTypeSelected" />
-        <select style="font-size: 2rem" v-model="mode" v-if="pieceTypeSelected">
+        <select style="font-size: 2rem; text-align: center;" v-model="mode" v-if="pieceTypeSelected">
             <option value="0">Full</option>
             <option value="1">One pair</option>
         </select>
 
         <div class="ExecSelectLine" v-if="modeSelected" />
-        <select style="font-size: 2rem" v-model="pairMode" v-if="modeSelected">
+        <select style="font-size: 2rem; text-align: center;" v-model="pairMode" v-if="modeSelected">
             <option value="0">From all pairs</option>
             <option value="1" v-if="sheetStore.getSheetsOfType(Number(pieceType)).length > 0">From sheet</option>
             <option value="2" v-if="getValidCardDecks().length">From cards</option>
@@ -261,16 +261,16 @@
         </select>
 
         <div class="ExecSelectLine" v-if="pairMode == 1 || pairMode == 2 || pairMode == 3" />
-        <select style="font-size: 2rem" v-model="pairModeSheetID" v-if="pairMode == 1">
+        <select style="font-size: 2rem;text-align:center;" v-model="pairModeSheetID" v-if="pairMode == 1">
             <option v-for="sheet in sheetStore.getSheetsOfType(Number(pieceType))"
                     :value="sheet.id">
-                {{sheet.name}}
+                '{{sheet.name}}'
             </option>
         </select>
-        <select style="font-size: 2rem" v-model="pairModeSheetID" v-if="pairMode == 2">
+        <select style="font-size: 2rem;text-align:center;" v-model="pairModeSheetID" v-if="pairMode == 2">
             <option v-for="sheet in getValidCardDecks()"
                     :value="sheet.id">
-                {{sheet.name}}
+                '{{sheet.name}}'
             </option>
         </select>
         <div style="display:flex; justify-content: center;" v-if="pairMode == 3">
@@ -282,7 +282,7 @@
         </div>
 
         <div class="ExecSelectLine" v-if="pairModeSelected" />
-        <select style="font-size: 2rem" v-model="scrambleMode" v-if="pairModeSelected">
+        <select style="font-size: 2rem; text-align: center;" v-model="scrambleMode" v-if="pairModeSelected">
             <option value="0">With scramble</option>
             <option value="1">No scramble</option>
         </select>

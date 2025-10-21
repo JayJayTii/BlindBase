@@ -1,29 +1,28 @@
 import { defineStore } from 'pinia'
 
-export const modes = ['Endless', 'One mistake', 'Multiblind']
-export const maxCubes = 200
+export const modes = ['Corners', 'Edges', 'One mistake', 'Multiblind']
 
 export const useMemoStore = defineStore('memoStore', {
     state: () => {
-        return {
-            highscores: [], //Ordered by mode
-        }
+        return {}
     },
     actions: {
-        GetHighscore(index) {
-            //Fill highscores with 0 if there have been new modes added
-            while (this.highscores.length <= index) {
-                this.highscores.push(0)
-                this.saveState()
-            }
-            return this.highscores[index]
+        GetHighscore(modeName) {
+            return this.highscores[modeName]
         },
-        SetHighscore(index, value) {
-            while (this.highscores.length <= index) {
-                this.highscores.push(0)
-                this.saveState()
+        SetHighscore(modeName, value) {
+            this.highscores[modeName] = value
+            this.saveState()
+        },
+
+        ValidateValues(data) {
+            const out = { ...data }
+            //Fill in any missing highscores
+            for (const mode of modes){
+                if (!(out.hasOwnProperty(mode)))
+                    out[mode] = 0
             }
-            this.highscores[index] = value
+            return out
         },
 
         saveState() {
@@ -38,9 +37,11 @@ export const useMemoStore = defineStore('memoStore', {
             try {
                 const data = JSON.parse(localStorage.getItem('memoStore'))
                 this.highscores = data.highscores
-            } catch {
-                this.highscores = modes.map((mode) => 0)
-            }
+            } catch {}
+            if (!this.hasOwnProperty("highscores"))
+                this.highscores = {}
+            this.highscores = this.ValidateValues(this.highscores)
+            this.saveState()
         },
     },
     getters: {},

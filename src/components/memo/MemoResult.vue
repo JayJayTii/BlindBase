@@ -2,7 +2,7 @@
     import { onMounted, onUnmounted } from "vue"
 
     const props = defineProps({
-        mode: Number,
+        mode: String,
         testSequences: Array,
         userSequences: Array,
         correct: Number,
@@ -25,7 +25,7 @@
 
 <template>
     <div style="display:flex;align-self:center;">
-        <div v-if="mode !== 2">{{ correct === 1 ? 'Correct!' : 'Incorrect' }}</div>
+        <div v-if="mode !== 'Multiblind'">{{ correct === 1 ? 'Correct!' : 'Incorrect' }}</div>
         <div v-else style="font-size: 2.5rem;">
             {{ correct }}/{{ testSequences.length }} (score: {{ score < 0 ? 'DNF' : score }})
         </div>

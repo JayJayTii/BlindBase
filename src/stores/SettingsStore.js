@@ -20,7 +20,7 @@ export const defaults = {
         default: true,
     },
     cards_learningtoduethreshold: {
-        name: 'Card revisions before starting spaced repetition',
+        name: 'Revisions of a card before spaced repetition',
         default: 5,
         min: 2,
         max: 20,
