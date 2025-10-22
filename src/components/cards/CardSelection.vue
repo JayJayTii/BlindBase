@@ -122,6 +122,22 @@
         }
         UpdateSelectedCells()
     }
+    function sheetClicked() {
+        const sheet = sheetStore.getSheet(props.sheetID)
+        let sheetFilled = true
+        for (var i = 0; i < sheet.grid.length; i++) {
+            for (var j = 0; j < sheet.grid[0].length; j++) {
+                if (sheet.grid[i][j] != '' && !selectedCells.value[i][j]) {
+                    sheetFilled = false
+                    break
+                }
+            }
+        }
+        if (sheetFilled) //Delete cards in sheet
+            SelectNone()
+        else //Add unadded cards
+            SelectAll()
+    }
 
     watch(
         () => settingsStore.settings.sheets_pairorder,
@@ -184,6 +200,7 @@
                    @update:selected-cell="onCellClicked"
                    @update:full-column-selected="lineClicked(true, $event)"
                    @update:full-row-selected="lineClicked(false, $event)"
+                   @update:full-sheet-selected="sheetClicked()"
                    ref="gridRef"
                    style="width:100%; height:79vh;" />
     </div>

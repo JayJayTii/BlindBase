@@ -237,6 +237,33 @@
             }
         }
     }
+    function sheetClicked() {
+        let filledCellsInSheet = 0
+        for (var i = 0; i < customSheet.value.yHeadings.length; i++) {
+            for (var j = 0; j < customSheet.value.xHeadings.length; j++) {
+                if (customSheet.value.grid[i][j] !== "")
+                    filledCellsInSheet++
+            }
+        }
+        const sheetFilled = highlightedCells.value.length >= filledCellsInSheet
+        if (sheetFilled) {
+            for (var i = customSheet.value.yHeadings.length - 1; i >= 0; i--) {
+                for (var j = customSheet.value.xHeadings.length - 1; j >= 0; j--) {
+                    onCustomPairClicked({ x: j, y: i })
+                }
+            }
+        }
+        else {
+            const highlightedCellSet = new Set(highlightedCells.value.map(coord => coord.y * 24 + coord.x))
+            for (var i = 0; i < customSheet.value.xHeadings.length; i++) {
+                for (var j = 0; j < customSheet.value.yHeadings.length; j++) {
+                    //Select every cell that is in the sheet and not highlighted
+                    if (customSheet.value.grid[j][i] !== "" && !highlightedCellSet.has(j * 24 + i))
+                        onCustomPairClicked({ x: i, y: j })
+                }
+            }
+        }
+    }
 </script>
 
 <template>
@@ -296,7 +323,8 @@
                ref="gridRef"
                @update:selected-cell="onCustomPairClicked"
                @update:full-column-selected="rowClicked"
-               @update:full-row-selected="columnClicked"/>
+               @update:full-row-selected="columnClicked"
+               @update:full-sheet-selected="sheetClicked"/>
 </template>
 
 <style>

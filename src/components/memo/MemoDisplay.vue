@@ -21,11 +21,12 @@
 
 <template>
     <div style="display:flex;flex-direction:column;gap:15px;">
-        <div v-for="sequence in testSequences" style="display:flex;flex-direction:row;gap:5px;">
+        <div v-for="sequence in testSequences" style="display:flex;flex-direction:row;gap:5px;justify-content:center;">
             <div v-for="pair in sequence.split(' ')" class="MemoPair">
                 {{pair}}
             </div>
         </div>
+        <div style="height:20vh;" />
     </div>
     <img src="@/assets/arrow-right-long.svg"
          :class="['CustomButton','NextButton']"

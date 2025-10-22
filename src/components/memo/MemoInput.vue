@@ -40,7 +40,8 @@
                 fontSize: '2rem',
                 width: props.maxSequenceLength + 1 + 'ch',
             }" />
-    
+    <div style="height:20vh;" />
+
     <img src="@/assets/arrow-right-long.svg"
          :class="['CustomButton','NextButton']"
          @click="FinishStage()" />

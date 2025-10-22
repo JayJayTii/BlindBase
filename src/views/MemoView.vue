@@ -1,6 +1,6 @@
 <script setup>
     import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue'
-    import { GeneratePairSequence, FormatPairSequence, GetLongestStringLength, getCorrect, getScore } from '@/helpers/memo.js'
+    import { gaussianRandom, GeneratePairSequence, FormatPairSequence, GetLongestStringLength, getCorrect, getScore } from '@/helpers/memo.js'
     //Sheet and card stores for memo header for fetching sheet and card names
     import { useSettingsStore } from '@/stores/SettingsStore.js'
     import { useSheetStore } from '../stores/SheetStore'
@@ -28,7 +28,7 @@
 
     function startRun(_runData) {
         runData = _runData
-        length.value = (runData.mode === "Multiblind") ? 10 : useSettingsStore().settings.memo_startingmemolength
+        length.value = useSettingsStore().settings.memo_startingmemolength
         startTurn()
     }
 
@@ -37,7 +37,10 @@
         //Generate sequences to show to user
         testSequences = []
         for (var i = 0; i < runData.cubes; i++) {
-            testSequences.push(GeneratePairSequence(runData.possiblePairs, length.value))
+            let seqLength = length.value
+            if (runData.mode === "Multiblind")
+                seqLength = Math.round(Math.max(0, Math.min(20, gaussianRandom(10, 1.5))))
+            testSequences.push(GeneratePairSequence(runData.possiblePairs, seqLength))
         }
     }
 
@@ -165,10 +168,10 @@
         border: 4px solid var(--brand-900);
         border-radius: 5px;
         background-color: var(--brand-700);
-        width: 50px;
-        height: 50px;
+        width: 2.7rem;
+        height: 2.7rem;
         justify-content: center;
         text-align: center;
-        font-size: 1.5rem;
+        font-size: 1.2rem;
     }
 </style>

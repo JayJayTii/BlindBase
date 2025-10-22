@@ -138,7 +138,7 @@ import { getXHeadings } from "../../helpers/sheets"
         const columnFilled = highlightedCellsInColumn.length >= filledCellsInColumn
 
         if (columnFilled) {
-            for (var i = 0; i < highlightedCellsInColumn.length; i++) {
+            for (var i = highlightedCellsInColumn.length - 1; i >= 0; i--) {
                 onCustomPairClicked(highlightedCellsInColumn[i])
             }
         }
@@ -161,7 +161,7 @@ import { getXHeadings } from "../../helpers/sheets"
         const rowFilled = highlightedCellsInRow.length >= filledCellsInRow
 
         if (rowFilled) {
-            for (var i = 0; i < highlightedCellsInRow.length; i++) {
+            for (var i = highlightedCellsInRow.length - 1; i >= 0; i--) {
                 onCustomPairClicked(highlightedCellsInRow[i])
             }
         }
@@ -171,6 +171,33 @@ import { getXHeadings } from "../../helpers/sheets"
                 //Select every cell that is in the row and not highlighted
                 if (customSheet.value.grid[rowIndex][i] !== "" && highlightedCellsInRow.indexOf(i) == -1)
                     onCustomPairClicked({ x: rowIndex, y: i })
+            }
+        }
+    }
+    function sheetClicked() {
+        let filledCellsInSheet = 0
+        for (var i = 0; i < customSheet.value.yHeadings.length; i++) {
+            for (var j = 0; j < customSheet.value.xHeadings.length; j++) {
+                if (customSheet.value.grid[i][j] !== "")
+                    filledCellsInSheet++
+            }
+        }
+        const sheetFilled = highlightedCells.value.length >= filledCellsInSheet
+        if (sheetFilled) {
+            for (var i = customSheet.value.yHeadings.length - 1; i >= 0; i--) {
+                for (var j = customSheet.value.xHeadings.length - 1; j >= 0; j--) {
+                    onCustomPairClicked({ x: j, y: i })
+                }
+            }
+        }
+        else {
+            const highlightedCellSet = new Set(highlightedCells.value.map(coord => coord.y * 24 + coord.x))
+            for (var i = 0; i < customSheet.value.xHeadings.length; i++) {
+                for (var j = 0; j < customSheet.value.yHeadings.length; j++) {
+                    //Select every cell that is in the sheet and not highlighted
+                    if (customSheet.value.grid[j][i] !== "" && !highlightedCellSet.has(j * 24 + i))
+                        onCustomPairClicked({ x: i, y: j })
+                }
             }
         }
     }
@@ -302,7 +329,8 @@ import { getXHeadings } from "../../helpers/sheets"
                ref="gridRef"
                @update:selected-cell="onCustomPairClicked"
                @update:full-column-selected="rowClicked"
-               @update:full-row-selected="columnClicked" />
+               @update:full-row-selected="columnClicked"
+               @update:full-sheet-selected="sheetClicked"/>
 
     <img v-if="pairSelectFinished"
          src="@/assets/arrow-right-long.svg"

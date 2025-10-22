@@ -13,7 +13,7 @@
         fullLineSelection: Boolean,
     })
 
-    const emit = defineEmits(['update:selected-cell', 'update:full-column-selected', 'update:full-row-selected'])
+    const emit = defineEmits(['update:selected-cell', 'update:full-column-selected', 'update:full-row-selected', 'update:full-sheet-selected'])
 
     const sheet = computed({
         get: () => props.sheet
@@ -67,6 +67,9 @@
 
         const flipped = (settingsStore.settings.sheets_pairorder === 1)
         emit('update:full-' + (flipped ? 'row' : 'column') + '-selected', rowIndex)
+    }
+    function sheetClicked() {
+        emit('update:full-sheet-selected')
     }
 
     //Highlighted cells are visual coords
@@ -143,8 +146,9 @@
 <template>
     <div class="SheetGridContainer" v-if="props.sheet">
         <!-----BLANK CORNER----->
-        <div class="SheetGridCorner">
-            <div class="SheetGridCell" style="cursor: default"></div>
+        <div class="SheetGridCorner" >
+            <div class="SheetGridCell"  :style="{ cursor: (props.fullLineSelection ? 'pointer' : 'default') }"
+                 @click="sheetClicked()"></div>
         </div>
 
         <!-----COLUMN HEADINGS----->
