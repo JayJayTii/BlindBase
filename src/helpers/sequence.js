@@ -97,7 +97,7 @@ export class Sequence {
         const setupSeq = new Sequence()
         setupSeq.setAlgorithmNotation(setup)
 
-        let part1 = str.match(/:.*\[(.*),/) //After : and [ and before ,
+        let part1 = str.match(/:?.*\[(.*),/) //After : and [ and before ,
         if (part1 == null) {//Comm notation must have at least stuff between [ and ,
             this.turns = []
             return

@@ -30,6 +30,12 @@ export const defaults = {
         default: 20,
         min: 1,
         max: 500,
+    },
+    memo_startingmemolength: {
+        name: 'Initial memo attempt length',
+        default: 4,
+        min: 1,
+        max: 20,
     }
 }
 

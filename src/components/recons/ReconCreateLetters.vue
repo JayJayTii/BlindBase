@@ -222,11 +222,12 @@
             </div>
 
             <img src="@/assets/arrow-left-long.svg"
-                 class="NextButton" style="left:0px;transform:translate(100%,-100%);"
+                 :class="['CustomButton','NextButton']" 
+                 style="left:0px;transform:translate(100%,-100%);"
                  @click="revertToReconPage()" />
             <img v-if="pieceType > 1"
                  src="@/assets/arrow-right-long.svg"
-                 class="NextButton"
+                 :class="['CustomButton','NextButton']"
                  @click="letterSelectionFinished()" />
         </div>
         <FaceletCubeVisual style="width: 45%;"

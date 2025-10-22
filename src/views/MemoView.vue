@@ -1,8 +1,8 @@
 <script setup>
     import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue'
     import { GeneratePairSequence, FormatPairSequence, GetLongestStringLength, getCorrect, getScore } from '@/helpers/memo.js'
-
     //Sheet and card stores for memo header for fetching sheet and card names
+    import { useSettingsStore } from '@/stores/SettingsStore.js'
     import { useSheetStore } from '../stores/SheetStore'
     const sheetStore = useSheetStore()
     sheetStore.loadState()
@@ -21,14 +21,14 @@
 
     const stage = ref(0)
     let runData = {} //Contains mode, cube count, pair selection mode, pair select sheet, possible pairs
-    const length = ref(4)
+    const length = ref(-1)
 
     var testSequences = [] //The sequences the user is tasked to remember
     var userSequences = [] //The sequences the user remembered
 
     function startRun(_runData) {
         runData = _runData
-        length.value = (runData.mode === "Multiblind") ? 10 : 4
+        length.value = (runData.mode === "Multiblind") ? 10 : useSettingsStore().settings.memo_startingmemolength
         startTurn()
     }
 

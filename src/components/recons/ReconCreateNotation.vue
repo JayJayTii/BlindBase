@@ -82,6 +82,7 @@
             const letter1 = props.letterSolution[1][2 * i]
             const letter2 = props.letterSolution[1][2 * i + 1]
             let newValue = edgeSheetID.value == -1 ? "" : sheetStore.getSheet(edgeSheetID.value).grid[letter2][letter1]
+
             //If it's in comm notation, convert to alg notation
             if (newValue.includes('[') && newValue.includes(',') && newValue.includes(']')) {
                 let commSequence = new Sequence()
@@ -285,10 +286,11 @@
     </div>
     <div style="height:100px;" />
     <img src="@/assets/arrow-left-long.svg"
-         class="NextButton" style="left:0px;transform:translate(100%,-100%);"
+         :class="['CustomButton','NextButton']" 
+         style="left:0px;transform:translate(100%,-100%);"
          @click="revertToLetterSelection()" />
     <img src="@/assets/arrow-right-long.svg"
-         class="NextButton"
+         :class="['CustomButton','NextButton']" 
          @click="notationSelectionFinished()" />
 </template>
 
