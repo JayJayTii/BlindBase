@@ -36,6 +36,10 @@ export const defaults = {
         default: 4,
         min: 1,
         max: 20,
+    },
+    memo_includeimpossiblepairs: {
+        name: 'Include impossible pairs for 3x3 in \'All Pairs\'',
+        default: false,
     }
 }
 

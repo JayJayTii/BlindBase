@@ -12,7 +12,7 @@
     function getPairSelectString() {
         switch (props.runData.pairSelect) {
             case 0: //From all pairs
-                return "From all possible pairs"
+                return "From all pairs"
             case 1: //From sheet
                 return "From sheet: \'" + props.runData.pairSelectSheet.name + "\'"
             case 2: //From card deck

@@ -9,7 +9,8 @@
     const cardStore = useCardStore()
     import { useSettingsStore } from '@/stores/SettingsStore'
     useSettingsStore().loadState()
-    import { allEdgePairs, allCornerPairs, allPairs } from '@/helpers/pairs.js'
+    import { allEdgePairs, allCornerPairs, allPossiblePairs, allLetterPairs } from '@/helpers/pairs.js'
+import { getXHeadings } from "../../helpers/sheets"
 
     const props = defineProps({
         stage: Number, //Using v-show, so must suppress things when not in the right stage of memo
@@ -97,17 +98,26 @@
     const customSheet = ref({})
     function generateCustomPairSheet() {
         let grid = Array.from({ length: 24 }, () => Array.from({ length: 24 }, () => ''))
-        const customPairOptions = (mode.value == "Corners") ? allCornerPairs : ((mode.value == "Edges") ? allEdgePairs : allPairs)
+        customSheet.value = {
+            xHeadings: 'ABCDEFGHIJKLMNOPQRSTUVWX',
+            yHeadings: 'ABCDEFGHIJKLMNOPQRSTUVWX',
+        }
+        let customPairOptions = []
+        if (useSettingsStore().settings.memo_includeimpossiblepairs)
+            customPairOptions = allLetterPairs
+        else if (mode.value == "Corners")
+            customPairOptions = allCornerPairs
+        else if (mode.value == "Edges")
+            customPairOptions = allEdgePairs
+        else
+            customPairOptions = allPossiblePairs
+
         for (const pairOption of customPairOptions) {
             const y = pairOption.charCodeAt(0) - 'A'.charCodeAt(0)
             const x = pairOption.charCodeAt(1) - 'A'.charCodeAt(0)
             grid[x][y] = pairOption
         }
-        customSheet.value = {
-            xHeadings: 'ABCDEFGHIJKLMNOPQRSTUVWX',
-            yHeadings: 'ABCDEFGHIJKLMNOPQRSTUVWX',
-            grid: grid,
-        }
+        customSheet.value.grid = grid
     }
     function onCustomPairClicked(value) {
         if (customSheet.value.grid[value.x][value.y] === "")
@@ -169,7 +179,8 @@
         let possiblePairs = []
         switch (pairSelect.value) {
             case 0: //From all pairs
-                return (mode.value == "Corners") ? allCornerPairs : ((mode.value == "Edges") ? allEdgePairs : allPairs) 
+                return (useSettingsStore().settings.memo_includeimpossiblepairs ? allLetterPairs
+                    : (mode.value == "Corners") ? allCornerPairs : ((mode.value == "Edges") ? allEdgePairs : allPossiblePairs))
 
             case 1: //From sheet
                 for (var y = 0; y < 24; y++) {
@@ -220,11 +231,14 @@
     watch(() => useSettingsStore().settings.sheets_pairorder,
         (newVal) => {
             highlightedCells.value = []
-            nextTick(() => {
-                if (gridRef.value) {
-                    gridRef.value.changeHighlightedCells(highlightedCells.value)
-                }
-            })
+            nextTick(() => { if (gridRef.value) gridRef.value.changeHighlightedCells(highlightedCells.value)  })
+        }
+    )
+    watch(() => useSettingsStore().settings.memo_includeimpossiblepairs,
+        (newValue) => {
+            generateCustomPairSheet()
+            highlightedCells.value = []
+            nextTick(() => { if (gridRef.value) gridRef.value.changeHighlightedCells(highlightedCells.value) })
         }
     )
 </script>
@@ -283,7 +297,7 @@
     <SheetGrid v-if="editingCustomPairs === true && pairSelect == 3"
                style="height: 83vh;"
                :sheet="customSheet"
-               :key="customSheet"
+               :key="customSheet.value"
                :formatEmpty="true" :fullLineSelection="true"
                ref="gridRef"
                @update:selected-cell="onCustomPairClicked"

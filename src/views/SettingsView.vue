@@ -76,6 +76,12 @@
                            :max="defaults.memo_startingmemolength.max"
                            @change="SettingUpdated" />
                 </div>
+                <div id="Memo Include Impossible Pairs in All Pairs">
+                    {{ defaults.memo_includeimpossiblepairs.name }}:
+                    <input v-model="settingsStore.settings.memo_includeimpossiblepairs" 
+                           type="checkbox" 
+                           @change="SettingUpdated" />
+                </div>
             </div>
 
             <div style="min-height:200px" />
