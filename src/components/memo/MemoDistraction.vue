@@ -1,7 +1,15 @@
 <script setup>
     import { onMounted, onUnmounted } from "vue"
 
+    const props = defineProps({
+        runData: Object,
+    })
+
     const emit = defineEmits(['stageComplete'])
+
+    //Distraction is only used in corners
+    if (!(props.runData.mode == "Corners" || props.runData.mode == "One mistake")) 
+        emit('stageComplete')
 
     function handleKeydown(event) {
         if (event.code === 'Enter') {

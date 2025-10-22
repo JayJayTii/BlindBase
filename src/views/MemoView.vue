@@ -106,19 +106,19 @@
                     @quitRun="quitRun" />
 
         <!------SELECT------>
-        <div v-if="stage === 0">
-            <MemoSelect @startRun="startRun" />
+        <div v-show="stage === 0">
+            <MemoSelect @startRun="startRun" :stage="stage"/>
         </div>
 
         <!------DISPLAY------>
-        <div v-else-if="stage === 1" class="MemoViewContainer">
+        <div v-if="stage === 1" class="MemoViewContainer">
             <MemoDisplay :testSequences="testSequences"
                          @stageComplete="stage = 2" />
         </div>
 
         <!------DISTRACTION------>
         <div v-else-if="stage === 2" class="MemoViewContainer">
-            <MemoDistraction @stageComplete="stage = 3" />
+            <MemoDistraction :runData="runData" @stageComplete="stage = 3" />
         </div>
 
         <!------INPUT------>
