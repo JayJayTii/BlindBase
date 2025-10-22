@@ -1,5 +1,7 @@
 <script setup>
-    import { onMounted, onUnmounted } from "vue"
+    import { ref, onMounted, onUnmounted } from "vue"
+    import { gaussianRandom } from '@/helpers/memo.js'
+    import { allLetterPairs } from '@/helpers/pairs.js'
 
     const props = defineProps({
         runData: Object,
@@ -11,22 +13,94 @@
     if (!(props.runData.mode == "Corners" || props.runData.mode == "One mistake")) 
         emit('stageComplete')
 
-    function handleKeydown(event) {
-        if (event.code === 'Enter') {
-            emit('stageComplete')
+    const timer = ref(Math.max(2, gaussianRandom(9, 2)))
+    const timerDelta = 0.1 //seconds
+    function updateTimer() {
+        timer.value -= timerDelta
+
+        if (timer.value <= 0) {
+            const rand = Math.random()
+            console.log(rand)
+            if (rand < 0.9 || hasKidded) {
+                emit('stageComplete')
+                return
+            }
+            else {
+                justKidding.value = true
+                hasKidded = true
+                setTimeout(() => justKidding.value = false, 1000)
+                timer.value = Math.max(2, gaussianRandom(8, 3))
+            }
         }
     }
+
+    const justKidding = ref(false) //Show just kidding text?
+    let hasKidded = false
+
+    let intervalID = null
     onMounted(() => {
-        window.addEventListener('keydown', handleKeydown)
+        intervalID = setInterval(updateTimer, timerDelta * 1000)
     })
     onUnmounted(() => {
-        window.removeEventListener('keydown', handleKeydown)
+        clearInterval(intervalID)
     })
+
+    const hiHeights = Array.from({ length: hiCount }, () => { return Math.random() * 100 - 5 })
+    const hiLetterPairs = Array.from({ length: hiCount }, () => { return allLetterPairs[Math.floor(Math.random() * allLetterPairs.length)] })
+    const hiCount = 100
+    const getStyle = (i) => {
+        return {
+            position: "Fixed",
+            left: "-100px",
+            top: `${hiHeights[i]}vh`,
+            zIndex: "1000",
+            animationDelay: `${i / hiCount * 5}s` // 0.1s stagger per item
+        }
+    }
 </script>
 
 <template>
-    <div style="font-size: 2rem">DISTRACTION GRAAAHHH</div>
-    <img src="@/assets/arrow-right-long.svg"
-         :class="['CustomButton','NextButton']"
-         @click="emit('stageComplete')" />
+    <div class="DistractAnimation" style="font-size: 2rem;position:absolute;top:20vh;">
+        DISTRACTION GRAAAHHH
+    </div>
+    <div style="font-size: 8rem; position: absolute; top: 20vh; transform: translate(-50%,50%);">
+        {{Math.round(timer)}}
+    </div>
+    <div v-if="justKidding" style="font-size: 2rem; position: absolute; bottom: 35vh; transform: translate(-50%,50%);">
+        just kidding :)
+    </div>
+    <div v-for="i in hiCount" :style="getStyle(i)" class="hi">
+        {{hiLetterPairs[i]}}
+    </div>
 </template>
+
+<style>
+
+    .hi{
+        animation: hiAnimation 5s linear infinite;
+    }
+    @keyframes hiAnimation{
+        from {
+            transform: translate(0vw,0vh);
+        }
+        to{
+            transform: translate(150vw, 0vh);
+        }
+    }
+
+
+    .DistractAnimation {
+        animation: distractionAnimationMove 1.5s ease-in-out infinite;
+    }
+    @keyframes distractionAnimationMove {
+        0% {
+            transform: translate(-50%,50%) rotate(20deg) rotate3d(0, 1, 0, 20deg);
+        }
+        50% {
+            transform: translate(-50%,50%) rotate(-20deg) rotate3d(0, 1, 0, -20deg);
+        }
+        100% {
+            transform: translate(-50%,50%) rotate(20deg) rotate3d(0, 1, 0, 20deg);
+        }
+    }
+</style>

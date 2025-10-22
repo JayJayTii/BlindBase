@@ -174,7 +174,7 @@
                     <img v-if="cardStore.getCardsToPracticeCount(sheetStore.sheets[index].id) > 0"
                          src="@/assets/arrow-right-long.svg"
                          class="CustomButton"
-                         style="height: 45px; width: 100px;"
+                         style="height: 40px; width: 60px;"
                          @click="emit('beginPractice',sheetStore.sheets[index].id)" />
                 </div>
                 <div class="RowGap" v-for="x in columnHeaders.length" v-if="index + 1 < sheetStore.sheets.length"></div>
@@ -224,7 +224,7 @@
         column-gap: 5px;
         row-gap:5px;
         color: var(--text-color);
-        grid-template-columns: 1fr 1fr 0.25fr 0.7fr 0.7fr 0.7fr 0.5fr;
+        grid-template-columns: 1.5fr 1fr 0.25fr 0.7fr 0.7fr 0.7fr 0.5fr;
     }
 
     .RowGap {

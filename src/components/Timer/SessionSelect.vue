@@ -24,7 +24,7 @@
         <div style="display: flex;flex-direction: row; justify-content: space-between; width: 100%; ">
             <div></div>
             <img @click="timerStore.newSession(); emit('updateSessionID',timerStore.sessions.length-1);"
-                 class="CustomButton" src="@/assets/add.svg" style="height:30px;" />
+                 class="CustomButton" src="@/assets/add.svg" style="height:40px;" />
         </div>
     </div>
 </template>

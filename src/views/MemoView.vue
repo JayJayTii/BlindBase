@@ -156,8 +156,8 @@
     }
 
     .NextButton {
-        height: 3rem;
-        width: 80px;
+        height: 50px;
+        width: 75px;
         position: fixed;
         right: 0px;
         bottom: 0px;

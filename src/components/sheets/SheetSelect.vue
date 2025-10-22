@@ -38,11 +38,11 @@
             
             <div style="display: flex;flex-direction: row; justify-content: space-between; width: 100%; ">
                 <!------UPLOAD------>
-                <img src="@/assets/upload.svg" class="CustomButton" style="height:30px;" 
+                <img src="@/assets/upload.svg" class="CustomButton" style="height:40px;" 
                       @click="UploadFile()" />
 
                 <img @click="sheetStore.newSheet(); emit('updateSheetID',sheetStore.sheets.length-1);"
-                     class="CustomButton" src="@/assets/add.svg" style="height:30px;" />
+                     class="CustomButton" src="@/assets/add.svg" style="height:40px;" />
             </div>
         </div>
     </div>

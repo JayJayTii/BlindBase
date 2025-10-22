@@ -26,7 +26,7 @@
         <img src="@/assets/arrow-left-long.svg"
              @click="emit('quitRun')"
              class="CustomButton"
-             style="width:80px;height:3rem;margin-left:10px;"/>
+             style="width:75px;height:50px;margin-left:10px;"/>
         <div>Mode: {{ props.runData.mode }}</div>
         <div>{{getPairSelectString()}}</div>
         <div>

@@ -25,13 +25,17 @@
 <template>
     <div class="Panel">
         <div style="display:flex;flex-direction:row;height:">
-            <img @click="emit('unselectSolve')"
-                 src="@/assets/arrow-left-long.svg"
-                 class="CustomButton"
-                 style="height:2rem;width:30%;"/>
+            
             <div class="PanelHeader"> Solve {{props.solveIndex + 1}}: </div>
         </div>
         <div class="SolveDetails">
+            <!------CONTROLS------>
+            <div style="display:flex; justify-content:space-between;  width:100%;">
+                <img @click="emit('unselectSolve')" src="@/assets/arrow-left-long.svg" class="CustomButton" style="width:60px; height: 40px;" />
+                <img @click="Reconstruct()"         src="@/assets/ReconsIcon.png"      class="CustomButton" style="width:52px; height:40px;"  />
+                <img @click="emit('deleteSolve')"   src="@/assets/delete-bin.svg"      class="CustomButton" style="width:40px; height:40px;" />
+            </div>  
+            
             <!------SOLVE RESULTS------>
             <div>{{selectedSolve.scramble}}</div>
             <h1>{{getSolveTimeString(selectedSolve)}}</h1>
@@ -46,11 +50,7 @@
                 </template>
             </div>
 
-            <!------CONTROLS------>
-            <div style="display:flex; justify-content:space-between;  width:100%;">
-                <img src="@/assets/ReconsIcon.png" class="CustomButton" style="width:65px; height:50px;" @click="Reconstruct()" />
-                <img src="@/assets/delete-bin.svg" @click="emit('deleteSolve')" class="CustomButton" style="width:50px; height:50px;" />
-            </div>
+
         </div>
     </div>
 </template>

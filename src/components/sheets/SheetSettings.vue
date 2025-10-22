@@ -80,10 +80,10 @@
 
         <div style="display: flex; flex-direction: row; justify-content:space-between; width:100%;">
             <!------DOWNLOAD------>
-            <img src="@/assets/download.svg" @click="downloadSheet()" class="CustomButton"  style="height:50px;"/>
+            <img src="@/assets/download.svg" @click="downloadSheet()" class="CustomButton"  style="height:40px;"/>
 
             <!------DELETE------>
-            <img src="@/assets/delete-bin.svg" @click="emit('deleteSheet')" class="CustomButton" style="height:50px;" />
+            <img src="@/assets/delete-bin.svg" @click="emit('deleteSheet')" class="CustomButton" style="height:40px;" />
         </div>
     </div>
     <div v-else class="Panel">
