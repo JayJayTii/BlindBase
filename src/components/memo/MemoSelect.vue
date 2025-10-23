@@ -344,11 +344,13 @@ import { getXHeadings } from "../../helpers/sheets"
         justify-self: start;
         align-items: center;
         height: 10vh;
-        width: calc(100% - 20px);
+
+        width: 100vw;
         display: flex;
-        flex-direction:row;
+        flex-direction: row;
         gap: 10px;
-        transform: translate(20px,10px);
+        padding-inline: 20px;
+        border: 2px solid var(--brand-700);
     }
     .MemoViewHeader {
         display: flex;
@@ -359,9 +361,9 @@ import { getXHeadings } from "../../helpers/sheets"
     }
 
     .MemoSelectLine {
-        border-block-end: 5px solid var(--brand-700);
+        border-block-end: 5px solid var(--grey-400);
         border-radius: 5px;
         max-width: 100px;
-        min-width:100px;
+        min-width: 100px;
     }
 </style>

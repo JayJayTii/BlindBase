@@ -20,6 +20,8 @@
     let pieceType = 0
     let useScramble = false
 
+    const solveCount = ref(1)
+
     const nextScramble = ref("")
 
     const scrambleStr = ref("")
@@ -32,6 +34,7 @@
     const timerKey = ref(0)
     function solveComplete(solve) {
         if (solve) {
+            solveCount.value++
             lastSolveTime.value = formatTime(solve.solveTime)
             lastScramble.value = scrambleStr.value
         }
@@ -89,24 +92,35 @@
                 @update:on-selected="updatePossiblePairs"/>
 
     <div style="display:grid;grid-template-columns:35% 30% 35%;">
-        <div id="execColumn">
+        <div v-if="(currentTimerStage < 2 || currentTimerStage > 3)" id="execColumn">
+            <div v-show="lastScramble.length > 0" style="font-weight:bold; font-size:2rem;">
+                {{solveCount - 1}}
+            </div>
             <div>{{lastScramble}}</div>
             <div style="font-size:5rem;transform:translate(0%,20%);font-weight:bold;">{{lastSolveTime}}</div>
         </div>
+        <div v-else></div>
         <div>
+            <div v-show="selectionFinished()" style="text-align:center; color:var(--grey-100); font-weight:bold; font-size:2rem;">
+                {{(currentTimerStage < 2 || currentTimerStage > 3) ? solveCount : "&nbsp"}}
+            </div>
             <Timer v-if="selectionFinished()"
                    :key="timerKey"
                    ref="timer"
                    :clearOnSolved="true"
                    @update:solve-complete="solveComplete"
-                   style="height: 83vh;width:100%;" />
+                   style="height: 73vh;width:100%;" />
         </div>
 
-        <div id="execColumn" v-show="selectionFinished()">
+        <div id="execColumn" v-if="selectionFinished() && (currentTimerStage < 2 || currentTimerStage > 3)">
+            <div style="font-weight:bold; font-size:2rem;">
+                {{solveCount + 1}}
+            </div>
             <div>{{nextScramble}}</div>
             <div style="font-size:5rem;transform:translate(0%,20%);font-weight:bold;">0.00</div>
 
         </div>
+        <div v-else></div>
     </div>
 </template>
 
@@ -114,7 +128,7 @@
     #execColumn {
         display: flex;
         flex-direction: column;
-        color: var(--grey-200);
+        color: var(--grey-300);
         text-align: center;
         font-size: 1.2rem;
         height: 60vh;

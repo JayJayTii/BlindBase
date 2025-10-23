@@ -168,7 +168,7 @@
         color: var(--grey-100);
     }
     .StopwatchStartSpaceDown {
-        color: var(--brand-200);
+        color: var(--brand-300);
     }
     .StopwatchEndSpaceDown {
         color: var(--error-200);

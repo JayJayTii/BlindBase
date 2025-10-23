@@ -350,14 +350,16 @@
         justify-self: center;
         align-items: center;
         height: 10vh;
-        width: 97.5vw;
+        padding-inline: 1.5vw;
+        width: 100vw;
         display: grid;
         grid-template-columns: 0.2fr 1fr 0.2fr 1fr 0.2fr 1fr 0.2fr 1fr 0.2fr;
         gap: 10px;
+        border: 2px solid var(--brand-700);
     }
 
     .ExecSelectLine{
-        border-block-end: 5px solid var(--brand-700);
+        border-block-end: 5px solid var(--grey-400);
         border-radius:5px;
     }
 </style>
