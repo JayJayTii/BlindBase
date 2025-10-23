@@ -6,6 +6,7 @@
     const props = defineProps({
         lastSolve: Object,
         twoStage: Boolean,
+        clearOnSolved: Boolean,
     })
     const stages = {
         finished: 0,
@@ -81,6 +82,8 @@
         }
         else if (timerStage.value === stages.stopping) { //Go back to default screen
             timerStage.value = stages.finished
+            if (props.clearOnSolved)
+                solve.value.solveTime = 0
         }
     }
 
@@ -96,11 +99,12 @@
     defineExpose({
         setScramble,
         isSolving,
+        timerStage,
     })
 </script>
 
 <template>
-    <div class="TimerContainer">
+    <div id="TimerContainer" style="position:relative;">
         <!---------SCRAMBLE---------->
         <div class="ScrambleText" v-if="!isSolving">
             {{scramble}}
@@ -135,11 +139,11 @@
     }
 
     .ScrambleText {
+        position: absolute;
+        transform: translate(-50%, 0%);
         width: 100%;
         text-align: center;
-        position: absolute;
         left: 50%;
-        transform: translate(-50%, 0%);
         font-size: 2rem;
         color: var(--grey-100);
     }
