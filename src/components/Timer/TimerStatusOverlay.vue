@@ -18,16 +18,12 @@
     function handleKeydown(event) {
         //Status change keybinds
         if (event.code === "ArrowRight") {
-            if (solve.value.status < timerStore.solveStatuses.length - 1) {
-                solve.value.status++
-                timerStore.saveState()
-            }
+            solve.value.status = (solve.value.status + 1) % 3
+            timerStore.saveState()
         }
         else if (event.code === "ArrowLeft") {
-            if (solve.value.status > 0) {
-                solve.value.status--
-                timerStore.saveState()
-            }
+            solve.value.status = (solve.value.status + 3 - 1) % 3
+            timerStore.saveState()
         }
     }
     onMounted(() => {

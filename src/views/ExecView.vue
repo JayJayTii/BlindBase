@@ -92,35 +92,30 @@
                 @update:on-selected="updatePossiblePairs"/>
 
     <div style="display:grid;grid-template-columns:35% 30% 35%;">
-        <div v-if="(currentTimerStage < 2 || currentTimerStage > 3)" id="execColumn">
+        <div id="execColumn">
             <div v-show="lastScramble.length > 0" style="font-weight:bold; font-size:2rem;">
                 {{solveCount - 1}}
             </div>
             <div>{{lastScramble}}</div>
-            <div style="font-size:5rem;transform:translate(0%,20%);font-weight:bold;">{{lastSolveTime}}</div>
         </div>
-        <div v-else></div>
         <div>
             <div v-show="selectionFinished()" style="text-align:center; color:var(--grey-100); font-weight:bold; font-size:2rem;">
-                {{(currentTimerStage < 2 || currentTimerStage > 3) ? solveCount : "&nbsp"}}
+                {{solveCount}}
             </div>
             <Timer v-if="selectionFinished()"
                    :key="timerKey"
                    ref="timer"
-                   :clearOnSolved="true"
+                   :clearOnSolved="false"
                    @update:solve-complete="solveComplete"
                    style="height: 73vh;width:100%;" />
         </div>
 
-        <div id="execColumn" v-if="selectionFinished() && (currentTimerStage < 2 || currentTimerStage > 3)">
+        <div id="execColumn" v-if="selectionFinished()">
             <div style="font-weight:bold; font-size:2rem;">
                 {{solveCount + 1}}
             </div>
-            <div>{{nextScramble}}</div>
-            <div style="font-size:5rem;transform:translate(0%,20%);font-weight:bold;">0.00</div>
-
+            <div style="color:transparent;text-shadow:0 0 8px var(--grey-300);">{{nextScramble}}</div>
         </div>
-        <div v-else></div>
     </div>
 </template>
 
@@ -131,8 +126,7 @@
         color: var(--grey-300);
         text-align: center;
         font-size: 1.2rem;
-        height: 60vh;
+        height: 100%;
         padding-inline: 10%;
-        transform:translate(0vw,20vh);
     }
 </style>

@@ -38,14 +38,17 @@
 
     let stopwatchStartTime = 0
     let timerUpdate = null
+    let acceptSpaceInput = true
+    let currentKeyPressed = "" //Avoids confusion when pressing two keys at once to progress the timer
+    let waitingBeforeExec = false
     function handleKeydown(event) {
         const el = document.activeElement
         //Don't start timer if typing a keybind as text
-        if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.isContentEditable)
+        if (!acceptSpaceInput || el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.isContentEditable)
             return
 
         if (timerStage.value === stages.finished) {
-            if (event.code === 'Space') {
+            if (event.code === 'Space' || event.code === 'Mouse0') {
                 timerStage.value = stages.waiting //Wait for space up
                 solve.value = {}
                 solve.value.memoTime = 0
@@ -54,7 +57,12 @@
                 solve.value.scramble = scramble
             }
         }
-        if (timerStage.value === stages.executing) { //Stop timer
+        if (timerStage.value === stages.memoing && currentKeyPressed == "") { //Wait for key up to start exec stage
+            currentKeyPressed = event.code
+            waitingBeforeExec = true
+        }
+        if (timerStage.value === stages.executing && currentKeyPressed == "") { //Stop timer
+            currentKeyPressed = event.code
             clearInterval(timerUpdate)
             solve.value.solveTime = new Date().getTime() - stopwatchStartTime
             solve.value.status = 0 //Default to no penalty
@@ -65,7 +73,7 @@
     }
     function handleKeyup(event) {
         const el = document.activeElement
-        if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.isContentEditable)
+        if (!acceptSpaceInput || el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.isContentEditable)
             return
 
         if (timerStage.value === stages.waiting) { //Begin timer
@@ -76,15 +84,31 @@
                 solve.value.solveTime = new Date().getTime() - stopwatchStartTime
             }, 10)
         }
-        else if (timerStage.value === stages.memoing) { //Begin exec stage
+        else if (event.code == currentKeyPressed && timerStage.value === stages.memoing) { //Begin exec stage
+            currentKeyPressed = ""
+            waitingBeforeExec = false
             timerStage.value = stages.executing
             solve.value.memoTime = solve.value.solveTime //Copy current time into memoTime
         }
-        else if (timerStage.value === stages.stopping) { //Go back to default screen
+        else if (event.code == currentKeyPressed && timerStage.value === stages.stopping) { //Go back to default screen
+            currentKeyPressed = ""
             timerStage.value = stages.finished
             if (props.clearOnSolved)
                 solve.value.solveTime = 0
+            //Don't accept new spacebar presses for a bit after ending a solve just in case
+            acceptSpaceInput = false
+            setTimeout(() => {
+                acceptSpaceInput = true
+            }, 1000)
         }
+    }
+    function mouseDown(event) {
+        event.code = "Mouse" + event.button
+        handleKeydown(event)
+    }
+    function mouseUp(event) {
+        event.code = "Mouse" + event.button
+        handleKeyup(event)
     }
 
     onMounted(() => {
@@ -104,19 +128,21 @@
 </script>
 
 <template>
-    <div id="TimerContainer" style="position:relative;">
+    <div id="TimerContainer" @mousedown="mouseDown" @mouseup="mouseUp" style="position:relative;">
         <!---------SCRAMBLE---------->
         <div class="ScrambleText" v-if="!isSolving">
             {{scramble}}
         </div>
 
         <!---------MEMO/EXEC--------->
-        <div class="StageText" v-if="isSolving && props.twoStage">{{timerStage === stages.memoing ? "MEMO" : "EXEC"}}</div>
+        <div :class="['StageText', waitingBeforeExec ? 'StopwatchStartSpaceDown' : '']" v-if="isSolving && props.twoStage">
+            {{timerStage === stages.memoing ? "MEMO" : "EXEC"}}
+        </div>
 
         <div class="StopwatchContainer">
             <!------STOPWATCH------>
             <div :class="['StopwatchText',
-            timerStage === stages.waiting ? 'StopwatchStartSpaceDown' :
+            (timerStage === stages.waiting || waitingBeforeExec) ? 'StopwatchStartSpaceDown' :
             timerStage === stages.stopping ? 'StopwatchEndSpaceDown' : '']"
                  :key="solve">
                 {{getSolveTimeString(solve.value)}}
@@ -168,7 +194,7 @@
         color: var(--grey-100);
     }
     .StopwatchStartSpaceDown {
-        color: var(--brand-300);
+        color: var(--brand-200);
     }
     .StopwatchEndSpaceDown {
         color: var(--error-200);

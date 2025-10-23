@@ -36,7 +36,12 @@
 
     let currentScramble = ""
     function generateNewScramble() {
-        currentScramble = new Scramble(20).toString()
+        const scrambleSequence = new Scramble(20)
+        const wideMoves = ['r','u','f']
+        for (var i = 0; i < Math.floor(3 * Math.random()); i++) {
+            scrambleSequence.add([wideMoves[Math.floor(3 * Math.random())], 1 + Math.floor(3 * Math.random())])
+        }
+        currentScramble = scrambleSequence.toString()
         nextTick(() => { if (timer.value) { timer.value.setScramble(currentScramble) }})
     }
     generateNewScramble()
@@ -51,12 +56,18 @@
     function selectSolve(index) {
         solveIndex.value = index
     }
+    const lastSolve = computed({
+        get: () => timerStore.sessions[timerStore.getSessionIndexWithID(sessionID.value)].solves.at(-1)
+    })
     async function DeleteSolve() {
         if (!(await confirmDialog.value.open('Are you sure you want to delete this solve?'))) {
             return
         }
-        timerStore.deleteSolve(sessionID.value, solveIndex.value)
         solveIndex.value = -1 //Unselect any solve
+        timerStore.deleteSolve(sessionID.value, solveIndex.value)
+
+        timerKey.value++
+        nextTick(() => { if (timer.value) { timer.value.setScramble(currentScramble) } })
     }
 
     //The following is done to detect updates to the status of the last solve and update the timer text
@@ -96,14 +107,14 @@
         <div class="Panel" style="width: 60vw; height: 93vh; position: relative; border: 3px solid var(--border-color);">
             <Timer style="width:100%; height:100%;"
                    v-if="timerStore.isValidSessionID(sessionID)"
-                   :lastSolve="timerStore.sessions[timerStore.getSessionIndexWithID(sessionID)].solves.at(-1)"
+                   :lastSolve="lastSolve"
                    :twoStage="true"
                    @update:solve-complete="onSolveComplete"
                    ref="timer"
                    :key="timerKey" />
             <!--:key="sessionID + '-' + JSON.stringify(timerStore.sessions[timerStore.getSessionIndexWithID(sessionID)].solves.at(-1))"-->
 
-            <TimerStatusOverlay v-if="timer && !timer.isSolving"
+            <TimerStatusOverlay v-if="timerStore.isValidSessionID(sessionID) && timer && !timer.isSolving"
                                 id="timerStatusOverlay"
                                 @update:solve-status="timerKey++"
                                 :sessionID="sessionID" />
