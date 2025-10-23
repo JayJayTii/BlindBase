@@ -7,7 +7,6 @@
         lastSolve: Object,
         twoStage: Boolean,
     })
-
     const stages = {
         finished: 0,
         waiting: 1,

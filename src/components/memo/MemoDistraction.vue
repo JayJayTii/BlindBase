@@ -20,7 +20,6 @@
 
         if (timer.value <= 0) {
             const rand = Math.random()
-            console.log(rand)
             if (rand < 0.9 || hasKidded) {
                 emit('stageComplete')
                 return

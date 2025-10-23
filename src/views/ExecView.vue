@@ -9,8 +9,11 @@
     const settingsStore = useSettingsStore()
     settingsStore.loadState()
 
-    nextTick(() => { scramblers['333'].initialize(null, Math) })
-
+    //WHY DOES THIS WORK???
+    setTimeout(() => {
+        scramblers['333'].initialize(null, Math)
+    }, 0)
+    
     let fullScramble = false
     let possiblePairs = []
     let pieceType = 0
@@ -27,6 +30,7 @@
 
         const pair = possiblePairs[Math.floor(Math.random() * possiblePairs.length)]
         if (!useScramble) {
+            console.log("Setting from " + possiblePairs)
             timer.value.setScramble(pair)
             return
         }
@@ -43,11 +47,9 @@
     function updatePossiblePairs(newFullScramble, newPairs, newPieceType, newUseScramble) {
         fullScramble = newFullScramble
         possiblePairs = newPairs
+        console.log("new pairs " + newPairs)
         pieceType = newPieceType
         useScramble = newUseScramble
-
-        if (newPairs == []) 
-            return
         nextTick(() => {
             if(!timer.value)
                 return
@@ -56,7 +58,7 @@
     }
 
     function selectionFinished() {
-        return select.value ? select.value.selectionFinished() : false
+        return select.value ? select.value.selectionFinished : false
     }
 </script>
 

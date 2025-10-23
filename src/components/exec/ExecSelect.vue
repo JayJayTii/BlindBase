@@ -1,29 +1,27 @@
 <script setup>
-    import { computed, watch, ref, reactive, nextTick } from "vue"
+    import { computed, watch, ref, reactive, nextTick, onMounted, onUnmounted} from "vue"
     import SheetGrid from '@/components/SheetGrid.vue'
-    import { allEdgePairs, allCornerPairs} from '@/helpers/pairs.js'
-
+    import { allEdgePairs, allCornerPairs } from '@/helpers/pairs.js'
+    import { getFilledCells } from '@/helpers/sheets.js'
 
     import { useSheetStore } from '@/stores/SheetStore'
     const sheetStore = useSheetStore()
-    sheetStore.loadState()
     import { useCardStore } from '@/stores/CardStore'
     const cardStore = useCardStore()
+    sheetStore.loadState()
     cardStore.loadState()
 
     const emit = defineEmits(['update:on-selected'])
-    defineExpose({
-        selectionFinished
-    })
 
     function resetValues() {
-        modeValue.value = -1
-        pairMode.value = -1
-        pairModeSheetID.value = -1
+        modeValue.value = ""
+        pairSelect.value = ""
+        pairSelectSheetID.value = -1
         scrambleMode.value = -1
         customSheet.value = {}
     }
 
+    //Corners or Edges
     const pieceTypeValue = ref(-1)
     const pieceType = computed({
         get: () => pieceTypeValue.value,
@@ -34,46 +32,61 @@
             pieceTypeValue.value = newValue
         }
     })
-    const pieceTypeSelected = computed({
-        get: () => pieceType.value >= 0
-    })
+    const pieceTypeSelected = computed({get: () => pieceType.value != -1 })
 
-    const modeValue = ref(-1)
+    //Full or one pair
+    const modeValue = ref("")
     const mode = computed({
         get: () => modeValue.value,
         set: (newValue) => {
-            if (newValue !== modeValue.value) {
+            if (newValue !== modeValue.value)
                 resetValues()
-            }
+
             modeValue.value = newValue
+
+            if (newValue == "Full")
+                GeneratePairsAndEmit()
         }
     })
-    const modeSelected = computed({
-        get: () => pieceTypeSelected.value && mode.value == 1
-    })
+    const modeSelected = computed({ get: () => (mode.value != "") })
 
-    const pairModeValue = ref(-1)
-    const pairMode = computed({
-        get: () => pairModeValue.value,
+    //From all, from sheets, from cards, from custom
+    const pairSelectValue = ref("")
+    const pairSelect = computed({
+        get: () => pairSelectValue.value,
         set: (newValue) => {
-            pairModeValue.value = newValue
+            pairSelectValue.value = newValue
 
-            pairModeSheetID.value = -1
+            pairSelectSheetID.value = -1
             scrambleMode.value = -1
 
-            if (newValue == 3) {
-                highlightedCells.value = []
+            if (newValue == "From custom") {
+                SelectNone()
                 generateCustomPairSheet()
             }
         }
     })
-    const pairModeSheetID = ref(-1)
-    const pairModeSelected = computed({
-        get: () => modeSelected.value &&
-            (pairMode.value == 0 ||
-            (pairMode.value == 1 && pairModeSheetID.value >= 0) ||
-            (pairMode.value == 2 && pairModeSheetID.value >= 0) ||
-            (pairMode.value == 3 && highlightedCells.value.length > 0))
+    const pairSelectSelected = computed({ get: () => (pairSelect.value != "")})
+    const pairSelectSheetIDValue = ref(-1)
+    const pairSelectSheetID = computed({
+        get: () => pairSelectSheetIDValue.value,
+        set: (newValue) => {
+            const oldValue = pairSelectSheetIDValue.value
+            pairSelectSheetIDValue.value = newValue
+            if (newValue != -1 && oldValue != newValue && scrambleMode.value != -1) {
+                console.log("emittingoldValue")
+                GeneratePairsAndEmit()
+            }
+        }
+    })
+
+    const showScrambleModeSelect = computed({
+        get: () => pieceType.value != -1
+            && mode.value == "One pair"
+            && (pairSelect.value == 'From all pairs'
+                || (pairSelect.value == "From sheet" && pairSelectSheetID.value != -1)
+                || (pairSelect.value == "From cards" && pairSelectSheetID.value != -1)
+                || (pairSelect.value == "From custom" && getSelectedCellCount() > 0))
     })
 
     const scrambleModeValue = ref(-1)
@@ -82,31 +95,31 @@
         set: (newValue) => {
             scrambleModeValue.value = newValue
 
-            if (selectionFinished())
+            if(scrambleMode.value > -1)
                 GeneratePairsAndEmit()
         }
     })
-    const scrambleModeSelected = computed({
-        get: () => pairModeSelected.value && scrambleMode.value >= 0
-    })
 
-    function selectionFinished() {
-        return pieceType.value >= 0 && (
-            mode.value == 0 ||
-            mode.value == 1 && scrambleModeSelected.value)
-    }
+    const selectionFinished = computed({
+        get: () => pieceType.value != -1
+            && ((mode.value == "Full")
+                || (mode.value == "One pair"
+                    && (pairSelect.value == 'From all pairs'
+                        || (pairSelect.value == "From sheet" && pairSelectSheetID.value != -1)
+                        || (pairSelect.value == "From cards" && pairSelectSheetID.value != -1)
+                        || (pairSelect.value == "From custom" && getSelectedCellCount() > 0))
+                    && scrambleMode.value != -1)
+               )      
+    })
 
     function GeneratePairsAndEmit() {
         let pairs = []
-        switch (Number(pairMode.value)) {
-            case 0: //All pairs
-                if (pieceType.value === 1)
-                    pairs = allCornerPairs
-                else
-                    pairs = allEdgePairs
+        switch (pairSelect.value) {
+            case "From all pairs":
+                pairs = (Number(pieceType.value) === 1) ? allCornerPairs : allEdgePairs
                 break
-            case 1: //All pairs from sheet
-                const sheet = sheetStore.getSheet(pairModeSheetID.value)
+            case "From sheet":
+                const sheet = sheetStore.getSheet(pairSelectSheetID.value)
                 for (var y = 0; y < sheet.yHeadings.length; y++) {
                     for (var x = 0; x < sheet.xHeadings.length; x++) {
                         if (sheet.grid[y][x] !== "") {
@@ -115,27 +128,27 @@
                     }
                 }
                 break
-            case 2: //All pairs from cards
+            case "From cards":
                 const cards = cardStore.cards
-                    .filter((card) => card.sheetID == pairModeSheetID.value
+                    .filter((card) => card.sheetID == pairSelectSheetID.value
                         && card.successCount > 0)
                 for (var i = 0; i < cards.length; i++) {
-                    pairs.push(sheetStore.coordToKey(pairModeSheetID.value, cards[i].coord))
+                    pairs.push(sheetStore.coordToKey(pairSelectSheetID.value, cards[i].coord))
                 }
                 break
-            case 3: //All pairs from custom
-                pairs = highlightedCells.value.map((cell) => customSheet.value.grid[cell.y][cell.x])
+            case "From custom":
+                for (var i = 0; i < 24; i++) {
+                    for (var j = 0; j < 24; j++) {
+                        if(selectedCells.value[i][j])
+                            pairs.push(customSheet.value.grid[i][j])
+                    }
+                }
                 break
             default:
         }
-        emit('update:on-selected', mode.value == 0, pairs, Number(pieceType.value), scrambleMode.value == 0)
+        emit('update:on-selected', mode.value == "Full", pairs, Number(pieceType.value), scrambleMode.value == 0)
     }
-    watch(selectionFinished, () => {
-        if (selectionFinished()) {
-            GeneratePairsAndEmit()
-        }
-    })
-
+    
     function getValidCardDecks() {
         const out = [
             ...new Set(
@@ -171,159 +184,163 @@
 
     const editingCustomPairs = ref(false)
     const gridRef = ref(null)
-    const highlightedCells = ref([])
-    function onCustomPairClicked(value) {
-        if (customSheet.value.grid[value.x][value.y] === "") {
+    const selectedCells = ref(Array.from({ length: 24 }, () =>
+        Array.from({ length: 24 }, () => false),
+    )) //Selected cells stored as a matrix of booleans which say if that cell is selected
+    function UpdateSelectedCells() {
+        const formattedSelectedCells = selectedCells.value.map((row, y) =>
+            row.map((cell, x) => { return cell ? { x: x, y: y } : null })
+                .filter(cell => cell != null)).flat()
+        nextTick(() => {
+            if (gridRef.value)
+                gridRef.value.changeHighlightedCells(formattedSelectedCells)
+            if (getSelectedCellCount() > 0 && scrambleMode.value != -1)
+                GeneratePairsAndEmit()
+        })
+    }
+    nextTick(() => { UpdateSelectedCells() })
+
+    function getSelectedCellCount() {
+        let count = 0
+        for (var i = 0; i < 24; i++) {
+            for (var j = 0; j < 24; j++) {
+                count += selectedCells.value[i][j] ? 1 : 0
+            }
+        }
+        return count
+    }
+    function SelectAll() {
+        for (var i = 0; i < 24; i++) {
+            for (var j = 0; j < 24; j++) {
+                selectedCells.value[i][j] = (customSheet.value.grid[i][j] != "")
+            }
+        }
+        UpdateSelectedCells()
+    }
+    function SelectNone() {
+        selectedCells.value = Array.from({ length: 24 }, () => Array.from({ length: 24 }, () => false),)
+        UpdateSelectedCells()
+    }
+    function onCustomPairClicked(coord) {
+        if (customSheet.value.grid[coord.y][coord.x] === "")
+            return //Empty cell, not allowed!
+
+        selectedCells.value[coord.y][coord.x] = !selectedCells.value[coord.y][coord.x]
+        UpdateSelectedCells()
+    }
+    function lineClicked(isCol, index) {
+        let lineFilled = true
+        for (var i = 0; i < customSheet.value.grid.length; i++) {
+            if (customSheet.value.grid[isCol ? i : index][isCol ? index : i] != ''
+                && !selectedCells.value[isCol ? i : index][isCol ? index : i]) {
+                lineFilled = false
+                break
+            }
+        }
+        if (lineFilled) { //Remove line
+            for (var i = 0; i < 24; i++) {
+                selectedCells.value[isCol ? i : index][isCol ? index : i] = false
+            }
+            UpdateSelectedCells()
             return
         }
-        if (highlightedCells.value.some(cell => cell.x === value.x && cell.y === value.y)) {
-            //If it already includes it, remove it
-            highlightedCells.value = highlightedCells.value.filter(cell => !(cell.x === value.x && cell.y === value.y))
+        //Else add line
+        for (var i = 0; i < 24; i++) {
+            const newValue = (customSheet.value.grid[isCol ? i : index][isCol ? index : i] != "")
+            selectedCells.value[isCol ? i : index][isCol ? index : i] = newValue
         }
-        else {
-            //If it wasn't in it, add it
-            highlightedCells.value.push(value)
-        }
-        gridRef.value.changeHighlightedCells(highlightedCells.value)
-        if (selectionFinished()) {
-            GeneratePairsAndEmit()
-        }
-    }
-    function columnClicked(columnIndex) {
-        let filledCellsInColumn = 0
-        for (var i = 0; i < customSheet.value.yHeadings.length; i++) {
-            if (customSheet.value.grid[i][columnIndex] !== "")
-                filledCellsInColumn++
-        }
-        let highlightedCellsInColumn = highlightedCells.value.filter((coord) => (coord.y === columnIndex))
-        const columnFilled = highlightedCellsInColumn.length >= filledCellsInColumn
-
-        if (columnFilled) {
-            for (var i = 0; i < highlightedCellsInColumn.length; i++) {
-                onCustomPairClicked(highlightedCellsInColumn[i])
-            }
-        }
-        else {
-            highlightedCellsInColumn = highlightedCellsInColumn.map((coord) => coord.x)
-            for (var i = 0; i < customSheet.value.yHeadings.length; i++) {
-                //Select every cell that is in the column and not highlighted
-                if (customSheet.value.grid[columnIndex][i] !== "" && highlightedCellsInColumn.indexOf(i) == -1) {
-                    onCustomPairClicked({ x: i, y: columnIndex })
-                }
-            }
-        }
-    }
-    function rowClicked(rowIndex) {
-        let filledCellsInRow = 0
-        for (var i = 0; i < customSheet.value.xHeadings.length; i++) {
-            if (customSheet.value.grid[rowIndex][i] !== "")
-                filledCellsInRow++
-        }
-        let highlightedCellsInRow = highlightedCells.value.filter((coord) => (coord.x === rowIndex))
-        const rowFilled = highlightedCellsInRow.length >= filledCellsInRow
-
-        if (rowFilled) {
-            for (var i = 0; i < highlightedCellsInRow.length; i++) {
-                onCustomPairClicked(highlightedCellsInRow[i])
-            }
-        }
-        else {
-            highlightedCellsInRow = highlightedCellsInRow.map((coord) => coord.y)
-            for (var i = 0; i < customSheet.value.xHeadings.length; i++) {
-                //Select every cell that is in the row and not highlighted
-                if (customSheet.value.grid[rowIndex][i] !== "" && highlightedCellsInRow.indexOf(i) == -1) {
-                    onCustomPairClicked({ x: rowIndex, y: i })
-                }
-            }
-        }
+        UpdateSelectedCells()
     }
     function sheetClicked() {
-        let filledCellsInSheet = 0
-        for (var i = 0; i < customSheet.value.yHeadings.length; i++) {
-            for (var j = 0; j < customSheet.value.xHeadings.length; j++) {
-                if (customSheet.value.grid[i][j] !== "")
-                    filledCellsInSheet++
-            }
-        }
-        const sheetFilled = highlightedCells.value.length >= filledCellsInSheet
-        if (sheetFilled) {
-            for (var i = customSheet.value.yHeadings.length - 1; i >= 0; i--) {
-                for (var j = customSheet.value.xHeadings.length - 1; j >= 0; j--) {
-                    onCustomPairClicked({ x: j, y: i })
+        for (var i = 0; i < customSheet.value.grid.length; i++) {
+            for (var j = 0; j < customSheet.value.grid[0].length; j++) {
+                if (customSheet.value.grid[i][j] != '' && !selectedCells.value[i][j]) {
+                    //If any cells are not selected, it will always end up as SelectAll, so just do it now
+                    SelectAll()
+                    return
                 }
             }
         }
-        else {
-            const highlightedCellSet = new Set(highlightedCells.value.map(coord => coord.y * 24 + coord.x))
-            for (var i = 0; i < customSheet.value.xHeadings.length; i++) {
-                for (var j = 0; j < customSheet.value.yHeadings.length; j++) {
-                    //Select every cell that is in the sheet and not highlighted
-                    if (customSheet.value.grid[j][i] !== "" && !highlightedCellSet.has(j * 24 + i))
-                        onCustomPairClicked({ x: i, y: j })
-                }
-            }
-        }
+        SelectNone()
     }
+
+    function handleKeydown(event) {
+        //Don't want to block the timer's space input!
+        if (event.code === 'Space') {
+            event.preventDefault()
+        }
+
+    }
+    onMounted(() => {
+        window.addEventListener('keydown', handleKeydown)
+    })
+    onUnmounted(() => {
+        window.removeEventListener('keydown', handleKeydown)
+    })
+    defineExpose({
+        selectionFinished
+    })
 </script>
 
 <template>
     <div id="ExecSelect">
-        <select style="font-size: 2rem; text-align: center;" v-model="pieceType">
+        <select v-model="pieceType" style="font-size: 2rem; text-align: center;">
             <option value=1>Corners</option>
             <option value=2>Edges</option>
         </select>
 
         <div class="ExecSelectLine" v-if="pieceTypeSelected" />
-        <select style="font-size: 2rem; text-align: center;" v-model="mode" v-if="pieceTypeSelected">
-            <option value="0">Full</option>
-            <option value="1">One pair</option>
+        <select v-if="pieceTypeSelected" v-model="mode" style="font-size: 2rem; text-align: center;">
+            <option>Full</option>
+            <option>One pair</option>
         </select>
 
-        <div class="ExecSelectLine" v-if="modeSelected" />
-        <select style="font-size: 2rem; text-align: center;" v-model="pairMode" v-if="modeSelected">
-            <option value="0">From all pairs</option>
-            <option value="1" v-if="sheetStore.getSheetsOfType(Number(pieceType)).length > 0">From sheet</option>
-            <option value="2" v-if="getValidCardDecks().length">From cards</option>
-            <option value="3">From custom</option>
+        <div class="ExecSelectLine" v-if="mode == 'One pair'" />
+        <select v-if="mode == 'One pair'" v-model="pairSelect" style="font-size: 2rem; text-align: center;">
+            <option>From all pairs</option>
+            <option v-if="sheetStore.getSheetsOfType(Number(pieceType)).length > 0">From sheet</option>
+            <option v-if="getValidCardDecks().length">From cards</option>
+            <option>From custom</option>
         </select>
 
-        <div class="ExecSelectLine" v-if="pairMode == 1 || pairMode == 2 || pairMode == 3" />
-        <select style="font-size: 2rem;text-align:center;" v-model="pairModeSheetID" v-if="pairMode == 1">
-            <option v-for="sheet in sheetStore.getSheetsOfType(Number(pieceType))"
-                    :value="sheet.id">
-                '{{sheet.name}}'
-            </option>
-        </select>
-        <select style="font-size: 2rem;text-align:center;" v-model="pairModeSheetID" v-if="pairMode == 2">
-            <option v-for="sheet in getValidCardDecks()"
-                    :value="sheet.id">
-                '{{sheet.name}}'
-            </option>
-        </select>
-        <div style="display:flex; justify-content: center;" v-if="pairMode == 3">
-            <img @click="editingCustomPairs = !editingCustomPairs;
-                 nextTick(()=> {if(gridRef){gridRef.changeHighlightedCells(highlightedCells)}})"
-            src="@/assets/edit.svg"
-            :class="['CustomButton', editingCustomPairs ? 'CustomButtonHovered': '']"
-            style="height: 45px;"/>
+        <div class="ExecSelectLine" v-if="pairSelect == 'From sheet' || pairSelect == 'From cards' || pairSelect == 'From custom'" />
+        <div v-if="pairSelect == 'From sheet' || pairSelect == 'From cards' || pairSelect == 'From custom'">
+            <select v-if="pairSelect == 'From sheet'" v-model="pairSelectSheetID" style="font-size: 2rem;text-align:center;">
+                <option v-for="sheet in sheetStore.getSheetsOfType(Number(pieceType))"
+                        :value="sheet.id">
+                    '{{sheet.name}}'
+                </option>
+            </select>
+            <select v-if="pairSelect == 'From cards'" v-model="pairSelectSheetID" style="font-size: 2rem;text-align:center;">
+                <option v-for="sheet in getValidCardDecks()"
+                        :value="sheet.id">
+                    '{{sheet.name}}'
+                </option>
+            </select>
+            <div v-if="pairSelect == 'From custom'" style="display:flex; justify-content: center;">
+                <img @click="editingCustomPairs = !editingCustomPairs; UpdateSelectedCells()"
+                     src="@/assets/edit.svg"
+                     :class="['CustomButton', editingCustomPairs ? 'CustomButtonHovered': '']"
+                     style="height: 45px;" />
+            </div>
         </div>
 
-        <div class="ExecSelectLine" v-if="pairModeSelected" />
-        <select style="font-size: 2rem; text-align: center;" v-model="scrambleMode" v-if="pairModeSelected">
+        <div class="ExecSelectLine" v-if="showScrambleModeSelect" />
+        <select style="font-size: 2rem; text-align: center;" v-model="scrambleMode" v-if="showScrambleModeSelect">
             <option value="0">With scramble</option>
             <option value="1">No scramble</option>
         </select>
     </div>
 
-    <SheetGrid v-if="editingCustomPairs === true && pairMode == 3"
+    <SheetGrid v-if="editingCustomPairs === true && pairSelect == 'From custom'"
                style="height:83vh;"
                :sheet="customSheet.value"
                :key="customSheet.value"
                :formatEmpty="true" :fullLineSelection="true"
                ref="gridRef"
                @update:selected-cell="onCustomPairClicked"
-               @update:full-column-selected="rowClicked"
-               @update:full-row-selected="columnClicked"
+               @update:full-column-selected="lineClicked(true, $event)"
+               @update:full-row-selected="lineClicked(false, $event)"
                @update:full-sheet-selected="sheetClicked"/>
 </template>
 

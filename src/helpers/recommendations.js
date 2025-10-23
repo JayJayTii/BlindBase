@@ -33,6 +33,10 @@ export function GetRandomRecommendation(pieceType, key) {
         recommendations = getEdgeRecommendations(key, 0)
     }
     const index = Math.floor(Math.random() * recommendations.length)
+    if (recommendations[index] == undefined) {
+        console.log(recommendations)
+        console.log(index)
+    }
     return recommendations[index]
 }
 

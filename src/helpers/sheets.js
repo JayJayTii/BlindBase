@@ -1,6 +1,17 @@
 import { useSheetStore } from '@/stores/SheetStore.js'
 import { useSettingsStore } from '@/stores/SettingsStore.js'
 
+export function getFilledCells(sheet) {
+    let filledCells = 0
+    for (var i = 0; i < customSheet.value.yHeadings.length; i++) {
+        for (var j = 0; j < customSheet.value.xHeadings.length; j++) {
+            if (customSheet.value.grid[i][j] !== "")
+                filledCells++
+        }
+    }
+    return filledCells
+}
+
 function splitCSVline(str) {
     //Split at a comma, but ignore if inside double quotes
     let result = []
