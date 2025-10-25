@@ -44,7 +44,7 @@
     function handleKeydown(event) {
         const el = document.activeElement
         //Don't start timer if typing a keybind as text
-        if (!acceptSpaceInput || el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.isContentEditable)
+        if (!acceptSpaceInput || el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.tagName == "SELECT" || el.isContentEditable)
             return
 
         if (timerStage.value === stages.finished) {
@@ -73,7 +73,7 @@
     }
     function handleKeyup(event) {
         const el = document.activeElement
-        if (!acceptSpaceInput || el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.isContentEditable)
+        if (!acceptSpaceInput || el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.tagName == "SELECT" || el.isContentEditable)
             return
 
         if (timerStage.value === stages.waiting) { //Begin timer
@@ -128,7 +128,7 @@
 </script>
 
 <template>
-    <div id="TimerContainer" @mousedown="mouseDown" @mouseup="mouseUp" style="position:relative;">
+    <div id="TimerContainer" @mousedown="mouseDown" @mouseup="mouseUp" style="position:relative;cursor:pointer;">
         <!---------SCRAMBLE---------->
         <div class="ScrambleText" v-if="!isSolving">
             {{scramble}}
@@ -192,6 +192,8 @@
         white-space: nowrap;
         overflow: hidden;
         color: var(--grey-100);
+        position:absolute;
+
     }
     .StopwatchStartSpaceDown {
         color: var(--brand-200);
@@ -205,5 +207,7 @@
         font-size: 1.5rem;
         text-align: center;
         color: var(--grey-100);
+        position: absolute;
+        transform:translate(0%,5rem);
     }
 </style>

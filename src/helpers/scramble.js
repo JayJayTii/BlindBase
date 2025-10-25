@@ -13,3 +13,12 @@ export class Scramble extends Sequence{
 		}
 	}
 }
+
+export function get3BLDscramble() {
+	const scrambleSequence = new Scramble(20)
+	const wideMoves = ['r', 'u', 'f']
+	for (var i = 0; i < Math.floor(3 * Math.random()); i++) {
+		scrambleSequence.add([wideMoves[Math.floor(3 * Math.random())], 1 + Math.floor(3 * Math.random())])
+	}
+	return scrambleSequence.toString()
+}

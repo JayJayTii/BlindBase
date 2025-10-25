@@ -266,9 +266,8 @@
 
     function handleKeydown(event) {
         //Don't want to block the timer's space input!
-        if (event.code === 'Space') {
+        if (event.code === 'Space')
             event.preventDefault()
-        }
 
     }
     onMounted(() => {

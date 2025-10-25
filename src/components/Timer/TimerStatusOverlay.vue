@@ -35,16 +35,14 @@
 </script>
 
 <template>
-    <div class="TimerContainer">
-        <!---LAST SOLVE STATUS--->
-        <div class="StatusRow" v-if="'status' in solve.value">
-            <template v-for="status in timerStore.solveStatuses">
-                <div :class="['ListItem', solve.value.status === status.id ? 'ListItemSelected' : 'ListItemUnselected']"
-                     @click="solve.value.status = status.id;timerStore.saveState()">
-                    {{status.name}}
-                </div>
-            </template>
-        </div>
+    <!---LAST SOLVE STATUS--->
+    <div class="StatusRow" v-if="'status' in solve.value">
+        <template v-for="status in timerStore.solveStatuses">
+            <div :class="['ListItem', solve.value.status === status.id ? 'ListItemSelected' : 'ListItemUnselected']"
+                 @click="solve.value.status = status.id;timerStore.saveState()">
+                {{status.name}}
+            </div>
+        </template>
     </div>
 </template>
 
@@ -52,7 +50,6 @@
     .StatusRow {
         display: grid;
         grid-template-columns: repeat(3, 70px);
-        align-self: center;
         text-align: center;
         color: var(--grey-100);
     }

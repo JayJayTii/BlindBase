@@ -1,12 +1,12 @@
 <script setup>
-    import { computed, inject } from 'vue'
+    import { computed, inject, onMounted, onUnmounted } from 'vue'
     import { useTimerStore } from "@/stores/TimerStore"
     const timerStore = useTimerStore()
 
     const props = defineProps({
         sessionID: Number,
     })
-    const emit = defineEmits(['deleteSession'])
+    const emit = defineEmits(['deleteSession','regenerateScramble'])
 
     const currentSessionName = computed({
         get: () => timerStore.getSession(props.sessionID)?.name || '',
@@ -23,6 +23,7 @@
             if (timerStore.isValidSessionID(props.sessionID)) {
                 timerStore.sessions[timerStore.getSessionIndexWithID(props.sessionID)].type = newType
                 timerStore.saveState()
+                emit('regenerateScramble')
             }
         }
     })
@@ -39,7 +40,7 @@
                    style="white-space:nowrap;font-weight:bold;font-size:2rem;width:100%;text-align:center;" />
         </div>
         <!------TYPE------>
-        <div class="SessionEditingRow">
+        <div class="SessionEditingRow" id="editSessionType">
             Type: <select v-model="currentSessionType" style="width: 100%; ">
                 <option v-for="(type,index) in timerStore.getSessionTypes"
                         :key="index"

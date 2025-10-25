@@ -3,6 +3,8 @@ import { formatTime } from '@/helpers/timer.js'
 
 const DEFAULT_SESSION_TYPES = [
     { name: '3x3 Blindfolded', id: 0 },
+    { name: '3x3 Edges', id: 1 },
+    { name: '3x3 Corners', id: 2 },
 ]
 const DEFAULT_SOLVE_STATUSES = [
     {name: "Success", id: 0},

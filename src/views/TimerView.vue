@@ -1,9 +1,5 @@
 <script setup>
     import { ref, nextTick, watch, inject, computed } from 'vue'
-    import { useTimerStore } from "../stores/TimerStore"
-    const timerStore = useTimerStore()
-    timerStore.loadState()
-
     import SessionSelect from "@/components/timer/SessionSelect.vue"
     import SessionSettings from "@/components/timer/SessionSettings.vue"
     import SessionDetails from "@/components/timer/SessionDetails.vue"
@@ -11,8 +7,16 @@
     import SolveList from "@/components/timer/SolveList.vue"
     import Timer from "@/components/Timer.vue"
     import TimerStatusOverlay from "@/components/timer/TimerStatusOverlay.vue"
+    import { useTimerStore } from "../stores/TimerStore"
+    const timerStore = useTimerStore()
+    timerStore.loadState()
     const confirmDialog = inject('confirmDialog')
-    import { Scramble } from '@/helpers/scramble.js'
+    import { Scramble, get3BLDscramble } from '@/helpers/scramble.js'
+    import { scramblers } from '@/helpers/solver/scramble_333_edit.js'
+
+    setTimeout(() => {
+        scramblers['333'].initialize(null, Math)
+    }, 0)
 
     //-1 means unselected
     const sessionID = ref(-1)
@@ -36,12 +40,16 @@
 
     let currentScramble = ""
     function generateNewScramble() {
-        const scrambleSequence = new Scramble(20)
-        const wideMoves = ['r','u','f']
-        for (var i = 0; i < Math.floor(3 * Math.random()); i++) {
-            scrambleSequence.add([wideMoves[Math.floor(3 * Math.random())], 1 + Math.floor(3 * Math.random())])
+        if (!timerStore.isValidSessionID(sessionID.value))
+            return
+        switch (timerStore.getSession(sessionID.value).type) {
+            case 0: //3x3 Blindfolded
+                currentScramble = get3BLDscramble()
+            case 1: //3x3 Edges
+                currentScramble = scramblers['333'].getEdgeScramble()
+            case 2: //3x3 Corners
+                currentScramble = scramblers['333'].getCornerScramble()
         }
-        currentScramble = scrambleSequence.toString()
         nextTick(() => { if (timer.value) { timer.value.setScramble(currentScramble) }})
     }
     generateNewScramble()
@@ -50,7 +58,6 @@
         timerStore.addSolve(sessionID.value, newSolve)
         //Set solve to latest after finishing
         solveIndex.value = timerStore.getSession(sessionID.value).solves.length - 1
-
         generateNewScramble()
     }
     function selectSolve(index) {
@@ -91,7 +98,7 @@
 </script>
 
 <template>
-    <div style="display: flex; flex-direction: row;" :key="sessionID">
+    <div style="display: flex; flex-direction: row; height:93vh;" :key="sessionID">
         <!---------LEFT COLUMN--------->
         <div class="PanelColumn">
             <SessionSelect style="width: 100%; height: 33%;"
@@ -100,11 +107,12 @@
                            @updateSessionID="updateSessionID" />
             <SessionSettings style="width:100%;height:67%;"
                              :sessionID="sessionID"
-                             @deleteSession="deleteSession" />
+                             @deleteSession="deleteSession"
+                             @regenerateScramble="generateNewScramble()"/>
         </div>
 
         <!-----------TIMER------------>
-        <div class="Panel" style="width: 60vw; height: 93vh; position: relative; border: 3px solid var(--border-color);">
+        <div class="Panel" style="width: 60vw; height: 100%; position: relative; border: 3px solid var(--border-color);">
             <Timer style="width:100%; height:100%;"
                    v-if="timerStore.isValidSessionID(sessionID)"
                    :lastSolve="lastSolve"
@@ -112,8 +120,7 @@
                    @update:solve-complete="onSolveComplete"
                    ref="timer"
                    :key="timerKey" />
-            <!--:key="sessionID + '-' + JSON.stringify(timerStore.sessions[timerStore.getSessionIndexWithID(sessionID)].solves.at(-1))"-->
-
+           
             <TimerStatusOverlay v-if="timerStore.isValidSessionID(sessionID) && timer && !timer.isSolving"
                                 id="timerStatusOverlay"
                                 @update:solve-status="timerKey++"
@@ -140,11 +147,10 @@
 </template>
 
 <style>
-    #timerStatusOverlay {
-        position: absolute;
-        top: 50%;
+    #timerStatusOverlay{
+        position:absolute;
+        top: 35%;
         left: 50%;
-        transform: translate(-50%, -50%);
-        margin-top: 3rem;
+        transform:translate(-50%,calc(-50% + 7rem));
     }
 </style>
