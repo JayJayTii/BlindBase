@@ -1,10 +1,27 @@
 <script setup>
     import { useTimerStore } from "@/stores/TimerStore"
+    import { formatTime } from '@/helpers/timer.js'
     const timerStore = useTimerStore()
 
     const props = defineProps({
         sessionID: Number,
     })
+
+    function format(stat) {
+        if (!Array.isArray(stat)) {
+            //Best average
+            if (stat == -1)
+                return "---"
+            return formatTime(stat)
+        }
+
+        if (stat[0] == -1)
+            return "---"
+        if (stat[1])
+            return "DNF (" + formatTime(stat[0]) + ")"
+
+        return formatTime(stat[0])
+    }
 </script>
 
 <template>
@@ -12,9 +29,13 @@
     <div class="Panel" v-if="timerStore.isValidSessionID(sessionID)">
         <div class="PanelHeader"> Session Details:  </div>
         <div class="SessionDetailsGrid">
-            <template v-for="statRow in timerStore.getSessionStatistics(sessionID)">
+            <div class="SessionDetail"></div>
+            <div class="SessionDetail">Current</div>
+            <div class="SessionDetail">Best</div>
+            <template v-for="statRow in timerStore.getSessionStatistics(props.sessionID)">
                 <div class="SessionDetail">{{statRow[0]}}</div>
-                <div class="SessionDetail">{{statRow[1]}} ({{statRow[2]}} : {{statRow[3]}})</div>
+                <div class="SessionDetail">{{format(statRow[1][0])}}<br />({{format(statRow[1][1])}} : {{format(statRow[1][2])}})</div>
+                <div class="SessionDetail">{{format(statRow[2][0])}}<br />({{format(statRow[2][1])}} : {{format(statRow[2][2])}})</div>
             </template>
         </div>
     </div>
@@ -30,12 +51,12 @@
     .SessionDetailsGrid {
         width: 100%;
         display: grid;
-        grid-template-columns: 50px auto;
+        grid-template-columns: auto 2fr 2fr;
         text-align: center;
     }
 
     .SessionDetail {
-        font-size: min(1vw, 2rem);
+        font-size: 0.75rem;
         border-inline-start: 1px solid var(--border-color);
         border-inline-end: 1px solid var(--border-color);
         border-block-start: 1px solid var(--border-color);

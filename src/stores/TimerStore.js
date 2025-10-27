@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { formatTime } from '@/helpers/timer.js'
+import { getSumOfTimes, getSolveTimes, calculateMean, calculateAvg, formatTime } from '@/helpers/timer.js'
 
 const DEFAULT_SESSION_TYPES = [
     { name: '3x3 Blindfolded', id: 0 },
@@ -11,12 +11,6 @@ const DEFAULT_SOLVE_STATUSES = [
     {name: "DNF", id: 1},
     {name: "+2", id: 2},
 ]
-
-const SOLVE_SECTIONS = {
-    total: 1,
-    memo: 2,
-    exec: 3
-}
 
 export const useTimerStore = defineStore('timerStore', {
     state: () => {
@@ -43,6 +37,7 @@ export const useTimerStore = defineStore('timerStore', {
                 id: this.getNewSessionID(),
                 type: 0,
                 solves: [],
+                bests: {},
             })
 
             this.saveState()
@@ -84,81 +79,83 @@ export const useTimerStore = defineStore('timerStore', {
         },
 
         //Mean of N
-        moN(sessionID, n, section) {
-            const index = this.getSessionIndexWithID(sessionID)
-            const solves = this.sessions[index].solves.slice(-n)
-            if (solves.length < n)
-                return "---"
-            let times = []
-            let dnfAverage = false
-            if (section === SOLVE_SECTIONS.total) {
-                const dnfCount = solves.filter((solve) => solve.status === 1).length
-                //Ignore DNFs if it is a DNF mean, just to give a hypothetical
-                dnfAverage = (dnfCount > 0)
-                times = solves.map((solve) => solve.solveTime + (solve.status === 2 ? 2000 : 0))
-            }
-            else if (section === SOLVE_SECTIONS.memo) {
-                times = solves.map((solve) => solve.memoTime)
-            }
-            else if (section === SOLVE_SECTIONS.exec) {
-                times = solves.map((solve) => solve.solveTime - solve.memoTime)
-            }
-            const mean = times.reduce((acc, time) => acc + time, 0) / times.length
-
-            if (dnfAverage) {
-                return "DNF (" + formatTime(mean) + ")"
-            } else {
-                return formatTime(mean)
-            }
+        moN(sessionID, n) {
+            if (this.getSession(sessionID).solves.length < n)
+                return [[-1, true], [-1, true], [-1, true]]
+            const solves = this.getSession(sessionID).solves.slice(-n)
+            const means = [calculateMean(solves, 1), calculateMean(solves, 2), calculateMean(solves, 3)]
+            return means
         },
+        recalculateBestMon(sessionID, n) {
+            console.log("recalculating " + n.toString())
+            const session = this.getSession(sessionID)
+            let best = [-1, -1, -1]
+            for (var i = 0; i < session.solves.length - n + 1; i++) {
+                const solves = session.solves.slice(i, i + n)
+                const means = [calculateMean(solves, 1), calculateMean(solves, 2), calculateMean(solves, 3)]
+                for (var section = 0; section < 3; section++) {
+                    if (means[section][1] || means[section][0] == -1)
+                        continue
+                    if (means[section][0] < best[section] || best[section] == -1)
+                        best[section] = means[section][0]
+                }
+            }
+            return best
+        },
+        bestMon(sessionID, n) {
+            /*
+            const session = this.getSession(sessionID)
+            if (!session.hasOwnProperty("bests"))
+                session.bests = {}
+            if (!session.bests.hasOwnProperty("mo" + n.toString())) {
+                session.bests["mo" + n.toString()] = [-1,-1,-1]
+            }
+            session.bests["mo" + n.toString()] = this.recalculateBestMon(sessionID, n)
+            
+            return session.bests["mo" + n.toString()]
+            */
+            return this.recalculateBestMon(sessionID, n)
+        },
+
         //Average of N
-        aoN(sessionID, n, section) {
-            const sessionIndex = this.getSessionIndexWithID(sessionID)
-            //Get the last n solves
-            const solves = this.sessions[sessionIndex].solves.slice(-n)
-            if (solves.length < n) //If there haven't been n solves, then there isn't an average of n
-                return "---"
-
-            let times = []
-            let dnfAverage = false
-            //DNFs aren't counted for parts of solves
-            if (section === SOLVE_SECTIONS.total) { 
-                const dnfCount = solves.filter((solve) => solve.status === 1).length
-                //Ignore DNFs if it is a dnf average, just to give a hypothetical
-                dnfAverage = (dnfCount > 1)
-                //If there is 0 or 1 DNFs, add lots of time to a DNF to filter it out
-                times = solves.map((solve) => solve.solveTime + (solve.status === 2 ? 2000 : 0) + (!dnfAverage && solve.status === 1 ? 99999999999999 : 0))
+        aoN(sessionID, n) {
+            if (this.getSession(sessionID).solves.length < n)
+                return [[-1, true], [-1, true], [-1, true]]
+            const solves = this.getSession(sessionID).solves.slice(-n)
+            return [calculateAvg(solves, 1), calculateAvg(solves, 2), calculateAvg(solves, 3)]
+        },
+        recalculateBestAon(sessionID, n) {
+            const session = this.getSession(sessionID)
+            let best = [-1, -1, -1]
+            for (var i = 0; i < session.solves.length - n + 1; i++) {
+                const solves = session.solves.slice(i, i + n)
+                const avgs = [calculateAvg(solves, 1), calculateAvg(solves, 2), calculateAvg(solves, 3)]
+                for (var section = 0; section < 3; section++) {
+                    if (avgs[section][1] || avgs[section][0] == -1)
+                        continue
+                    if (avgs[section][0] < best[section] || best[section] == -1)
+                        best[section] = avgs[section][0]
+                }
             }
-            else if (section === SOLVE_SECTIONS.memo) {
-                times = solves.map((solve) => solve.memoTime)
-            }
-            else if (section === SOLVE_SECTIONS.exec) {
-                times = solves.map((solve) => solve.solveTime - solve.memoTime)
-            }
-            //Sort times to remove fastest and slowest (or dnf)
-            times.sort(function (a, b) {
-                return a - b;
-            });
-            times = times.slice(1, n - 1) //Only take middle values
-            const mean = times.reduce((acc, time) => acc + time, 0) / times.length
-
-            if (dnfAverage) {
-                return "DNF (" + formatTime(mean) + ")"
-            } else {
-                return formatTime(mean)
-            }
+            return best
+        },
+        bestAon(sessionID, n) {
+            return this.recalculateBestAon(sessionID, n)
         },
 
         getSessionStatistics(id) {
-            return [
-                ["single", this.moN(id, 1, SOLVE_SECTIONS.total), this.moN(id, 1, SOLVE_SECTIONS.memo), this.moN(id, 1, SOLVE_SECTIONS.exec)],
-                ["mo3", this.moN(id, 3, SOLVE_SECTIONS.total), this.moN(id, 3, SOLVE_SECTIONS.memo), this.moN(id, 3, SOLVE_SECTIONS.exec)],
-                ["ao5", this.aoN(id, 5, SOLVE_SECTIONS.total), this.aoN(id, 5, SOLVE_SECTIONS.memo), this.aoN(id, 5, SOLVE_SECTIONS.exec)],
-                ["ao12", this.aoN(id, 12, SOLVE_SECTIONS.total), this.aoN(id, 12, SOLVE_SECTIONS.memo), this.aoN(id, 12, SOLVE_SECTIONS.exec)],
-                ["ao25", this.aoN(id, 25, SOLVE_SECTIONS.total), this.aoN(id, 25, SOLVE_SECTIONS.memo), this.aoN(id, 25, SOLVE_SECTIONS.exec)],
-                ["ao50", this.aoN(id, 50, SOLVE_SECTIONS.total), this.aoN(id, 50, SOLVE_SECTIONS.memo), this.aoN(id, 50, SOLVE_SECTIONS.exec)],
-                ["ao100", this.aoN(id, 100, SOLVE_SECTIONS.total), this.aoN(id, 100, SOLVE_SECTIONS.memo), this.aoN(id, 100, SOLVE_SECTIONS.exec)],
+            console.time("statsgen")
+            const out = [
+                ["single",  this.moN(id, 1)  , this.bestMon(id, 1)],
+                ["mo3",     this.moN(id, 3)  , this.bestMon(id, 3)],
+                ["ao5",     this.aoN(id, 5)  , this.bestAon(id, 5)],
+                ["ao12",    this.aoN(id, 12) , this.bestAon(id, 12)],
+                ["ao25",    this.aoN(id, 25) , this.bestAon(id, 25)],
+                ["ao50",    this.aoN(id, 50) , this.bestAon(id, 50)],
+                ["ao100",   this.aoN(id, 100), this.bestAon(id, 100)],
             ]
+            console.timeEnd("statsgen")
+            return out
         },
 
         saveState() {

@@ -1,3 +1,86 @@
+export function getSumOfTimes(solves, section) {
+    const plus2count = solves.reduce((count, solve) => count + (solve.status == 2 ? 1 : 0), 0)
+    let sumTime = 0
+    switch (section) {
+        case 1: //Memo AND exec
+            sumTime = solves.reduce((sum, solve) => sum + solve.solveTime, 0)
+            sumTime += 2000 * plus2count
+            break
+        case 2: //Memo
+            sumTime = solves.reduce((sum, solve) => sum + solve.memoTime, 0)
+            break
+        case 3: //Exec
+            sumTime = solves.reduce((sum, solve) => sum + (solve.solveTime - solve.memoTime), 0)
+            break
+    }
+    return sumTime
+}
+
+export function getSolveTimes(solves, section){
+    switch (section) {
+        case 1: //Memo AND exec
+            return solves.map(solve => solve.solveTime + (solve.status == 2 ? 2000 : 0))
+        case 2: //Memo
+            return solves.map(solve => solve.memoTime)
+        case 3: //Exec
+            return solves.map(solve => solve.solveTime - solve.memoTime)
+    }
+}
+
+export function calculateMean(solves, section) {
+    let timeSum = 0
+    let dnfs = 0
+    for (var i = 0; i < solves.length; i++) {
+        if (section == 1)
+            timeSum += (solves[i].solveTime + (solves[i].status == 2 ? 2000 : 0))
+        else if (section == 2)
+            timeSum += solves[i].memoTime
+        else (section == 3)
+        timeSum += (solves[i].solveTime - solves[i].memoTime)
+
+        if (solves[i].status == 1)
+            dnfs++
+    }
+    const mean = timeSum / solves.length
+    const dnf = (section == 1 && dnfs > 0)
+    return [mean, dnf]
+}
+
+export function calculateAvg(solves, section) {
+    const dnfIndices = []
+    const solveTimes = new Array(solves.length)
+    let timeSum = 0
+    let minTime = 999999999
+    let maxTime = 0
+    for (var i = 0; i < solves.length; i++) {
+        if (solves[i].status == 1)
+            dnfIndices.push(i)
+
+        if (section == 1)
+            solveTimes[i] = solves[i].solveTime + (solves[i].status == 2 ? 2000 : 0)
+        else if (section == 2)
+            solveTimes[i] = solves[i].memoTime
+        else (section == 3)
+            solveTimes[i] = solves[i].solveTime - solves[i].memoTime
+
+        if (solveTimes[i] < minTime)
+            minTime = solveTimes[i]
+        else if (solveTimes[i] > maxTime)
+            maxTime = solveTimes[i]
+
+        timeSum += solveTimes[i]
+    }
+
+    if (section == 1 && dnfIndices.length == 1)
+        timeSum -= solves[dnfIndices[0]].solveTime
+    else
+        timeSum -= maxTime
+    timeSum -= minTime
+    const avg = timeSum / (solves.length - 2)
+    const dnf = (section == 1 && dnfIndices.length > 1)
+    return [avg, dnf]
+}
+
 export function formatTime(ms) {
     const centiseconds = Math.round(ms / 10) //All times only go to 2 decimal places
 

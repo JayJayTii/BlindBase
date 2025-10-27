@@ -36,6 +36,8 @@
         }
         timerStore.deleteSession(sessionID.value)
         sessionID.value = -1
+        //timerStore.getSession(sessionID.value).solves.push(...timerStore.getSession(sessionID.value).solves)
+        //timerStore.saveState()
     }
 
     let currentScramble = ""
