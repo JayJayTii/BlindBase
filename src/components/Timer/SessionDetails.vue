@@ -1,4 +1,5 @@
 <script setup>
+    import { computed } from 'vue'
     import { useTimerStore } from "@/stores/TimerStore"
     import { formatTime } from '@/helpers/timer.js'
     const timerStore = useTimerStore()
@@ -21,12 +22,20 @@
 
         return formatTime(stat[0])
     }
+
+    const dnfRatio = computed({
+        get: () => {
+            const dnfs = timerStore.getDnfCount(props.sessionID)
+            return [timerStore.getSession(props.sessionID).solves.length - dnfs, dnfs]
+        }
+    })
 </script>
 
 <template>
     <!--Contains info like single, mo3, ao5, etc. for this session-->
     <div class="Panel" v-if="timerStore.isValidSessionID(sessionID)">
         <div class="PanelHeader"> Session Details:  </div>
+        <div style="text-align:center;">{{dnfRatio[0]}} successes : {{dnfRatio[1]}} DNFs</div>
         <div class="SessionDetailsGrid">
             <div class="SessionDetail"></div>
             <div class="SessionDetail">Current</div>

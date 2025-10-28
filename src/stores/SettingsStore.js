@@ -46,6 +46,11 @@ export const defaults = {
         default: 0.3,
         min: 0,
         max: 2,
+    },
+    misc_widemovetype: {
+        name: 'Wide move type',
+        default: 0,
+        options: [{ id: 0, name: 'Rw' }, { id: 1, name: 'r' }],
     }
 }
 
@@ -86,6 +91,7 @@ export const useSettingsStore = defineStore('settingsStore', {
                 data.settings = {}
             
             this.settings = this.ValidateValues(data.settings)
+            this.loaded = true
             this.saveState()
         },
     },

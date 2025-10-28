@@ -90,7 +90,10 @@ export function getCornerRecommendations(baseKey, notationType) {
         for (var alg of cornerData[key]) {
             if (alg[notationType] == "Not found.")
                 continue
-            allComms.push(alg[notationType])
+            let cleanedAlg = alg[notationType]
+            if (useSettingsStore().settings.misc_widemovetype == 0)
+                cleanedAlg = alg[notationType].replace(/[rufldb]/g, match => match.toUpperCase() + "w")
+            allComms.push(cleanedAlg)
         }
     }
     return allComms
@@ -107,7 +110,10 @@ export function getEdgeRecommendations(baseKey, notationType) {
         for (var alg of edgeData[key]) {
             if (alg[notationType] == "Not found.")
                 continue
-            allComms.push(alg[notationType])
+            let cleanedAlg = alg[notationType]
+            if (useSettingsStore().settings.misc_widemovetype == 0)
+                cleanedAlg = alg[notationType].replace(/[rufldb]/g, match => match.toUpperCase() + "w");
+            allComms.push(cleanedAlg)
         }
     }
     return allComms

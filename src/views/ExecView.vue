@@ -62,7 +62,10 @@
         let scramble = new Sequence()
         scramble.setAlgorithmNotation(solution)
         scramble.reverse()
-        return scramble.toString()
+        let scrambleStr = scramble.toString()
+        if (useSettingsStore().settings.misc_widemovetype == 0)
+            scrambleStr = scrambleStr.replace(/[rufldb]/g, match => match.toUpperCase() + "w")
+        return scrambleStr
     }
 
     const select = ref(null)

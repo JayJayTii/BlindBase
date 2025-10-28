@@ -96,6 +96,19 @@
                     seconds
                 </div>
             </div>
+            <div class="Subsettings">
+                <h2>Miscellaneous</h2>
+                <div id="Misc Wide Move Type">
+                    {{ defaults.misc_widemovetype.name }}:
+                    <select v-model="settingsStore.settings.misc_widemovetype" @change="SettingUpdated">
+                        <option v-for="(type, index) in defaults.misc_widemovetype.options"
+                                :key="index"
+                                :value="type.id">
+                            {{ type.name }}
+                        </option>
+                    </select>
+                </div>
+            </div>
 
             <div style="min-height:200px" />
         </div>

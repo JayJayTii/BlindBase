@@ -2,6 +2,7 @@
     import { ref, reactive, computed, onMounted, onUnmounted, nextTick } from 'vue'
     import { getSolveTimeString, getSolveRatioString } from '@/helpers/timer.js'
     import { useSettingsStore } from '@/stores/SettingsStore.js'
+    useSettingsStore().loadState()
 
     const emit = defineEmits(['update:solve-complete'])
     const props = defineProps({
@@ -49,7 +50,7 @@
     function handleKeydown(event) {
         const el = document.activeElement
         //Don't start timer if typing a keybind as text
-        if (!acceptSpaceInput || el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.tagName == "SELECT" || el.isContentEditable)
+        if (!acceptSpaceInput || el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.isContentEditable)
             return
 
         if (timerStage.value === stages.finished) {
@@ -81,7 +82,7 @@
     }
     function handleKeyup(event) {
         const el = document.activeElement
-        if (!acceptSpaceInput || el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.tagName == "SELECT" || el.isContentEditable)
+        if (!acceptSpaceInput || el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.isContentEditable)
             return
 
         if (timerStage.value === stages.waiting) { //Begin timer

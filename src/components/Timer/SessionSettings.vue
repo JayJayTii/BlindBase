@@ -28,6 +28,17 @@
         }
     })
 
+    function handleKeydown(event) {
+        if (event.code == "Space" && document.activeElement.tagName == "SELECT")
+            event.preventDefault()
+    }
+
+    onMounted(() => {
+        window.addEventListener('keydown', handleKeydown)
+    })
+    onUnmounted(() => {
+        window.removeEventListener('keydown', handleKeydown)
+    })
 </script>
 
 <template>

@@ -7,6 +7,8 @@
     import { GetInspectionMoves, GenerateReconBody, GetReconMoveCount } from '@/helpers/reconstruct.js'
     import { getSolveTimeString } from '@/helpers/timer.js'
 
+    import { useSettingsStore } from '@/stores/SettingsStore.js'
+    useSettingsStore().loadState()
     import { useReconsStore } from "@/stores/ReconsStore"
     const reconsStore = useReconsStore()
     import { useRouter } from 'vue-router'
@@ -15,6 +17,9 @@
     const props = defineProps({
         scramble: Sequence,
     })
+    let scrambleStr = props.scramble.toString()
+    if (useSettingsStore().settings.misc_widemovetype == 0) 
+        scrambleStr = scrambleStr.replace(/[rufldb]/g, match => match.toUpperCase() + "w")
 
     const stage = ref(0)
 
@@ -66,7 +71,7 @@
 
 <template>
     <div id="scrambleText">
-        {{props.scramble}}
+        {{scrambleStr}}
     </div>
     <ReconCreateLetters v-if="stage === 0"
                         :scramble="props.scramble" 

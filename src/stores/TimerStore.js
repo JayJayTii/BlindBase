@@ -78,6 +78,15 @@ export const useTimerStore = defineStore('timerStore', {
             this.saveState();
         },
 
+        getDnfCount(sessionID) {
+            let dnfs = 0
+            for (const solve of this.getSession(sessionID).solves) {
+                if (solve.status == 1)
+                    dnfs++
+            }
+            return dnfs
+        },
+
         //Mean of N
         moN(sessionID, n) {
             if (this.getSession(sessionID).solves.length < n)
