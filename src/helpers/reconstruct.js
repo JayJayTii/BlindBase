@@ -2,6 +2,7 @@ import { Sequence } from '@/helpers/sequence.js'
 import { FaceletCube } from '@/helpers/FaceletCube/FaceletCube.js'
 import { getSolveTimeString, getSolveRatioString } from '@/helpers/timer.js'
 import { adjacentCornerIndices, adjacentEdgeIndices } from '@/helpers/stickers.js'
+import { useSettingsStore } from '../stores/SettingsStore'
 
 export function GetInspectionMoves(cube) {
     //Gets the rotations from the start of the solve
@@ -126,6 +127,7 @@ export function GenerateReconBody(recon) {
     const solve = JSON.parse(recon.solve)
     summary += "//" + getSolveTimeString(solve) + " (" + getSolveRatioString(solve) + ")\n"
     const tps = moveCount / (solve.solveTime - solve.memoTime) * 1000 //times are stored in milliseconds
-    summary += "//" + (Math.round(Math.pow(10, 1) * tps) / Math.pow(10, 1)).toString() + "TPS\n"
+    const tpsPrecision = useSettingsStore().settings.recons_tpsprecision
+    summary += "//" + (Math.round(Math.pow(10, tpsPrecision) * tps) / Math.pow(10, tpsPrecision)).toString() + "TPS\n"
     return summary
 }

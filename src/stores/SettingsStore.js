@@ -47,6 +47,12 @@ export const defaults = {
         min: 0,
         max: 2,
     },
+    recons_tpsprecision: {
+        name: 'TPS precision',
+        default: 1,
+        min: 0,
+        max: 3
+    },
     misc_widemovetype: {
         name: 'Wide move type',
         default: 0,

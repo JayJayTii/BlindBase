@@ -97,6 +97,18 @@
                 </div>
             </div>
             <div class="Subsettings">
+                <h2>Recons Settings</h2>
+                <div id="Resons TPS precision">
+                    {{ defaults.recons_tpsprecision.name }}:
+                    <input v-model="settingsStore.settings.recons_tpsprecision"
+                           type="number"
+                           :min="defaults.recons_tpsprecision.min"
+                           :max="defaults.recons_tpsprecision.max"
+                           @change="SettingUpdated" />
+                    decimal places
+                </div>
+            </div>
+            <div class="Subsettings">
                 <h2>Miscellaneous</h2>
                 <div id="Misc Wide Move Type">
                     {{ defaults.misc_widemovetype.name }}:

@@ -11,21 +11,15 @@
     //When the solve list is updated, scroll to latest solve
     const solveListRef = ref(null)
 
-    onMounted(
+    nextTick(() => {
+        if(solveListRef.value)
+            solveListRef.value.scrollTop = solveListRef.value.scrollHeight
+    })
+
+    watch(() => timerStore.getSession(props.sessionID)?.solves.length,
         async () => {
             await nextTick()
-            if (solveListRef.value) {
-                solveListRef.value.scrollTop = solveListRef.value.scrollHeight
-            }
-        }
-    )
-    watch(
-        () => timerStore.getSession(props.sessionID)?.solves.length,
-        async () => {
-            await nextTick()
-            if (solveListRef.value) {
-                solveListRef.value.scrollTop = solveListRef.value.scrollHeight
-            }
+            solveListRef.value.scrollTop = solveListRef.value.scrollHeight
         }
     )
     function SolveClicked(index) {
@@ -34,9 +28,9 @@
 </script>
 
 <template>
-    <div class="Panel" v-if="timerStore.isValidSessionID(sessionID)">
+    <div class="Panel" ref="solveListRef" v-if="timerStore.isValidSessionID(sessionID)">
         <div class="PanelHeader"> Solves: </div>
-        <div ref="solveListRef">
+        <div >
             <div v-for="(label, index) in timerStore.getSession(props.sessionID).solves.map((solve,index) => (index+1).toString() + ' | ' + getSolveTimeString(solve))"
                 class="ListItem"
                  @click="SolveClicked(index)">

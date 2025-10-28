@@ -48,7 +48,9 @@
         //Only use the stored solve if its not an old scramble
         if (sessionStorage.reconstructionSolve) {
             reconSolve = JSON.parse(sessionStorage.reconstructionSolve)
-            if (newRecon.scramble == reconSolve.scramble) {
+            const reconScramble = new Sequence()
+            reconScramble.setAlgorithmNotation(newRecon.scramble)
+            if (newRecon.scramble == reconScramble.toString()) {
                 newRecon.solve = sessionStorage.reconstructionSolve
                 newRecon.name += " " + getSolveTimeString(reconSolve)
             }
