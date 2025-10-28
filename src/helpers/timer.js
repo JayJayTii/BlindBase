@@ -35,8 +35,8 @@ export function calculateMean(solves, section) {
             timeSum += (solves[i].solveTime + (solves[i].status == 2 ? 2000 : 0))
         else if (section == 2)
             timeSum += solves[i].memoTime
-        else (section == 3)
-        timeSum += (solves[i].solveTime - solves[i].memoTime)
+        else
+            timeSum += (solves[i].solveTime - solves[i].memoTime)
 
         if (solves[i].status == 1)
             dnfs++
@@ -48,14 +48,27 @@ export function calculateMean(solves, section) {
 export function calculateBestMon(solves, n) {
     //console.time("calculating mo" + n.toString())
     let best = [-1, -1, -1]
-    for (var i = 0; i < solves.length - n + 1; i++) {
-        const curSolves = solves.slice(i, i + n)
-        for (var section = 0; section < 3; section++) {
-            const sectionMean = calculateMean(curSolves, section + 1)
-            if (sectionMean[1] || sectionMean[0] == -1)
+    for (var start = 0; start < solves.length - n + 1; start++) {
+        for (var section = 1; section < 4; section++) {
+            let timeSum = 0
+            let dnfs = 0
+            for (var j = 0; j < n; j++) {
+                if (section == 1)
+                    timeSum += (solves[start + j].solveTime + (solves[start + j].status == 2 ? 2000 : 0))
+                else if (section == 2)
+                    timeSum += solves[start + j].memoTime
+                else
+                    timeSum += (solves[start + j].solveTime - solves[start + j].memoTime)
+
+                if (solves[start + j].status == 1)
+                    dnfs++
+            }
+            const mean = timeSum / n
+            const dnf = (section == 1 && dnfs > 0)
+            if (dnf || mean == -1)
                 continue
-            if (sectionMean[0] < best[section] || best[section] == -1)
-                best[section] = sectionMean[0]
+            if (mean < best[section - 1] || best[section - 1] == -1)
+                best[section - 1] = mean
         }
     }
     //console.timeEnd("calculating mo" + n.toString())
@@ -76,7 +89,7 @@ export function calculateAvg(solves, section) {
             solveTimes[i] = solves[i].solveTime + (solves[i].status == 2 ? 2000 : 0)
         else if (section == 2)
             solveTimes[i] = solves[i].memoTime
-        else (section == 3)
+        else
             solveTimes[i] = solves[i].solveTime - solves[i].memoTime
 
         if (solveTimes[i] < minTime)
@@ -98,7 +111,7 @@ export function calculateAvg(solves, section) {
 }
 
 export function calculateBestAon(solves, n) {
-    //console.time("calculating ao" + n.toString())
+    console.time("calculating ao" + n.toString())
     let best = [-1, -1, -1]
     for (var first = 0; first < solves.length - n + 1; first++) {
         for (var section = 1; section < 4; section++) {
@@ -137,7 +150,7 @@ export function calculateBestAon(solves, n) {
                 best[section - 1] = avg
         }
     }
-    //console.timeEnd("calculating ao" + n.toString())
+    console.timeEnd("calculating ao" + n.toString())
     return best
 }
 

@@ -1,5 +1,5 @@
 <script setup>
-    import { ref, onMounted,nextTick, watch } from 'vue'
+    import { ref, onMounted, nextTick, watch } from 'vue'
     import { getSolveTimeString } from "@/helpers/timer.js"
     import { useTimerStore } from "@/stores/TimerStore"
     const timerStore = useTimerStore()

@@ -1,12 +1,9 @@
 <script setup>
-    import { computed } from 'vue'
-
     const props = defineProps({
         data: Array,
         selectedIndex: Number,
     })
     const emit = defineEmits(['onItemClick'])
-
 </script>
 
 <template>
