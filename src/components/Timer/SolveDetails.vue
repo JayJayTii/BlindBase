@@ -13,7 +13,7 @@
     const emit = defineEmits(['unselectSolve','deleteSolve'])
 
     const selectedSolve = computed({
-        get: () => props.solveIndex > -1 ? timerStore.getSession(props.sessionID).solves[props.solveIndex] : null
+        get: () => (props.solveIndex > -1 && timerStore.isValidSessionID(props.sessionID)) ? timerStore.getSession(props.sessionID).solves[props.solveIndex] : null
     })
 
     function Reconstruct() {
@@ -23,7 +23,7 @@
 </script>
 
 <template>
-    <div class="Panel">
+    <div class="Panel" v-if="props.solveIndex > -1 && timerStore.isValidSessionID(props.sessionID)">
         <div style="display:flex;flex-direction:row;height:">
             
             <div class="PanelHeader"> Solve {{props.solveIndex + 1}}: </div>

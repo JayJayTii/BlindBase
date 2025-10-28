@@ -111,7 +111,7 @@ export function calculateAvg(solves, section) {
 }
 
 export function calculateBestAon(solves, n) {
-    console.time("calculating ao" + n.toString())
+    //console.time("calculating ao" + n.toString())
     let best = [-1, -1, -1]
     for (var first = 0; first < solves.length - n + 1; first++) {
         for (var section = 1; section < 4; section++) {
@@ -150,7 +150,7 @@ export function calculateBestAon(solves, n) {
                 best[section - 1] = avg
         }
     }
-    console.timeEnd("calculating ao" + n.toString())
+    //console.timeEnd("calculating ao" + n.toString())
     return best
 }
 

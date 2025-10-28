@@ -78,9 +78,22 @@
                 </div>
                 <div id="Memo Include Impossible Pairs in All Pairs">
                     {{ defaults.memo_includeimpossiblepairs.name }}:
-                    <input v-model="settingsStore.settings.memo_includeimpossiblepairs" 
-                           type="checkbox" 
+                    <input v-model="settingsStore.settings.memo_includeimpossiblepairs"
+                           type="checkbox"
                            @change="SettingUpdated" />
+                </div>
+            </div>
+            <div class="Subsettings">
+                <h2>Timer Settings</h2>
+                <div id="Timer Time Keeping Space Down">
+                    {{ defaults.timer_spaceholdingtime.name }}:
+                    <input v-model="settingsStore.settings.timer_spaceholdingtime"
+                           type="number"
+                           :min="defaults.timer_spaceholdingtime.min"
+                           :max="defaults.timer_spaceholdingtime.max"
+                           step="0.1"
+                           @change="SettingUpdated" />
+                    seconds
                 </div>
             </div>
 

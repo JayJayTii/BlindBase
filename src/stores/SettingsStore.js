@@ -40,6 +40,12 @@ export const defaults = {
     memo_includeimpossiblepairs: {
         name: 'Include impossible pairs in \'All Pairs\'',
         default: false,
+    },
+    timer_spaceholdingtime: {
+        name: 'Time keeping space down before starting',
+        default: 0.3,
+        min: 0,
+        max: 2,
     }
 }
 

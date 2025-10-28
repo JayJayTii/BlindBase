@@ -1,6 +1,7 @@
 <script setup>
     import { ref, reactive, computed, onMounted, onUnmounted, nextTick } from 'vue'
     import { getSolveTimeString, getSolveRatioString } from '@/helpers/timer.js'
+    import { useSettingsStore } from '@/stores/SettingsStore.js'
 
     const emit = defineEmits(['update:solve-complete'])
     const props = defineProps({
@@ -43,6 +44,8 @@
     let acceptSpaceInput = true
     let currentKeyPressed = "" //Avoids confusion when pressing two keys at once to progress the timer
     let waitingBeforeExec = false
+    let waitingTimeStart = 0
+    const stopwatchKey = ref(0) //just so the yellow turns to green when holding space
     function handleKeydown(event) {
         const el = document.activeElement
         //Don't start timer if typing a keybind as text
@@ -52,6 +55,8 @@
         if (timerStage.value === stages.finished) {
             if (event.code === 'Space' || event.code === 'Mouse0') {
                 timerStage.value = stages.waiting //Wait for space up
+                waitingTimeStart = Date.now()
+                setTimeout(() => { stopwatchKey.value++ }, 1000 * useSettingsStore().settings.timer_spaceholdingtime)
                 solve.value = {}
                 solve.value.memoTime = 0
                 solve.value.solveTime = 0
@@ -62,6 +67,7 @@
         if (timerStage.value === stages.memoing && currentKeyPressed == "") { //Wait for key up to start exec stage
             currentKeyPressed = event.code
             waitingBeforeExec = true
+            stopwatchKey.value++
         }
         if (timerStage.value === stages.executing && currentKeyPressed == "") { //Stop timer
             currentKeyPressed = event.code
@@ -79,12 +85,17 @@
             return
 
         if (timerStage.value === stages.waiting) { //Begin timer
-            timerStage.value = props.twoStage ? stages.memoing : stages.executing
-            stopwatchStartTime = new Date().getTime()
-            //Update the stopwatch text every 0.01 seconds
-            timerUpdate = setInterval(() => {
-                solve.value.solveTime = new Date().getTime() - stopwatchStartTime
-            }, 10)
+            if (Date.now() - waitingTimeStart > 1000 * useSettingsStore().settings.timer_spaceholdingtime) {
+                timerStage.value = props.twoStage ? stages.memoing : stages.executing
+                stopwatchStartTime = new Date().getTime()
+                //Update the stopwatch text every 0.01 seconds
+                timerUpdate = setInterval(() => {
+                    solve.value.solveTime = new Date().getTime() - stopwatchStartTime
+                }, 10)
+            }
+            else {
+                timerStage.value = stages.finished
+            }
         }
         else if (event.code == currentKeyPressed && timerStage.value === stages.memoing) { //Begin exec stage
             currentKeyPressed = ""
@@ -128,6 +139,17 @@
         isSolving,
         timerStage,
     })
+
+    function getStopwatchCSSclasses() {
+        const out = ['StopwatchText']
+        if (waitingBeforeExec || (timerStage.value == stages.waiting && Date.now() - waitingTimeStart >= 1000 * useSettingsStore().settings.timer_spaceholdingtime))
+            out.push('StopwatchStartSpaceDown')
+        else if (timerStage.value == stages.waiting && Date.now() - waitingTimeStart < 1000 * useSettingsStore().settings.timer_spaceholdingtime)
+            out.push('StopwatchStartYellow')
+        else if (timerStage.value == stages.stopping)
+            out.push('StopwatchEndSpaceDown')
+        return out
+    }
 </script>
 
 <template>
@@ -144,10 +166,8 @@
 
         <div class="StopwatchContainer">
             <!------STOPWATCH------>
-            <div :class="['StopwatchText',
-            (timerStage === stages.waiting || waitingBeforeExec) ? 'StopwatchStartSpaceDown' :
-            timerStage === stages.stopping ? 'StopwatchEndSpaceDown' : '']"
-                 :key="solve">
+            <div :class="getStopwatchCSSclasses()"
+                 :key="solve + stopwatchKey">
                 {{getSolveTimeString(solve.value)}}
             </div>
             <!---LAST SOLVE RATIO--->
@@ -198,11 +218,14 @@
         position:absolute;
 
     }
+    .StopwatchStartYellow {
+        color: var(--warn-300);
+    }
     .StopwatchStartSpaceDown {
-        color: var(--brand-200);
+        color: var(--brand-300);
     }
     .StopwatchEndSpaceDown {
-        color: var(--error-200);
+        color: var(--error-300);
     }
 
     .RatioText {
