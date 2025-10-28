@@ -1,17 +1,16 @@
 <script setup>
-    import { ref, onMounted, nextTick, watch } from 'vue'
+    import { ref, onMounted,nextTick, watch } from 'vue'
     import { getSolveTimeString } from "@/helpers/timer.js"
     import { useTimerStore } from "@/stores/TimerStore"
     const timerStore = useTimerStore()
-    import List from '@/components/List.vue'
 
     const props = defineProps({
         sessionID: Number,
     })
     const emit = defineEmits(['selectSolve'])
-
     //When the solve list is updated, scroll to latest solve
     const solveListRef = ref(null)
+
     onMounted(
         async () => {
             await nextTick()
@@ -29,7 +28,6 @@
             }
         }
     )
-
     function SolveClicked(index) {
         emit('selectSolve', index)
     }
@@ -38,11 +36,12 @@
 <template>
     <div class="Panel" v-if="timerStore.isValidSessionID(sessionID)">
         <div class="PanelHeader"> Solves: </div>
-        <div style="overflow:auto;"
-             ref="solveListRef">
-            <List :data="timerStore.getSession(props.sessionID).solves.map((solve,index) => (index+1).toString() + ' | ' + getSolveTimeString(solve))"
-                  :selectedIndex="-1"
-                  @onItemClick="SolveClicked" />
+        <div ref="solveListRef">
+            <div v-for="(label, index) in timerStore.getSession(props.sessionID).solves.map((solve,index) => (index+1).toString() + ' | ' + getSolveTimeString(solve))"
+                class="ListItem"
+                 @click="SolveClicked(index)">
+                {{label}}
+            </div>
         </div>
     </div>
     <div v-else class="Panel">
@@ -52,3 +51,10 @@
         </div>
     </div>
 </template>
+
+<style>
+    .scroller {
+        height: 100%; /* or whatever fits your layout */
+        overflow-x: hidden;
+    }
+</style>

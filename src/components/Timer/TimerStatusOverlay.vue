@@ -2,7 +2,6 @@
     import { reactive, onMounted, onUnmounted } from 'vue'
     import { useTimerStore } from '@/stores/TimerStore'
     const timerStore = useTimerStore()
-    timerStore.loadState()
 
     const props = defineProps({
         sessionID: Number,

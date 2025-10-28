@@ -20,20 +20,25 @@
 
     //-1 means unselected
     const sessionID = ref(-1)
+    const currentSession = computed({
+        get: () => timerStore.getSession(sessionID.value)
+    })
+    const solves = computed(() => currentSession.value?.solves ?? [])
+
     const solveIndex = ref(-1)
     const timer = ref(null)
-    const timerKey = ref(0)
-    function updateSessionID(index) { //Called from SessionSelect component
+    async function updateSessionID(index) { //Called from SessionSelect component
         if (sessionID.value != timerStore.sessions[index].id) {
             sessionID.value = timerStore.sessions[index].id
             solveIndex.value = -1
-            nextTick(() => { generateNewScramble() })
+            await nextTick()
+            generateNewScramble()
         }
     }
     async function deleteSession() {
-        if (!await confirmDialog.value.open('Are you sure you want to delete this session?')) {
+        if (!await confirmDialog.value.open('Are you sure you want to delete this session?'))
             return
-        }
+
         timerStore.deleteSession(sessionID.value)
         sessionID.value = -1
         //timerStore.getSession(sessionID.value).solves.push(...timerStore.getSession(sessionID.value).solves)
@@ -41,33 +46,33 @@
     }
 
     let currentScramble = ""
-    function generateNewScramble() {
-        if (!timerStore.isValidSessionID(sessionID.value))
+    async function generateNewScramble() {
+        if (!currentSession.value)
             return
-        switch (timerStore.getSession(sessionID.value).type) {
+        switch (currentSession.value.type) {
             case 0: //3x3 Blindfolded
                 currentScramble = get3BLDscramble()
+                break
             case 1: //3x3 Edges
                 currentScramble = scramblers['333'].getEdgeScramble()
+                break
             case 2: //3x3 Corners
                 currentScramble = scramblers['333'].getCornerScramble()
+                break
         }
-        nextTick(() => { if (timer.value) { timer.value.setScramble(currentScramble) }})
+        await nextTick()
+        timer.value.setScramble(currentScramble)
     }
     generateNewScramble()
 
     function onSolveComplete(newSolve) {
         timerStore.addSolve(sessionID.value, newSolve)
-        //Set solve to latest after finishing
-        solveIndex.value = timerStore.getSession(sessionID.value).solves.length - 1
+        solveIndex.value = solves.value.length - 1
         generateNewScramble()
     }
     function selectSolve(index) {
         solveIndex.value = index
     }
-    const lastSolve = computed({
-        get: () => timerStore.sessions[timerStore.getSessionIndexWithID(sessionID.value)].solves.at(-1)
-    })
     async function DeleteSolve() {
         if (!(await confirmDialog.value.open('Are you sure you want to delete this solve?'))) {
             return
@@ -75,28 +80,9 @@
         solveIndex.value = -1 //Unselect any solve
         timerStore.deleteSolve(sessionID.value, solveIndex.value)
 
-        timerKey.value++
-        nextTick(() => { if (timer.value) { timer.value.setScramble(currentScramble) } })
+        await nextTick()
+        timer.value.refresh()
     }
-
-    //The following is done to detect updates to the status of the last solve and update the timer text
-    let oldLength = 0
-    watch(
-        () => sessionID.value === -1 ? -1
-            : (timerStore.getSession(sessionID.value).solves.length === 0 ? -1
-                : timerStore.getSession(sessionID.value).solves.at(-1).status + timerStore.getSession(sessionID.value).solves.length),
-        (newVal) => {
-            if (sessionID.value === -1)
-                return
-            if (oldLength !== timerStore.getSession(sessionID.value).solves.length) {
-                //If it's just a new solve that changes the status, ignore it
-                oldLength = timerStore.getSession(sessionID.value).solves.length
-                return
-            }
-            timerKey.value++
-            nextTick(() => { timer.value.setScramble(currentScramble) })
-        }
-    )
 </script>
 
 <template>
@@ -117,15 +103,14 @@
         <div class="Panel" style="width: 60vw; height: 100%; position: relative; border: 3px solid var(--border-color);">
             <Timer style="width:100%; height:100%;"
                    v-if="timerStore.isValidSessionID(sessionID)"
-                   :lastSolve="lastSolve"
+                   :lastSolve="solves.at(-1)"
                    :twoStage="true"
                    @update:solve-complete="onSolveComplete"
-                   ref="timer"
-                   :key="timerKey" />
+                   ref="timer" />
            
             <TimerStatusOverlay v-if="timerStore.isValidSessionID(sessionID) && timer && !timer.isSolving"
                                 id="timerStatusOverlay"
-                                @update:solve-status="timerKey++"
+                                @update:solve-status="nextTick(() => {timer.value.refresh()})"
                                 :sessionID="sessionID" />
         </div>
 

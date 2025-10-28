@@ -6,7 +6,6 @@
     const props = defineProps({
         sessionID: Number,
     })
-
     function format(stat) {
         if (!Array.isArray(stat)) {
             //Best average

@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { getSumOfTimes, getSolveTimes, calculateMean, calculateAvg, formatTime } from '@/helpers/timer.js'
+import { getSumOfTimes, getSolveTimes, calculateBestMon, calculateMean, calculateAvg, calculateBestAon, formatTime } from '@/helpers/timer.js'
 
 const DEFAULT_SESSION_TYPES = [
     { name: '3x3 Blindfolded', id: 0 },
@@ -86,25 +86,9 @@ export const useTimerStore = defineStore('timerStore', {
             const means = [calculateMean(solves, 1), calculateMean(solves, 2), calculateMean(solves, 3)]
             return means
         },
-        recalculateBestMon(sessionID, n) {
-            console.log("recalculating " + n.toString())
+        bestMon(sessionID, mappedSolves, n) {
             const session = this.getSession(sessionID)
-            let best = [-1, -1, -1]
-            for (var i = 0; i < session.solves.length - n + 1; i++) {
-                const solves = session.solves.slice(i, i + n)
-                const means = [calculateMean(solves, 1), calculateMean(solves, 2), calculateMean(solves, 3)]
-                for (var section = 0; section < 3; section++) {
-                    if (means[section][1] || means[section][0] == -1)
-                        continue
-                    if (means[section][0] < best[section] || best[section] == -1)
-                        best[section] = means[section][0]
-                }
-            }
-            return best
-        },
-        bestMon(sessionID, n) {
             /*
-            const session = this.getSession(sessionID)
             if (!session.hasOwnProperty("bests"))
                 session.bests = {}
             if (!session.bests.hasOwnProperty("mo" + n.toString())) {
@@ -114,7 +98,7 @@ export const useTimerStore = defineStore('timerStore', {
             
             return session.bests["mo" + n.toString()]
             */
-            return this.recalculateBestMon(sessionID, n)
+            return calculateBestMon(mappedSolves, n)
         },
 
         //Average of N
@@ -124,37 +108,27 @@ export const useTimerStore = defineStore('timerStore', {
             const solves = this.getSession(sessionID).solves.slice(-n)
             return [calculateAvg(solves, 1), calculateAvg(solves, 2), calculateAvg(solves, 3)]
         },
-        recalculateBestAon(sessionID, n) {
+        bestAon(sessionID, mappedSolves, n) {
             const session = this.getSession(sessionID)
-            let best = [-1, -1, -1]
-            for (var i = 0; i < session.solves.length - n + 1; i++) {
-                const solves = session.solves.slice(i, i + n)
-                const avgs = [calculateAvg(solves, 1), calculateAvg(solves, 2), calculateAvg(solves, 3)]
-                for (var section = 0; section < 3; section++) {
-                    if (avgs[section][1] || avgs[section][0] == -1)
-                        continue
-                    if (avgs[section][0] < best[section] || best[section] == -1)
-                        best[section] = avgs[section][0]
-                }
-            }
-            return best
-        },
-        bestAon(sessionID, n) {
-            return this.recalculateBestAon(sessionID, n)
+            //Solves are mapped to their reduced counterpart once beforehand to avoid doing that many times in this function
+            return calculateBestAon(mappedSolves, n)
         },
 
         getSessionStatistics(id) {
-            console.time("statsgen")
+            const solves = this.getSession(id).solves.map(solve => ({
+                solveTime: solve.solveTime,
+                memoTime: solve.memoTime,
+                status: solve.status,
+            }))
             const out = [
-                ["single",  this.moN(id, 1)  , this.bestMon(id, 1)],
-                ["mo3",     this.moN(id, 3)  , this.bestMon(id, 3)],
-                ["ao5",     this.aoN(id, 5)  , this.bestAon(id, 5)],
-                ["ao12",    this.aoN(id, 12) , this.bestAon(id, 12)],
-                ["ao25",    this.aoN(id, 25) , this.bestAon(id, 25)],
-                ["ao50",    this.aoN(id, 50) , this.bestAon(id, 50)],
-                ["ao100",   this.aoN(id, 100), this.bestAon(id, 100)],
+                ["single",  this.moN(id, 1)  , this.bestMon(id, solves, 1)],
+                ["mo3",     this.moN(id, 3)  , this.bestMon(id, solves, 3)],
+                ["ao5",     this.aoN(id, 5)  , this.bestAon(id, solves, 5)],
+                ["ao12",    this.aoN(id, 12) , this.bestAon(id, solves, 12)],
+                ["ao25",    this.aoN(id, 25) , this.bestAon(id, solves, 25)],
+                ["ao50",    this.aoN(id, 50) , this.bestAon(id, solves, 50)],
+                ["ao100",   this.aoN(id, 100), this.bestAon(id, solves, 100)],
             ]
-            console.timeEnd("statsgen")
             return out
         },
 

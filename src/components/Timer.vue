@@ -1,5 +1,5 @@
 <script setup>
-    import { ref, reactive, computed, onMounted, onUnmounted } from 'vue'
+    import { ref, reactive, computed, onMounted, onUnmounted, nextTick } from 'vue'
     import { getSolveTimeString, getSolveRatioString } from '@/helpers/timer.js'
 
     const emit = defineEmits(['update:solve-complete'])
@@ -24,17 +24,19 @@
         get: () => timerStage.value === stages.memoing || timerStage.value === stages.executing
     })
     const solve = reactive({})
-    if (props.lastSolve) {
-        solve.value = props.lastSolve
-    }
-    else {
-        solve.value = { solveTime: 0 } //Initialise timer to 0.00 if this is the first solve
-    }
 
     const scramble = ref("")
     function setScramble(newScramble) {
         scramble.value = newScramble
     }
+
+    function refresh() {
+        if (props.lastSolve)
+            solve.value = props.lastSolve
+        else
+            solve.value = { solveTime: 0 } //Initialise timer to 0.00 if this is the first solve
+    }
+    refresh()
 
     let stopwatchStartTime = 0
     let timerUpdate = null
@@ -122,6 +124,7 @@
 
     defineExpose({
         setScramble,
+        refresh,
         isSolving,
         timerStage,
     })

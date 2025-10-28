@@ -1,17 +1,20 @@
 <script setup>
+    import { computed } from 'vue'
+
     const props = defineProps({
         data: Array,
         selectedIndex: Number,
     })
     const emit = defineEmits(['onItemClick'])
+
 </script>
 
 <template>
-    <!--Add a non-breaking space if the label is empty so that it still appears-->
     <div v-for="(label, index) in data"
          :class="['ListItem', selectedIndex === index ? 'ListItemSelected' : 'ListItemUnselected']"
          @click="emit('onItemClick',index)">
-        {{label != "" ? label : "&nbsp;"}}
+        <span v-if="label">{{label}}</span>
+        <span v-else>&nbsp</span>
     </div>
 </template>
 
