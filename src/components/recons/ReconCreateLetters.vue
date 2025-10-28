@@ -222,10 +222,12 @@
             </div>
 
             <img src="@/assets/arrow-left-long.svg"
+                 title="Back"
                  :class="['CustomButton','NextButton']" 
                  style="left:0px;transform:translate(100%,-100%);"
                  @click="revertToReconPage()" />
             <img v-if="pieceType > 1"
+                 title="Continue to notation"
                  src="@/assets/arrow-right-long.svg"
                  :class="['CustomButton','NextButton']"
                  @click="letterSelectionFinished()" />

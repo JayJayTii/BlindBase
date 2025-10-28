@@ -221,7 +221,7 @@
     <div id="ReconCreateNotationLayout">
         <div style="display: flex; flex-direction: column; gap: 10px; padding: 10px;">
             <div class="ReconHeader">Edges:</div>
-            <div style="color:var(--grey-100)" v-if="edgeSheets.length > 0">
+            <div title="Fills the alg of a letter pair if the sheet contains one" style="color:var(--grey-100)" v-if="edgeSheets.length > 0">
                 Algs from
                 <select v-model="edgeSheetID" @change="FillAllEdges()">
                     <option v-for="sheet in edgeSheets"
@@ -231,7 +231,7 @@
                 </select>
             </div>
             <div style="display:flex;color: var(--grey-100); font-size: 1.5rem; gap: 10px;" v-if="inspection.turns.length > 0">
-                <input class="ReconNotationInput" readonly :value="inspection.toString()"/>
+                <input class="ReconNotationInput" title="Inspection" readonly :value="inspection.toString()"/>
             </div>
             <div style="display:flex;color: var(--grey-100); font-size: 1.5rem; gap: 10px;"
                  v-for="(pair, index) in edgePairs">
@@ -239,11 +239,13 @@
                 <textarea style="field-sizing: content; resize:none;"
                           class="ReconNotationInput"
                           v-model="edgeInput[index]"
+                          :title="'Algorithm for ' + pair"
                           :id="'Edges' + index.toString()"
                           :ref="el => edgeInputBox[index] = el" />
-                <img src="@/assets/lightbulb-line.svg" class="CustomButton" style="height:40px;min-width:40px;" @click="FillEdgeRecommendation(index)" />
+                <img src="@/assets/lightbulb-line.svg" title="Fill with a random recommendation" class="CustomButton" style="height:40px;min-width:40px;" @click="FillEdgeRecommendation(index)" />
             </div>
             <textarea style="field-sizing: content; resize:none;"
+                      title="Parity/Flips/Twists"
                       class="ReconNotationInput"
                       v-model="edgeInput[edgeInput.length - 1]"
                       :id="'Edges' + (edgeInput.length - 1).toString()"
@@ -256,7 +258,7 @@
 
         <div style="display: flex; flex-direction: column;gap:5px;padding: 10px;">
             <div class="ReconHeader">Corners:</div>
-            <div style="color:var(--grey-100)" v-if="cornerSheets.length > 0">
+            <div title="Fills the alg of a letter pair if the sheet contains one" style="color:var(--grey-100)" v-if="cornerSheets.length > 0">
                 Algs from
                 <select v-model="cornerSheetID" @change="FillAllCorners()">
                     <option v-for="sheet in cornerSheets"
@@ -270,13 +272,15 @@
                      v-for="(pair,index) in cornerPairs">
                     {{pair}}:
                     <textarea style="field-sizing: content; resize:none;"
+                              :title="'Algorithm for ' + pair"
                               class="ReconNotationInput"
                               v-model="cornerInput[index]"
                               :id="'Corns' + index.toString()"
                               :ref="el => cornerInputBox[index] = el " />
-                    <img src="@/assets/lightbulb-line.svg" class="CustomButton" style="height:40px;min-width:40px;" @click="FillCornerRecommendation(index)"></img>
+                    <img src="@/assets/lightbulb-line.svg" title="Fill with a random recommendation" class="CustomButton" style="height:40px;min-width:40px;" @click="FillCornerRecommendation(index)"></img>
                 </div>
                 <textarea style="field-sizing: content; resize:none;"
+                          title="Parity/Flips/Twists"
                           class="ReconNotationInput"
                           v-model="cornerInput[cornerInput.length - 1]"
                           :id="'Corns' + (cornerInput.length - 1).toString()"
@@ -286,10 +290,12 @@
     </div>
     <div style="height:100px;" />
     <img src="@/assets/arrow-left-long.svg"
+         title="Back"
          :class="['CustomButton','NextButton']" 
          style="left:0px;transform:translate(100%,-100%);"
          @click="revertToLetterSelection()" />
     <img src="@/assets/arrow-right-long.svg"
+         title="Finish reconstruction"
          :class="['CustomButton','NextButton']" 
          @click="notationSelectionFinished()" />
 </template>

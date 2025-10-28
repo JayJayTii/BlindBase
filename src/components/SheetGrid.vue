@@ -147,13 +147,15 @@
     <div class="SheetGridContainer" v-if="props.sheet">
         <!-----BLANK CORNER----->
         <div class="SheetGridCorner" >
-            <div class="SheetGridCell"  :style="{ cursor: (props.fullLineSelection ? 'pointer' : 'default') }"
+            <div class="SheetGridCell" :style="{ cursor: (props.fullLineSelection ? 'pointer' : 'default') }"
+                 :title="props.fullLineSelection ? 'Select/deselect the whole sheet' : ''"
                  @click="sheetClicked()"></div>
         </div>
 
         <!-----COLUMN HEADINGS----->
         <div class="SheetGridTopRow" ref="topRow" @scroll="syncScrollToTopRow">
             <div v-for="(char,index) in getXHeadings(sheet)"
+                 :title="props.fullLineSelection ? 'Select/deselect this column' : ''"
                  class="SheetGridCell"
                  :style="{ cursor: props.fullLineSelection ? 'pointer' : 'default' }"
                  @click="columnClicked(index)">
@@ -165,6 +167,7 @@
         <!-----ROW HEADINGS----->
         <div class="SheetGridLeftColumn" ref="leftColumn" @scroll="syncScrollToLeftColumn">
             <div v-for="(char, index) in getYHeadings(sheet)"
+                 :title="props.fullLineSelection ? 'Select/deselect this row' : ''"
                  class="SheetGridCell"
                  :style="{ cursor: props.fullLineSelection ? 'pointer' : 'default' }"
                  @click="rowClicked(index)">
@@ -177,6 +180,7 @@
         <div class="SheetGrid" ref="mainGrid" @scroll="syncScrollToGrid">
             <div v-for="(row, y) in 24">
                 <div v-for="(col, x) in 24"
+                     :title="props.sheet.yHeadings[flipped ? y : x] + props.sheet.xHeadings[flipped ? x : y]"
                      @click="emit('update:selected-cell', !flipped ? {x:x,y:y} : {x:y,y:x})"
                      :id="x.toString() + ',' + y.toString()"
                      :class="calculateCellClasses(x,y)"

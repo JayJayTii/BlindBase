@@ -116,6 +116,7 @@
 <style>
     .editCurCellKey {
         font-size: 2rem;
+        text-align: center;
         width: min(100%, 4ch);
         text-transform: uppercase;
     }

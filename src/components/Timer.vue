@@ -62,7 +62,7 @@
                 solve.value.memoTime = 0
                 solve.value.solveTime = 0
                 solve.value.status = 0
-                solve.value.scramble = scramble
+                solve.value.scramble = scramble.value
             }
         }
         if (timerStage.value === stages.memoing && currentKeyPressed == "") { //Wait for key up to start exec stage
@@ -185,7 +185,7 @@
         justify-content: center;
         align-items: center;
         flex-direction:column;
-        height: 70%;
+        height: 80%;
     }
 
     .ScrambleText {

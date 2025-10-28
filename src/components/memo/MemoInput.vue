@@ -33,6 +33,7 @@
 <template>
     <input v-for="cube in cubes"
            v-model="userSequences[cube - 1]"
+           title="Enter your memo"
            ref="inputRef"
            :maxlength="props.maxSequenceLength"
            :style="{
@@ -42,7 +43,8 @@
             }" />
     <div style="height:20vh;" />
 
-    <img src="@/assets/arrow-right-long.svg"
+    <img src="@/assets/arrow-right-long.svg"     
+         title="Next"
          :class="['CustomButton','NextButton']"
          @click="FinishStage()" />
 </template>

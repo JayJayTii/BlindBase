@@ -55,7 +55,7 @@ const router = createRouter({
             component: ExecView,
             meta: {
                 tool: true,
-                description: 'Apply your algorithms with targeted practice',
+                description: 'Execute your algorithms with targeted practice',
                 iconPath: new URL('@/assets/ExecIcon.png', import.meta.url).href,
             },
         },

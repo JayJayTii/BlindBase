@@ -12,6 +12,11 @@
 
     const newScramble = ref("")
     function createRecon() {
+        if (newScramble.value == "") {
+            alert("Please enter a scramble")
+            return
+        }
+
         //Done to avoid invalid scrambles in URL allowing for duplicate of the same real scramble
         const scrambleSequence = new Sequence()
         scrambleSequence.setAlgorithmNotation(newScramble.value)
@@ -55,50 +60,51 @@
 </script>
 
 <template>
-    <div class="ReconSelect">
-        <div />
-        <div style="align-content:center;">
-            <div class="PanelHeader" style="font-size:2.5rem;line-height:3.5rem;">
-                Reconstructions:
+    <div style="display:flex;flex-direction:column;">
+        <div class="ReconSelect">
+            <div />
+            <div style="align-content:center;">
+                <div class="PanelHeader" style="font-size: min(2.5rem,3vw); height: min(3.5rem,5vw);">
+                    Reconstructions:
+                </div>
             </div>
-        </div>
-        <div />
+            <div />
 
-        <div id="COLUMN1">
-            <div v-if="selectedRecon != -1" id="reconPreviewBody">
-                <h1 style="font-size:2rem;" id="reconPreview"><u>{{reconsStore.recons[selectedRecon].name || "&nbsp"}}</u></h1>
-                <pre style="font-size:1.3rem;line-height:1.5rem;" id="reconPreview">{{reconsStore.recons[selectedRecon].body}}</pre>
+            <div id="COLUMN1">
+                <div v-if="selectedRecon != -1" id="reconPreviewBody">
+                    <h1 style="font-size:2rem;" id="reconPreview"><u>{{reconsStore.recons[selectedRecon].name || "&nbsp"}}</u></h1>
+                    <pre style="font-size:1.3rem;line-height:1.5rem;" id="reconPreview">{{reconsStore.recons[selectedRecon].body}}</pre>
+                </div>
+                <div style="height:4rem" />
             </div>
-            <div style="height:4rem" />
-        </div>
-        <div id="COLUMN2">
-            <div style="width:100%;font-size:1.5rem;">
-                <List :data="reconsStore.recons.map((recon, i) => i == selectedRecon ? 'Edit \'' + recon.name + '\'?' : recon.name)"
-                      :selectedIndex="selectedRecon"
-                      @onItemClick="ReconClicked" />
+            <div id="COLUMN2">
+                <div style="width:100%;font-size:1.5rem;">
+                    <List :data="reconsStore.recons.map((recon, i) => i == selectedRecon ? 'Edit \'' + recon.name + '\'?' : recon.name)"
+                          :selectedIndex="selectedRecon"
+                          @onItemClick="ReconClicked" />
+                </div>
+                <div id="newReconRow">
+                    <label>Scramble:</label>
+                    <input style="flex-grow: 1;" v-model="newScramble" />
+                    <button title="Create reconstruction with this scramble" @click="createRecon">+</button>
+                </div>
             </div>
-            <div id="newReconRow">
-                <label>Scramble:</label>
-                <input style="flex-grow: 1;" v-model="newScramble" />
-                <button @click="createRecon">+</button>
+            <div id="COLUMN3" v-if="selectedRecon != -1">
+                <FaceletCubeVisual style="width: 90%; position: relative; left: 5%; border: 3px solid var(--grey-100); padding: 10px; border-radius: 5px;"
+                                   :cube="reconPreviewCube"
+                                   :key="reconPreviewCube.corners.toString() + reconPreviewCube.edges.toString() + reconPreviewCube.centers.toString()" />
             </div>
         </div>
-        <div id="COLUMN3" v-if="selectedRecon != -1">
-            <FaceletCubeVisual style="width: 90%; position: relative; left: 5%; border: 3px solid var(--grey-100); padding: 10px; border-radius: 5px;"
-                               :cube="reconPreviewCube"
-                               :key="reconPreviewCube.corners.toString() + reconPreviewCube.edges.toString() + reconPreviewCube.centers.toString()" />
-        </div>
+        <div style="height:100px;"></div>
     </div>
-    <div style="height:100px" />
 </template>
 
 <style>
     .ReconSelect {
         display: grid;
         grid-template-columns: 35% 30% 35%;
-        grid-template-rows: 5rem 1fr;
+        grid-template-rows: calc(min(3.5rem,5vw) + 15px) 1fr;
         color: var(--grey-100);
-        height: 93vh;
     }
 
     #reconPreviewBody {

@@ -12,11 +12,11 @@
 <template>
     <!--Navbar sticks to the top of the screen-->
     <div class="Navbar">
-        <RouterLink to="/" class="HomeButton">
+        <RouterLink to="/" class="HomeButton" title="Home">
             <img src="@/assets/logo.png" style="height:5vh;" />
         </RouterLink>
 
-        <img src="@/assets/settings.svg" @click="toggleSettings" class="SettingsButton" />
+        <img src="@/assets/settings.svg" title="Settings" @click="toggleSettings" class="SettingsButton" />
         <div v-if="showSettings" @click="toggleSettings" id="settingsBackdrop"></div>
         <SettingsView v-if="showSettings" id="settings" style="position:fixed;" />
     </div>

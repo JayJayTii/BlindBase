@@ -97,6 +97,9 @@
                 </div>
             </div>
             <div class="Subsettings">
+                <h2>Exec Settings</h2>
+            </div>
+            <div class="Subsettings">
                 <h2>Recons Settings</h2>
                 <div id="Resons TPS precision">
                     {{ defaults.recons_tpsprecision.name }}:

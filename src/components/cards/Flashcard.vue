@@ -142,6 +142,7 @@
 <template>
     <!------BAD------>
     <img v-if="cardType != 'New' && hasFlipped"
+         title="Didn't remember - click/left arrow"
          @click="finishedCard('Bad')"
          id="BadButton"
          class="BadButton"
@@ -150,6 +151,7 @@
 
     <!------CARD------>
     <div id="Card" :class="['Card', cardFlipped ? 'FlippedCard' : '' ]"
+         title="Flip - click/space"
          @click="FlipCard()">
         <div class="CardTypeText">
             <h3>{{cardType}}</h3>
@@ -179,6 +181,7 @@
 
     <!------GOOD------>
     <img v-if="hasFlipped"
+         title="Remembered - click/right arrow"
          @click="finishedCard('Good')"
          id="GoodButton"
          class="GoodButton"

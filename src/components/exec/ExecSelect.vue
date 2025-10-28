@@ -34,7 +34,7 @@
     })
     const pieceTypeSelected = computed({get: () => pieceType.value != -1 })
 
-    //Full or one pair
+    //Whole or One pair
     const modeValue = ref("")
     const mode = computed({
         get: () => modeValue.value,
@@ -44,7 +44,7 @@
 
             modeValue.value = newValue
 
-            if (newValue == "Full")
+            if (newValue == "Whole")
                 GeneratePairsAndEmit()
         }
     })
@@ -102,7 +102,7 @@
 
     const selectionFinished = computed({
         get: () => pieceType.value != -1
-            && ((mode.value == "Full")
+            && ((mode.value == "Whole")
                 || (mode.value == "One pair"
                     && (pairSelect.value == 'From all pairs'
                         || (pairSelect.value == "From sheet" && pairSelectSheetID.value != -1)
@@ -146,7 +146,7 @@
                 break
             default:
         }
-        emit('update:on-selected', mode.value == "Full", pairs, Number(pieceType.value), scrambleMode.value == 0)
+        emit('update:on-selected', mode.value == "Whole", pairs, Number(pieceType.value), scrambleMode.value == 0)
     }
     
     function getValidCardDecks() {
@@ -283,19 +283,19 @@
 
 <template>
     <div id="ExecSelect">
-        <select v-model="pieceType" style="font-size: 2rem; text-align: center;">
+        <select v-model="pieceType" title="Piece type in the solve" style="font-size: 2rem; text-align: center;">
             <option value=1>Corners</option>
             <option value=2>Edges</option>
         </select>
 
         <div class="ExecSelectLine" v-if="pieceTypeSelected" />
-        <select v-if="pieceTypeSelected" v-model="mode" style="font-size: 2rem; text-align: center;">
-            <option>Full</option>
+        <select v-if="pieceTypeSelected" title="Amount of that piece type" v-model="mode" style="font-size: 2rem; text-align: center;">
+            <option>Whole</option>
             <option>One pair</option>
         </select>
 
         <div class="ExecSelectLine" v-if="mode == 'One pair'" />
-        <select v-if="mode == 'One pair'" v-model="pairSelect" style="font-size: 2rem; text-align: center;">
+        <select v-if="mode == 'One pair'" title="Select letter pairs from..." v-model="pairSelect" style="font-size: 2rem; text-align: center;">
             <option>From all pairs</option>
             <option v-if="sheetStore.getSheetsOfType(Number(pieceType)).length > 0">From sheet</option>
             <option v-if="getValidCardDecks().length">From cards</option>
@@ -304,19 +304,19 @@
 
         <div class="ExecSelectLine" v-if="pairSelect == 'From sheet' || pairSelect == 'From cards' || pairSelect == 'From custom'" />
         <div v-if="pairSelect == 'From sheet' || pairSelect == 'From cards' || pairSelect == 'From custom'">
-            <select v-if="pairSelect == 'From sheet'" v-model="pairSelectSheetID" style="font-size: 2rem;text-align:center;">
+            <select v-if="pairSelect == 'From sheet'" title="Which sheet?" v-model="pairSelectSheetID" style="font-size: 2rem;text-align:center;">
                 <option v-for="sheet in sheetStore.getSheetsOfType(Number(pieceType))"
                         :value="sheet.id">
                     '{{sheet.name}}'
                 </option>
             </select>
-            <select v-if="pairSelect == 'From cards'" v-model="pairSelectSheetID" style="font-size: 2rem;text-align:center;">
+            <select v-if="pairSelect == 'From cards'" title="Which card deck?" v-model="pairSelectSheetID" style="font-size: 2rem;text-align:center;">
                 <option v-for="sheet in getValidCardDecks()"
                         :value="sheet.id">
                     '{{sheet.name}}'
                 </option>
             </select>
-            <div v-if="pairSelect == 'From custom'" style="display:flex; justify-content: center;">
+            <div v-if="pairSelect == 'From custom'" title="Select from a grid of letter pairs" style="display:flex; justify-content: center;">
                 <img @click="editingCustomPairs = !editingCustomPairs; UpdateSelectedCells()"
                      src="@/assets/edit.svg"
                      :class="['CustomButton', editingCustomPairs ? 'CustomButtonHovered': '']"
@@ -325,7 +325,7 @@
         </div>
 
         <div class="ExecSelectLine" v-if="showScrambleModeSelect" />
-        <select style="font-size: 2rem; text-align: center;" v-model="scrambleMode" v-if="showScrambleModeSelect">
+        <select style="font-size: 2rem; text-align: center;" title="Use a scramble?" v-model="scrambleMode" v-if="showScrambleModeSelect">
             <option value="0">With scramble</option>
             <option value="1">No scramble</option>
         </select>

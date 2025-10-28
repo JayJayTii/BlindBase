@@ -38,10 +38,12 @@
             
             <div style="display: flex;flex-direction: row; justify-content: space-between; width: 100%; ">
                 <!------UPLOAD------>
-                <img src="@/assets/upload.svg" class="CustomButton" style="height:40px;" 
+                <img title="Upload an algsheet - must be saved as a .csv file"
+                     src="@/assets/upload.svg" class="CustomButton" style="height:40px;" 
                       @click="UploadFile()" />
 
-                <img @click="sheetStore.newSheet(); emit('updateSheetID',sheetStore.sheets.length-1);"
+                <img title="Create an empty algsheet"
+                     @click="sheetStore.newSheet(); emit('updateSheetID',sheetStore.sheets.length-1);"
                      class="CustomButton" src="@/assets/add.svg" style="height:40px;" />
             </div>
         </div>

@@ -91,7 +91,6 @@
         <div class="PanelColumn">
             <SessionSelect style="width: 100%; height: 33%;"
                            :sessionID="sessionID"
-                           :solveIndex="solveIndex"
                            @updateSessionID="updateSessionID" />
             <SessionSettings style="width:100%;height:67%;"
                              :sessionID="sessionID"
@@ -136,8 +135,8 @@
 <style>
     #timerStatusOverlay{
         position:absolute;
-        top: 35%;
+        top: 40%;
         left: 50%;
-        transform:translate(-50%,calc(-50% + 7rem));
+        transform:translate(-50%,calc(-50% + 7.5rem));
     }
 </style>

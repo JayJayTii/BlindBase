@@ -25,6 +25,7 @@
         justify-content:center;
         text-align:center;
         text-overflow: ellipsis;
+        word-break: break-all;
         overflow: hidden;
         white-space: nowrap;
     }

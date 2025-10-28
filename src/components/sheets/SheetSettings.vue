@@ -62,13 +62,14 @@
         <div class="PanelHeader"> Sheet settings: </div>
         <!------NAME------>
         <div class="SheetEditingRow">
-            <input v-model="currentSheetName"
+            <input title="Name"
+                   v-model="currentSheetName"
                    maxlength="20"
                    style="white-space:nowrap;font-weight:bold;font-size:2rem;width:100%;text-align:center;" />
         </div>
 
         <!------TYPE------>
-        <div class="SheetEditingRow">
+        <div class="SheetEditingRow" title="Sheet type - this affects many things so make sure it's correct!">
             Type: <select v-model="currentSheetType">
                 <option v-for="(type,index) in sheetStore.sheetTypes"
                         :key="index"
@@ -80,10 +81,12 @@
 
         <div style="display: flex; flex-direction: row; justify-content:space-between; width:100%;">
             <!------DOWNLOAD------>
-            <img src="@/assets/download.svg" @click="downloadSheet()" class="CustomButton"  style="height:40px;"/>
+            <img title="Download this sheet"
+                 src="@/assets/download.svg" @click="downloadSheet()" class="CustomButton"  style="height:40px;"/>
 
             <!------DELETE------>
-            <img src="@/assets/delete-bin.svg" @click="emit('deleteSheet')" class="CustomButton" style="height:40px;" />
+            <img title="Delete this sheet"
+                 src="@/assets/delete-bin.svg" @click="emit('deleteSheet')" class="CustomButton" style="height:40px;" />
         </div>
     </div>
     <div v-else class="Panel">

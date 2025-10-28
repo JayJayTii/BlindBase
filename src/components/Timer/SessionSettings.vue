@@ -47,12 +47,13 @@
         <!------NAME------>
         <div class="SessionEditingRow">
             <input v-model="currentSessionName"
+                   title="Name"
                    maxlength="20"
                    style="white-space:nowrap;font-weight:bold;font-size:2rem;width:100%;text-align:center;" />
         </div>
         <!------TYPE------>
-        <div class="SessionEditingRow" id="editSessionType">
-            Type: <select v-model="currentSessionType" style="width: 100%; ">
+        <div class="SessionEditingRow" title="Session type - this affects scrambles" id="editSessionType">
+            Type: <select v-model="currentSessionType" >
                 <option v-for="(type,index) in timerStore.getSessionTypes"
                         :key="index"
                         :value="index">
@@ -63,7 +64,8 @@
         <div style="display: flex; flex-direction: row; justify-content:space-between; width:100%;">
             <div></div>
             <!------DELETE------>
-            <img src="@/assets/delete-bin.svg" @click="emit('deleteSession')" class="CustomButton" style="height:40px;" />
+            <img src="@/assets/delete-bin.svg" title="Delete this session"
+                 @click="emit('deleteSession')" class="CustomButton" style="height:40px;" />
         </div>
     </div>
     <div v-else class="Panel">
@@ -78,6 +80,7 @@
     .SessionEditingRow {
         display: flex;
         flex-direction: row;
+        justify-content: center;
         padding: 2px;
         gap: 5px;
         width: 100%;

@@ -1,4 +1,4 @@
-<script setup>
+x<script setup>
     import { nextTick, watch, computed, ref, onMounted, onUnmounted } from "vue"
     import SheetGrid from '@/components/SheetGrid.vue'
     import { useMemoStore, modes } from '@/stores/MemoStore.js'
@@ -273,7 +273,7 @@ import { getXHeadings } from "../../helpers/sheets"
 <template>
     <div id="MemoSelect">
         <div class="MemoViewHeader">
-            <div style="display:flex;flex-direction:column;">
+            <div style="display:flex;flex-direction:column;" title="Memo mode">
                 <select style="font-size: 2rem; text-align:center;" v-model="mode">
                     <option v-for="mode in modes">{{mode}}</option>
                 </select>
@@ -288,7 +288,7 @@ import { getXHeadings } from "../../helpers/sheets"
         </div>
         <div class="MemoSelectLine" v-if="mode === 'Multiblind'" />
 
-        <div class="MemoViewHeader" v-if="modeSelected">
+        <div class="MemoViewHeader" title="Select letter pairs from..." v-if="modeSelected">
             <select v-model="pairSelect" style="font-size: 2rem;text-align:center;">
                 <option :value="0">From all pairs</option>
                 <option v-if="sheetStore.getSheetsOfType(3).length > 0" :value="1">From sheet</option>
@@ -298,17 +298,17 @@ import { getXHeadings } from "../../helpers/sheets"
         </div>
 
         <div class="MemoSelectLine" v-if="pairSelect > 0" />
-        <div class="MemoViewHeader" v-if="pairSelect === 1">
+        <div class="MemoViewHeader"  title="Which sheet?" v-if="pairSelect === 1">
             <select v-model="pairSelectSheet" style="font-size: 2rem;text-align:center;">
                 <option v-for="sheetOption in sheetStore.getSheetsOfType(3)" :value="sheetOption">'{{ sheetOption.name }}'</option>
             </select>
         </div>
-        <div class="MemoViewHeader" v-if="pairSelect === 2">
+        <div class="MemoViewHeader" title="Which card deck?" v-if="pairSelect === 2">
             <select v-model="pairSelectSheet" style="font-size: 2rem">
                 <option v-for="sheetOption in GetSheetsWithLearnedCards()" :value="sheetOption">'{{ sheetOption.name }}'</option>
             </select>
         </div>
-        <div class="MemoViewHeader" v-if="pairSelect === 3">
+        <div class="MemoViewHeader" title="Select from a grid of letter pairs" v-if="pairSelect === 3">
             <img @click="editingCustomPairs = !editingCustomPairs;
                  nextTick(()=> {if(gridRef){gridRef.changeHighlightedCells(highlightedCells)}})"
             src="@/assets/edit.svg"
@@ -330,7 +330,7 @@ import { getXHeadings } from "../../helpers/sheets"
                @update:selected-cell="onCustomPairClicked"
                @update:full-column-selected="rowClicked"
                @update:full-row-selected="columnClicked"
-               @update:full-sheet-selected="sheetClicked"/>
+               @update:full-sheet-selected="sheetClicked" />
 
     <img v-if="pairSelectFinished"
          src="@/assets/arrow-right-long.svg"
@@ -339,13 +339,12 @@ import { getXHeadings } from "../../helpers/sheets"
 </template>
 
 <style>
-
     #MemoSelect {
         justify-self: start;
         align-items: center;
         height: 10vh;
 
-        width: 100vw;
+        min-width: 100vw;
         display: flex;
         flex-direction: row;
         gap: 10px;
