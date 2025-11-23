@@ -104,7 +104,10 @@ export const useCardStore = defineStore('cardStore', {
             //Take daily new card limit into account
             if (type === "New") {
                 const dailyNewCardsRemaining = Math.max(0, useSettingsStore().settings.cards_dailymaximumnewcards - this.dailyStats.dailyNewCards)
-                return cards.slice(0, dailyNewCardsRemaining)
+                //Need to get this many random cards from the array of cards
+                //https://tutorialreference.com/javascript/examples/faq/javascript-how-to-get-random-elements-from-array
+                const shuffled = [...cards].sort(() => 0.5 - Math.random())
+                return shuffled.slice(0, dailyNewCardsRemaining)
             }
             return cards
         },

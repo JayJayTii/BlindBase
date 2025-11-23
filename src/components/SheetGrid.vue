@@ -180,7 +180,7 @@
         <div class="SheetGrid" ref="mainGrid" @scroll="syncScrollToGrid">
             <div v-for="(row, y) in 24">
                 <div v-for="(col, x) in 24"
-                     :title="props.sheet.yHeadings[flipped ? y : x] + props.sheet.xHeadings[flipped ? x : y]"
+                     :title="props.sheet.yHeadings[flipped ? y : x] + props.sheet.xHeadings[flipped ? x : y] + ': ' + props.sheet.grid[!flipped ? y : x][!flipped ? x : y]"
                      @click="emit('update:selected-cell', !flipped ? {x:x,y:y} : {x:y,y:x})"
                      :id="x.toString() + ',' + y.toString()"
                      :class="calculateCellClasses(x,y)"

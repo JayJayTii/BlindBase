@@ -100,6 +100,7 @@
             newRec = recs[Math.floor(Math.random() * recs.length)]
         } while (newRec == cornerInput.value[index]);
         cornerInput.value[index] = newRec
+        cornerInputBox.value[index].focus()
     }
     function FillEdgeRecommendation(index) {
         const recs = getEdgeRecommendations(edgePairs[index], 0)
@@ -108,6 +109,7 @@
             newRec = recs[Math.floor(Math.random() * recs.length)]
         } while (newRec == edgeInput.value[index]);
         edgeInput.value[index] = newRec
+        edgeInputBox.value[index].focus()
     }
 
     FillAllCorners()

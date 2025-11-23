@@ -57,7 +57,9 @@
             if (event.code === 'Space' || event.code === 'Mouse0') {
                 timerStage.value = stages.waiting //Wait for space up
                 waitingTimeStart = Date.now()
-                setTimeout(() => { stopwatchKey.value++ }, 1000 * useSettingsStore().settings.timer_spaceholdingtime)
+                setTimeout(() => {
+                    stopwatchKey.value++
+                }, 1000 * useSettingsStore().settings.timer_spaceholdingtime)
                 solve.value = {}
                 solve.value.memoTime = 0
                 solve.value.solveTime = 0
@@ -154,7 +156,7 @@
 </script>
 
 <template>
-    <div id="TimerContainer" @mousedown="mouseDown" @mouseup="mouseUp" style="position:relative;cursor:pointer;">
+    <div id="TimerContainer" style="position:relative;cursor:pointer;">
         <!---------SCRAMBLE---------->
         <div class="ScrambleText" v-if="!isSolving">
             {{scramble}}
@@ -165,7 +167,7 @@
             {{timerStage === stages.memoing ? "MEMO" : "EXEC"}}
         </div>
 
-        <div class="StopwatchContainer">
+        <div @mousedown="mouseDown" @mouseup="mouseUp" class="StopwatchContainer">
             <!------STOPWATCH------>
             <div :class="getStopwatchCSSclasses()"
                  :key="solve + stopwatchKey">
@@ -186,6 +188,7 @@
         align-items: center;
         flex-direction:column;
         height: 80%;
+        user-select: none;
     }
 
     .ScrambleText {

@@ -117,7 +117,9 @@
             <div style="font-weight:bold; font-size:2rem;">
                 {{solveCount + 1}}
             </div>
-            <div style="color:transparent;text-shadow:0 0 8px var(--grey-300);">{{nextScramble}}</div>
+            <div style="color:transparent;text-shadow:0 0 8px var(--grey-300);user-select:none;">
+                {{nextScramble}}
+            </div>
         </div>
     </div>
 </template>

@@ -195,7 +195,7 @@
 
         <!------EDITING------>
         <div v-if="sheetStore.isValidSheetID(sheetID)" style="display:flex;flex-direction:column;gap:5px;">
-            <h3 class="PanelHeader" style="font-size:5vh;padding-inline:10px;">Select flashcards to create from this sheet</h3>
+            <h3 class="PanelHeader" style="font-size:5vh;padding-inline:10px;">Select flashcards to create from '{{sheetStore.getSheet(sheetID).name}}'</h3>
             <div style="display:flex;flex-direction:row;gap:5px;justify-content:center">
                 <div class="CustomButton" style="font-size:1rem;width:110px;" @click="SelectAll()"><h3>Select all</h3></div>
                 <div class="CustomButton" style="font-size:1rem;width:110px;" @click="SelectNone()"><h3>Select none</h3></div>

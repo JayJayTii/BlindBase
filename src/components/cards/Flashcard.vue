@@ -18,7 +18,7 @@
 
     function handleKeydown(event) {
         //Space (flip card)
-        if (event.code === 'Space') {
+        if (event.code === 'Space' || event.code == 'ArrowUp' || event.code == 'ArrowDown') {
             FlipCard()
         }
         //Right arrow (good card)
@@ -200,6 +200,7 @@
         color: var(--grey-100);
         font-size: 1.5rem;
         cursor: pointer;
+        user-select: none;
     }
     .FlippedCard {
         background-color: var(--brand-800);
@@ -210,13 +211,13 @@
     }
     @keyframes animatedCardFlipForward {
         from { transform: scale(1, 1); }
-        to { transform: scale(1, 0); }
+        to { transform: scale(1.2, 0); }
     }
     .AnimatedCardFlipBackward {
         animation: animatedCardFlipBackward 0.05s forwards;
     }
     @keyframes animatedCardFlipBackward {
-        from { transform: scale(1, 0); }
+        from { transform: scale(1.2, 0); }
         to { transform: scale(1, 1); }
     }
 
@@ -249,6 +250,7 @@
         justify-self: end;
         width: 10vw;
         cursor: pointer;
+        user-select: none;
     }
         .BadButton:hover {
             background-color: var(--error-300);
@@ -261,6 +263,7 @@
         justify-self: start;
         width: 10vw;
         cursor: pointer;
+        user-select: none;
     }
         .GoodButton:hover {
             background-color: var(--confirm-300);
