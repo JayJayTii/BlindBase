@@ -1,11 +1,14 @@
 <script setup>
+    import { useRouter } from 'vue-router'
+    const router = useRouter()
+
     defineProps({
         route: Object,
     })
 </script>
 
 <template>
-    <RouterLink :to="route.path.split(':')[0]" class="home-button">
+    <div @click="router.push(route.path.split(':')[0])" class="home-button">
         <div class="button">
             <div style="background-color: transparent">{{ route.name }}</div>
             <img :src="route.meta.iconPath" />
@@ -13,7 +16,7 @@
         <div class="description">
             {{ route.meta.description }}
         </div>
-    </RouterLink>
+    </div>
 </template>
 
 <style>
@@ -21,6 +24,7 @@
         --home-button-size: 150px;
         display: flex;
         flex-direction: column;
+        cursor: pointer;
     }
     .home-button:hover .description {
         margin-top: calc(-0.3 * var(--home-button-size));

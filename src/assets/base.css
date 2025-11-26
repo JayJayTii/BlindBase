@@ -90,7 +90,10 @@ button {
 button:hover{
     background-color: var(--grey-600);
 }
-
+a {
+    text-decoration: underline;
+    color: inherit;
+}
 
 * {
     box-sizing: border-box;
