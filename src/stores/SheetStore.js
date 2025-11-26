@@ -47,7 +47,7 @@ export const useSheetStore = defineStore('sheetStore', {
                 type: 0,
                 xHeadings: DEFAULT_SHEET_XHEADINGS,
                 yHeadings: DEFAULT_SHEET_YHEADINGS,
-                grid: { ...DEFAULT_SHEET_GRID },
+                grid: JSON.parse(JSON.stringify(DEFAULT_SHEET_GRID)),
             })
 
             this.saveState()
