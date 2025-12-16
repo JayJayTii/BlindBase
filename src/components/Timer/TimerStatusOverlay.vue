@@ -36,19 +36,26 @@
 <template>
     <!---LAST SOLVE STATUS--->
     <div class="StatusRow" v-if="'status' in solve.value">
+        <div class="ListItem" style="user-select:none;" @click="solve.value.status = (solve.value.status - 1 + timerStore.solveStatuses.length) % timerStore.solveStatuses.length;timerStore.saveState()">
+            <--
+        </div>
         <template v-for="status in timerStore.solveStatuses">
             <div :class="['ListItem', solve.value.status === status.id ? 'ListItemSelected' : 'ListItemUnselected']"
+                 style="user-select:none;"
                  @click="solve.value.status = status.id;timerStore.saveState()">
                 {{status.name}}
             </div>
         </template>
+        <div class="ListItem" style="user-select:none;" @click="solve.value.status = (solve.value.status + 1) % timerStore.solveStatuses.length;timerStore.saveState()">
+            -->
+        </div>
     </div>
 </template>
 
 <style>
     .StatusRow {
         display: grid;
-        grid-template-columns: repeat(3, 70px);
+        grid-template-columns: 30px 70px 70px 70px 30px;
         text-align: center;
         color: var(--grey-100);
     }

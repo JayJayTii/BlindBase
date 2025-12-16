@@ -42,12 +42,18 @@
             <h3>{{getSolveRatioString(selectedSolve)}}</h3>
             <!------SOLVE STATUS------>
             <div class="StatusRow">
+                <div class="ListItem" style="user-select:none;" @click="selectedSolve.status = (selectedSolve.status - 1 + timerStore.solveStatuses.length) % timerStore.solveStatuses.length;timerStore.saveState()">
+                    <--
+                </div>
                 <template v-for="status in timerStore.solveStatuses">
                     <div :class="['ListItem', selectedSolve.status === status.id ? 'ListItemSelected' : 'ListItemUnselected']"
                          @click="selectedSolve.status = status.id;timerStore.saveState()">
                         {{status.name}}
                     </div>
                 </template>
+                <div class="ListItem" style="user-select:none;" @click="selectedSolve.status = (selectedSolve.status + 1) % timerStore.solveStatuses.length;timerStore.saveState()">
+                    -->
+                </div>
             </div>
 
 

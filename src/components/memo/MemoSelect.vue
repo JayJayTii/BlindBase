@@ -249,7 +249,7 @@ import { getXHeadings } from "../../helpers/sheets"
         if(props.stage !== 0) //Not active right now
             return
 
-        if (event.code === 'Enter' && pairSelectFinished.value)
+        if ((event.code === 'Enter' || event.code === 'NumpadEnter') && pairSelectFinished.value)
             StartRun()
     }
     onMounted(() => { window.addEventListener('keydown', handleKeydown) })

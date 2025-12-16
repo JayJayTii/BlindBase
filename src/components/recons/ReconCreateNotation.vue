@@ -167,7 +167,8 @@
     }
 
     function handleKeydown(event) {
-        if (event.code === 'Enter' && !(['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName) || document.activeElement.isContentEditable)) {
+        if ((event.code === 'Enter' || event.code === 'NumpadEnter')
+            && !(['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName) || document.activeElement.isContentEditable)) {
             notationSelectionFinished()
             return
         }

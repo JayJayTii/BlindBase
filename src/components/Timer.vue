@@ -199,6 +199,7 @@
         left: 50%;
         font-size: 2rem;
         color: var(--grey-100);
+        cursor: text;
     }
     .StageText {
         width: 100%;

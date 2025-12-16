@@ -7,7 +7,7 @@
     const emit = defineEmits(['stageComplete'])
 
     function handleKeydown(event) {
-        if (event.code === 'Enter') {
+        if (event.code === 'Enter' || event.code === 'NumpadEnter') {
             emit('stageComplete')
         }
     }

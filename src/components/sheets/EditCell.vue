@@ -89,7 +89,7 @@
         <div class="SheetEditingRow">
             <input v-model="selectedCellValue"
                    ref="cellValueInputBox"
-                   maxlength="50"
+                   maxlength="70"
                    :key="settingsStore.settings.sheets_pairorder"
                    style="width:100%;" />
         </div>

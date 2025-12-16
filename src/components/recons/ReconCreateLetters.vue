@@ -123,7 +123,7 @@
         if (event.code === 'Backspace') {
             undoCycle()
         }
-        if (event.code === 'Enter') {
+        if (event.code === 'Enter' || event.code === 'NumpadEnter') {
             if (pieceType.value > 1)
                 letterSelectionFinished()
         }

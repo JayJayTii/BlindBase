@@ -120,7 +120,7 @@
         const el = document.activeElement
         if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.isContentEditable)
             return
-        if (event.code === 'Enter') {
+        if (event.code === 'Enter' || event.code === 'NumpadEnter') {
             ExitEdit()
         }
     }

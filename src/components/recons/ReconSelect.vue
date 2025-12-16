@@ -20,6 +20,7 @@
         //Done to avoid invalid scrambles in URL allowing for duplicate of the same real scramble
         const scrambleSequence = new Sequence()
         scrambleSequence.setAlgorithmNotation(newScramble.value)
+        console.log(newScramble.value + "  " + scrambleSequence.toString())
         router.push(`/recons/${scrambleSequence.toString()}`)
     }
 
@@ -41,14 +42,15 @@
     }
 
     function handleKeydown(event) {
+        if (event.code === "Enter" || event.code === "NumpadEnter") {
+            ReconClicked(selectedRecon.value)
+            return
+        }
         if (event.code === "ArrowUp" || event.code === "ArrowLeft") {
             ReconClicked((selectedRecon.value == -1) ? (reconsStore.recons.length - 1) : ((selectedRecon.value - 1 + reconsStore.recons.length) % reconsStore.recons.length))
         }
         else if (event.code === "ArrowDown" || event.code === "ArrowRight") {
             ReconClicked((selectedRecon.value == -1) ? 0 : (selectedRecon.value + 1) % reconsStore.recons.length)
-        }
-        else if (event.code === "Enter") {
-            ReconClicked(selectedRecon.value)
         }
     }
     onMounted(() => {

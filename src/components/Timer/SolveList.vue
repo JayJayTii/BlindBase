@@ -48,7 +48,7 @@
 
 <style>
     .scroller {
-        height: 100%; /* or whatever fits your layout */
+        height: 100%;
         overflow-x: hidden;
     }
 </style>

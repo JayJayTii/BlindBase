@@ -1,4 +1,4 @@
-//Just a turn sequence, not an algorithm because that implies a goal
+﻿//Just a turn sequence, not an algorithm because that implies a goal
 export class Sequence { 
     turns = []
 
@@ -71,6 +71,7 @@ export class Sequence {
         })
     }
     setAlgorithmNotation(str) {
+        str = str.replace(/[‘’′]/g, "'") // https://sqlpey.com/javascript/fixing-javascript-smart-quotes/
         const turnArr = str.split(/[ \n]/)
         this.turns = []
         for (var i = 0; i < turnArr.length; i++) {

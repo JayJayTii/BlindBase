@@ -90,8 +90,6 @@
     }
     function lineClicked(isCol, index) {
         const sheet = sheetStore.getSheet(props.sheetID)
-        console.log(sheet.grid)
-        console.log(sheet.grid.length)
         let lineFilled = true
         for (var i = 0; i < sheet.grid.length; i++) {
             if (sheet.grid[isCol ? i : index][isCol ? index : i] != ''
@@ -100,7 +98,6 @@
                 break
             }
         }
-        console.log(lineFilled)
         if (lineFilled) { //Delete cards in line
             const cardsToDelete = []
             for (var i = 0; i < 24; i++) {
