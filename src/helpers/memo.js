@@ -1,4 +1,4 @@
-//Used for calculating how long the user sequence inputboxes should be
+//Used for the length of the memo input boxes
 export function GetLongestStringLength(arr) {
     return Math.max(...arr.map((str) => str.length));
 }
@@ -39,6 +39,7 @@ export function FormatPairSequence(sequence) {
 export function getCorrect(testSequences, userSequences) {
     var correctCubes = 0
     for (var i = 0; i < userSequences.length; i++) {
+        //Normalise the formats of each sequence before comparing
         const user = userSequences[i].split(' ').join('').toLowerCase()
         const test = testSequences[i].split(' ').join('').toLowerCase()
         if (user === test) {
@@ -49,5 +50,6 @@ export function getCorrect(testSequences, userSequences) {
 }
 
 export function getScore(testSequences, userSequences) {
+    //Multi-blind score is correct cubes - incorrect cubes, but it works out to this:
     return 2 * getCorrect(testSequences, userSequences) - testSequences.length
 }

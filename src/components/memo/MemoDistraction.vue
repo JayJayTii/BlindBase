@@ -33,7 +33,8 @@
         }
     }
 
-    const justKidding = ref(false) //Show just kidding text?
+    //These are keep track of how angry the user is >:)
+    const justKidding = ref(false)
     let hasKidded = false
 
     let intervalID = null
@@ -44,16 +45,18 @@
         clearInterval(intervalID)
     })
 
-    const hiHeights = Array.from({ length: hiCount }, () => { return Math.random() * 100 - 5 })
-    const hiLetterPairs = Array.from({ length: hiCount }, () => { return allLetterPairs[Math.floor(Math.random() * allLetterPairs.length)] })
-    const hiCount = 100
+    //There are letter pairs flying across the screen to distract the user
+    const pairCount = 100
+    const pairHeights = Array.from({ length: pairCount }, () => { return Math.random() * 100 - 5 })
+    const pairStrings = Array.from({ length: pairCount }, () => { return allLetterPairs[Math.floor(Math.random() * allLetterPairs.length)] })
+
     const getStyle = (i) => {
         return {
             position: "Fixed",
             left: "-100px",
-            top: `${hiHeights[i]}vh`,
+            top: `${pairHeights[i]}vh`,
             zIndex: "1000",
-            animationDelay: `${i / hiCount * 5}s` // 0.1s stagger per item
+            animationDelay: `${i / pairCount * 5}s` // 0.1s stagger per item
         }
     }
 </script>
@@ -68,17 +71,17 @@
     <div v-if="justKidding" style="font-size: 2rem; position: absolute; bottom: 35vh; transform: translate(-50%,50%);">
         just kidding :)
     </div>
-    <div v-for="i in hiCount" :style="getStyle(i)" class="hi">
-        {{hiLetterPairs[i]}}
+    <div v-for="i in pairCount" :style="getStyle(i)" class="distractionPair">
+        {{pairStrings[i]}}
     </div>
 </template>
 
 <style>
 
-    .hi{
-        animation: hiAnimation 5s linear infinite;
+    .distractionPair{
+        animation: pairAnimation 5s linear infinite;
     }
-    @keyframes hiAnimation{
+    @keyframes pairAnimation{
         from {
             transform: translate(0vw,0vh);
         }

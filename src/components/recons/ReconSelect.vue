@@ -20,7 +20,6 @@
         //Done to avoid invalid scrambles in URL allowing for duplicate of the same real scramble
         const scrambleSequence = new Sequence()
         scrambleSequence.setAlgorithmNotation(newScramble.value)
-        console.log(newScramble.value + "  " + scrambleSequence.toString())
         router.push(`/recons/${scrambleSequence.toString()}`)
     }
 
@@ -35,6 +34,7 @@
             return
         }
         selectedRecon.value = index
+        //Apply the recon's scramble to a cube and show to the user
         reconPreviewCube = new FaceletCube()
         const scramble = new Sequence()
         scramble.setAlgorithmNotation(reconsStore.recons[index].scramble)
@@ -72,6 +72,7 @@
             </div>
             <div />
 
+            <!-- LEFT COLUMN RECON PREVIEW -->
             <div id="COLUMN1">
                 <div v-if="selectedRecon != -1" id="reconPreviewBody">
                     <h1 style="font-size:2rem;" id="reconPreview"><u>{{reconsStore.recons[selectedRecon].name || "&nbsp"}}</u></h1>
@@ -79,6 +80,7 @@
                 </div>
                 <div style="height:4rem" />
             </div>
+            <!-- MIDDLE COLUMN RECON LIST -->
             <div id="COLUMN2">
                 <div style="width:100%;font-size:1.5rem;">
                     <List :data="reconsStore.recons.map((recon, i) => i == selectedRecon ? 'Edit \'' + recon.name + '\'?' : recon.name)"
@@ -91,6 +93,7 @@
                     <button title="Create reconstruction with this scramble" @click="createRecon">+</button>
                 </div>
             </div>
+            <!-- RIGHT COLUMN RECON SCRAMBLE -->
             <div id="COLUMN3" v-if="selectedRecon != -1">
                 <FaceletCubeVisual style="width: 90%; position: relative; left: 5%; border: 3px solid var(--grey-100); padding: 10px; border-radius: 5px;"
                                    :cube="reconPreviewCube"
@@ -124,16 +127,16 @@
         transform: translate(0px, -5px);
     }
 
-    #COLUMN2{
-        display:flex;
+    #COLUMN2 {
+        display: flex;
         flex-direction: column;
         align-items: center;
         gap: 5px;
     }
 
-    #newReconRow{
+    #newReconRow {
         width: 100%;
-        display:flex;
+        display: flex;
         gap: 5px;
     }
     .reconButton {
@@ -143,7 +146,7 @@
         cursor: pointer;
         background-color: var(--grey-600);
     }
-    .reconButton:hover{
-        background-color: var(--grey-500);
-    }
+        .reconButton:hover{
+            background-color: var(--grey-500);
+        }
 </style>

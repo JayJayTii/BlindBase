@@ -7,7 +7,8 @@ import router from './router'
 const app = createApp(App)
 app.use(router).use(createPinia())
 
-const redirectPath = sessionStorage.redirect
+//Could be redirected from 404.html to work around Single-Page Application limitations
+const redirectPath = sessionStorage.redirect 
 if (redirectPath) {
     sessionStorage.removeItem('redirect')
     router.replace(redirectPath)

@@ -61,7 +61,7 @@
                     return
                 }
                 break
-            case "One mistake": //One mistake
+            case "One mistake":
                 if (getCorrect(testSequences, userSequences) > 0)
                     length.value += 1
                 else {
@@ -69,7 +69,7 @@
                     return
                 }
                 break
-            case "Multiblind": //Multiblind
+            case "Multiblind":
                 stage.value = 0
                 return
         }

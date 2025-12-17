@@ -1,5 +1,6 @@
-x<script setup>
+<script setup>
     import { nextTick, watch, computed, ref, onMounted, onUnmounted } from "vue"
+    import { allEdgePairs, allCornerPairs, allPossiblePairs, allLetterPairs } from '@/helpers/pairs.js'
     import SheetGrid from '@/components/SheetGrid.vue'
     import { useMemoStore, modes } from '@/stores/MemoStore.js'
     const memoStore = useMemoStore()
@@ -9,8 +10,6 @@ x<script setup>
     const cardStore = useCardStore()
     import { useSettingsStore } from '@/stores/SettingsStore'
     useSettingsStore().loadState()
-    import { allEdgePairs, allCornerPairs, allPossiblePairs, allLetterPairs } from '@/helpers/pairs.js'
-import { getXHeadings } from "../../helpers/sheets"
 
     const props = defineProps({
         stage: Number, //Using v-show, so must suppress things when not in the right stage of memo
@@ -69,7 +68,7 @@ import { getXHeadings } from "../../helpers/sheets"
                     || pairSelect.value === 3 && highlightedCells.value.length > 0
     })
 
-    //Includes both "From sheet" and "From cards"
+    //Includes both "From sheet" and "From cards" because they both take from alg-sheets
     const pairSelectSheetValue = ref({})
     const pairSelectSheet = computed({
         get: () => pairSelectSheetValue.value,
@@ -95,7 +94,7 @@ import { getXHeadings } from "../../helpers/sheets"
     const editingCustomPairs = ref(false)
     const gridRef = ref(null)
     const highlightedCells = ref([])
-    const customSheet = ref({})
+    const customSheet = ref({}) //Contains all the possible letter pairs that the user can select to practice from
     function generateCustomPairSheet() {
         let grid = Array.from({ length: 24 }, () => Array.from({ length: 24 }, () => ''))
         customSheet.value = {
@@ -120,6 +119,7 @@ import { getXHeadings } from "../../helpers/sheets"
         customSheet.value.grid = grid
     }
     function onCustomPairClicked(value) {
+        //Select the pair if it's not selected, unselect if it is
         if (customSheet.value.grid[value.x][value.y] === "")
             return
         if (highlightedCells.value.some(cell => cell.x === value.x && cell.y === value.y))
@@ -129,6 +129,7 @@ import { getXHeadings } from "../../helpers/sheets"
         gridRef.value.changeHighlightedCells(highlightedCells.value)
     }
     function columnClicked(columnIndex) {
+        //If the column is filled, unselect all cells, otherwise select all of them
         let filledCellsInColumn = 0
         for (var i = 0; i < customSheet.value.yHeadings.length; i++) {
             if (customSheet.value.grid[i][columnIndex] !== "")
@@ -152,6 +153,7 @@ import { getXHeadings } from "../../helpers/sheets"
         }
     }
     function rowClicked(rowIndex) {
+        //If the row is filled, unselect all cells, otherwise select all of them
         let filledCellsInRow = 0
         for (var i = 0; i < customSheet.value.xHeadings.length; i++) {
             if (customSheet.value.grid[rowIndex][i] !== "")
@@ -246,8 +248,8 @@ import { getXHeadings } from "../../helpers/sheets"
 
 
     function handleKeydown(event) {
-        if(props.stage !== 0) //Not active right now
-            return
+        if(props.stage !== 0) 
+            return //Not active right now
 
         if ((event.code === 'Enter' || event.code === 'NumpadEnter') && pairSelectFinished.value)
             StartRun()
@@ -356,7 +358,7 @@ import { getXHeadings } from "../../helpers/sheets"
         flex-direction: row;
         gap: 10px;
         justify-content: center;
-        font-size:2rem;
+        font-size: 2rem;
     }
 
     .MemoSelectLine {

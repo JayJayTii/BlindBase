@@ -9,12 +9,12 @@
     })
 
     const faceColours = [
-        "#FFFFFF",
-        "#FF8000",
-        "#00FF00",
-        "#FF0000",
-        "#0000FF",
-        "#FFFF00",
+        "#FFFFFF", // White
+        "#FF8000", // Orange
+        "#00FF00", // Green
+        "#FF0000", // Red
+        "#0000FF", // Blue
+        "#FFFF00", // Yellow
     ]
 
     function getCornerFaceletSticker(index){

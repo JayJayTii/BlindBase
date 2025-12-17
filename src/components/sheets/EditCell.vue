@@ -14,6 +14,7 @@
     })
     const emit = defineEmits(['cellKeyChanged'])
 
+    //Key of the selected cell e.g. AB, XP, DL
     const selectedCellKey = computed({
         get: () => sheetStore.coordToKey(props.sheetID, props.selectedCell),
         set: (newKey) => {
@@ -22,6 +23,7 @@
             emit('cellKeyChanged', newCoord)
         }
     })
+    //Value of the selected cell (i.e. an algorithm)
     const selectedCellValue = computed({
         get: () => sheetStore.getCell(props.sheetID, props.selectedCell),
         set: (newValue) => sheetStore.setCell(props.sheetID, props.selectedCell, newValue)
@@ -37,22 +39,19 @@
 
         //Regex to check against letters
         if (!/^[a-xA-X]$/.test(inputChar)) {
-            //Something other than allowed letters
             selectedCellInput.value = oldValue
             return
         }
         //If it was 2 letters, replace with the new character
         //Also put to uppercase
         let updatedInput = newValue.length === 3 ? inputChar.toUpperCase() : newValue.toUpperCase()
-        if (selectedCellInput.value === updatedInput) {
+        if (selectedCellInput.value === updatedInput)
             return //This is triggered to prevent infinite recursion
-        }
+        
         selectedCellInput.value = updatedInput //This triggers this same function, hence why we need to prevent recursion
 
-        if (updatedInput.length == 2) {
-            //If the length is correct, finally update the whole system to this new key
+        if (updatedInput.length == 2) //If the length is correct, finally update the whole system to this new key
             selectedCellKey.value = updatedInput
-        }
     })
 
     //Get recommendations for this cell if a sheet is selected

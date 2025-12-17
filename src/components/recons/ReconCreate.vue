@@ -1,4 +1,5 @@
 <script setup>
+    //Handles the creation of a reconstruction for each stage
     import { ref } from 'vue'
     import ReconCreateLetters from '@/components/recons/ReconCreateLetters.vue'
     import ReconCreateNotation from '@/components/recons/ReconCreateNotation.vue'

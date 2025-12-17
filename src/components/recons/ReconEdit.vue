@@ -10,7 +10,7 @@
     import { useRouter } from 'vue-router'
     const router = useRouter()
 
-
+    //Only able to edit a recon that is already saved and stored
     const props = defineProps({
         reconIndex: Number,
     })
@@ -39,7 +39,7 @@
     const scramble = new Sequence()
     scramble.setAlgorithmNotation(recon.value.scramble)
     const cube = ref(new FaceletCube())
-    cube.value.TurnSequence(scramble)
+    cube.value.TurnSequence(scramble) //Apply the scramble to the cube visualisation by default
 
     async function Delete() {
         if (!await confirmDialog.value.open('Are you sure you want to delete this reconstruction?')) {
@@ -61,6 +61,7 @@
         while (alg[0] == '\n') {
             alg = alg.slice(1)
         }
+        //CubeDB encodes a full reconstruction in the URL, so just cram it all in there
         let url = `https://cubedb.net/?title=${encodeURIComponent(recon.value.name)}`
         url += `&scramble=${encodeURIComponent(recon.value.scramble)}`
         url += `&alg=${encodeURIComponent(alg)}`
@@ -78,6 +79,7 @@
         intervalID = setInterval(() => {
             if (curSelectionEnd === document.activeElement.selectionEnd && selectedID == document.activeElement.id)
                 return
+            //Update the cube visualisation to match the place in the reconstuction where the typing caret is at
             curSelectionEnd = document.activeElement.selectionEnd
             selectedID = document.activeElement.id
             if (curSelectionEnd == undefined || selectedID !== "reconBodyInput") {

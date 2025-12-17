@@ -19,6 +19,7 @@
     })
     const emit = defineEmits(['notationFinished', 'revertToLetterSelection'])
 
+    //Apply scramble and initial rotations to the cube
     const cube = ref(new FaceletCube())
     cube.value.TurnSequence(props.scramble)
     const inspection = Object.assign(new Sequence(), GetInspectionMoves(cube.value))
@@ -27,6 +28,7 @@
         cube.value.TurnSequence(props.scramble)
     }
 
+    //Notation for each letter pair and references to the input boxes themselves
     const cornerInput = ref([])
     const cornerInputBox = ref([])
     const edgeInput = ref([])
@@ -36,7 +38,6 @@
     for (const pair of cornerPairs) {
         cornerInput.value.push("")
     }
-
     const edgePairs = ToLetters(props.letterSolution[1]).split(' ').filter(pair => pair.length > 1)
     for (const pair of edgePairs) {
         if (pair.length == 2)
@@ -57,6 +58,7 @@
     })
 
     function FillAllCorners() {
+        //Fill in any corner algorithms with ones from the user's pre-existing alg-sheets
         cornerInput.value = []
         for (var i = 0; i < cornerPairs.length; i++) {
             if (props.letterSolution[0].length === 2 * i + 1) //Break if this pair is one letter long
@@ -75,6 +77,7 @@
         cornerInput.value.push("") //For the extra bit at the end
     }
     function FillAllEdges() {
+        //Fill in any edge algorithms with ones from the user's pre-existing alg-sheets
         edgeInput.value = []
         for (var i = 0; i < edgePairs.length; i++) {
             if (props.letterSolution[1].length === 2 * i + 1) //Break if this pair is one letter long
@@ -94,6 +97,7 @@
         edgeInput.value.push("") //For the extra bit at the end
     }
     function FillCornerRecommendation(index) {
+        //Fill in a valid algorithm for one of the corner input boxes
         const recs = getCornerRecommendations(cornerPairs[index], 0)
         let newRec = "" //Avoid giving the same recommendation again
         do {
@@ -103,6 +107,7 @@
         cornerInputBox.value[index].focus()
     }
     function FillEdgeRecommendation(index) {
+        //Fill in a valid algorithm for one of the edge input boxes
         const recs = getEdgeRecommendations(edgePairs[index], 0)
         let newRec = ""
         do {
@@ -130,6 +135,7 @@
     })
 
     function UpdateCubeToSelection() {
+        //Performs the solution on the cube visual up to the typing caret
         if (curSelectionStart === document.activeElement.selectionStart
             && selectedID == document.activeElement.id)
             return

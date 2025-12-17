@@ -12,9 +12,9 @@
     const emit = defineEmits(['lettersFinished'])
 
     let cube = new FaceletCube()
-    cube.TurnSequence(props.scramble)
+    cube.TurnSequence(props.scramble) //Apply the scramble to the cube
     const inspection = Object.assign(new Sequence(), GetInspectionMoves(cube))
-    cube.TurnSequence(inspection)
+    cube.TurnSequence(inspection) //Apply the inspection rotations to get green-front and white-top
     let displayCube = Object.assign(new FaceletCube(), JSON.parse(JSON.stringify(cube)))
 
     let updating = false //Prevents recursion in watchers
@@ -70,6 +70,7 @@
     }
 
     function inputUpdated(input, newValue, oldValue) {
+        //This limits the inputs to very specific new buffers
         if (updating) return
         updating = true
         const inputChar = [...newValue].filter(char => !oldValue.includes(char))[0]
@@ -87,17 +88,18 @@
         updating = true
 
         const lastCycle = cycleHistory.pop()
-
+        //Reset arrays to previous values
         letterSolution.value = JSON.parse(lastCycle[0])
         cornerInput.value = ToLetters(letterSolution.value[0])
         edgeInput.value = ToLetters(letterSolution.value[1])
 
+        //Focus correct input box
         pieceType.value = lastCycle[1]
         if (pieceType.value == 0)
             cornerInputRef.value.focus()
         else if (pieceType.value == 1)
             edgeInputRef.value.focus()
-
+        //Update possible next buffers
         letterOptions.value = JSON.parse(lastCycle[2])
 
         cube = Object.assign(new FaceletCube(), JSON.parse(lastCycle[3]))
@@ -149,6 +151,7 @@
     let selectedID = ""
     const cubeKey = ref(0)
     function UpdateCubeToSelection() {
+        //Swap cubies to match the solution up to the typing caret
         if (curSelectionStart === document.activeElement.selectionStart
             && selectedID == document.activeElement.id)
             return
@@ -188,7 +191,7 @@
                 displayCube.SwapEdgeCubies(2, (pair.charCodeAt(1) - 'A'.charCodeAt(0)))
             }
         }
-        cubeKey.value++
+        cubeKey.value++ //Update the cube visual
     }
 
     onMounted(() => {

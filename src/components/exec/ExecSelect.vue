@@ -50,7 +50,7 @@
     })
     const modeSelected = computed({ get: () => (mode.value != "") })
 
-    //From all, from sheets, from cards, from custom
+    //From all, from sheets, from cards, or from custom
     const pairSelectValue = ref("")
     const pairSelect = computed({
         get: () => pairSelectValue.value,
@@ -146,10 +146,12 @@
                 break
             default:
         }
+
         emit('update:on-selected', mode.value == "Whole", pairs, Number(pieceType.value), scrambleMode.value == 0)
     }
     
     function getValidCardDecks() {
+        //Gets card decks which have been practiced before and match the selected piece type
         const out = [
             ...new Set(
                 cardStore.cards
@@ -157,9 +159,10 @@
                     .map((card) => card.sheetID),
             ),
         ].map((sheetID) => sheetStore.getSheet(sheetID))
-        return out.filter((sheet) => sheet.type === Number(pieceType.value)) //Filter for image sheets
+        return out.filter((sheet) => sheet.type === Number(pieceType.value))
     }
 
+    //customSheet is the sheet containing all possible letter pairs which the user selects from
     const customSheet = reactive({})
     customSheet.value = {}
     function generateCustomPairSheet() {
@@ -167,7 +170,7 @@
             Array.from({ length: 24 }, () => ''),
         )
         const allPairs = pieceType.value == 1 ? allCornerPairs : allEdgePairs
-
+        //Place all possible pairs into the custom sheet
         for (var i = 0; i < allPairs.length; i++) {
             const pair = allPairs[i]
             const y = pair.charCodeAt(0) - 'A'.charCodeAt(0)
@@ -188,6 +191,7 @@
         Array.from({ length: 24 }, () => false),
     )) //Selected cells stored as a matrix of booleans which say if that cell is selected
     function UpdateSelectedCells() {
+        //Make sure that the selected cells match the ones selected in the sheet grid
         const formattedSelectedCells = selectedCells.value.map((row, y) =>
             row.map((cell, x) => { return cell ? { x: x, y: y } : null })
                 .filter(cell => cell != null)).flat()

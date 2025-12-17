@@ -8,8 +8,10 @@ export function GetInspectionMoves(cube) {
     //Gets the rotations from the start of the solve
     const startCube = Object.assign(new FaceletCube(), JSON.parse(JSON.stringify(cube)))
     const inspection = []
+    const rotations = [['x', 1], ['x', 2], ['x', 3], ['y', 1], ['y', 2], ['y', 3], ['z', 1], ['z', 2], ['z', 3]]
+    //Get the rotation which places the white center on the top
     if (startCube.centers[0] != 0) {
-        for (const rot of [['x', 1], ['x', 2], ['x', 3], ['y', 1], ['y', 2], ['y', 3], ['z', 1], ['z', 2], ['z', 3]]) {
+        for (const rot of rotations) {
             let testCube = Object.assign(new FaceletCube(), JSON.parse(JSON.stringify(startCube)))
             testCube.Turn(rot)
             if (testCube.centers[0] == 0) {
@@ -23,7 +25,8 @@ export function GetInspectionMoves(cube) {
     if (startCube.centers[1] == 1)
         return { turns: inspection }
 
-    for (const rot of [['x', 1], ['x', 2], ['x', 3], ['y', 1], ['y', 2], ['y', 3], ['z', 1], ['z', 2], ['z', 3]]) {
+    //Then get the rotation which places the green center on the front
+    for (const rot of rotations) {
         let testCube = Object.assign(new FaceletCube(), JSON.parse(JSON.stringify(startCube)))
         testCube.Turn(rot)
         if (testCube.centers[1] == 1) {
@@ -35,6 +38,7 @@ export function GetInspectionMoves(cube) {
 }
 
 export function FinishCornerCycle(cube) {
+    //This keeps swapping the corner buffer piece with its target, until the buffer piece is back there.
     const bufferStickers = [2, 9, 12]
     const cycle = []
     while (!bufferStickers.includes(cube.corners[2])) { //While not at end of cycle
@@ -53,6 +57,7 @@ export function FinishCornerCycle(cube) {
 }
 
 export function FinishEdgeCycle(cube, parity) {
+    //This keeps swapping the edge buffer piece with its target, until the buffer piece is back there.
     if (parity)
         cube.SwapEdgeCubies(cube.edges.indexOf(2), cube.edges.indexOf(1))
     const bufferStickers = [2, 8]
@@ -94,6 +99,7 @@ export function GetReconMoveCount(recon) {
 }
 
 export function GenerateReconBody(recon) {
+    //Take all the facts of the reconstruction and put them together in a human-friendly reconstruction
     let summary = ""
     summary += recon.scramble.toString()
 
@@ -123,7 +129,7 @@ export function GenerateReconBody(recon) {
 
     if (!recon.hasOwnProperty("solve"))
         return summary
-
+    //Add timing information if arriving from the timer tool
     const solve = JSON.parse(recon.solve)
     summary += "//" + getSolveTimeString(solve) + " (" + getSolveRatioString(solve) + ")\n"
     const tps = moveCount / (solve.solveTime - solve.memoTime) * 1000 //times are stored in milliseconds

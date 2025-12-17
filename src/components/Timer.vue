@@ -10,6 +10,8 @@
         twoStage: Boolean,
         clearOnSolved: Boolean,
     })
+
+    //Goes through one stage at a time during an attempt
     const stages = {
         finished: 0,
         waiting: 1,
@@ -18,20 +20,22 @@
         stopping: 4
     }
     const timerStage = ref(0)
-    const ratioTextSolve = reactive({})
+
+    const ratioTextSolve = reactive({}) //Contains the previous solve that memo : exec ratio shows
     if (props.lastSolve)
         ratioTextSolve.value = props.lastSolve
 
     const isSolving = computed({
         get: () => timerStage.value === stages.memoing || timerStage.value === stages.executing
     })
-    const solve = reactive({})
 
     const scramble = ref("")
     function setScramble(newScramble) {
         scramble.value = newScramble
     }
 
+    //Data for the solve is filled in over the course of an attempt
+    const solve = reactive({})
     function refresh() {
         if (props.lastSolve)
             solve.value = props.lastSolve
@@ -40,12 +44,12 @@
     }
     refresh()
 
-    let stopwatchStartTime = 0
-    let timerUpdate = null
-    let acceptSpaceInput = true
+    let stopwatchStartTime = 0 //Current length of the solve is the current time - stopwatchStartTime
+    let timerUpdate = null //Holds the interval which updates the time
+    let acceptSpaceInput = true //Space input is blocked for a period after a solve to prevent restarting
     let currentKeyPressed = "" //Avoids confusion when pressing two keys at once to progress the timer
-    let waitingBeforeExec = false
-    let waitingTimeStart = 0
+    let waitingBeforeExec = false //Kind of a bodge to avoid adding an extra stage in the middle of the current ones
+    let waitingTimeStart = 0 //Keeps track of how long space has been held before starting an attempt
     const stopwatchKey = ref(0) //just so the yellow turns to green when holding space
     function handleKeydown(event) {
         const el = document.activeElement
@@ -144,6 +148,7 @@
     })
 
     function getStopwatchCSSclasses() {
+        //Gets the current CSS classes that the stopwatch should belong to
         const out = ['StopwatchText']
         if (waitingBeforeExec || (timerStage.value == stages.waiting && Date.now() - waitingTimeStart >= 1000 * useSettingsStore().settings.timer_spaceholdingtime))
             out.push('StopwatchStartSpaceDown')
@@ -210,6 +215,7 @@
         font-size: 6rem;
         font-weight: bold;
         color: var(--grey-100);
+        user-select: none;
     }
 
     .StopwatchText {
@@ -220,7 +226,7 @@
         white-space: nowrap;
         overflow: hidden;
         color: var(--grey-100);
-        position:absolute;
+        position: absolute;
 
     }
     .StopwatchStartYellow {
@@ -239,6 +245,6 @@
         text-align: center;
         color: var(--grey-100);
         position: absolute;
-        transform:translate(0%,5rem);
+        transform: translate(0%,5rem);
     }
 </style>

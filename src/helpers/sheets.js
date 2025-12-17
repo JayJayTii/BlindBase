@@ -14,24 +14,27 @@ export function getFilledCells(sheet) {
 
 function splitCSVline(str) {
     //Split at a comma, but ignore if inside double quotes
+    //For example the line
+    // A, "B, C", D
+    //Should not split B and C
     let result = []
     let temp = ""
     let inQuotes = false
     for (var i = 0; i < str.length; i++) {
-        if (str[i] === '\"') {
+        if (str[i] === '\"')
             inQuotes = !inQuotes
-        } else if (str[i] === ',' && !inQuotes) {
+        else if (str[i] === ',' && !inQuotes) {
             result.push(temp.replace('\"', ''))
             temp = ""
         }
-        else {
+        else
             temp += str[i]
-        }
     }
     return result
 }
 
 export async function CreateSheetFromFile(file) {
+    //This is the sheet uploading feature
     const content = await new Promise((resolve, reject) => {
         const reader = new FileReader()
         reader.readAsText(file, 'UTF-8')
@@ -49,6 +52,9 @@ export async function CreateSheetFromFile(file) {
     for (var i = 0; i < csvGrid.length; i++) {
         csvGrid[i] = splitCSVline(csvGrid[i])
     }
+
+    //The gist is to find the bounds of the grid within the input CSV and snip out just that
+    //Then add in any lines that are missed out to make it a full 24x24 alg-sheet
 
     let xHeadingsStart = null
     for (var i = 0; i < csvGrid.length; i++) {
@@ -72,8 +78,6 @@ export async function CreateSheetFromFile(file) {
         return
     }
     const yHeadingsStart = { x: xHeadingsStart.x - 1, y: xHeadingsStart.y + 1 } 
-    //console.log("found xheadings at " + JSON.stringify(xHeadingsStart))
-    //console.log("found yheadings at " + JSON.stringify(yHeadingsStart))
     csvGrid = csvGrid.slice(xHeadingsStart.y).map(line => line.slice(yHeadingsStart.x))
     //Now xHeadingsStart is always 1,0
     //And yHeadingsStart is always 0,1
@@ -91,7 +95,6 @@ export async function CreateSheetFromFile(file) {
         largestHeadingIndex = newHeadingIndex
     }
 
-    //console.log("yHeadings length: " + yHeadingsLength)
     csvGrid = csvGrid.slice(0, yHeadingsLength + 1)
 
     let xHeadingsLength = 0
@@ -106,12 +109,9 @@ export async function CreateSheetFromFile(file) {
         xHeadingsLength++
         largestHeadingIndex = newHeadingIndex
     }
-    //console.log("xHeadings length: " + xHeadingsLength)
 
     const yHeadings = csvGrid.map(line => line[0]).slice(1, 1 + yHeadingsLength).join('')
-    //console.log("yHeadings: " + yHeadings)
     const xHeadings = csvGrid[0].slice(1, 1 + xHeadingsLength).join('')
-    //console.log("xHeadings: " + xHeadings)
 
     csvGrid = csvGrid.map(line => line.slice(1, xHeadingsLength + 1)) //Cut off yHeadings
     csvGrid = csvGrid.slice(1) //Cut off xHeadings
@@ -158,7 +158,6 @@ export function isEmpty(sheet) {
 }
 
 export function getXHeadings(sheet) {
-    //Headings stay the same no matter the pair order
     return sheet.xHeadings.split('')
 }
 export function getYHeadings(sheet) {

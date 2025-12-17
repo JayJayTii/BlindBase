@@ -31,6 +31,7 @@
 </script>
 
 <template>
+    <!-- Input box for each of the sequences the user had to remember -->
     <input v-for="cube in cubes"
            v-model="userSequences[cube - 1]"
            title="Enter your memo"

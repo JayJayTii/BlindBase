@@ -54,6 +54,7 @@ export const useSheetStore = defineStore('sheetStore', {
             this.loadState()
         },
         deleteSheet(id) {
+            //Removes the sheet at its index in the array, then saves the change
             this.sheets.splice(this.getSheetIndexWithID(id), 1)
             this.saveState()
             this.loadState()
@@ -65,6 +66,7 @@ export const useSheetStore = defineStore('sheetStore', {
             })
         },
         isValidSheetID(id) {
+            //Checks if a sheet with that ID exists
             for (var i = 0; i < this.sheets.length; i++) {
                 if (this.sheets[i].id === id) return true
             }
@@ -97,41 +99,26 @@ export const useSheetStore = defineStore('sheetStore', {
             }
             return null
         },
-        getCell(id, absoluteCoord) {
-            return (
-                this.sheets[this.getSheetIndexWithID(id)]?.grid[absoluteCoord.y][absoluteCoord.x] ||
-                ''
-            )
+        getCell(id, coord) {
+            return this.sheets[this.getSheetIndexWithID(id)]?.grid[coord.y][coord.x] || ''
         },
-        setCell(id, absoluteCoord, newValue) {
+        setCell(id, coord, newValue) {
             try {
-                this.sheets[this.getSheetIndexWithID(id)].grid[absoluteCoord.y][absoluteCoord.x] =
-                    newValue
+                this.sheets[this.getSheetIndexWithID(id)].grid[coord.y][coord.x] = newValue
                 this.saveState()
             } catch {
-                console.warn(
-                    "Failed to save '" +
-                        newValue +
-                        "' to sheet " +
-                        id +
-                        ' at cell ' +
-                        absoluteCoord.x +
-                        ', ' +
-                        absoluteCoord.y,
-                )
+                console.warn("Failed to save '" + newValue + "' to sheet " + id.toString() + ' at cell ' + coord.x.toString() + ', ' + coord.y.toString())
             }
         },
 
-
+        //Key is AA, coord is { x: 0, y: 0 }
         coordToKey(id, coord) {
             if (!this.isValidSheetID(id))
                 return ''
             const sheet = this.getSheet(id)
-            //Expect it to be already absolute
             return getXHeadings(sheet)[coord.x] + getYHeadings(sheet)[coord.y]
         },
         keyToCoord(id, key) {
-            //Takes visual and returns visual i think?
             const sheet = this.getSheet(id)
             return {
                 x: getXHeadings(sheet).indexOf(key[0]),
@@ -139,6 +126,8 @@ export const useSheetStore = defineStore('sheetStore', {
             }
         },
 
+        //Absolute coords are the actual place in the stored alg-sheet object
+        //Visual coords take into account the setting for "Letter Pair Order", so the rows and columns could be swapped
         //Coord conversions are duplicated for clarity
         absoluteToVisual(absoluteCoord) {
             var visualCoord = { ...absoluteCoord }

@@ -3,12 +3,15 @@ import { cornerFaceletMove, edgeFaceletMove, centerFaceletMove } from '@/helpers
 import { adjacentCornerIndices, adjacentEdgeIndices } from '@/helpers/stickers.js'
 
 export class FaceletCube {
+    //The solved state is all these numbers in the correct order
+    //Each sticker ("facelet") of the cube has its own number which gets moved around when turns are done
+    //The way that turns affect the cube is defined in ./FaceletMove.js
     corners = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23]
     edges = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23]
     centers = [0, 1, 2, 3, 4, 5]
 
 
-    Turn(move) { //Expect an internal representation of a move e.g. ['R', 2]
+    Turn(move) { //Expects an internal representation of a move e.g. ['R', 2]
         const faces = ['U', 'R', 'F', 'D', 'L', 'B', 'x', 'y', 'z', 'u', 'r', 'f', 'd', 'l', 'b', 'M', 'E', 'S']
         const moveIndex = faces.indexOf(move[0])
         if (moveIndex == -1)
@@ -55,6 +58,7 @@ export class FaceletCube {
     }
 
     SwapCornerCubies(sticker1, sticker2) {
+        //Needs to swap the adjacent stickers on the corners as well as these stickers
         const cubie1 = adjacentCornerIndices[sticker1]
         const cubie2 = adjacentCornerIndices[sticker2]
         for (var i = 0; i < 3; i++) {
@@ -64,6 +68,7 @@ export class FaceletCube {
         }
     }
     SwapEdgeCubies(sticker1, sticker2) {
+        //Needs to swap the adjacent stickers on the edges as well as these stickers
         const cubie1 = adjacentEdgeIndices[sticker1]
         const cubie2 = adjacentEdgeIndices[sticker2]
         for (var i = 0; i < 2; i++) {

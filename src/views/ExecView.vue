@@ -10,11 +10,12 @@
     const settingsStore = useSettingsStore()
     settingsStore.loadState()
 
-    //WHY DOES THIS WORK???
+    //Running the initialisation asynchronously to avoid lag spike when entering exec tool
     setTimeout(() => {
         scramblers['333'].initialize(null, Math)
     }, 0)
-    
+
+    //Settings for exec practice
     let fullScramble = false
     let possiblePairs = []
     let pieceType = 0
@@ -22,20 +23,16 @@
 
     const solveCount = ref(1)
 
-    const nextScramble = ref("")
-
-    const scrambleStr = ref("")
-
     const lastScramble = ref("")
-    const lastPieceType = ref("")
-    const lastSolveTime = ref("")
+    const scrambleStr = ref("")
+    const nextScramble = ref("") //Used for preview of next scramble, always one ahead
+
 
     const timer = ref(null)
     const timerKey = ref(0)
     function solveComplete(solve) {
         if (solve) {
             solveCount.value++
-            lastSolveTime.value = formatTime(solve.solveTime)
             lastScramble.value = scrambleStr.value
         }
         else {
@@ -54,11 +51,14 @@
     function generateScramble() {
         if (fullScramble) //Full corner or edge scramble
             return (pieceType === 1) ? scramblers['333'].getCornerScramble() : scramblers['333'].getEdgeScramble()
+
         const pair = possiblePairs[Math.floor(Math.random() * possiblePairs.length)]
-        if (!useScramble) //Scramble is just "AB"
+        if (!useScramble) //Scramble is just a pair like "AB"
             return pair
+
         //Else scramble ends with cube at "AB" state
         const solution = GetRandomRecommendation(pieceType, pair)
+        //This is done by reversing a solution to that state
         let scramble = new Sequence()
         scramble.setAlgorithmNotation(solution)
         scramble.reverse()
@@ -95,12 +95,15 @@
                 @update:on-selected="updatePossiblePairs"/>
 
     <div style="display:grid;grid-template-columns:35% 30% 35%;">
+        <!-- LEFT COLUMN LAST SOLVE -->
         <div id="execColumn">
             <div v-show="lastScramble.length > 0" style="font-weight:bold; font-size:2rem;">
                 {{solveCount - 1}}
             </div>
             <div>{{lastScramble}}</div>
         </div>
+
+        <!-- MIDDLE COLUMN CURRENT SOLVE -->
         <div>
             <div v-show="selectionFinished()" style="text-align:center; color:var(--grey-100); font-weight:bold; font-size:2rem;">
                 {{solveCount}}
@@ -113,6 +116,7 @@
                    style="height: 73vh;width:100%;" />
         </div>
 
+        <!-- RIGHT COLUMN NEXT SOLVE -->
         <div id="execColumn" v-if="selectionFinished()">
             <div style="font-weight:bold; font-size:2rem;">
                 {{solveCount + 1}}

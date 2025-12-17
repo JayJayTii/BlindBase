@@ -14,17 +14,19 @@
     import { Scramble, get3BLDscramble } from '@/helpers/scramble.js'
     import { scramblers } from '@/helpers/solver/scramble_333_edit.js'
 
+    //Running the initialisation asynchronously to avoid lag spike when entering timer tool
     setTimeout(() => {
         scramblers['333'].initialize(null, Math)
     }, 0)
 
-    //-1 means unselected
+    //-1 means no session selected, otherwise it is the selected session's ID
     const sessionID = ref(-1)
     const currentSession = computed({
         get: () => timerStore.getSession(sessionID.value)
     })
     const solves = computed(() => currentSession.value?.solves ?? [])
 
+    //-1 means no solve selected and showing solve list, otherwise it is the selected solve's index
     const solveIndex = ref(-1)
     const timer = ref(null)
     async function updateSessionID(index) { //Called from SessionSelect component
@@ -41,8 +43,6 @@
 
         timerStore.deleteSession(sessionID.value)
         sessionID.value = -1
-        //timerStore.getSession(sessionID.value).solves.push(...timerStore.getSession(sessionID.value).solves)
-        //timerStore.saveState()
     }
 
     let currentScramble = ""
@@ -70,9 +70,11 @@
         solveIndex.value = solves.value.length - 1
         generateNewScramble()
     }
+
     function selectSolve(index) {
         solveIndex.value = index
     }
+
     async function DeleteSolve() {
         if (!(await confirmDialog.value.open('Are you sure you want to delete this solve?'))) {
             return
@@ -134,9 +136,9 @@
 
 <style>
     #timerStatusOverlay{
-        position:absolute;
+        position: absolute;
         top: 40%;
         left: 50%;
-        transform:translate(-50%,calc(-50% + 7.5rem));
+        transform: translate(-50%,calc(-50% + 7.5rem));
     }
 </style>

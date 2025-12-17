@@ -12,22 +12,24 @@
 
 <template>
     <h1 class="title">BlindBase</h1>
+    <!-- Home button for each valid route/tool -->
     <div class="row">
         <HomeButton v-for="route in routes" :route="route" />
     </div>
 </template>
 
 <style>
-.title {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: end;
-    height: 33vh;
-    font-size: clamp(0px, 20vw, 20vh);
-    color: var(--grey-100);
-}
-
+    .title {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: end;
+        height: 33vh;
+        font-size: clamp(0px, 20vw, 20vh);
+        color: var(--grey-100);
+        user-select: none;
+    }
+    
     .row {
         display: flex;
         flex-wrap: wrap;

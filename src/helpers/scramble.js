@@ -3,7 +3,7 @@ import { useSettingsStore } from '../stores/SettingsStore'
 
 const turns = ['R','F','U','L','B','D']
 
-export class Scramble extends Sequence{
+export class Scramble extends Sequence {
 	constructor(length) {
 		super()
 
@@ -16,7 +16,10 @@ export class Scramble extends Sequence{
 }
 
 export function get3BLDscramble() {
+	//First create a normal scramble
 	const scrambleSequence = new Scramble(20)
+
+	//Then add a random number of wide moves to move the centers around
 	const wideMoves = ['r', 'u', 'f']
 	for (var i = 0; i < Math.floor(3 * Math.random()); i++) {
 		scrambleSequence.add([wideMoves[Math.floor(3 * Math.random())], 1 + Math.floor(3 * Math.random())])

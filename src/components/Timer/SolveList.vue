@@ -8,20 +8,20 @@
         sessionID: Number,
     })
     const emit = defineEmits(['selectSolve'])
+
     //When the solve list is updated, scroll to latest solve
     const solveListRef = ref(null)
-
     nextTick(() => {
         if(solveListRef.value)
             solveListRef.value.scrollTop = solveListRef.value.scrollHeight
     })
-
     watch(() => timerStore.getSession(props.sessionID)?.solves.length,
         async () => {
             await nextTick()
             solveListRef.value.scrollTop = solveListRef.value.scrollHeight
         }
     )
+
     function SolveClicked(index) {
         emit('selectSolve', index)
     }
@@ -29,6 +29,7 @@
 
 <template>
     <div class="Panel" ref="solveListRef" v-if="timerStore.isValidSessionID(sessionID)">
+        <!--List of all the solves in the current session-->
         <div class="PanelHeader"> Solves: </div>
         <div >
             <div v-for="(label, index) in timerStore.getSession(props.sessionID).solves.map((solve,index) => (index+1).toString() + ' | ' + getSolveTimeString(solve))"
@@ -40,7 +41,7 @@
     </div>
     <div v-else class="Panel">
         <div class="PanelHeader"> Solves: </div>
-        <div style="color:var(--info-200);text-align:center;">
+        <div style="color:var(--info-200); text-align:center;">
             Select a session to get started
         </div>
     </div>

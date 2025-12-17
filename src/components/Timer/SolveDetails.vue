@@ -16,6 +16,8 @@
         get: () => (props.solveIndex > -1 && timerStore.isValidSessionID(props.sessionID)) ? timerStore.getSession(props.sessionID).solves[props.solveIndex] : null
     })
 
+
+    //Reconstruct by redirecting to recons tool with scramble in URL
     function Reconstruct() {
         sessionStorage.reconstructionSolve = JSON.stringify(selectedSolve.value)
         router.push('/recons/' + selectedSolve.value.scramble)
@@ -25,7 +27,6 @@
 <template>
     <div class="Panel" v-if="props.solveIndex > -1 && timerStore.isValidSessionID(props.sessionID)">
         <div style="display:flex;flex-direction:row;height:">
-            
             <div class="PanelHeader"> Solve {{props.solveIndex + 1}}: </div>
         </div>
         <div class="SolveDetails">
@@ -55,8 +56,6 @@
                     -->
                 </div>
             </div>
-
-
         </div>
     </div>
 </template>

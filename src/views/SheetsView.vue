@@ -13,7 +13,7 @@
     import EditCell from "@/components/sheets/EditCell.vue"
     const confirmDialog = inject('confirmDialog')
 
-    //-1 means unselected
+    //-1 means no sheet selected, otherwise it is the selected sheet's ID
     const sheetID = ref(-1)
     const selectedCell = reactive({ x: 0, y: 0 })
 
@@ -41,7 +41,7 @@
         gridRef.value.changeHighlightedCells([selectedCell])
     }
 
-    //Grid cannot dynamically update highlighted cells after setting change, so just reset them
+    //Grid cannot update highlighted cells after setting change, so just reset them
     watch(
         () => settingsStore.settings.sheets_pairorder,
         (newVal) => {

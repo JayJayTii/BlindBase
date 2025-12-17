@@ -72,9 +72,11 @@ export class Sequence {
     }
     setAlgorithmNotation(str) {
         str = str.replace(/[‘’′]/g, "'") // https://sqlpey.com/javascript/fixing-javascript-smart-quotes/
+        //Splt into an array of turns
         const turnArr = str.split(/[ \n]/)
         this.turns = []
         for (var i = 0; i < turnArr.length; i++) {
+            //Convert each turn into its internal representation
             let turn = turnArr[i]
             if (turn == '')
                 continue
@@ -95,11 +97,11 @@ export class Sequence {
     setCommNotation(str) { //e.g. [U', R' D R] or U' R U':[R' U R,D'] or [R2 : [D, R' U R]]
         let setup = str.match(/\[?(.*):/) //After [ (if there is one) and before :
         setup = (setup == null) ? "" : setup[1]
-        const setupSeq = new Sequence()
+        const setupSeq = new Sequence() 
         setupSeq.setAlgorithmNotation(setup)
 
         let part1 = str.match(/:?.*\[(.*),/) //After : and [ and before ,
-        if (part1 == null) {//Comm notation must have at least stuff between [ and ,
+        if (part1 == null) { //Comm notation must have at least stuff between [ and ,
             this.turns = []
             return
         } else {
@@ -119,6 +121,9 @@ export class Sequence {
         part2Seq.setAlgorithmNotation(part2)
 
         part2Seq.setAlgorithmNotation(part2)
+
+        //A comm is performed as (setup) A B A' B' (setup)'
+        //So add turns to this sequence with that pattern
         setupSeq.turns.forEach(turn => this.add([...turn]))
         part1Seq.turns.forEach(turn => this.add([...turn]))
         part2Seq.turns.forEach(turn => this.add([...turn]))
@@ -134,6 +139,7 @@ export class Sequence {
         this.collapse()
         let out = ""
         for (var i = 0; i < this.turns.length; i++) {
+            //Convert each turn from its internal representation to a string
             out += this.turns[i][0]
             if (this.turns[i][1] === 2)
                 out += "2"

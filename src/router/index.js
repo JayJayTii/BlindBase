@@ -10,8 +10,8 @@ import NotFoundView from '@/views/NotFound.vue'
 
 const router = createRouter({
     history: createWebHistory(),
-    routes: [
-        {
+    routes: [ 
+        {  
             path: '/',
             name: 'Home',
             component: HomeView,
@@ -23,7 +23,7 @@ const router = createRouter({
             path: '/sheets',
             name: 'Sheets',
             component: SheetsView,
-            meta: {
+            meta: { 
                 tool: true,
                 description: 'Create and edit your own algsheets',
                 iconPath: new URL('@/assets/SheetsIcon.png', import.meta.url).href,
@@ -80,12 +80,12 @@ const router = createRouter({
                 description: 'Create reconstructions of your best solves',
             },
         },
-        {
+        {   //Catch-all route
             path: '/:catchAll(.*)*',
             name: '404 Not Found',
             component: NotFoundView,
             meta: { tool: false },
-        }, //Catch-all route
+        },
     ],
 })
 

@@ -1,10 +1,15 @@
+<script setup>
+    import { useRouter } from 'vue-router'
+    const router = useRouter()
+</script>
+
 <template>
     <div class="not-found">
         <h1>404 - Page Not Found</h1>
         <p style="text-align:center;">This page doesn't exist.<br />Unless you count this.<br /><br />I don't.</p>
-        <router-link to="/">
-            <p class="PanelHeader" style="cursor:pointer;width:20vw;" >Home</p>
-        </router-link>
+        <div class="CustomButton" style="width:200px;font-size:2rem;" @click="router.push(`/`)">
+            Home
+        </div>
     </div>
 </template>
 

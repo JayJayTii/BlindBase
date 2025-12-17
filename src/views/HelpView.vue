@@ -7,8 +7,9 @@
 </script>
 
 <template>
+    <!-- This opens on the first time visiting BlindBase, or when opened manually from the navbar -->
     <div class="Help">
-        <div style="font-size: 4rem; font-weight: bold; color:var(--grey-100);">
+        <div style="font-size: 4rem; font-weight: bold; color: var(--grey-100);">
             Welcome to BlindBase!
         </div>
         This is a website that helps you learn the 3-Style method for the Rubik's Cube blindfolded.

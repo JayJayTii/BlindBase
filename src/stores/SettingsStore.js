@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 
+//Data here is used in the Settings View
 export const defaults = {
     sheets_pairorder: {
         name: 'Letter pair order',
@@ -97,7 +98,6 @@ export const useSettingsStore = defineStore('settingsStore', {
                 data.settings = {}
             
             this.settings = this.ValidateValues(data.settings)
-            this.loaded = true
             this.saveState()
         },
     },

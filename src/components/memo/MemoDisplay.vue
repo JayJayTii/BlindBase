@@ -20,6 +20,7 @@
 </script>
 
 <template>
+    <!-- Show the memo for the user to memorise -->
     <div style="display:flex;flex-direction:column;gap:15px;">
         <div v-for="sequence in testSequences" style="display:flex;flex-direction:row;gap:5px;justify-content:center;">
             <div v-for="pair in sequence.split(' ')" class="MemoPair">

@@ -35,6 +35,7 @@
         const sheet = sheetStore.getSheet(props.sheetID)
         const flipped = settingsStore.settings.sheets_pairorder === 1
 
+        //Convert sheet object into csv format
         let csvString = "," + sheet.xHeadings.split('').join(',') + ",\n"
         for (var i = 0; i < sheet.yHeadings.length; i++) {
             csvString += sheet.yHeadings[i] + ","
@@ -48,6 +49,7 @@
         }
         const encodedUri = "data:text/csv;charset=utf-8," + encodeURIComponent(csvString)
 
+        //Perform web dev stupidity to download it
         const link = document.createElement("a")
         link.setAttribute("href", encodedUri)
         link.setAttribute("download", sheet.name + ".csv")

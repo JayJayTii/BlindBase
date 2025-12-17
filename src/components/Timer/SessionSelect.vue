@@ -17,6 +17,7 @@
 
 <template>
     <div class="Panel">
+        <!--List of all existing sessions for the user to select from-->
         <div class="PanelHeader"> Select Session:</div>
         <div>
             <div v-for="(label, index) in timerStore.getSessionNames"

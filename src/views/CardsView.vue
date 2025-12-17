@@ -10,9 +10,9 @@
     cardStore.loadState()
 
     const sheetID = ref(-1)
-    const practicing = ref(false);
+    const practicing = ref(false); //Whether to show CardSelection or CardPractice
 
-    //Called from Card Selection and Practice
+    //Called from CardSelection and CardPractice components
     function sheetEditClicked(id) {
         sheetID.value = (sheetID.value === id) ? -1 : id
     }

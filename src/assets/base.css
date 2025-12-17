@@ -1,3 +1,4 @@
+/* All colours in BlindBase are taken from here to make them easier to modify */
 :root {
     --brand-100: hsl(147, 49%, 90%);
     --brand-200: hsl(147, 69%, 80%);
@@ -60,6 +61,7 @@
     --grey-900: hsl(10, 3%, 8%);
 }
 
+/* Formatting common HTML elements */
 input {
     background-color: var(--grey-700);
     color: var(--grey-100);
@@ -123,6 +125,7 @@ body {
     -moz-osx-font-smoothing: grayscale;
 }
 
+/*  Common classes  */
 .PanelHeader {
     width: 100%;
     background-color: var(--panel-header-color);
@@ -178,10 +181,6 @@ body {
     align-items: center;
     justify-content: center
 }
-
     .CustomButton:hover {
         background-color: var(--brand-500);
     }
-.CustomButtonHovered {
-    background-color: var(--brand-500);
-}

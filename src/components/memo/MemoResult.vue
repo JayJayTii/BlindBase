@@ -24,6 +24,7 @@
 </script>
 
 <template>
+    <!-- Shows the user's score after a memo attempt -->
     <div style="display:flex;align-self:center;">
         <div v-if="mode !== 'Multiblind'">{{ correct === 1 ? 'Correct!' : 'Incorrect' }}</div>
         <div v-else style="font-size: 2.5rem;">
@@ -31,6 +32,7 @@
         </div>
     </div>
     <div style="font-size: 2rem; display: grid; grid-template-columns: 45vw 45vw; gap: 50px; ">
+        <!-- LEFT COLUMN -->
         <div style="text-align:center;">
             It was:
             <div style="display:flex;flex-direction:column;gap:15px;align-items:center;">
@@ -42,6 +44,7 @@
             </div>
         </div>
 
+        <!-- RIGHT COLUMN -->
         <div style="text-align:center;">
             You put:
             <div style="display: flex; flex-direction: column; gap: 15px; align-items: center;">

@@ -25,6 +25,7 @@
     )) //Selected cells stored as a matrix of booleans which say if that cell is selected
 
     function UpdateSelectedCells() {
+        //Makes sure the highlighted cells in the grid match the cards that exist for the sheet
         const cardsInSheet = cardStore.getCardsForSheet(props.sheetID)
         selectedCells.value = Array.from({ length: 24 }, () => Array.from({ length: 24 }, () => false))
         for (const card of cardsInSheet) {
@@ -54,9 +55,8 @@
         UpdateSelectedCells()
     }
     async function SelectNone() {
-        if (!(await confirmDialog.value.open('Are you sure you want deselect all? This will delete all cards for this sheet.'))) {
+        if (!(await confirmDialog.value.open('Are you sure you want deselect all? This will delete all cards for this sheet.')))
             return
-        }
 
         const cardsToDelete = []
         for (var i = 0; i < 24; i++) {
@@ -89,6 +89,8 @@
         UpdateSelectedCells()
     }
     function lineClicked(isCol, index) {
+        //Whole line of cells clicked (by clicking on the row/column heading).
+        //If the line is already filled, clear all cards. Otherwise create a card for every cell on that line
         const sheet = sheetStore.getSheet(props.sheetID)
         let lineFilled = true
         for (var i = 0; i < sheet.grid.length; i++) {
@@ -123,6 +125,8 @@
         UpdateSelectedCells()
     }
     function sheetClicked() {
+        //All cells in the sheet was selected (by clicking the top-left corner)
+        //If the sheet is already filled, clear all cards. Otherwise create a card for every cell
         const sheet = sheetStore.getSheet(props.sheetID)
         let sheetFilled = true
         for (var i = 0; i < sheet.grid.length; i++) {

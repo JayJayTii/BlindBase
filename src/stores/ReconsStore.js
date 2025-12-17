@@ -33,6 +33,7 @@ export const useReconsStore = defineStore('reconsStore', {
         },
 
         GetReconWithScramble(scramble) {
+            //Just a linear search
             for (var i = 0; i < this.recons.length; i++) {
                 if (this.recons[i].scramble == scramble) {
                     return i
@@ -41,6 +42,7 @@ export const useReconsStore = defineStore('reconsStore', {
             return -1
         },
         GetCornerAlgsheet() {
+            //The recon tool saves which spreadsheet to take algorithms from, this function fetches that
             if (!this.algsheets)
                 this.algsheets = { corners: -1, edges: -1 }
 

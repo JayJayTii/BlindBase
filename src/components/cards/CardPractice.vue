@@ -29,7 +29,7 @@
     }
     getNextCard() //Get initial card
 
-    function finishedCard(result) { //Result is a string 'Good' or 'Bad'
+    function finishedCard(result) { //result is 'Good' or 'Bad'
         if (cardStore.getCardsToPracticeCount(props.sheetID) === 0) {
             emit("quitPractice")
             return
@@ -101,7 +101,4 @@
         text-align: center;
         font-size: 2vw;
     }
-
-
-
 </style>

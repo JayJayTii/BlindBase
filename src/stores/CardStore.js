@@ -123,6 +123,7 @@ export const useCardStore = defineStore('cardStore', {
 
         checkInvalidCards() {
             useSheetStore().loadState()
+            //This is to convert from an old format for storing cards
             const sheetIDs = new Set(useSheetStore().sheets.map(sheet => sheet.id))
             this.cards.forEach(card => {
                 if (card.hasOwnProperty("reference")) {

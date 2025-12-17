@@ -11,7 +11,7 @@
     const solve = reactive({})
     solve.value = timerStore.sessions[timerStore.getSessionIndexWithID(props.sessionID)].solves.at(-1)
     if (!solve.value) {
-        solve.value = {solveTime: 0} //Initialise timer to 0.00 if this is the first solve
+        solve.value = {solveTime: 0}
     }
 
     function handleKeydown(event) {
@@ -34,8 +34,8 @@
 </script>
 
 <template>
-    <!---LAST SOLVE STATUS--->
     <div class="StatusRow" v-if="'status' in solve.value">
+        <!--Overlay for the timer to change the status of the last solve-->
         <div class="ListItem" style="user-select:none;" @click="solve.value.status = (solve.value.status - 1 + timerStore.solveStatuses.length) % timerStore.solveStatuses.length;timerStore.saveState()">
             <--
         </div>

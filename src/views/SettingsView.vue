@@ -13,7 +13,9 @@
 <template>
     <div class="Settings">
         <h1 class="Subsettings">Settings</h1>
+
         <div id="SettingsScrollContainer">
+            <!--SHEET SETTINGS-->
             <div class="Subsettings">
                 <h2>Sheets Settings</h2>
                 <div id="Sheets pair order">
@@ -46,6 +48,8 @@
                     <input v-model="settingsStore.settings.sheets_greyoutinvalidpairs" type="checkbox" @change="SettingUpdated" />
                 </div>
             </div>
+            
+            <!--CARDS SETTINGS-->
             <div class="Subsettings">
                 <h2>Cards Settings</h2>
                 <div id="Cards Learning To Due Threshold">
@@ -66,6 +70,8 @@
                     ({{useCardStore().dailyStats.dailyNewCards}} new cards done today)
                 </div>
             </div>
+
+            <!--MEMO SETTINGS-->
             <div class="Subsettings">
                 <h2>Memo Settings</h2>
                 <div id="Memo Starting Memo Length">
@@ -83,6 +89,8 @@
                            @change="SettingUpdated" />
                 </div>
             </div>
+
+            <!--TIMER SETTINGS-->
             <div class="Subsettings">
                 <h2>Timer Settings</h2>
                 <div id="Timer Time Keeping Space Down">
@@ -96,9 +104,13 @@
                     seconds
                 </div>
             </div>
+
+            <!--EXEC SETTINGS-->
             <div class="Subsettings">
                 <h2>Exec Settings</h2>
             </div>
+
+            <!--RECONS SETTINGS-->
             <div class="Subsettings">
                 <h2>Recons Settings</h2>
                 <div id="Resons TPS precision">
@@ -111,6 +123,8 @@
                     decimal places
                 </div>
             </div>
+
+            <!--MISC SETTINGS-->
             <div class="Subsettings">
                 <h2>Miscellaneous</h2>
                 <div id="Misc Wide Move Type">

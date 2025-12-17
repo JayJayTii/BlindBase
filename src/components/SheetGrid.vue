@@ -1,4 +1,5 @@
 <script setup>
+    //SheetGrid displays a given alg-sheet and provides callbacks for click events
     import { ref, reactive, watch, computed, nextTick } from 'vue'
     import { getXHeadings, getYHeadings } from '@/helpers/sheets.js'
     import { allEdgePairs, allCornerPairs } from '@/helpers/pairs.js'
@@ -26,9 +27,6 @@
     const leftColumn = ref(null)
     const topRow = ref(null)
     const mainGrid = ref(null)
-    let suppressScrollSync = false
-    let prevScrollX = 0
-    let prevScrollY = 0
     function syncScrollToGrid() {
         if (leftColumn.value && topRow.value && mainGrid.value) {
             leftColumn.value.scrollTop = mainGrid.value.scrollTop
@@ -36,8 +34,6 @@
         }
     }
     function syncScrollToLeftColumn() {
-        if (suppressScrollSync)
-            return
         if (leftColumn.value && topRow.value && mainGrid.value) {
             mainGrid.value.scrollTop = leftColumn.value.scrollTop
             if (mainGrid.value.scrollTop < leftColumn.value.scrollTop) //Gone past grid height
@@ -45,8 +41,6 @@
         }
     }
     function syncScrollToTopRow() {
-        if (suppressScrollSync)
-            return
         if (leftColumn.value && topRow.value && mainGrid.value) {
             mainGrid.value.scrollLeft = topRow.value.scrollLeft
             if (mainGrid.value.scrollLeft < topRow.value.scrollLeft) //Gone past grid width
@@ -88,34 +82,12 @@
         const child = document.getElementById(highlightedCells.value[0].x.toString() + ',' + highlightedCells.value[0].y.toString())
         const parentRect = parent.getBoundingClientRect()
         const childRect = child.getBoundingClientRect()
-
-        const isVisible = childRect.top >= parentRect.top &&
-            childRect.bottom <= parentRect.bottom &&
-            childRect.left >= parentRect.left &&
-            childRect.right <= parentRect.right
+        const isVisible = childRect.top >= parentRect.top && childRect.bottom <= parentRect.bottom && childRect.left >= parentRect.left && childRect.right <= parentRect.right
         if (isVisible)
             return
-
-        if (intervalID != null)
-            clearInterval(intervalID)
-
-        suppressScrollSync = true
         const offsetTop = childRect.top - parentRect.top + parent.scrollTop - (parent.clientHeight / 2) + (child.clientHeight / 2)
         const offsetLeft = childRect.left - parentRect.left + parent.scrollLeft - (parent.clientWidth / 2) + (child.clientWidth / 2)
-        parent.scrollTo({ top: offsetTop, left: offsetLeft, behavior: 'smooth' })
-
-        //Suppress scroll syncing until scroll delta between frames is 0
-        prevScrollX = parent.scrollLeft
-        prevScrollY = parent.scrollTop
-
-        intervalID = setInterval(() => {
-            if (Math.abs(prevScrollX - parent.scrollLeft) == 0 && Math.abs(prevScrollY - parent.scrollTop) == 0) {
-                suppressScrollSync = false
-                clearInterval(intervalID)
-            }
-            prevScrollX = parent.scrollLeft
-            prevScrollY = parent.scrollTop
-        }, 50)
+        parent.scrollTo({ top: offsetTop, left: offsetLeft })
     }
 
     defineExpose({
@@ -123,6 +95,7 @@
     })
 
     function calculateCellClasses(x, y) {
+    //Calculate the CSS classes that a given cell will have in the grid
         let classes = ['SheetGridCell']
         if (props.formatEmpty && props.sheet.grid[!flipped.value ? y : x][!flipped.value ? x : y] === '')
             classes.push('SheetGridCellEmpty')

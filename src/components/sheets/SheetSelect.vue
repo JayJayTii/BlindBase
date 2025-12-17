@@ -30,6 +30,7 @@
 
 <template>
     <div class="Panel">
+        <!--List of all existing alg-sheets for the user to select from-->
         <div class="PanelHeader"> Select Sheet: </div>
 
         <div style="overflow-x:hidden; overflow-y:auto;">

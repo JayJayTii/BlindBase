@@ -32,6 +32,7 @@ export const useTimerStore = defineStore('timerStore', {
         },
 
         newSession() {
+            //Creates a default, empty session
             this.sessions.push({
                 name: 'Untitled',
                 id: this.getNewSessionID(),
@@ -44,6 +45,7 @@ export const useTimerStore = defineStore('timerStore', {
             this.loadState()
         },
         deleteSession(id) {
+            //Deletes the session at its index in the array of sessions, then saves
             this.sessions.splice(this.getSessionIndexWithID(id), 1)
             this.saveState()
             this.loadState()
@@ -86,43 +88,33 @@ export const useTimerStore = defineStore('timerStore', {
             return dnfs
         },
 
-        //Mean of N
-        moN(sessionID, n) {
+        moN(sessionID, n) { //Mean of N
             if (this.getSession(sessionID).solves.length < n)
                 return [[-1, true], [-1, true], [-1, true]]
-            const solves = this.getSession(sessionID).solves.slice(-n)
+            const solves = this.getSession(sessionID).solves.slice(-n) //Latest n solves
             const means = [calculateMean(solves, 1), calculateMean(solves, 2), calculateMean(solves, 3)]
             return means
         },
-        bestMon(sessionID, mappedSolves, n) {
-            const session = this.getSession(sessionID)
-            /*
-            if (!session.hasOwnProperty("bests"))
-                session.bests = {}
-            if (!session.bests.hasOwnProperty("mo" + n.toString())) {
-                session.bests["mo" + n.toString()] = [-1,-1,-1]
-            }
-            session.bests["mo" + n.toString()] = this.recalculateBestMon(sessionID, n)
-            
-            return session.bests["mo" + n.toString()]
-            */
-            return calculateBestMon(mappedSolves, n)
-        },
-
-        //Average of N
-        aoN(sessionID, n) {
+        aoN(sessionID, n) { //Average of N
             if (this.getSession(sessionID).solves.length < n)
                 return [[-1, true], [-1, true], [-1, true]]
-            const solves = this.getSession(sessionID).solves.slice(-n)
+            const solves = this.getSession(sessionID).solves.slice(-n) //Latest n solves
             return [calculateAvg(solves, 1), calculateAvg(solves, 2), calculateAvg(solves, 3)]
         },
+
+        //Solves are mapped to their reduced counterpart once beforehand to avoid doing that many times in these functions
+        bestMon(sessionID, mappedSolves, n) {
+            //const session = this.getSession(sessionID)
+            return calculateBestMon(mappedSolves, n)
+        },
         bestAon(sessionID, mappedSolves, n) {
-            const session = this.getSession(sessionID)
-            //Solves are mapped to their reduced counterpart once beforehand to avoid doing that many times in this function
+            //const session = this.getSession(sessionID)
             return calculateBestAon(mappedSolves, n)
         },
 
         getSessionStatistics(id) {
+            //Reduce the solves to only the necessary information
+            //Should make this more data-oriented with array of solve times, array of memo times, array of statuses
             const solves = this.getSession(id).solves.map(solve => ({
                 solveTime: solve.solveTime,
                 memoTime: solve.memoTime,

@@ -1,5 +1,5 @@
-
-
+//These arrays define how each sticker moves when a certain turn is done to the cube
+//E.g. edgeFaceletMove[2] will say where each edge sticker ends up when an F move is done on a cube
 export const cornerFaceletMove = [
     [3, 0, 1, 2, 8, 9, 6, 7, 12, 13, 10, 11, 16, 17, 14, 15, 4, 5, 18, 19, 20, 21, 22, 23],   //U
     [0, 9, 10, 3, 4, 5, 6, 7, 8, 21, 22, 11, 15, 12, 13, 14, 2, 17, 18, 1, 20, 19, 16, 23],   //R
@@ -23,7 +23,6 @@ export const cornerFaceletMove = [
     [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23],   //E
     [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23],   //S
 ]
-
 
 export const edgeFaceletMove = [
     [3, 0, 1, 2, 8, 5, 6, 7, 12, 9, 10, 11, 16, 13, 14, 15, 4, 17, 18, 19, 20, 21, 22, 23],   //U

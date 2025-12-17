@@ -1,6 +1,6 @@
 <script setup>
+    //This is always active and is made visible when requested
     import { ref } from 'vue'
-
     const visible = ref(false)
     const message = ref('')
     let resolveFn
@@ -8,6 +8,7 @@
     function open(msg) {
         message.value = msg
         visible.value = true
+        //Returns a promise until true or false selected
         return new Promise((resolve) => {
             resolveFn = resolve
         })
@@ -42,35 +43,35 @@
 </template>
 
 <style>
-.ConfirmationBox {
-    display: flex;
-    flex-direction: column;
-    position: fixed;
-    justify-self: center;
-    left: 50%;
-    top: 50%;
-    width: 300px;
-    transform: translate(-50%, -50%);
-    padding: 10px;
-    border-radius: 5px;
-    z-index: 151;
-    background-color: var(--error-200);
-    color: var(--grey-800);
-    font-weight: 600;
-    text-align: center;
-}
-
-.ConfirmationButtonRow {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-}
-
-#confirmationBoxBackdrop {
-    position: fixed;
-    width: 100vw;
-    height: 100vh;
-    background: rgba(0, 0, 0, 0.7);
-    z-index: 150;
-}
+    .ConfirmationBox {
+        display: flex;
+        flex-direction: column;
+        position: fixed;
+        justify-self: center;
+        left: 50%;
+        top: 50%;
+        width: 300px;
+        transform: translate(-50%, -50%);
+        padding: 10px;
+        border-radius: 5px;
+        z-index: 151;
+        background-color: var(--error-200);
+        color: var(--grey-800);
+        font-weight: 600;
+        text-align: center;
+    }
+    
+    .ConfirmationButtonRow {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+    }
+    
+    #confirmationBoxBackdrop {
+        position: fixed;
+        width: 100vw;
+        height: 100vh;
+        background: rgba(0, 0, 0, 0.7);
+        z-index: 150;
+    }
 </style>

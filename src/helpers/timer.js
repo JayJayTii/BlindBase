@@ -28,6 +28,9 @@ export function getSolveTimes(solves, section){
 }
 
 export function calculateMean(solves, section) {
+    //This function calculates the mean of a certain number of solves,
+    //taking into account which part of the solve to average (memo, exec, or the whole thing)
+    //and each solve's penalty status
     let timeSum = 0
     let dnfs = 0
     for (var i = 0; i < solves.length; i++) {
@@ -46,6 +49,7 @@ export function calculateMean(solves, section) {
     return [mean, dnf]
 }
 export function calculateBestMon(solves, n) {
+    //This finds the best mean of n solves in a whole session for each section of the solve
     //console.time("calculating mo" + n.toString())
     let best = [-1, -1, -1]
     for (var start = 0; start < solves.length - n + 1; start++) {
@@ -76,6 +80,11 @@ export function calculateBestMon(solves, n) {
 }
 
 export function calculateAvg(solves, section) {
+    //An average, as opposed to a mean, removes the fastest and slowest time. 
+    //So an average of 5 will take the mean of the middle 3 solves
+    //This function calculates an average of a certain number of solves,
+    //taking into account which part of the solve to average (memo, exec, or the whole thing)
+    //and each solve's penalty status
     const dnfIndices = []
     const solveTimes = new Array(solves.length)
     let timeSum = 0
@@ -111,6 +120,7 @@ export function calculateAvg(solves, section) {
 }
 
 export function calculateBestAon(solves, n) {
+    //This finds the best average of n solves in a whole session for each section of the solve
     //console.time("calculating ao" + n.toString())
     let best = [-1, -1, -1]
     for (var first = 0; first < solves.length - n + 1; first++) {
@@ -155,6 +165,7 @@ export function calculateBestAon(solves, n) {
 }
 
 export function formatTime(ms) {
+    //Times are always stored in milliseconds, must be converted to hours, minutes, seconds, hundredths
     const centiseconds = Math.round(ms / 10) //All times only go to 2 decimal places
 
     const hours = (Math.floor(centiseconds / 100 / 60 / 60))
