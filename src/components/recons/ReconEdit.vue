@@ -134,7 +134,8 @@
             <input title="Name" v-model="reconName" maxlength="30" id="reconNameInput" />
             <textarea ref="bodyRef"
                       v-model="reconBody"
-                      id="reconBodyInput" />
+                      id="reconBodyInput"
+                      maxlength="4000"/>
         </div>
 
         <div></div>

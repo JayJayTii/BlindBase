@@ -12,7 +12,7 @@
     }
 
     async function ImportAll() {
-        if (!(await confirmDialog.value.open('Do you want to import BlindBase data? *This will delete and overwrite anything currently saved on BlindBase*.'))) {
+        if (!(await confirmDialog.value.open('Do you want to import BlindBase data? This will delete and overwrite anything currently saved on BlindBase, it might be worth exporting your data first, just in case.'))) {
             return;
         }
         //https://stackoverflow.com/questions/16215771/how-to-open-select-file-dialog-via-js
@@ -27,11 +27,16 @@
                 reader.onerror = reject
             })
             
-            const jsonData = JSON.parse(content);
-            for(var key of Object.keys(jsonData)) {
-                console.log(key);
-                console.log(JSON.stringify(jsonData[key]));
-                localStorage.setItem(key, JSON.stringify(jsonData[key]));
+            
+            try {
+                const jsonData = JSON.parse(content);
+                for(var key of Object.keys(jsonData)) {
+                    localStorage.setItem(key, JSON.stringify(jsonData[key]));
+                }
+                window.location.reload();
+            }
+            catch (error) {
+                alert("Failed to import data, please make sure that it was previously exported from BlindBase and that it is a .json file.")
             }
             window.location.reload();
         }
@@ -39,7 +44,7 @@
     }
 
     async function ExportAll() {
-        if (!(await confirmDialog.value.open('Export all data stored in BlindBase?'))) {
+        if (!(await confirmDialog.value.open('Export all data stored in BlindBase? Nothing will be deleted from BlindBase, a copy of your data will be downloaded.'))) {
             return;
         }
         var keys = Object.keys(localStorage).filter(key => key.includes('Store'));
