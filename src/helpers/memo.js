@@ -1,4 +1,5 @@
-//Used for the length of the memo input boxes
+//Used to get the length of the longest memo sequence for the Multi-Blind mode
+//This will define the maximum length of the memo input boxes
 export function GetLongestStringLength(arr) {
     return Math.max(...arr.map((str) => str.length));
 }
@@ -13,6 +14,7 @@ export function gaussianRandom(mean = 0, stdev = 1) {
     return z * stdev + mean;
 }
 
+//Creates a memo sequence of a certain length given the pairs it is allowed to use.
 export function GeneratePairSequence(possiblePairs, length) {
     var newSequence = ''
     for (var key = 0; key < length; key++) {
@@ -24,6 +26,7 @@ export function GeneratePairSequence(possiblePairs, length) {
     return newSequence
 }
 
+//A pair sequence should be a string of capitalised letters split into pairs with spaces.
 //Takes one string, not an array of sequences
 export function FormatPairSequence(sequence) { 
     //https://stackoverflow.com/questions/6259515/how-can-i-split-a-string-into-segments-of-n-characters
@@ -36,6 +39,7 @@ export function FormatPairSequence(sequence) {
     return scrubbed
 }
 
+//Counts if a user-entered memo sequence is identical to the sequence they were tested with
 export function getCorrect(testSequences, userSequences) {
     var correctCubes = 0
     for (var i = 0; i < userSequences.length; i++) {
@@ -49,7 +53,8 @@ export function getCorrect(testSequences, userSequences) {
     return correctCubes
 }
 
+//Score is only used for the Multi-Blind mode.
+//It is calculated by correct sequences - incorrect sequences, but it works out to this:
 export function getScore(testSequences, userSequences) {
-    //Multi-blind score is correct cubes - incorrect cubes, but it works out to this:
     return 2 * getCorrect(testSequences, userSequences) - testSequences.length
 }

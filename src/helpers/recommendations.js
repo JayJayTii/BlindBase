@@ -4,6 +4,9 @@ import imageData from '../assets/recommendations/imageRecommendations.json'
 import { useSettingsStore } from '../stores/SettingsStore'
 import { adjacentCornerStickers, adjacentEdgeStickers } from '@/helpers/stickers.js'
 
+//A "recommendation" is an algorithm which solves a certain letter pair (for corners and edges)
+//For the "Images" sheet type, a recommendation is a phrase containing the letters in the pair to help with memorisation.
+
 export function getRecommendations(pieceType, key) {
     switch (pieceType) {
         case 0:
@@ -21,6 +24,7 @@ export function getRecommendations(pieceType, key) {
     }
 }
 
+//Gets a random recommendation for a letter pair (key) with a certain pieceType
 export function GetRandomRecommendation(pieceType, key) {
     if (key.length !== 2)
         return ""
@@ -40,6 +44,7 @@ export function GetRandomRecommendation(pieceType, key) {
     return recommendations[index]
 }
 
+//The same key can have multiple equivalent keys. For example, ABC would also be BCA and CAB.
 function getEquivalentCornerComms(key) {
     //Each corner comm can have many equivalents, which are spread throughout the cornerData
     const cycled = [key, key[2] + key[0] + key[1], key[1] + key[2] + key[0]]
@@ -58,6 +63,8 @@ function getEquivalentCornerComms(key) {
     }
     return output
 }
+
+//The same key can have multiple equivalent keys. For example, ABC would also be BCA and CAB.
 function getEquivalentEdgeComms(key) {
     //Each edge comm can have many equivalents, which are spread throughout the edgeData
     const cycled = [key, key[2] + key[0] + key[1], key[1] + key[2] + key[0]]
@@ -121,7 +128,9 @@ export function getEdgeRecommendations(baseKey, notationType) {
 
 function getImageRecommendations(baseKey) {
     let result = imageData[baseKey]
-    if (!(baseKey.includes('X') && useSettingsStore().settings.sheets_extraximages == true)) return result
+    if (!(baseKey.includes('X') && useSettingsStore().settings.sheets_extraximages == true)) {
+        return result
+    }
 
     //Get every combination of X/ʧ options
     if (baseKey[0] == 'X') {

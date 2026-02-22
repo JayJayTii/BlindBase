@@ -6,6 +6,8 @@ export class Sequence {
         this.turns = []
     }
 
+    //Collapsing turns means making the sequence as short as possible.
+    //For example twisting the top side multiple times in multiple turns is the same as doing one big turn.
     collapse() {
         if (this.turns.length < 2) {
             return
@@ -53,6 +55,7 @@ export class Sequence {
         this.collapse()
     }
 
+    //This inverts a sequence so that it would undo the forward version.
     reverse() {
         const oldTurns = this.turns
         this.turns = []
@@ -62,14 +65,7 @@ export class Sequence {
         }
     }
 
-    //Each move is 0->17
-    setKociembaMoves(arr) {
-        const faces = ['U','R','F','D','L','B']
-        const turns = ["","2",'\'']
-        this.turns = arr.map((move) => {
-            return [faces[Math.floor(move / 3)], move % 3 + 1]
-        })
-    }
+    //Converts a string of algorithm notation (like R U R' U') into the internal turn representation
     setAlgorithmNotation(str) {
         str = str.replace(/[‘’′]/g, "'") // https://sqlpey.com/javascript/fixing-javascript-smart-quotes/
         //Splt into an array of turns
@@ -94,6 +90,8 @@ export class Sequence {
             this.turns.push([turn[0], turnType])
         }
     }
+
+    //Converts a string of commutator notation (like [U', R' D R]) into the internal turn representation
     setCommNotation(str) { //e.g. [U', R' D R] or U' R U':[R' U R,D'] or [R2 : [D, R' U R]]
         let setup = str.match(/\[?(.*):/) //After [ (if there is one) and before :
         setup = (setup == null) ? "" : setup[1]
@@ -135,11 +133,11 @@ export class Sequence {
         setupSeq.turns.forEach(turn => this.add([...turn]))
     }
 
+    //Convert the internal turn representation into algorithm notation
     toString() {
         this.collapse()
         let out = ""
         for (var i = 0; i < this.turns.length; i++) {
-            //Convert each turn from its internal representation to a string
             out += this.turns[i][0]
             if (this.turns[i][1] === 2)
                 out += "2"

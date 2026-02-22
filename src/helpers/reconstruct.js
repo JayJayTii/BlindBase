@@ -4,6 +4,8 @@ import { getSolveTimeString, getSolveRatioString } from '@/helpers/timer.js'
 import { adjacentCornerIndices, adjacentEdgeIndices } from '@/helpers/stickers.js'
 import { useSettingsStore } from '../stores/SettingsStore'
 
+//Some scrambles begin with rotations, but a reconstruction always begins from the same rotation of the cube.
+//So we need to add certain rotations before beginning the reconstruction to get the cube back to the correct rotation.
 export function GetInspectionMoves(cube) {
     //Gets the rotations from the start of the solve
     const startCube = Object.assign(new FaceletCube(), JSON.parse(JSON.stringify(cube)))
@@ -37,6 +39,7 @@ export function GetInspectionMoves(cube) {
     return { turns: inspection }
 }
 
+//This function finishes as much of the corners on the cube as possible until requiring more information from the user.
 export function FinishCornerCycle(cube) {
     //This keeps swapping the corner buffer piece with its target, until the buffer piece is back there.
     const bufferStickers = [2, 9, 12]
@@ -56,6 +59,8 @@ export function FinishCornerCycle(cube) {
     return [cycle, availableBuffers]
 }
 
+
+//This function finishes as much of the edges on the cube as possible until requiring more information from the user.
 export function FinishEdgeCycle(cube, parity) {
     //This keeps swapping the edge buffer piece with its target, until the buffer piece is back there.
     if (parity)
@@ -81,6 +86,7 @@ export function FinishEdgeCycle(cube, parity) {
     return [cycle, availableBuffers]
 }
 
+//Internally, the reconstruction is stored as numbers, these need to be converted to letters for the user.
 export function ToLetters(arr) {
     //Convert array of numbers to pairs of letters
     if (arr.length == 0)
@@ -88,6 +94,7 @@ export function ToLetters(arr) {
     return arr.map(i => String.fromCharCode(i + 65)).join('').match(/.{1,2}/g).join(' ')
 }
 
+//This returns the number of moves in a reconstruction, so it can be written at the end of the reconstruction
 export function GetReconMoveCount(recon) {
     const notation = recon.notation.corners.concat(recon.notation.edges)
     let turnCount = 0
@@ -98,8 +105,8 @@ export function GetReconMoveCount(recon) {
     return turnCount
 }
 
+//Takes all the facts of the reconstruction that have been worked out and puts them together in a human-friendly reconstruction.
 export function GenerateReconBody(recon) {
-    //Take all the facts of the reconstruction and put them together in a human-friendly reconstruction
     let summary = ""
     summary += recon.scramble.toString()
 

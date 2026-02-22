@@ -1,6 +1,9 @@
 import { useSheetStore } from '@/stores/SheetStore.js'
 import { useSettingsStore } from '@/stores/SettingsStore.js'
 
+//The number of filled cells in a sheet means the number of cells that aren't empty
+//This is used to count the number of possible flashcards that can be made from a sheet
+//Since an empty flashcard is not allowed
 export function getFilledCells(sheet) {
     let filledCells = 0
     for (var i = 0; i < customSheet.value.yHeadings.length; i++) {
@@ -33,8 +36,9 @@ function splitCSVline(str) {
     return result
 }
 
+
+//This is the sheet uploading feature, which takes in a selected file and creates an alg-sheet from it.
 export async function CreateSheetFromFile(file) {
-    //This is the sheet uploading feature
     const content = await new Promise((resolve, reject) => {
         const reader = new FileReader()
         reader.readAsText(file, 'UTF-8')
@@ -143,6 +147,7 @@ export async function CreateSheetFromFile(file) {
     return useSheetStore().sheets.length - 1
 }
 
+//Checks if every cell in the given sheet is empty.
 export function isEmpty(sheet) {
     var empty = true
     for (var x = 0; x < 24; x++) {
@@ -157,6 +162,7 @@ export function isEmpty(sheet) {
     return empty
 }
 
+//X and Y headings are the headings of the columns and rows respectively, returned as an array.
 export function getXHeadings(sheet) {
     return sheet.xHeadings.split('')
 }

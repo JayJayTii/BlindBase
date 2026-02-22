@@ -8,6 +8,7 @@ import TimerView from '@/views/TimerView.vue'
 import ReconsView from '@/views/ReconsView.vue'
 import NotFoundView from '@/views/NotFound.vue'
 
+//These are all of the pages of the application.
 const router = createRouter({
     history: createWebHistory(),
     routes: [ 
