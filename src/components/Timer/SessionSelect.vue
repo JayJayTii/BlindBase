@@ -31,7 +31,7 @@
                 <div></div>
                 <img title="Create an empty session"
                      @click="timerStore.newSession(); emit('updateSessionID',timerStore.sessions.length-1);"
-                     class="CustomButton" src="@/assets/add.svg" style="height:40px;" />
+                     class="CustomButton" src="@/assets/icons/add.svg" style="height:40px;" />
             </div>
         </div>
     </div>

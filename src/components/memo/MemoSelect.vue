@@ -313,7 +313,7 @@
         <div class="MemoViewHeader" title="Select from a grid of letter pairs" v-if="pairSelect === 3">
             <img @click="editingCustomPairs = !editingCustomPairs;
                  nextTick(()=> {if(gridRef){gridRef.changeHighlightedCells(highlightedCells)}})"
-            src="@/assets/edit.svg"
+            src="@/assets/icons/edit.svg"
             :class="['CustomButton', editingCustomPairs ? 'CustomButtonHovered': '']"
             style="height: 45px;"/>
         </div>
@@ -335,7 +335,7 @@
                @update:full-sheet-selected="sheetClicked" />
 
     <img v-if="pairSelectFinished"
-         src="@/assets/arrow-right-long.svg"
+         src="@/assets/icons/arrow-right-long.svg"
          :class="['CustomButton','NextButton']"
          @click="StartRun()" />
 </template>

@@ -44,7 +44,7 @@
             }" />
     <div style="height:20vh;" />
 
-    <img src="@/assets/arrow-right-long.svg"     
+    <img src="@/assets/icons/arrow-right-long.svg"     
          title="Next"
          :class="['CustomButton','NextButton']"
          @click="FinishStage()" />

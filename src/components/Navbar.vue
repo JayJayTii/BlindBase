@@ -28,11 +28,11 @@
     <div class="Navbar">
         <img src="@/assets/logo.png" style="height:5vh;" @click="homeClicked" class="HomeButton" title="Home" />
 
-        <img src="@/assets/help.svg" title="Help" @click="toggleHelp" class="HelpButton" />
+        <img src="@/assets/icons/help.svg" title="Help" @click="toggleHelp" class="HelpButton" />
         <div v-if="showHelp" @click="toggleHelp" id="settingsBackdrop"></div>
         <HelpView v-if="showHelp" id="help" style="position:fixed;" @closeHelp="showHelp = false" />
 
-        <img src="@/assets/settings.svg" title="Settings" @click="toggleSettings" class="SettingsButton" />
+        <img src="@/assets/icons/settings.svg" title="Settings" @click="toggleSettings" class="SettingsButton" />
         <div v-if="showSettings" @click="toggleSettings" id="settingsBackdrop"></div>
         <SettingsView v-if="showSettings" id="settings" style="position:fixed;" />
     </div>

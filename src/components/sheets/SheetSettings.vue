@@ -84,11 +84,11 @@
         <div style="display: flex; flex-direction: row; justify-content:space-between; width:100%;">
             <!------DOWNLOAD------>
             <img title="Download this sheet"
-                 src="@/assets/download.svg" @click="downloadSheet()" class="CustomButton"  style="height:40px;"/>
+                 src="@/assets/icons/download.svg" @click="downloadSheet()" class="CustomButton"  style="height:40px;"/>
 
             <!------DELETE------>
             <img title="Delete this sheet"
-                 src="@/assets/delete-bin.svg" @click="emit('deleteSheet')" class="CustomButton" style="height:40px;" />
+                 src="@/assets/icons/delete-bin.svg" @click="emit('deleteSheet')" class="CustomButton" style="height:40px;" />
         </div>
     </div>
     <div v-else class="Panel">

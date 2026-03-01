@@ -32,9 +32,9 @@
         <div class="SolveDetails">
             <!------CONTROLS------>
             <div style="display:flex; justify-content:space-between;  width:100%;">
-                <img @click="emit('unselectSolve')" title="Back to solve list" src="@/assets/arrow-left-long.svg" class="CustomButton" style="width:60px; height: 40px;" />
-                <img @click="Reconstruct()"         title="Reconstruct this solve" src="@/assets/ReconsIcon.png"      class="CustomButton" style="width:52px; height:40px;"  />
-                <img @click="emit('deleteSolve')"   title="Delete this solve" src="@/assets/delete-bin.svg"      class="CustomButton" style="width:40px; height:40px;" />
+                <img @click="emit('unselectSolve')" title="Back to solve list" src="@/assets/icons/arrow-left-long.svg" class="CustomButton" style="width:60px; height: 40px;" />
+                <img @click="Reconstruct()"         title="Reconstruct this solve" src="@/assets/tool_icons/ReconsIcon.png"      class="CustomButton" style="width:52px; height:40px;"  />
+                <img @click="emit('deleteSolve')"   title="Delete this solve" src="@/assets/icons/delete-bin.svg"      class="CustomButton" style="width:40px; height:40px;" />
             </div>  
             
             <!------SOLVE RESULTS------>

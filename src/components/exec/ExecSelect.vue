@@ -322,7 +322,7 @@
             </select>
             <div v-if="pairSelect == 'From custom'" title="Select from a grid of letter pairs" style="display:flex; justify-content: center;">
                 <img @click="editingCustomPairs = !editingCustomPairs; UpdateSelectedCells()"
-                     src="@/assets/edit.svg"
+                     src="@/assets/icons/edit.svg"
                      :class="['CustomButton', editingCustomPairs ? 'CustomButtonHovered': '']"
                      style="height: 45px;" />
             </div>

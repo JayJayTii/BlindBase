@@ -41,7 +41,7 @@
 <template>
     <div class="PracticeView">
         <!------BACK------>
-        <img src="@/assets/arrow-left-long.svg" 
+        <img src="@/assets/icons/arrow-left-long.svg" 
              title="Leave practice - progress is saved"
              @click="emit('quitPractice')"
              class="CustomButton" style="margin-left: 10px; width:70px;height:50px;" />

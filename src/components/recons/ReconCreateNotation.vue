@@ -251,7 +251,7 @@
                           :title="'Algorithm for ' + pair"
                           :id="'Edges' + index.toString()"
                           :ref="el => edgeInputBox[index] = el" />
-                <img src="@/assets/lightbulb-line.svg" title="Fill with a random recommendation" class="CustomButton" style="height:40px;min-width:40px;" @click="FillEdgeRecommendation(index)" />
+                <img src="@/assets/icons/lightbulb-line.svg" title="Fill with a random recommendation" class="CustomButton" style="height:40px;min-width:40px;" @click="FillEdgeRecommendation(index)" />
             </div>
             <textarea style="field-sizing: content; resize:none;"
                       title="Parity/Flips/Twists"
@@ -286,7 +286,7 @@
                               v-model="cornerInput[index]"
                               :id="'Corns' + index.toString()"
                               :ref="el => cornerInputBox[index] = el " />
-                    <img src="@/assets/lightbulb-line.svg" title="Fill with a random recommendation" class="CustomButton" style="height:40px;min-width:40px;" @click="FillCornerRecommendation(index)"></img>
+                    <img src="@/assets/icons/lightbulb-line.svg" title="Fill with a random recommendation" class="CustomButton" style="height:40px;min-width:40px;" @click="FillCornerRecommendation(index)"></img>
                 </div>
                 <textarea style="field-sizing: content; resize:none;"
                           title="Parity/Flips/Twists"
@@ -298,12 +298,12 @@
         </div>
     </div>
     <div style="height:100px;" />
-    <img src="@/assets/arrow-left-long.svg"
+    <img src="@/assets/icons/arrow-left-long.svg"
          title="Back"
          :class="['CustomButton','NextButton']" 
          style="left:0px;transform:translate(100%,-100%);"
          @click="revertToLetterSelection()" />
-    <img src="@/assets/arrow-right-long.svg"
+    <img src="@/assets/icons/arrow-right-long.svg"
          title="Finish reconstruction"
          :class="['CustomButton','NextButton']" 
          @click="notationSelectionFinished()" />

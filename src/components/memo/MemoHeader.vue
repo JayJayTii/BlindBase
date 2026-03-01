@@ -23,7 +23,7 @@
 
 <template>
     <div class="MemoHeader">
-        <img src="@/assets/arrow-left-long.svg"
+        <img src="@/assets/icons/arrow-left-long.svg"
              title="Leave this run"
              @click="emit('quitRun')"
              class="CustomButton"

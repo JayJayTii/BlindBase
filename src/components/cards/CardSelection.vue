@@ -172,7 +172,7 @@
                 <div style="display:flex;flex-direction:row; justify-content:center;gap:10px;align-items:center;">{{cardStore.getCardsForSheet(sheetStore.sheets[index].id).length}}/{{sheetStore.getFilledCellCount(sheetStore.sheets[index].id)}}
                     <img title="Create flashcards from this sheet"
                          @click="emit('sheetEditClicked', sheetStore.sheets[index].id);nextTick(()=>{UpdateSelectedCells()})"
-                         src="@/assets/edit.svg"
+                         src="@/assets/icons/edit.svg"
                          :class="['CustomButton', (sheetID === sheetStore.sheets[index].id) ? 'CustomButtonHovered': '']"
                          style="height: 2rem;" />
                 </div>
@@ -183,7 +183,7 @@
                 <div>
                     <img v-if="cardStore.getCardsToPracticeCount(sheetStore.sheets[index].id) > 0"
                          title="Practice this card decks"
-                         src="@/assets/arrow-right-long.svg"
+                         src="@/assets/icons/arrow-right-long.svg"
                          class="CustomButton"
                          style="height: 40px; width: 60px;"
                          @click="emit('beginPractice',sheetStore.sheets[index].id)" />

@@ -146,7 +146,7 @@
          @click="finishedCard('Bad')"
          id="BadButton"
          class="BadButton"
-         src="@/assets/thumb-down.svg" />
+         src="@/assets/icons/thumb-down.svg" />
     <div v-else></div>
 
     <!------CARD------>
@@ -185,7 +185,7 @@
          @click="finishedCard('Good')"
          id="GoodButton"
          class="GoodButton"
-         src="@/assets/thumb-up.svg" />
+         src="@/assets/icons/thumb-up.svg" />
 </template>
 
 <style>
