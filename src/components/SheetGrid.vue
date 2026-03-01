@@ -33,20 +33,6 @@
             topRow.value.scrollLeft = mainGrid.value.scrollLeft
         }
     }
-    function syncScrollToLeftColumn() {
-        if (leftColumn.value && topRow.value && mainGrid.value) {
-            mainGrid.value.scrollTop = leftColumn.value.scrollTop
-            if (mainGrid.value.scrollTop < leftColumn.value.scrollTop) //Gone past grid height
-                leftColumn.value.scrollTop = mainGrid.value.scrollTop
-        }
-    }
-    function syncScrollToTopRow() {
-        if (leftColumn.value && topRow.value && mainGrid.value) {
-            mainGrid.value.scrollLeft = topRow.value.scrollLeft
-            if (mainGrid.value.scrollLeft < topRow.value.scrollLeft) //Gone past grid width
-                topRow.value.scrollLeft = mainGrid.value.scrollLeft
-        }
-    }
 
     function columnClicked(columnIndex) {
         if (!props.fullLineSelection)
@@ -66,20 +52,21 @@
         emit('update:full-sheet-selected')
     }
 
-    //Highlighted cells are visual coords
+    //Highlighted cells are absolute coords
     const highlightedCells = ref([{ x: -1, y: -1 }])
     let intervalID = null
     function changeHighlightedCells(newValue) {
-        //New values will be absolute, not visual
-        highlightedCells.value = !flipped.value ? newValue : newValue.map(coord => ({ x: coord.y, y: coord.x }))
+        highlightedCells.value = newValue
         if (highlightedCells.value.length != 1)
             return
 
         //Scroll to make sure if there is one highlightedCell, it is visible
         const parent = mainGrid.value
-        if (!parent)
+        if (!parent)    
             return
-        const child = document.getElementById(highlightedCells.value[0].x.toString() + ',' + highlightedCells.value[0].y.toString())
+        let targetX = !flipped.value ? highlightedCells.value[0].x.toString() : highlightedCells.value[0].y.toString()
+        let targetY = !flipped.value ? highlightedCells.value[0].y.toString() : highlightedCells.value[0].x.toString()
+        const child = document.getElementById(targetX + ',' + targetY)
         const parentRect = parent.getBoundingClientRect()
         const childRect = child.getBoundingClientRect()
         const isVisible = childRect.top >= parentRect.top && childRect.bottom <= parentRect.bottom && childRect.left >= parentRect.left && childRect.right <= parentRect.right
@@ -95,9 +82,10 @@
     })
 
     function calculateCellClasses(x, y) {
-    //Calculate the CSS classes that a given cell will have in the grid
+        const [absX, absY] = (flipped.value ? ([y, x]) : ([x, y]))
+        //Calculate the CSS classes that a given cell will have in the grid
         let classes = ['SheetGridCell']
-        if (props.formatEmpty && props.sheet.grid[!flipped.value ? y : x][!flipped.value ? x : y] === '')
+        if (props.formatEmpty && props.sheet.grid[absY][absX] === '')
             classes.push('SheetGridCellEmpty')
         else {
             const letters = "ABCDEFGHIJKLMNOPQRSTUVWX"
@@ -108,8 +96,8 @@
             }
             classes.push('SheetGridCellHoverable')
         }
-
-        if (Array.isArray(highlightedCells.value) && highlightedCells.value.some((cell) => cell.x === x && cell.y === y))
+        
+        if (Array.isArray(highlightedCells.value) && highlightedCells.value.some((cell) => cell.x === absX && cell.y === absY))
             classes.push('SheetGridCellHightlighted')
 
         return classes
@@ -126,9 +114,8 @@
         </div>
 
         <!-----COLUMN HEADINGS----->
-        <div class="SheetGridTopRow" ref="topRow" @scroll="syncScrollToTopRow">
+        <div class="SheetGridTopRow" ref="topRow">
             <div v-for="(char,index) in getXHeadings(sheet)"
-                 :title="props.fullLineSelection ? 'Select/deselect this column' : ''"
                  class="SheetGridCell"
                  :style="{ cursor: props.fullLineSelection ? 'pointer' : 'default' }"
                  @click="columnClicked(index)">
@@ -140,7 +127,6 @@
         <!-----ROW HEADINGS----->
         <div class="SheetGridLeftColumn" ref="leftColumn" @scroll="syncScrollToLeftColumn">
             <div v-for="(char, index) in getYHeadings(sheet)"
-                 :title="props.fullLineSelection ? 'Select/deselect this row' : ''"
                  class="SheetGridCell"
                  :style="{ cursor: props.fullLineSelection ? 'pointer' : 'default' }"
                  @click="rowClicked(index)">
@@ -151,13 +137,11 @@
 
         <!---------GRID--------->
         <div class="SheetGrid" ref="mainGrid" @scroll="syncScrollToGrid">
-            <div v-for="(row, y) in 24">
-                <div v-for="(col, x) in 24"
-                     :title="props.sheet.yHeadings[flipped ? y : x] + props.sheet.xHeadings[flipped ? x : y] + ': ' + props.sheet.grid[!flipped ? y : x][!flipped ? x : y]"
-                     @click="emit('update:selected-cell', !flipped ? {x:x,y:y} : {x:y,y:x})"
+            <div v-for="(col, x) in 24">
+                <div v-for="(row, y) in 24"
+                     @click="emit('update:selected-cell', !flipped ? {x:x,y:y} : {x:y,y:x}); "
                      :id="x.toString() + ',' + y.toString()"
-                     :class="calculateCellClasses(x,y)"
-                    >
+                     :class="calculateCellClasses(x,y)">
                     {{ props.sheet.grid[!flipped ? y : x][!flipped ? x : y] }}
                 </div>
             </div>
@@ -202,22 +186,19 @@
         display: flex;
         flex-direction: row;
         grid-area: top;
-        overflow-x: auto;
-        scrollbar-width: none;
+        overflow: hidden;
     }
+        .SheetGridTopRow .SheetGridCell {
+            background-color: var(--brand-700);
+            min-width: var(--sheet-cell-width);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
 
-    .SheetGridTopRow .SheetGridCell {
-        background-color: var(--brand-700);
-        min-width: var(--sheet-cell-width);
-        display: flex;
-        justify-content: center;
-        align-items: center;
-    }
-    
     .SheetGridLeftColumn {
         grid-area: left;
-        overflow-y: auto;
-        scrollbar-width:none;
+        overflow: hidden;
     }
         .SheetGridLeftColumn::after {
             content: '';

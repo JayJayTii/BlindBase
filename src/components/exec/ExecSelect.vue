@@ -175,7 +175,7 @@
             const pair = allPairs[i]
             const y = pair.charCodeAt(0) - 'A'.charCodeAt(0)
             const x = pair.charCodeAt(1) - 'A'.charCodeAt(0)
-            grid[x][y] = pair
+            grid[y][x] = pair
         }
 
         customSheet.value = {

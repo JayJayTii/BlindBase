@@ -114,7 +114,7 @@
         for (const pairOption of customPairOptions) {
             const y = pairOption.charCodeAt(0) - 'A'.charCodeAt(0)
             const x = pairOption.charCodeAt(1) - 'A'.charCodeAt(0)
-            grid[x][y] = pairOption
+            grid[y][x] = pairOption
         }
         customSheet.value.grid = grid
     }
@@ -228,7 +228,7 @@
 
             case 3: //From custom (convert highlighted cell coords to letter pairs)
                 const letters = "ABCDEFGHIJKLMNOPQRSTUVWX"
-                return highlightedCells.value.map(coord => letters[coord.x] + letters[coord.y])
+                return highlightedCells.value.map(coord => letters[coord.y] + letters[coord.x])
         }
     }
 

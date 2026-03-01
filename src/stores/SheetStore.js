@@ -116,13 +116,13 @@ export const useSheetStore = defineStore('sheetStore', {
             if (!this.isValidSheetID(id))
                 return ''
             const sheet = this.getSheet(id)
-            return getXHeadings(sheet)[coord.x] + getYHeadings(sheet)[coord.y]
+            return getYHeadings(sheet)[coord.y] + getXHeadings(sheet)[coord.x]
         },
         keyToCoord(id, key) {
             const sheet = this.getSheet(id)
             return {
-                x: getXHeadings(sheet).indexOf(key[0]),
-                y: getYHeadings(sheet).indexOf(key[1]),
+                x: getXHeadings(sheet).indexOf(key[1]),
+                y: getYHeadings(sheet).indexOf(key[0]),
             }
         },
 

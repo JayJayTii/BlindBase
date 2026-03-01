@@ -128,7 +128,7 @@ export async function CreateSheetFromFile(file) {
         for (var j = 0; j < xHeadingsLength; j++) {
             const y = yHeadings[i].charCodeAt(0) - 'A'.charCodeAt(0)
             const x = xHeadings[j].charCodeAt(0) - 'A'.charCodeAt(0)
-            sheetGrid[flipped ? y : x][flipped ? x : y] = csvGrid[i][j]
+            sheetGrid[!flipped ? y : x][!flipped ? x : y] = csvGrid[i][j]
         }
     }
 
