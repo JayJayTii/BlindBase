@@ -139,7 +139,7 @@ export function GenerateReconBody(recon) {
     //Add timing information if arriving from the timer tool
     const solve = JSON.parse(recon.solve)
     summary += "//" + getSolveTimeString(solve) + " (" + getSolveRatioString(solve) + ")\n"
-    const tps = moveCount / (solve.solveTime - solve.memoTime) * 1000 //times are stored in milliseconds
+    const tps = moveCount / (solve[0] - solve[1]) * 1000 //times are stored in milliseconds
     const tpsPrecision = useSettingsStore().settings.recons_tpsprecision
     summary += "//" + (Math.round(Math.pow(10, tpsPrecision) * tps) / Math.pow(10, tpsPrecision)).toString() + "TPS\n"
     return summary

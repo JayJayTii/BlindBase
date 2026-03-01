@@ -1,5 +1,5 @@
 <script setup>
-    import { computed } from 'vue'
+    import { computed, onMounted, onUnmounted } from 'vue'
     import { getSolveTimeString, getSolveRatioString } from "@/helpers/timer.js"
     import { useTimerStore } from "@/stores/TimerStore"
     const timerStore = useTimerStore()
@@ -17,11 +17,23 @@
     })
 
 
-    //Reconstruct by redirecting to recons tool with scramble in URL
-    function Reconstruct() {
-        sessionStorage.reconstructionSolve = JSON.stringify(selectedSolve.value)
-        router.push('/recons/' + selectedSolve.value.scramble)
+    function handleKeydown(event) {
+        //Status change keybinds
+        if (event.code === "ArrowRight") {
+            selectedSolve.value[2] = (selectedSolve.value[2] + 1) % 3
+            timerStore.saveState()
+        }
+        else if (event.code === "ArrowLeft") {
+            selectedSolve.value[2] = (selectedSolve.value[2] + 3 - 1) % 3
+            timerStore.saveState()
+        }
     }
+    onMounted(() => {
+        window.addEventListener('keydown', handleKeydown)
+    })
+    onUnmounted(() => {
+        window.removeEventListener('keydown', handleKeydown)
+    })
 </script>
 
 <template>
@@ -38,23 +50,17 @@
             </div>  
             
             <!------SOLVE RESULTS------>
-            <div>{{selectedSolve.scramble}}</div>
+            <div>{{selectedSolve[3]}}</div>
             <h1>{{getSolveTimeString(selectedSolve)}}</h1>
             <h3>{{getSolveRatioString(selectedSolve)}}</h3>
             <!------SOLVE STATUS------>
             <div class="StatusRow">
-                <div class="ListItem" style="user-select:none;" @click="selectedSolve.status = (selectedSolve.status - 1 + timerStore.solveStatuses.length) % timerStore.solveStatuses.length;timerStore.saveState()">
-                    <--
-                </div>
                 <template v-for="status in timerStore.solveStatuses">
-                    <div :class="['ListItem', selectedSolve.status === status.id ? 'ListItemSelected' : 'ListItemUnselected']"
-                         @click="selectedSolve.status = status.id;timerStore.saveState()">
+                    <div :class="['ListItem', selectedSolve[2] === status.id ? 'ListItemSelected' : 'ListItemUnselected']"
+                         @click="selectedSolve[2] = status.id; timerStore.saveState()">
                         {{status.name}}
                     </div>
                 </template>
-                <div class="ListItem" style="user-select:none;" @click="selectedSolve.status = (selectedSolve.status + 1) % timerStore.solveStatuses.length;timerStore.saveState()">
-                    -->
-                </div>
             </div>
         </div>
     </div>
@@ -69,5 +75,12 @@
         gap: 2px;
         overflow-x: hidden;
         overflow-y: auto;
+    }
+
+    .StatusRow {
+        display: grid;
+        grid-template-columns: 70px 70px 70px;
+        text-align: center;
+        color: var(--grey-100);
     }
 </style>

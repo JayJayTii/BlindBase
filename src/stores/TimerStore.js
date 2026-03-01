@@ -82,7 +82,7 @@ export const useTimerStore = defineStore('timerStore', {
         getDnfCount(sessionID) {
             let dnfs = 0
             for (const solve of this.getSession(sessionID).solves) {
-                if (solve.status == 1)
+                if (solve[2] == 1)
                     dnfs++
             }
             return dnfs
@@ -102,32 +102,16 @@ export const useTimerStore = defineStore('timerStore', {
             return [calculateAvg(solves, 1), calculateAvg(solves, 2), calculateAvg(solves, 3)]
         },
 
-        //Solves are mapped to their reduced counterpart once beforehand to avoid doing that many times in these functions
-        bestMon(sessionID, mappedSolves, n) {
-            //const session = this.getSession(sessionID)
-            return calculateBestMon(mappedSolves, n)
-        },
-        bestAon(sessionID, mappedSolves, n) {
-            //const session = this.getSession(sessionID)
-            return calculateBestAon(mappedSolves, n)
-        },
-
         getSessionStatistics(id) {
-            //Reduce the solves to only the necessary information
-            //Should make this more data-oriented with array of solve times, array of memo times, array of statuses
-            const solves = this.getSession(id).solves.map(solve => ({
-                solveTime: solve.solveTime,
-                memoTime: solve.memoTime,
-                status: solve.status,
-            }))
+            const solves = this.getSession(id).solves
             const out = [
-                ["single",  this.moN(id, 1)  , this.bestMon(id, solves, 1)],
-                ["mo3",     this.moN(id, 3)  , this.bestMon(id, solves, 3)],
-                ["ao5",     this.aoN(id, 5)  , this.bestAon(id, solves, 5)],
-                ["ao12",    this.aoN(id, 12) , this.bestAon(id, solves, 12)],
-                ["ao25",    this.aoN(id, 25) , this.bestAon(id, solves, 25)],
-                ["ao50",    this.aoN(id, 50) , this.bestAon(id, solves, 50)],
-                ["ao100",   this.aoN(id, 100), this.bestAon(id, solves, 100)],
+                ["single",  this.moN(id, 1)  , calculateBestMon(solves, 1)],
+                ["mo3",     this.moN(id, 3)  , calculateBestMon(solves, 3)],
+                ["ao5",     this.aoN(id, 5)  , calculateBestAon(solves, 5)],
+                ["ao12",    this.aoN(id, 12) , calculateBestAon(solves, 12)],
+                ["ao25",    this.aoN(id, 25) , calculateBestAon(solves, 25)],
+                ["ao50",    this.aoN(id, 50) , calculateBestAon(solves, 50)],
+                ["ao100",   this.aoN(id, 100), calculateBestAon(solves, 100)],
             ]
             return out
         },

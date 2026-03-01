@@ -6,7 +6,6 @@
     import SolveDetails from "@/components/timer/SolveDetails.vue"
     import SolveList from "@/components/timer/SolveList.vue"
     import Timer from "@/components/Timer.vue"
-    import TimerStatusOverlay from "@/components/timer/TimerStatusOverlay.vue"
     import { useTimerStore } from "../stores/TimerStore"
     const timerStore = useTimerStore()
     timerStore.loadState()
@@ -108,11 +107,6 @@
                    :twoStage="true"
                    @update:solve-complete="onSolveComplete"
                    ref="timer" />
-           
-            <TimerStatusOverlay v-if="timerStore.isValidSessionID(sessionID) && timer && !timer.isSolving"
-                                id="timerStatusOverlay"
-                                @update:solve-status="nextTick(() => {timer.value.refresh()})"
-                                :sessionID="sessionID" />
         </div>
 
         <!--------RIGHT COLUMN-------->
@@ -133,12 +127,3 @@
     </div>
 
 </template>
-
-<style>
-    #timerStatusOverlay{
-        position: absolute;
-        top: 40%;
-        left: 50%;
-        transform: translate(-50%,calc(-50% + 7.5rem));
-    }
-</style>

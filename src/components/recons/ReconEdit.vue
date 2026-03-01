@@ -66,7 +66,7 @@
         url += `&scramble=${encodeURIComponent(recon.value.scramble)}`
         url += `&alg=${encodeURIComponent(alg)}`
         if (recon.value.hasOwnProperty('solve'))
-            url += `&time=${encodeURIComponent(Math.round(JSON.parse(recon.value.solve).solveTime / 10) / 100)}`
+            url += `&time=${encodeURIComponent(Math.round(JSON.parse(recon.value.solve)[0] / 10) / 100)}`
         window.open(url, "_blank");
     }
 

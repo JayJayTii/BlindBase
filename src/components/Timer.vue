@@ -21,7 +21,7 @@
     }
     const timerStage = ref(0)
 
-    const ratioTextSolve = reactive({}) //Contains the previous solve that memo : exec ratio shows
+    const ratioTextSolve = reactive([]) //Contains the previous solve that memo : exec ratio shows
     if (props.lastSolve)
         ratioTextSolve.value = props.lastSolve
 
@@ -35,12 +35,13 @@
     }
 
     //Data for the solve is filled in over the course of an attempt
-    const solve = reactive({})
+    //Solve = [solveTime, memoTime, status, scramble]
+    const solve = reactive([])
     function refresh() {
         if (props.lastSolve)
             solve.value = props.lastSolve
         else
-            solve.value = { solveTime: 0 } //Initialise timer to 0.00 if this is the first solve
+            solve.value = [0, 0, 0, ""] //Initialise timer to 0.00 if this is the first solve
     }
     refresh()
 
@@ -64,11 +65,7 @@
                 setTimeout(() => {
                     stopwatchKey.value++
                 }, 1000 * useSettingsStore().settings.timer_spaceholdingtime)
-                solve.value = {}
-                solve.value.memoTime = 0
-                solve.value.solveTime = 0
-                solve.value.status = 0
-                solve.value.scramble = scramble.value
+                solve.value = [0, 0, 0, scramble.value]
             }
         }
         if (timerStage.value === stages.memoing && currentKeyPressed == "") { //Wait for key up to start exec stage
@@ -79,8 +76,8 @@
         if (timerStage.value === stages.executing && currentKeyPressed == "") { //Stop timer
             currentKeyPressed = event.code
             clearInterval(timerUpdate)
-            solve.value.solveTime = new Date().getTime() - stopwatchStartTime
-            solve.value.status = 0 //Default to no penalty
+            solve.value[0] = new Date().getTime() - stopwatchStartTime //Solve time
+            solve.value[2] = 0 //Status, default to no penalty
             timerStage.value = stages.stopping
             ratioTextSolve.value = solve.value
             emit('update:solve-complete', solve.value)
@@ -97,7 +94,7 @@
                 stopwatchStartTime = new Date().getTime()
                 //Update the stopwatch text every 0.01 seconds
                 timerUpdate = setInterval(() => {
-                    solve.value.solveTime = new Date().getTime() - stopwatchStartTime
+                    solve.value[0] = new Date().getTime() - stopwatchStartTime //set solve time
                 }, 10)
             }
             else {
@@ -108,13 +105,13 @@
             currentKeyPressed = ""
             waitingBeforeExec = false
             timerStage.value = stages.executing
-            solve.value.memoTime = solve.value.solveTime //Copy current time into memoTime
+            solve.value[1] = solve.value[0] //Copy current solve time into memoTime
         }
         else if (event.code == currentKeyPressed && timerStage.value === stages.stopping) { //Go back to default screen
             currentKeyPressed = ""
             timerStage.value = stages.finished
             if (props.clearOnSolved)
-                solve.value.solveTime = 0
+                solve.value[0] = 0 //Solve time
             //Don't accept new spacebar presses for a bit after ending a solve just in case
             acceptSpaceInput = false
             setTimeout(() => {
@@ -179,7 +176,7 @@
                 {{getSolveTimeString(solve.value)}}
             </div>
             <!---LAST SOLVE RATIO--->
-            <div class="RatioText" v-if="!isSolving && ratioTextSolve.value && ratioTextSolve.value.hasOwnProperty('memoTime') && ratioTextSolve.value.memoTime > 0">
+            <div class="RatioText" v-if="!isSolving && ratioTextSolve.value && ratioTextSolve.value[1] != 0 && ratioTextSolve.value[1] > 0">
                 {{getSolveRatioString(ratioTextSolve.value)}}
             </div>
         </div>
