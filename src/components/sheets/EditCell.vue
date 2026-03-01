@@ -19,7 +19,6 @@
         get: () => sheetStore.coordToKey(props.sheetID, props.selectedCell),
         set: (newKey) => {
             const newCoord = sheetStore.keyToCoord(props.sheetID, newKey)
-            console.log(newKey + "  " + JSON.stringify(newCoord))
             emit('cellKeyChanged', newCoord)
         }
     })

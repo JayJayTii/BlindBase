@@ -103,7 +103,7 @@ a {
 
 body {
     min-height: 100vh;
-    --navbar-height: 7vh;
+    --navbar-height: 50px;
     background-color: var(--grey-900);
     --panel-color: var(--grey-900);
     --border-color: var(--grey-800);
@@ -132,7 +132,6 @@ body {
     font-size: 1.2rem;
     user-select: none;
     cursor: default;
-    position: sticky;
     top: 0;
     z-index: 5;
 }

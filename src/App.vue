@@ -11,9 +11,6 @@
 <template>
     <ConfirmationBox ref="confirmDialog" />
     <Navbar />
-    <!--Offset other content by navbar height-->
-    <div style="padding-top:var(--navbar-height)">
-        <!--Vue handles routing, routes are defined in routers/index.js-->
-        <RouterView :key="$route.fullPath" />
-    </div>
+    <!--Vue handles routing, routes are defined in routers/index.js-->
+    <RouterView :key="$route.fullPath" />
 </template>

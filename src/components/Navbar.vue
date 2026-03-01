@@ -1,38 +1,35 @@
 <script setup>
     import { ref } from 'vue'
     import SettingsView from '@/views/SettingsView.vue'
-    import HelpView from '@/views/HelpView.vue'
     import { useRouter } from 'vue-router'
     const router = useRouter()
 
     const showSettings = ref(false)
-    const showHelp = ref(!localStorage.getItem("openedBefore"))
-    localStorage.setItem("openedBefore", true)
 
     function toggleSettings() {
-        showHelp.value = false
         showSettings.value = !showSettings.value
-    }
-    function toggleHelp() {
-        showSettings.value = false
-        showHelp.value = !showHelp.value
-    }
-
-    function homeClicked() {
-        router.push(`/`)
     }
 </script>
 
 <template>
     <!--Navbar sticks to the top of the screen-->
-    <div class="Navbar">
-        <img src="@/assets/logo.png" style="height:5vh;" @click="homeClicked" class="HomeButton" title="Home" />
-
-        <img src="@/assets/icons/help.svg" title="Help" @click="toggleHelp" class="HelpButton" />
-        <div v-if="showHelp" @click="toggleHelp" id="settingsBackdrop"></div>
-        <HelpView v-if="showHelp" id="help" style="position:fixed;" @closeHelp="showHelp = false" />
-
-        <img src="@/assets/icons/settings.svg" title="Settings" @click="toggleSettings" class="SettingsButton" />
+    <div style="position: sticky; top: 0px; z-index: 20;">
+        <div class="Navbar">
+            <div class="Navbar-left">
+                <a href="/"><img src="@/assets/logo.png" /></a>
+            </div>
+            <div class="Navbar-center">
+                <a href="/sheets/">Sheets</a>
+                <a href="/cards/">Cards</a>
+                <a href="/memo/">Memo</a>
+                <a href="/exec/">Exec</a>
+                <a href="/timer/">Timer</a>
+                <a href="/recons/">Recons</a>
+            </div>
+            <div class="Navbar-right">
+                <a @click="toggleSettings"><img src="@/assets/icons/settings.svg" style="height:50px;" /></a>
+            </div>
+        </div>
         <div v-if="showSettings" @click="toggleSettings" id="settingsBackdrop"></div>
         <SettingsView v-if="showSettings" id="settings" style="position:fixed;" />
     </div>
@@ -40,33 +37,32 @@
 
 <style>
     .Navbar {
-        position: fixed;
-        width: 100%;
+        display: flex;
+        justify-content: space-between;
         height: var(--navbar-height);
         background-color: var(--brand-700);
-        z-index: 20;
+        padding-left: 10px;
     }
-
-    .HomeButton {
-        position: fixed;
-        top: 0.5vh;
-        cursor: pointer;
+    .Navbar-left,
+    .Navbar-center,
+    .Navbar-right {
+        display: flex;
+        align-items: center;
     }
-
-    .HelpButton {
-        position: fixed;
-        cursor: pointer;
-        top: 0.5vh;
-        height: 6vh;
-        right: 6vh;
+        .Navbar-center a {
+            width: 100px;
+            height: auto;
+        }
+    a {
+        color: var(--grey-100);
+        text-decoration: none;
+        height: var(--navbar-height);
+        text-align:center;
+        font-size: 20px;
     }
-    .SettingsButton {
-        position: fixed;
-        cursor: pointer;
-        top: 0.5vh;
-        height: 6vh;
-        right: 0px;
-    }
+        a:hover {
+            background-color: var(--brand-800);
+        }
 
     #settingsBackdrop {
         position: fixed;
@@ -82,12 +78,5 @@
         position: absolute;
         top: var(--navbar-height);
         right: 0vw;
-    }
-    #help {
-        position: absolute;
-        left: 50%;
-        top: calc(var(--navbar-height) + 4vh);
-        max-height: calc(92vh - var(--navbar-height));
-        transform: translate(-50%, 0%);
     }
 </style>
