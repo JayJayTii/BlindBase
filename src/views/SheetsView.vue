@@ -70,7 +70,7 @@
                    :sheet="sheetStore.getSheet(sheetID)"
                    :showIfNull="true"
                    :key="sheetID"
-                   @update:selected-cell="(event) => {onCellClicked(event);focusCellKey=false;}" />
+                   @update:selected-cells="(event) => {onCellClicked(event[0]);focusCellKey=false;}" />
 
         <!--------RIGHT COLUMN-------->
         <div class="PanelColumn">

@@ -14,7 +14,7 @@
         fullLineSelection: Boolean,
     })
 
-    const emit = defineEmits(['update:selected-cell', 'update:full-column-selected', 'update:full-row-selected', 'update:full-sheet-selected'])
+    const emit = defineEmits(['update:selected-cells'])
 
     const sheet = computed({
         get: () => props.sheet
@@ -34,22 +34,110 @@
         }
     }
 
-    function columnClicked(columnIndex) {
-        if (!props.fullLineSelection)
+    function cellClicked(absX, absY) { //Absolute x and y coords
+        const create = !highlightedCells.value.some((cell) => cell.x === absX && cell.y === absY)
+        if(props.formatEmpty && props.sheet.grid[absY][absX] == "")
             return
 
-        const flipped = (settingsStore.settings.sheets_pairorder === 1)
-        emit('update:full-' + (flipped ? 'column' : 'row') + '-selected', columnIndex)
+        emit('update:selected-cells', [ {x: absX,y: absY} ], create)
     }
-    function rowClicked(rowIndex) {
+
+    function columnClicked(index) { //This is absolute, so also a row with "Column then row" setting
         if (!props.fullLineSelection)
             return
+        
+        const sheet = props.sheet
+        let lineFilled = true //Searching for a cell that isn't empty and isn't highlighted
+        for (var i = 0; i < 24; i++) {
+            if (sheet.grid[i][index] != '' && !highlightedCells.value.some((cell) => cell.x === index && cell.y === i)) {
+                lineFilled = false
+                break
+            }
+        }
+    
+        const cells = [] //Cells to either add or delete
+        if (lineFilled) { //Delete cells in line
+            for (var i = 0; i < 24; i++) {
+                if(highlightedCells.value.some((cell) => cell.x === index && cell.y === i))
+                    cells.push({ x: index, y: i })
+            }
+        }
+        else { //Add unadded cells
+            for (var i = 0; i < 24; i++) {
+                if (sheet.grid[i][index] != '' && !highlightedCells.value.some((cell) => cell.x === index && cell.y === i))
+                    cells.push({ x: index, y: i })
+            }
+        }
 
-        const flipped = (settingsStore.settings.sheets_pairorder === 1)
-        emit('update:full-' + (flipped ? 'row' : 'column') + '-selected', rowIndex)
+        emit('update:selected-cells', cells, !lineFilled)
     }
+
+    function rowClicked(index) { //This is absolute, so also a column with "Column then row" setting
+        if (!props.fullLineSelection)
+            return
+        
+        const sheet = props.sheet
+        let lineFilled = true //Searching for a cell that isn't empty and isn't highlighted
+        for (var i = 0; i < 24; i++) {
+            if (sheet.grid[index][i] != '' && !highlightedCells.value.some((cell) => cell.x === i && cell.y === index)) {
+                lineFilled = false
+                break
+            }
+        }
+    
+        const cells = [] //Cells to either add or delete
+        if (lineFilled) { //Delete cells in line
+            for (var i = 0; i < 24; i++) {
+                if(highlightedCells.value.some((cell) => cell.x === i && cell.y === index))
+                    cells.push({ x: i, y: index })
+            }
+        }
+        else { //Add unadded cells
+            for (var i = 0; i < 24; i++) {
+                if (sheet.grid[index][i] != '' && !highlightedCells.value.some((cell) => cell.x === i && cell.y === index))
+                    cells.push({ x: i, y: index })
+            }
+        }
+
+        emit('update:selected-cells', cells, !lineFilled)
+    }
+
     function sheetClicked() {
-        emit('update:full-sheet-selected')
+        if (!props.fullLineSelection)
+            return
+        //All cells in the sheet was selected (by clicking the top-left corner)
+        //If the sheet is already filled, clear all cells. Otherwise add every non-empty cell
+
+        const sheet = props.sheet
+        let sheetFilled = true
+        for (var i = 0; i < 24; i++) {
+            for (var j = 0; j < 24; j++) {
+                if (sheet.grid[i][j] != '' && !highlightedCells.value.some((cell) => cell.x === j && cell.y === i)) {
+                    sheetFilled = false
+                    break
+                }
+            }
+        }
+    
+        const cells = []
+        if (sheetFilled) { //Delete cells
+            for (var i = 0; i < 24; i++) {
+                for (var j = 0; j < 24; j++) {
+                    if (highlightedCells.value.some((cell) => cell.x === j && cell.y === i))
+                        cells.push({ x: j, y: i })
+                }
+            }
+        }
+        else { //Add cells
+            for (var i = 0; i < 24; i++) {
+                for (var j = 0; j < 24; j++) {
+                    if (sheet.grid[i][j] != '' && !highlightedCells.value.some((cell) => cell.x === j && cell.y === i))
+                        cells.push({ x: j, y: i })
+                }
+            }
+        }
+
+        emit('update:selected-cells', cells, !sheetFilled)
     }
 
     //Highlighted cells are absolute coords
@@ -118,7 +206,7 @@
             <div v-for="(char,index) in getXHeadings(sheet)"
                  class="SheetGridCell"
                  :style="{ cursor: props.fullLineSelection ? 'pointer' : 'default' }"
-                 @click="columnClicked(index)">
+                 @click="!flipped ? columnClicked(index) : rowClicked(index)">
                 {{ char }}
             </div>
             <div class="SheetGridCell" style="background-color: var(--border-color);"></div>
@@ -129,7 +217,7 @@
             <div v-for="(char, index) in getYHeadings(sheet)"
                  class="SheetGridCell"
                  :style="{ cursor: props.fullLineSelection ? 'pointer' : 'default' }"
-                 @click="rowClicked(index)">
+                 @click="!flipped ? rowClicked(index) : columnClicked(index)">
                 {{ char }}
             </div>
             <div class="SheetGridCell" style="background-color: var(--border-color);"></div>
@@ -139,7 +227,7 @@
         <div class="SheetGrid" ref="mainGrid" @scroll="syncScrollToGrid">
             <div v-for="(col, x) in 24">
                 <div v-for="(row, y) in 24"
-                     @click="emit('update:selected-cell', !flipped ? {x:x,y:y} : {x:y,y:x}); "
+                     @click="cellClicked(!flipped ? x : y, !flipped ? y : x); "
                      :id="x.toString() + ',' + y.toString()"
                      :class="calculateCellClasses(x,y)">
                     {{ props.sheet.grid[!flipped ? y : x][!flipped ? x : y] }}
@@ -187,6 +275,7 @@
         flex-direction: row;
         grid-area: top;
         overflow: hidden;
+        user-select: none;
     }
         .SheetGridTopRow .SheetGridCell {
             background-color: var(--brand-700);
@@ -199,6 +288,7 @@
     .SheetGridLeftColumn {
         grid-area: left;
         overflow: hidden;
+        user-select: none;
     }
         .SheetGridLeftColumn::after {
             content: '';

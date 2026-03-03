@@ -39,108 +39,12 @@
     }
     nextTick(() => { UpdateSelectedCells() }) 
 
-    function SelectAll() {
-        const sheet = sheetStore.getSheet(props.sheetID)
-        const cardsToCreate = []
-        for (var i = 0; i < 24; i++) {
-            for (var j = 0; j < 24; j++) {
-                const wasSelected = selectedCells.value[i][j]
-                selectedCells.value[i][j] = (sheet.grid[i][j] != "")
-                if (!wasSelected && selectedCells.value[i][j]) {
-                    cardsToCreate.push({ x: j, y: i })
-                }
-            }
-        }
-        cardStore.createCards(props.sheetID, cardsToCreate)
-        UpdateSelectedCells()
-    }
-    async function SelectNone() {
-        if (!(await confirmDialog.value.open('Are you sure you want deselect all? This will delete all cards for this sheet.')))
-            return
-
-        const cardsToDelete = []
-        for (var i = 0; i < 24; i++) {
-            for (var j = 0; j < 24; j++) {
-                if (selectedCells.value[i][j]) {
-                    cardsToDelete.push({ x: j, y: i })
-                }
-                selectedCells.value[i][j] = false
-            }
-        }
-        cardStore.deleteCards(props.sheetID, cardsToDelete)
-        UpdateSelectedCells()
-    }
-
-    function onCellClicked(value) {
-        const sheet = sheetStore.getSheet(props.sheetID)
-        if (sheet.grid[value.y][value.x] === "") {
-            return //Empty cell, not allowed!
-        }
-        if (selectedCells.value[value.y][value.x] == true) {
-            //If it already includes it, remove it
-            selectedCells.value[value.y][value.x] = false
-            cardStore.deleteCard(props.sheetID, value)
-        }
-        else {
-            //If it wasn't in it, add it
-            selectedCells.value[value.y][value.x] = true
-            cardStore.createCard(props.sheetID, value)
-        }
-        UpdateSelectedCells()
-    }
-    function lineClicked(isCol, index) {
-        //Whole line of cells clicked (by clicking on the row/column heading).
-        //If the line is already filled, clear all cards. Otherwise create a card for every cell on that line
-        const sheet = sheetStore.getSheet(props.sheetID)
-        let lineFilled = true
-        for (var i = 0; i < sheet.grid.length; i++) {
-            if (sheet.grid[isCol ? i : index][isCol ? index : i] != ''
-                && !selectedCells.value[isCol ? i : index][isCol ? index : i]) {
-                lineFilled = false
-                break
-            }
-        }
-        if (lineFilled) { //Delete cards in line
-            const cardsToDelete = []
-            for (var i = 0; i < 24; i++) {
-                if (selectedCells.value[isCol ? i : index][isCol ? index : i]) {
-                    cardsToDelete.push({ x: (isCol ? index : i), y: (isCol ? i : index) })
-                }
-                selectedCells.value[isCol ? i : index][isCol ? index : i] = false
-            }
-            cardStore.deleteCards(props.sheetID, cardsToDelete)
-        }
-        else { //Add unadded cards
-            const cardsToCreate = []
-            for (var i = 0; i < 24; i++) {
-                const wasSelected = selectedCells.value[isCol ? i : index][isCol ? index : i]
-                const newValue = (sheet.grid[isCol ? i : index][isCol ? index : i] != "")
-                selectedCells.value[isCol ? i : index][isCol ? index : i] = newValue
-                if (!wasSelected && newValue == true) {
-                    cardsToCreate.push({ x: (isCol ? index : i), y: (isCol ? i : index) })
-                }
-            }
-            cardStore.createCards(props.sheetID, cardsToCreate)
-        }
-        UpdateSelectedCells()
-    }
-    function sheetClicked() {
-        //All cells in the sheet was selected (by clicking the top-left corner)
-        //If the sheet is already filled, clear all cards. Otherwise create a card for every cell
-        const sheet = sheetStore.getSheet(props.sheetID)
-        let sheetFilled = true
-        for (var i = 0; i < sheet.grid.length; i++) {
-            for (var j = 0; j < sheet.grid[0].length; j++) {
-                if (sheet.grid[i][j] != '' && !selectedCells.value[i][j]) {
-                    sheetFilled = false
-                    break
-                }
-            }
-        }
-        if (sheetFilled) //Delete cards in sheet
-            SelectNone()
-        else //Add unadded cards
-            SelectAll()
+    function onCellsClicked(values, create) {
+        if(create)
+            cardStore.createCards(props.sheetID, values)
+        else
+            cardStore.deleteCards(props.sheetID, values)
+        UpdateSelectedCells();
     }
 
     watch(
@@ -199,16 +103,12 @@
         <!------EDITING------>
         <div v-if="sheetStore.isValidSheetID(sheetID)" style="display:flex;flex-direction:column;gap:5px;">
             <h3 class="PanelHeader" style="font-size:5vh;padding-inline:10px;">Select flashcards to create from '{{sheetStore.getSheet(sheetID).name}}'</h3>
-            <div style="display:flex;flex-direction:row;gap:5px;justify-content:center">
-                <div class="CustomButton" style="font-size:1rem;width:110px;" @click="SelectAll()"><h3>Select all</h3></div>
-                <div class="CustomButton" style="font-size:1rem;width:110px;" @click="SelectNone()"><h3>Select none</h3></div>
-            </div>
         </div>
 
         <SheetGrid :sheet="sheetStore.getSheet(sheetID)"
                    :formatEmpty="true"
                    :fullLineSelection="true"
-                   @update:selected-cell="onCellClicked"
+                   @update:selected-cells="onCellsClicked"
                    @update:full-column-selected="lineClicked(true, $event)"
                    @update:full-row-selected="lineClicked(false, $event)"
                    @update:full-sheet-selected="sheetClicked()"

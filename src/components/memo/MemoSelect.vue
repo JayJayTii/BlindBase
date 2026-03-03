@@ -118,90 +118,19 @@
         }
         customSheet.value.grid = grid
     }
-    function onCustomPairClicked(value) {
-        //Select the pair if it's not selected, unselect if it is
-        if (customSheet.value.grid[value.x][value.y] === "")
-            return
-        if (highlightedCells.value.some(cell => cell.x === value.x && cell.y === value.y))
-            highlightedCells.value = highlightedCells.value.filter(cell => !(cell.x === value.x && cell.y === value.y))
-        else
-            highlightedCells.value.push(value)
+
+    function onCustomPairsClicked(values, create) {
+        if(create)
+            highlightedCells.value = highlightedCells.value.concat(values);
+        else {
+            const newHighlightedCells = []
+            for (const cell of highlightedCells.value) {
+                if(!values.some((cellDiff) => cellDiff.x == cell.x && cellDiff.y == cell.y))
+                    newHighlightedCells.push(cell)
+            }
+            highlightedCells.value = newHighlightedCells
+        }
         gridRef.value.changeHighlightedCells(highlightedCells.value)
-    }
-    function columnClicked(columnIndex) {
-        //If the column is filled, unselect all cells, otherwise select all of them
-        let filledCellsInColumn = 0
-        for (var i = 0; i < customSheet.value.yHeadings.length; i++) {
-            if (customSheet.value.grid[i][columnIndex] !== "")
-                filledCellsInColumn++
-        }
-        let highlightedCellsInColumn = highlightedCells.value.filter((coord) => (coord.y === columnIndex))
-        const columnFilled = highlightedCellsInColumn.length >= filledCellsInColumn
-
-        if (columnFilled) {
-            for (var i = highlightedCellsInColumn.length - 1; i >= 0; i--) {
-                onCustomPairClicked(highlightedCellsInColumn[i])
-            }
-        }
-        else {
-            highlightedCellsInColumn = highlightedCellsInColumn.map((coord) => coord.x)
-            for (var i = 0; i < customSheet.value.yHeadings.length; i++) {
-                //Select every cell that is in the column and not highlighted
-                if (customSheet.value.grid[columnIndex][i] !== "" && highlightedCellsInColumn.indexOf(i) == -1)
-                    onCustomPairClicked({ x: i, y: columnIndex })
-            }
-        }
-    }
-    function rowClicked(rowIndex) {
-        //If the row is filled, unselect all cells, otherwise select all of them
-        let filledCellsInRow = 0
-        for (var i = 0; i < customSheet.value.xHeadings.length; i++) {
-            if (customSheet.value.grid[rowIndex][i] !== "")
-                filledCellsInRow++
-        }
-        let highlightedCellsInRow = highlightedCells.value.filter((coord) => (coord.x === rowIndex))
-        const rowFilled = highlightedCellsInRow.length >= filledCellsInRow
-
-        if (rowFilled) {
-            for (var i = highlightedCellsInRow.length - 1; i >= 0; i--) {
-                onCustomPairClicked(highlightedCellsInRow[i])
-            }
-        }
-        else {
-            highlightedCellsInRow = highlightedCellsInRow.map((coord) => coord.y)
-            for (var i = 0; i < customSheet.value.xHeadings.length; i++) {
-                //Select every cell that is in the row and not highlighted
-                if (customSheet.value.grid[rowIndex][i] !== "" && highlightedCellsInRow.indexOf(i) == -1)
-                    onCustomPairClicked({ x: rowIndex, y: i })
-            }
-        }
-    }
-    function sheetClicked() {
-        let filledCellsInSheet = 0
-        for (var i = 0; i < customSheet.value.yHeadings.length; i++) {
-            for (var j = 0; j < customSheet.value.xHeadings.length; j++) {
-                if (customSheet.value.grid[i][j] !== "")
-                    filledCellsInSheet++
-            }
-        }
-        const sheetFilled = highlightedCells.value.length >= filledCellsInSheet
-        if (sheetFilled) {
-            for (var i = customSheet.value.yHeadings.length - 1; i >= 0; i--) {
-                for (var j = customSheet.value.xHeadings.length - 1; j >= 0; j--) {
-                    onCustomPairClicked({ x: j, y: i })
-                }
-            }
-        }
-        else {
-            const highlightedCellSet = new Set(highlightedCells.value.map(coord => coord.y * 24 + coord.x))
-            for (var i = 0; i < customSheet.value.xHeadings.length; i++) {
-                for (var j = 0; j < customSheet.value.yHeadings.length; j++) {
-                    //Select every cell that is in the sheet and not highlighted
-                    if (customSheet.value.grid[j][i] !== "" && !highlightedCellSet.has(j * 24 + i))
-                        onCustomPairClicked({ x: i, y: j })
-                }
-            }
-        }
     }
 
     function getPossiblePairs() {
@@ -329,10 +258,7 @@
                :key="customSheet.value"
                :formatEmpty="true" :fullLineSelection="true"
                ref="gridRef"
-               @update:selected-cell="onCustomPairClicked"
-               @update:full-column-selected="rowClicked"
-               @update:full-row-selected="columnClicked"
-               @update:full-sheet-selected="sheetClicked" />
+               @update:selected-cells="onCustomPairsClicked" />
 
     <img v-if="pairSelectFinished"
          src="@/assets/icons/arrow-right-long.svg"

@@ -61,7 +61,11 @@
             scrambleMode.value = -1
 
             if (newValue == "From custom") {
-                SelectNone()
+                for (var y = 0; y < 24; y++) {
+                    for (var x = 0; x < 24; x++) {
+                        selectedCells.value[y][x] = false
+                    }
+                }
                 generateCustomPairSheet()
             }
         }
@@ -190,6 +194,7 @@
     const selectedCells = ref(Array.from({ length: 24 }, () =>
         Array.from({ length: 24 }, () => false),
     )) //Selected cells stored as a matrix of booleans which say if that cell is selected
+
     function UpdateSelectedCells() {
         //Make sure that the selected cells match the ones selected in the sheet grid
         const formattedSelectedCells = selectedCells.value.map((row, y) =>
@@ -204,6 +209,14 @@
     }
     nextTick(() => { UpdateSelectedCells() })
 
+
+    function onCustomPairsClicked(values, create) {
+        for(const cell of values)
+            selectedCells.value[cell.y][cell.x] = create
+
+        UpdateSelectedCells()
+    }
+   
     function getSelectedCellCount() {
         let count = 0
         for (var i = 0; i < 24; i++) {
@@ -213,60 +226,7 @@
         }
         return count
     }
-    function SelectAll() {
-        for (var i = 0; i < 24; i++) {
-            for (var j = 0; j < 24; j++) {
-                selectedCells.value[i][j] = (customSheet.value.grid[i][j] != "")
-            }
-        }
-        UpdateSelectedCells()
-    }
-    function SelectNone() {
-        selectedCells.value = Array.from({ length: 24 }, () => Array.from({ length: 24 }, () => false),)
-        UpdateSelectedCells()
-    }
-    function onCustomPairClicked(coord) {
-        if (customSheet.value.grid[coord.y][coord.x] === "")
-            return //Empty cell, not allowed!
 
-        selectedCells.value[coord.y][coord.x] = !selectedCells.value[coord.y][coord.x]
-        UpdateSelectedCells()
-    }
-    function lineClicked(isCol, index) {
-        let lineFilled = true
-        for (var i = 0; i < customSheet.value.grid.length; i++) {
-            if (customSheet.value.grid[isCol ? i : index][isCol ? index : i] != ''
-                && !selectedCells.value[isCol ? i : index][isCol ? index : i]) {
-                lineFilled = false
-                break
-            }
-        }
-        if (lineFilled) { //Remove line
-            for (var i = 0; i < 24; i++) {
-                selectedCells.value[isCol ? i : index][isCol ? index : i] = false
-            }
-            UpdateSelectedCells()
-            return
-        }
-        //Else add line
-        for (var i = 0; i < 24; i++) {
-            const newValue = (customSheet.value.grid[isCol ? i : index][isCol ? index : i] != "")
-            selectedCells.value[isCol ? i : index][isCol ? index : i] = newValue
-        }
-        UpdateSelectedCells()
-    }
-    function sheetClicked() {
-        for (var i = 0; i < customSheet.value.grid.length; i++) {
-            for (var j = 0; j < customSheet.value.grid[0].length; j++) {
-                if (customSheet.value.grid[i][j] != '' && !selectedCells.value[i][j]) {
-                    //If any cells are not selected, it will always end up as SelectAll, so just do it now
-                    SelectAll()
-                    return
-                }
-            }
-        }
-        SelectNone()
-    }
 
     function handleKeydown(event) {
         //Don't want to block the timer's space input!
@@ -341,10 +301,7 @@
                :key="customSheet.value"
                :formatEmpty="true" :fullLineSelection="true"
                ref="gridRef"
-               @update:selected-cell="onCustomPairClicked"
-               @update:full-column-selected="lineClicked(true, $event)"
-               @update:full-row-selected="lineClicked(false, $event)"
-               @update:full-sheet-selected="sheetClicked"/>
+               @update:selected-cells="onCustomPairsClicked"/>
 </template>
 
 <style>
