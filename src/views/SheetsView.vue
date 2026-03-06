@@ -15,7 +15,9 @@
 
     //-1 means no sheet selected, otherwise it is the selected sheet's ID
     const sheetID = ref(-1)
-    const selectedCell = reactive({ x: 0, y: 0 })
+    const selectedCell = reactive({ x: -1, y: -1 })
+    const showLeftColumn = ref(false)
+    toggleLeftColumn()
 
     const gridRef = ref(null)
     const editCellRef = ref(null)
@@ -23,7 +25,8 @@
     function updateSheetID(index) { //Triggered by SheetSelect component
         if (sheetID.value != sheetStore.sheets[index].id) {
             sheetID.value = sheetStore.sheets[index].id
-            nextTick(() => { onCellClicked({ x: 0, y: 0 }) })
+            selectedCell.x = -1
+            selectedCell.y = -1
         }
     }
     async function deleteSheet() {
@@ -34,18 +37,35 @@
         sheetID.value = -1
     }
 
+    function toggleLeftColumn() {
+        showLeftColumn.value = !showLeftColumn.value
+        nextTick(() => {
+            const leftColumnWidth = document.getElementById("leftColumn").offsetWidth
+            document.getElementById("leftColumnToggle").style.setProperty("left", leftColumnWidth + "px")
+        })
+    }
+
     const focusCellKey = ref(false)
-    function onCellClicked(newValue) {
-        selectedCell.x = newValue.x
-        selectedCell.y = newValue.y
-        gridRef.value.changeHighlightedCells([selectedCell])
+    function onCellClicked(newValues, create) {
+        if(create) { //New cell clicked
+            selectedCell.x = newValues[0].x
+            selectedCell.y = newValues[0].y
+        }
+        else { //Currently selected cell clicked
+            selectedCell.x = -1
+            selectedCell.y = -1
+        }
+        if(selectedCell.x == -1 && selectedCell.y == -1)
+            gridRef.value.changeHighlightedCells([])
+        else
+            gridRef.value.changeHighlightedCells([selectedCell])
     }
 
     //Grid cannot update highlighted cells after setting change, so just reset them
     watch(
         () => settingsStore.settings.sheets_pairorder,
         (newVal) => {
-            onCellClicked({ x: 0, y: 0 })
+            onCellClicked({ x: -1, y: -1 })
         }
     );
 </script>
@@ -54,7 +74,7 @@
 <template>
     <div style="display: flex; flex-direction: row;">
         <!---------LEFT COLUMN--------->
-        <div class="PanelColumn">
+        <div id="leftColumn" class="PanelColumn" v-show="showLeftColumn">
             <SheetSelect style="width:100%; height:33%;"
                          :sheetID="sheetID"
                          @updateSheetID="updateSheetID" />
@@ -65,21 +85,32 @@
         </div>
 
         <!------------GRID------------->
+        <div @click="toggleLeftColumn()" class="Panel" id="leftColumnToggle">{{showLeftColumn ? "<" : ">"}}</div>
         <SheetGrid ref="gridRef"
-                   style="width: 60vw; height: 93vh;"
+                   style="width: 100%; height: 93vh;"
                    :sheet="sheetStore.getSheet(sheetID)"
                    :showIfNull="true"
                    :key="sheetID"
-                   @update:selected-cells="(event) => {onCellClicked(event[0]);focusCellKey=false;}" />
+                   @update:selected-cells="(values, create) => {onCellClicked(values, create);focusCellKey=false;}" />
 
-        <!--------RIGHT COLUMN-------->
-        <div class="PanelColumn">
-            <EditCell style="width:100%; height: 100%;"
-                      ref="editCellRef"
-                      :key="sheetID + '-' + selectedCell.x+ '-' + selectedCell.y + '-' + (sheetStore.getSheet(sheetID)?.type || -1) + '-' + settingsStore.settings.sheets_notationtype.toString() + '-' + settingsStore.settings.sheets_extraximages.toString()"
-                      :sheetID="sheetID" :selectedCell="selectedCell"
-                      :focusCellKey="focusCellKey"
-                      @cellKeyChanged="(event) => {onCellClicked(event);focusCellKey=true;}" />
-        </div>
+        <EditCell v-if="selectedCell.x  != -1 && selectedCell.y != -1"
+                  ref="editCellRef"
+                  :key="sheetID + '-' + selectedCell.x+ '-' + selectedCell.y + '-' + (sheetStore.getSheet(sheetID)?.type || -1) + '-' + settingsStore.settings.sheets_notationtype.toString() + '-' + settingsStore.settings.sheets_extraximages.toString()"
+                  :sheetID="sheetID" :selectedCell="selectedCell"
+                  :focusCellKey="focusCellKey"
+                  @cellKeyChanged="(event) => {onCellClicked(event);focusCellKey=true;}" />
     </div>
 </template>
+
+<style>
+    #leftColumnToggle {
+        position: absolute;
+        z-index:10;
+        cursor: pointer;
+        width: 30px;
+        height: 30px;
+        text-align: center;
+        user-select: none;
+        left: 0;
+    }
+</style>

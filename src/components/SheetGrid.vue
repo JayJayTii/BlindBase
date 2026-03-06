@@ -171,6 +171,7 @@
 
     function calculateCellClasses(x, y) {
         const [absX, absY] = (flipped.value ? ([y, x]) : ([x, y]))
+
         //Calculate the CSS classes that a given cell will have in the grid
         let classes = ['SheetGridCell']
         if (props.formatEmpty && props.sheet.grid[absY][absX] === '')

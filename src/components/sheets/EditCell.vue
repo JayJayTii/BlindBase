@@ -62,6 +62,84 @@
         selectedCellValue.value = options[index]
     }
 
+
+    //DRAGGABLE PANEL https://www.w3schools.com/howto/howto_js_draggable.asp
+    nextTick(() => { dragElement(document.getElementById("EditCell")) })
+    function dragElement(elmnt) {
+        var pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+        // the header is where you move the DIV from:
+
+        if(!document.getElementById(elmnt.id + "Header"))
+            return
+
+        document.getElementById(elmnt.id + "Header").onmousedown = dragMouseDown;
+        const startPositionStr = localStorage.getItem("EditCellPosition")
+        if(startPositionStr) {
+            const startPosition = JSON.parse(startPositionStr)
+            setElementPosition(elmnt, startPosition.x, startPosition.y)
+        }
+
+
+        function dragMouseDown(e) {
+            e = e || window.event;
+            e.preventDefault();
+            // get the mouse cursor position at startup:
+            pos3 = e.clientX;
+            pos4 = e.clientY;
+            document.onmouseup = closeDragElement;
+            // call a function whenever the cursor moves:
+            document.onmousemove = elementDrag;
+        }
+
+        function elementDrag(e) {
+            e = e || window.event;
+            e.preventDefault();
+            // calculate the new cursor position:
+            pos1 = pos3 - e.clientX;
+            pos2 = pos4 - e.clientY;
+            pos3 = e.clientX;
+            pos4 = e.clientY;
+            
+            const left = elmnt.offsetLeft - pos1;
+            const top = elmnt.offsetTop - pos2
+
+            localStorage.setItem("EditCellPosition", JSON.stringify({x: left, y: top}))
+            
+            setElementPosition(elmnt, left, top)
+        }
+
+        function setElementPosition(elmnt, left, top) {
+            const elmntHeight = parseInt(window.getComputedStyle(elmnt).height, 10)
+            const elmntWidth = parseInt(window.getComputedStyle(elmnt).width, 10)
+
+            // set the element's new position:
+            var newTop = top
+            const navbarHeight = parseFloat(window.getComputedStyle(document.body).getPropertyValue('--navbar-height'))
+            if(newTop < navbarHeight)
+                newTop = navbarHeight
+            if(newTop + elmntHeight > window.innerHeight)
+                newTop = window.innerHeight - elmntHeight
+
+            var newLeft = left
+            if(newLeft < 0)
+                newLeft = 0
+            if(newLeft + elmntWidth + 1 >= window.innerWidth)
+                newLeft = window.innerWidth - elmntWidth - 1;
+            
+            elmnt.style.setProperty("top", (newTop) + "px");
+            elmnt.style.setProperty("left", (newLeft) + "px");
+        }
+
+        function closeDragElement() {
+            // stop moving when mouse button is released:
+            document.onmouseup = null;
+            document.onmousemove = null;
+        }
+    }
+
+
+
+
     const cellValueInputBox = ref(null)
     const cellKeyInputBox = ref(null)
     nextTick(() => {
@@ -76,8 +154,8 @@
 </script>
 
 <template>
-    <div class="Panel" v-if="sheetStore.isValidSheetID(props.sheetID)">
-        <div class="PanelHeader"> Edit cell:  </div>
+    <div id="EditCell" class="Panel" v-if="sheetStore.isValidSheetID(props.sheetID)">
+        <div id="EditCellHeader" class="PanelHeader"> Edit cell:  </div>
         <!------CELL KEY------>
         <div class="SheetEditingRow">
             <input v-model="selectedCellInput" class="editCurCellKey" ref="cellKeyInputBox" />
@@ -103,12 +181,6 @@
             Select a type for this sheet to show algorithm recommendations.
         </div>
     </div>
-    <div v-else class="Panel">
-        <div class="PanelHeader"> Edit cell:  </div>
-        <div style="color:var(--info-200);text-align:center;">
-            Select a sheet to get started
-        </div>
-    </div>
 </template>
 
 <style>
@@ -117,5 +189,20 @@
         text-align: center;
         width: min(100%, 4ch);
         text-transform: uppercase;
+    }
+
+
+    #EditCell {
+        position: absolute;
+        z-index: 5;
+        right: 0;
+        bottom: 0;
+        height: 300px;
+        width: 250px;
+    }
+
+    #EditCellHeader {
+        z-index: 10;
+        cursor: move;
     }
 </style>
