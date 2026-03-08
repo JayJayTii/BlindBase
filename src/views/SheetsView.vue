@@ -16,8 +16,7 @@
     //-1 means no sheet selected, otherwise it is the selected sheet's ID
     const sheetID = ref(-1)
     const selectedCell = reactive({ x: -1, y: -1 })
-    const showLeftColumn = ref(false)
-    toggleLeftColumn()
+    const showLeftColumn = ref(true)
 
     const gridRef = ref(null)
     const editCellRef = ref(null)
@@ -39,10 +38,14 @@
 
     function toggleLeftColumn() {
         showLeftColumn.value = !showLeftColumn.value
-        nextTick(() => {
-            const leftColumnWidth = document.getElementById("leftColumn").offsetWidth
-            document.getElementById("leftColumnToggle").style.setProperty("left", leftColumnWidth + "px")
-        })
+        const column = document.getElementById("leftColumn")
+        console.log(column.classList)
+        column.classList.remove('slideLeft', 'slideRight');
+        void column.offsetWidth; // Trigger reflow
+        if (showLeftColumn.value)
+            column.classList.add('slideRight');
+        else
+            column.classList.add('slideLeft');
     }
 
     const focusCellKey = ref(false)
@@ -74,18 +77,20 @@
 <template>
     <div style="display: flex; flex-direction: row;">
         <!---------LEFT COLUMN--------->
-        <div id="leftColumn" class="PanelColumn" v-show="showLeftColumn">
-            <SheetSelect style="width:100%; height:33%;"
-                         :sheetID="sheetID"
-                         @updateSheetID="updateSheetID" />
+        <div id="leftColumn" style="height: 10vh;">
+            <div class="PanelColumn">
+                <SheetSelect style="width:100%; height:33%;"
+                             :sheetID="sheetID"
+                             @updateSheetID="updateSheetID" />
 
-            <SheetSettings style="width:100%; height:67%;"
-                           :sheetID="sheetID"
-                           @deleteSheet="deleteSheet" />
+                <SheetSettings style="width:100%; height:67%;"
+                               :sheetID="sheetID"
+                               @deleteSheet="deleteSheet" />
+            </div>
+            <div @click="toggleLeftColumn()" id="leftColumnToggle">{{showLeftColumn ? "<" : ">"}}</div>
         </div>
 
         <!------------GRID------------->
-        <div @click="toggleLeftColumn()" class="Panel" id="leftColumnToggle">{{showLeftColumn ? "<" : ">"}}</div>
         <SheetGrid ref="gridRef"
                    style="width: 100%; height: 93vh;"
                    :sheet="sheetStore.getSheet(sheetID)"
@@ -103,14 +108,36 @@
 </template>
 
 <style>
+    .slideLeft {
+        animation: leftColumnSlide 0.1s forwards;
+    }
+    .slideRight {
+        animation: leftColumnSlide 0.1s reverse;
+    }
+    @keyframes leftColumnSlide {
+        from {
+            margin-left: 0vw;
+        }
+
+        to {
+            margin-left: -20vw;
+        }
+    }
+
     #leftColumnToggle {
-        position: absolute;
-        z-index:10;
+        position: relative;
+        transform: translate(20vw, -93vh);
+        z-index: 5;
         cursor: pointer;
-        width: 30px;
-        height: 30px;
+        width: 33px;
+        height: 34px;
         text-align: center;
+        align-content: center;
         user-select: none;
-        left: 0;
+        background-color: var(--grey-900);
+        border-top: 3px solid var(--grey-800);
+        border-right: 3px solid var(--grey-800);
+        border-bottom: 3px solid var(--grey-800);
+        color: var(--grey-100);
     }
 </style>
