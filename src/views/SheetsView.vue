@@ -39,7 +39,6 @@
     function toggleLeftColumn() {
         showLeftColumn.value = !showLeftColumn.value
         const column = document.getElementById("leftColumn")
-        console.log(column.classList)
         column.classList.remove('slideLeft', 'slideRight');
         void column.offsetWidth; // Trigger reflow
         if (showLeftColumn.value)
@@ -63,14 +62,6 @@
         else
             gridRef.value.changeHighlightedCells([selectedCell])
     }
-
-    //Grid cannot update highlighted cells after setting change, so just reset them
-    watch(
-        () => settingsStore.settings.sheets_pairorder,
-        (newVal) => {
-            onCellClicked({ x: -1, y: -1 })
-        }
-    );
 </script>
 
 

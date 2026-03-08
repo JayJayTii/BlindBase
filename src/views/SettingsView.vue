@@ -69,154 +69,156 @@
 </script>
 
 <template>
-    <div class="Settings">
-        <h1 class="Subsettings">Settings</h1>
+    <div style="display:flex;justify-content:center;">
+        <div class="Settings">
+            <h1 class="Subsettings">Settings</h1>
 
-        <div id="SettingsScrollContainer">
-            <!--SHEET SETTINGS-->
-            <div class="Subsettings">
-                <h2>Sheets Settings</h2>
-                <div id="Sheets pair order">
-                    {{ defaults.sheets_pairorder.name }}:
-                    <select v-model="settingsStore.settings.sheets_pairorder" @change="SettingUpdated">
-                        <option v-for="(type, index) in defaults.sheets_pairorder.options"
-                                :key="index"
-                                :value="index">
-                            {{ type.name }}
-                        </option>
-                    </select>
-                </div>
-                <div id="Sheets Notation Type">
-                    {{ defaults.sheets_notationtype.name }}:
-                    <select v-model="settingsStore.settings.sheets_notationtype" @change="SettingUpdated">
-                        <option v-for="(type, index) in defaults.sheets_notationtype
+            <div id="SettingsScrollContainer">
+                <!--SHEET SETTINGS-->
+                <div class="Subsettings">
+                    <h2>Sheets Settings</h2>
+                    <div id="Sheets pair order">
+                        {{ defaults.sheets_pairorder.name }}:
+                        <select v-model="settingsStore.settings.sheets_pairorder" @change="SettingUpdated">
+                            <option v-for="(type, index) in defaults.sheets_pairorder.options"
+                                    :key="index"
+                                    :value="index">
+                                {{ type.name }}
+                            </option>
+                        </select>
+                    </div>
+                    <div id="Sheets Notation Type">
+                        {{ defaults.sheets_notationtype.name }}:
+                        <select v-model="settingsStore.settings.sheets_notationtype" @change="SettingUpdated">
+                            <option v-for="(type, index) in defaults.sheets_notationtype
                             .options"
-                                :key="index"
-                                :value="index">
-                            {{ type.name }}
-                        </option>
-                    </select>
+                                    :key="index"
+                                    :value="index">
+                                {{ type.name }}
+                            </option>
+                        </select>
+                    </div>
+                    <div id="Sheets Extra X Images">
+                        {{ defaults.sheets_extraximages.name }}:
+                        <input v-model="settingsStore.settings.sheets_extraximages" type="checkbox" @change="SettingUpdated" />
+                    </div>
+                    <div id="Sheets Grey Out Invalid Pairs">
+                        {{ defaults.sheets_greyoutinvalidpairs.name }}:
+                        <input v-model="settingsStore.settings.sheets_greyoutinvalidpairs" type="checkbox" @change="SettingUpdated" />
+                    </div>
                 </div>
-                <div id="Sheets Extra X Images">
-                    {{ defaults.sheets_extraximages.name }}:
-                    <input v-model="settingsStore.settings.sheets_extraximages" type="checkbox" @change="SettingUpdated" />
-                </div>
-                <div id="Sheets Grey Out Invalid Pairs">
-                    {{ defaults.sheets_greyoutinvalidpairs.name }}:
-                    <input v-model="settingsStore.settings.sheets_greyoutinvalidpairs" type="checkbox" @change="SettingUpdated" />
-                </div>
-            </div>
-            
-            <!--CARDS SETTINGS-->
-            <div class="Subsettings">
-                <h2>Cards Settings</h2>
-                <div id="Cards Learning To Due Threshold">
-                    {{ defaults.cards_learningtoduethreshold.name }}:
-                    <input v-model="settingsStore.settings.cards_learningtoduethreshold"
-                           type="number"
-                           :min="defaults.cards_learningtoduethreshold.min"
-                           :max="defaults.cards_learningtoduethreshold.max"
-                           @change="SettingUpdated" />
-                </div>
-                <div id="Cards Daily Maximum New Cards">
-                    {{ defaults.cards_dailymaximumnewcards.name }}:
-                    <input v-model="settingsStore.settings.cards_dailymaximumnewcards"
-                           type="number"
-                           :min="defaults.cards_dailymaximumnewcards.min"
-                           :max="defaults.cards_dailymaximumnewcards.max"
-                           @change="SettingUpdated" />
-                    ({{useCardStore().dailyStats.dailyNewCards}} new cards done today)
-                </div>
-            </div>
 
-            <!--MEMO SETTINGS-->
-            <div class="Subsettings">
-                <h2>Memo Settings</h2>
-                <div id="Memo Starting Memo Length">
-                    {{ defaults.memo_startingmemolength.name }}:
-                    <input v-model="settingsStore.settings.memo_startingmemolength"
-                           type="number"
-                           :min="defaults.memo_startingmemolength.min"
-                           :max="defaults.memo_startingmemolength.max"
-                           @change="SettingUpdated" />
+                <!--CARDS SETTINGS-->
+                <div class="Subsettings">
+                    <h2>Cards Settings</h2>
+                    <div id="Cards Learning To Due Threshold">
+                        {{ defaults.cards_learningtoduethreshold.name }}:
+                        <input v-model="settingsStore.settings.cards_learningtoduethreshold"
+                               type="number"
+                               :min="defaults.cards_learningtoduethreshold.min"
+                               :max="defaults.cards_learningtoduethreshold.max"
+                               @change="SettingUpdated" />
+                    </div>
+                    <div id="Cards Daily Maximum New Cards">
+                        {{ defaults.cards_dailymaximumnewcards.name }}:
+                        <input v-model="settingsStore.settings.cards_dailymaximumnewcards"
+                               type="number"
+                               :min="defaults.cards_dailymaximumnewcards.min"
+                               :max="defaults.cards_dailymaximumnewcards.max"
+                               @change="SettingUpdated" />
+                        ({{useCardStore().dailyStats.dailyNewCards}} new cards done today)
+                    </div>
                 </div>
-                <div id="Memo Include Impossible Pairs in All Pairs">
-                    {{ defaults.memo_includeimpossiblepairs.name }}:
-                    <input v-model="settingsStore.settings.memo_includeimpossiblepairs"
-                           type="checkbox"
-                           @change="SettingUpdated" />
-                </div>
-            </div>
 
-            <!--TIMER SETTINGS-->
-            <div class="Subsettings">
-                <h2>Timer Settings</h2>
-                <div id="Timer Time Keeping Space Down">
-                    {{ defaults.timer_spaceholdingtime.name }}:
-                    <input v-model="settingsStore.settings.timer_spaceholdingtime"
-                           type="number"
-                           :min="defaults.timer_spaceholdingtime.min"
-                           :max="defaults.timer_spaceholdingtime.max"
-                           step="0.1"
-                           @change="SettingUpdated" />
-                    seconds
+                <!--MEMO SETTINGS-->
+                <div class="Subsettings">
+                    <h2>Memo Settings</h2>
+                    <div id="Memo Starting Memo Length">
+                        {{ defaults.memo_startingmemolength.name }}:
+                        <input v-model="settingsStore.settings.memo_startingmemolength"
+                               type="number"
+                               :min="defaults.memo_startingmemolength.min"
+                               :max="defaults.memo_startingmemolength.max"
+                               @change="SettingUpdated" />
+                    </div>
+                    <div id="Memo Include Impossible Pairs in All Pairs">
+                        {{ defaults.memo_includeimpossiblepairs.name }}:
+                        <input v-model="settingsStore.settings.memo_includeimpossiblepairs"
+                               type="checkbox"
+                               @change="SettingUpdated" />
+                    </div>
+                </div>
+
+                <!--TIMER SETTINGS-->
+                <div class="Subsettings">
+                    <h2>Timer Settings</h2>
+                    <div id="Timer Time Keeping Space Down">
+                        {{ defaults.timer_spaceholdingtime.name }}:
+                        <input v-model="settingsStore.settings.timer_spaceholdingtime"
+                               type="number"
+                               :min="defaults.timer_spaceholdingtime.min"
+                               :max="defaults.timer_spaceholdingtime.max"
+                               step="0.1"
+                               @change="SettingUpdated" />
+                        seconds
+                    </div>
+                </div>
+
+                <!--EXEC SETTINGS-->
+                <div class="Subsettings">
+                    <h2>Exec Settings</h2>
+                </div>
+
+                <!--RECONS SETTINGS-->
+                <div class="Subsettings">
+                    <h2>Recons Settings</h2>
+                    <div id="Resons TPS precision">
+                        {{ defaults.recons_tpsprecision.name }}:
+                        <input v-model="settingsStore.settings.recons_tpsprecision"
+                               type="number"
+                               :min="defaults.recons_tpsprecision.min"
+                               :max="defaults.recons_tpsprecision.max"
+                               @change="SettingUpdated" />
+                        decimal places
+                    </div>
+                </div>
+
+                <!--MISC SETTINGS-->
+                <div class="Subsettings">
+                    <h2>Miscellaneous</h2>
+                    <div id="Misc Wide Move Type">
+                        {{ defaults.misc_widemovetype.name }}:
+                        <select v-model="settingsStore.settings.misc_widemovetype" @change="SettingUpdated">
+                            <option v-for="(type, index) in defaults.misc_widemovetype.options"
+                                    :key="index"
+                                    :value="type.id">
+                                {{ type.name }}
+                            </option>
+                        </select>
+                    </div>
+                </div>
+
+                <div style="display:flex;flex-direction:row;gap:20px;justify-content:center;">
+                    <button @click="ImportAll"><h2>Import Data</h2></button>
+                    <button @click="ExportAll"><h2>Export Data</h2></button>
                 </div>
             </div>
-
-            <!--EXEC SETTINGS-->
-            <div class="Subsettings">
-                <h2>Exec Settings</h2>
-            </div>
-
-            <!--RECONS SETTINGS-->
-            <div class="Subsettings">
-                <h2>Recons Settings</h2>
-                <div id="Resons TPS precision">
-                    {{ defaults.recons_tpsprecision.name }}:
-                    <input v-model="settingsStore.settings.recons_tpsprecision"
-                           type="number"
-                           :min="defaults.recons_tpsprecision.min"
-                           :max="defaults.recons_tpsprecision.max"
-                           @change="SettingUpdated" />
-                    decimal places
-                </div>
-            </div>
-
-            <!--MISC SETTINGS-->
-            <div class="Subsettings">
-                <h2>Miscellaneous</h2>
-                <div id="Misc Wide Move Type">
-                    {{ defaults.misc_widemovetype.name }}:
-                    <select v-model="settingsStore.settings.misc_widemovetype" @change="SettingUpdated">
-                        <option v-for="(type, index) in defaults.misc_widemovetype.options"
-                                :key="index"
-                                :value="type.id">
-                            {{ type.name }}
-                        </option>
-                    </select>
-                </div>
-            </div>
-            <div style="display:flex;flex-direction:row;gap:20px;">
-                <button @click="ImportAll"><h2>Import Data</h2></button>
-                <button @click="ExportAll"><h2>Export Data</h2></button>
-            </div>
-            
-            <div style="min-height:200px" />
         </div>
     </div>
+    <div style="min-height: 80px;"></div>
 </template>
 
 <style>
     .Settings {
-        width: min(700px, calc(100vw - 15px));
-        height: min(400px, calc(93vh - 10px));
-        background-color: var(--grey-800);
-        border: 4px solid var(--grey-900);
+        width: 30vw;
         border-radius: 10px;
-        z-index: 100;
         color: var(--text-color);
         padding: 4px;
         overflow: hidden;
+    }
+
+    .Settings .Subsettings {
+        text-align:center;
     }
 
     #SettingsScrollContainer {

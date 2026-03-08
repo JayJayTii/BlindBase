@@ -6,6 +6,7 @@ import MemoView from '@/views/MemoView.vue'
 import ExecView from '@/views/ExecView.vue'
 import TimerView from '@/views/TimerView.vue'
 import ReconsView from '@/views/ReconsView.vue'
+import SettingsView from '@/views/SettingsView.vue'
 import NotFoundView from '@/views/NotFound.vue'
 
 //These are all of the pages of the application.
@@ -79,6 +80,14 @@ const router = createRouter({
                 description: '',
                 iconPath: new URL('@/assets/tool_icons/ReconsIcon.png', import.meta.url).href,
                 description: 'Create reconstructions of your best solves',
+            },
+        },
+        {
+            path: '/settings',
+            name: 'Settings',
+            component: SettingsView,
+            meta: {
+                tool: false,
             },
         },
         {   //Catch-all route

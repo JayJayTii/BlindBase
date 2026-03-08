@@ -185,20 +185,6 @@
     }
     onMounted(() => { window.addEventListener('keydown', handleKeydown) })
     onUnmounted(() => { window.removeEventListener('keydown', handleKeydown) })
-
-    watch(() => useSettingsStore().settings.sheets_pairorder,
-        (newVal) => {
-            highlightedCells.value = []
-            nextTick(() => { if (gridRef.value) gridRef.value.changeHighlightedCells(highlightedCells.value)  })
-        }
-    )
-    watch(() => useSettingsStore().settings.memo_includeimpossiblepairs,
-        (newValue) => {
-            generateCustomPairSheet()
-            highlightedCells.value = []
-            nextTick(() => { if (gridRef.value) gridRef.value.changeHighlightedCells(highlightedCells.value) })
-        }
-    )
 </script>
 
 <template>

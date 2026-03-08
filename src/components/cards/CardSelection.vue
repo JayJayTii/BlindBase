@@ -46,13 +46,6 @@
             cardStore.deleteCards(props.sheetID, values)
         UpdateSelectedCells();
     }
-
-    watch(
-        () => settingsStore.settings.sheets_pairorder,
-        (newVal) => {
-            UpdateSelectedCells()
-        }
-    )
 </script>
 
 <template>
