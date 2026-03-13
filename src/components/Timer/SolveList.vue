@@ -30,7 +30,7 @@
 <template>
     <div class="Panel" ref="solveListRef" v-if="timerStore.isValidSessionID(sessionID)">
         <!--List of all the solves in the current session-->
-        <div class="PanelHeader"> Solves: </div>
+        <div class="PanelHeader" style="position:sticky;"> Solves: </div>
         <div >
             <div v-for="(label, index) in timerStore.getSession(props.sessionID).solves.map((solve,index) => (index+1).toString() + ' | ' + getSolveTimeString(solve))"
                 class="ListItem"

@@ -65,7 +65,7 @@
                 break
             const letter1 = props.letterSolution[0][2*i]
             const letter2 = props.letterSolution[0][2 * i + 1]
-            let newValue = cornerSheetID.value == -1 ? "" : sheetStore.getSheet(cornerSheetID.value).grid[letter2][letter1]
+            let newValue = cornerSheetID.value == -1 ? "" : sheetStore.getSheet(cornerSheetID.value).grid[letter1][letter2]
             //If it's in comm notation, convert to alg notation
             if (newValue.includes('[') && newValue.includes(',') && newValue.includes(']')) {
                 let commSequence = new Sequence()   
@@ -84,7 +84,7 @@
                 break
             const letter1 = props.letterSolution[1][2 * i]
             const letter2 = props.letterSolution[1][2 * i + 1]
-            let newValue = edgeSheetID.value == -1 ? "" : sheetStore.getSheet(edgeSheetID.value).grid[letter2][letter1]
+            let newValue = edgeSheetID.value == -1 ? "" : sheetStore.getSheet(edgeSheetID.value).grid[letter1][letter2]
 
             //If it's in comm notation, convert to alg notation
             if (newValue.includes('[') && newValue.includes(',') && newValue.includes(']')) {

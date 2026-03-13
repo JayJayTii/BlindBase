@@ -205,6 +205,6 @@ export function getSolveTimeString(solve) {
 // This just returns the ratio of the 2 parts of the solve, ignoring any penalties.
 export function getSolveRatioString(solve) {
     // E.g: (12.11 memo : 13.21 exec)
-    return (solve[1] === 0 || !solve.hasOwnProperty('memoTime')) ? "" :
+    return (solve[1] === 0) ? "" :
         (formatTime(solve[1]) + " memo : " + formatTime(solve[0] - solve[1]) + " exec")
 }

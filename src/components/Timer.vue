@@ -64,8 +64,8 @@
                 waitingTimeStart = Date.now()
                 setTimeout(() => {
                     stopwatchKey.value++
+                    solve.value = [0, 0, 0, scramble.value]
                 }, 1000 * useSettingsStore().settings.timer_spaceholdingtime)
-                solve.value = [0, 0, 0, scramble.value]
             }
         }
         if (timerStage.value === stages.memoing && currentKeyPressed == "") { //Wait for key up to start exec stage
@@ -166,7 +166,7 @@
 
         <!---------MEMO/EXEC--------->
         <div :class="['StageText', waitingBeforeExec ? 'StopwatchStartSpaceDown' : '']" v-if="isSolving && props.twoStage">
-            {{timerStage === stages.memoing ? "MEMO" : "EXEC"}}
+            {{timerStage === stages.memoing ? "MEMO" : (timerStage === stages.executing ? "EXEC" : "")}}
         </div>
 
         <div @mousedown="mouseDown" @mouseup="mouseUp" class="StopwatchContainer">
@@ -175,6 +175,7 @@
                  :key="solve + stopwatchKey">
                 {{getSolveTimeString(solve.value)}}
             </div>
+
             <!---LAST SOLVE RATIO--->
             <div class="RatioText" v-if="!isSolving && ratioTextSolve.value && ratioTextSolve.value[1] != 0 && ratioTextSolve.value[1] > 0">
                 {{getSolveRatioString(ratioTextSolve.value)}}
@@ -183,7 +184,7 @@
     </div>
 </template>
 
-<style>
+<style> 
     .StopwatchContainer {
         display: flex;
         justify-content: center;
