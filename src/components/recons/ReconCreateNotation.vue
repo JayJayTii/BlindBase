@@ -1,10 +1,10 @@
 <script setup>
     import { nextTick, onMounted, onUnmounted, computed, watch, ref } from 'vue'
     import { FaceletCube } from '@/helpers/FaceletCube/FaceletCube.js'
+    import FaceletCube3D from '@/components/FaceletCube3D.vue'
     import { Sequence } from '@/helpers/sequence.js'
     import { GetRandomRecommendation, getRecommendations, getCornerRecommendations, getEdgeRecommendations } from '@/helpers/recommendations.js'
     import { GetInspectionMoves, ToLetters } from '@/helpers/reconstruct.js'
-    import FaceletCubeVisual from '@/components/FaceletCubeVisual.vue'
 
     import { useSheetStore } from '@/stores/SheetStore'
     const sheetStore = useSheetStore()
@@ -261,9 +261,8 @@
                       :ref="el => edgeInputBox[edgeInput.length - 1] = el" />
         </div>
 
-        <FaceletCubeVisual :cube="cube"
-                           :key="cube.corners.toString() + cube.edges.toString() + cube.centers.toString()"
-                           style="align-self: center;" />
+        <FaceletCube3D :cube="cube"
+                       style="align-self: center; aspect-ratio: 0.9;" />
 
         <div style="display: flex; flex-direction: column;gap:5px;padding: 10px;">
             <div class="ReconHeader">Corners:</div>

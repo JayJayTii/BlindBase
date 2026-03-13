@@ -2,9 +2,19 @@ import { Sequence } from '@/helpers/sequence.js'
 import { cornerFaceletMove, edgeFaceletMove, centerFaceletMove } from '@/helpers/FaceletCube/FaceletMove.js'
 import { adjacentCornerIndices, adjacentEdgeIndices } from '@/helpers/stickers.js'
 
+export const faceColours = [
+    "#FFFFFF", // White
+    "#FF8000", // Orange
+    "#00FF00", // Green
+    "#FF0000", // Red
+    "#0000FF", // Blue
+    "#FFFF00", // Yellow
+]
+
 export class FaceletCube {
     //The solved state is all these numbers in the correct order
     //Each sticker ("facelet") of the cube has its own number which gets moved around when turns are done
+    //The numbers go in the same order and places as the speffz lettering scheme
     //The way that turns affect the cube is defined in ./FaceletMove.js
     corners = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23]
     edges = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23]
@@ -91,6 +101,15 @@ export class FaceletCube {
         cenArrStr += this.centers.map((cen) => (cen.toString()))
         cenArrStr += "]"
         console.log("centers: " + cenArrStr)
+    }
 
+    getCornerFaceletSticker(index) {
+        return faceColours[Math.floor(this.corners[index] / 4)]
+    }
+    getEdgeFaceletSticker(index) {
+        return faceColours[Math.floor(this.edges[index] / 4)]
+    }
+    getCenterFaceletSticker(index) {
+        return faceColours[this.centers[index]]
     }
 }

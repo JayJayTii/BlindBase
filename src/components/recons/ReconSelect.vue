@@ -1,7 +1,7 @@
 <script setup>
     import { ref, onMounted, onUnmounted } from 'vue'
     import List from '@/components/List.vue'
-    import FaceletCubeVisual from '@/components/FaceletCubeVisual.vue'
+    import FaceletCube3D from '@/components/FaceletCube3D.vue'
     import { Sequence } from '@/helpers/sequence.js'
     import { FaceletCube } from '@/helpers/FaceletCube/FaceletCube.js'
     import { useRouter } from 'vue-router'
@@ -95,7 +95,7 @@
             </div>
             <!-- RIGHT COLUMN RECON SCRAMBLE -->
             <div id="COLUMN3" v-if="selectedRecon != -1">
-                <FaceletCubeVisual style="width: 90%; position: relative; left: 5%; border: 3px solid var(--grey-100); padding: 10px; border-radius: 5px;"
+                <FaceletCube3D style="width: 90%; aspect-ratio:1; position: relative; left: 5%; border: 3px solid var(--grey-100); border-radius: 5px;"
                                    :cube="reconPreviewCube"
                                    :key="reconPreviewCube.corners.toString() + reconPreviewCube.edges.toString() + reconPreviewCube.centers.toString()" />
             </div>

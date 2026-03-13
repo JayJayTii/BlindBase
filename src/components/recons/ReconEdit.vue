@@ -1,6 +1,6 @@
 <script setup>
-    import { computed, ref, inject, onMounted, onUnmounted } from 'vue'
-    import FaceletCubeVisual from '@/components/FaceletCubeVisual.vue'
+    import { computed, ref, nextTick, inject, onMounted, onUnmounted } from 'vue'
+    import FaceletCube3D from '@/components/FaceletCube3D.vue'
     import { FaceletCube } from '@/helpers/FaceletCube/FaceletCube.js'
     import { Sequence } from '@/helpers/sequence.js'
     const confirmDialog = inject('confirmDialog')
@@ -111,6 +111,12 @@
             cube.value.TurnSequence(currentAlgorithm)
         }, 50)
     })
+
+    function cubeVisClicked() {
+        if(document.activeElement === bodyRef.value)
+            bodyRef.value.focus()
+    }
+
     onUnmounted(() => {
         window.removeEventListener('keydown', handleKeydown)
         if (intervalID !== null) {
@@ -141,7 +147,8 @@
         <div></div>
     </div>
     <div style="position:fixed;right: 5%; top: 10%; width:45%;display:flex;flex-direction:column;gap:10px;">
-        <FaceletCubeVisual :cube="cube" />
+        <FaceletCube3D style="width: 100%;aspect-ratio: 4/3;" 
+                       :cube="cube" />
         <div style="display: flex; flex-direction: row; justify-content:space-between; width:100%;">
             <img src="@/assets/icons/delete-bin.svg" title="Delete this reconstruction" @click="Delete()" style="width:50px;" class="CustomButton" />
             <div class="CustomButton" style=" width: 100px; height: 50px;"
@@ -156,7 +163,7 @@
                  title="Continue to recon selection"
                  style="height:50px;width:80px;"
                  class="CustomButton"
-                 @click="ExitEdit()"></img>
+                 @click="ExitEdit()" />
         </div>
     </div>
 </template>

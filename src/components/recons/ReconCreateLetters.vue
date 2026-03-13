@@ -3,7 +3,7 @@
     import { FaceletCube } from '@/helpers/FaceletCube/FaceletCube.js'
     import { Sequence } from '@/helpers/sequence.js'
     import { GetInspectionMoves, FinishCornerCycle, FinishEdgeCycle, ToLetters } from '@/helpers/reconstruct.js'
-    import FaceletCubeVisual from '@/components/FaceletCubeVisual.vue'
+    import FaceletCube3D from '@/components/FaceletCube3D.vue'
     import ReconCreateLetters from '@/components/recons/ReconCreateLetters.vue'
 
     const props = defineProps({
@@ -15,7 +15,7 @@
     cube.TurnSequence(props.scramble) //Apply the scramble to the cube
     const inspection = Object.assign(new Sequence(), GetInspectionMoves(cube))
     cube.TurnSequence(inspection) //Apply the inspection rotations to get green-front and white-top
-    let displayCube = Object.assign(new FaceletCube(), JSON.parse(JSON.stringify(cube)))
+    const displayCube = ref(Object.assign(new FaceletCube(), JSON.parse(JSON.stringify(cube))))
 
     let updating = false //Prevents recursion in watchers
     const edgeInputRef = ref(null)
@@ -158,20 +158,20 @@
         curSelectionStart = document.activeElement.selectionStart
         selectedID = document.activeElement.id
 
-        displayCube = new FaceletCube()
-        displayCube.TurnSequence(props.scramble)
+        displayCube.value = new FaceletCube()
+        displayCube.value.TurnSequence(props.scramble)
         if (curSelectionStart == undefined || selectedID == "") {
             cubeKey.value++
             return
         }
 
-        displayCube.TurnSequence(inspection)
+        displayCube.value.TurnSequence(inspection)
         const isCornerInput = (selectedID[0] == 'c')
         if (!isCornerInput) { //Complete full corner sequence
             const cornerPairs = cornerInput.value.split(' ').filter(pair => pair.length > 1)
             for (const pair of cornerPairs) {
-                displayCube.SwapCornerCubies(2, (pair.charCodeAt(0) - 'A'.charCodeAt(0)))
-                displayCube.SwapCornerCubies(2, (pair.charCodeAt(1) - 'A'.charCodeAt(0)))
+                displayCube.value.SwapCornerCubies(2, (pair.charCodeAt(0) - 'A'.charCodeAt(0)))
+                displayCube.value.SwapCornerCubies(2, (pair.charCodeAt(1) - 'A'.charCodeAt(0)))
             }
         }
         let currentLetterSequence = ""
@@ -184,11 +184,11 @@
         currentLetterSequence = inputText.substring(0, sampleIndex)
         for (const pair of currentLetterSequence.split(' ').filter(pair => pair.length > 1)) {
             if (isCornerInput) {
-                displayCube.SwapCornerCubies(2, (pair.charCodeAt(0) - 'A'.charCodeAt(0)))
-                displayCube.SwapCornerCubies(2, (pair.charCodeAt(1) - 'A'.charCodeAt(0)))
+                displayCube.value.SwapCornerCubies(2, (pair.charCodeAt(0) - 'A'.charCodeAt(0)))
+                displayCube.value.SwapCornerCubies(2, (pair.charCodeAt(1) - 'A'.charCodeAt(0)))
             } else {
-                displayCube.SwapEdgeCubies(2, (pair.charCodeAt(0) - 'A'.charCodeAt(0)))
-                displayCube.SwapEdgeCubies(2, (pair.charCodeAt(1) - 'A'.charCodeAt(0)))
+                displayCube.value.SwapEdgeCubies(2, (pair.charCodeAt(0) - 'A'.charCodeAt(0)))
+                displayCube.value.SwapEdgeCubies(2, (pair.charCodeAt(1) - 'A'.charCodeAt(0)))
             }
         }
         cubeKey.value++ //Update the cube visual
@@ -235,9 +235,9 @@
                  :class="['CustomButton','NextButton']"
                  @click="letterSelectionFinished()" />
         </div>
-        <FaceletCubeVisual style="width: 45%;"
-                           :cube="displayCube"
-                           :key="cubeKey" />
+
+        <FaceletCube3D style="width: 45%; max-height: 78vh; aspect-ratio: 5/4;"
+                       :cube="displayCube" />
     </div>
 </template>
 
