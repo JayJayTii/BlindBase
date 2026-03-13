@@ -8,6 +8,9 @@
         correct: Number,
         score: Number,
     })
+     
+    const splitTestSequences = props.testSequences.map(sequence => sequence.split(' '))
+    const splitUserSequences = props.userSequences.map(sequence => sequence.split(' '))
     const emit = defineEmits(['endTurn'])
 
     function handleKeydown(event) {
@@ -15,6 +18,11 @@
             emit('endTurn')
         }
     }
+
+    function isCorrectPair(sequence, pair) {
+        return splitTestSequences[sequence][pair] == splitUserSequences[sequence][pair]
+    }
+
     onMounted(() => {
         window.addEventListener('keydown', handleKeydown)
     })
@@ -36,8 +44,8 @@
         <div style="text-align:center;">
             It was:
             <div style="display:flex;flex-direction:column;gap:15px;align-items:center;">
-                <div v-for="sequence in testSequences" style="display:flex;flex-direction:row;gap:5px;">
-                    <div v-for="pair in sequence.split(' ')" class="MemoPair">
+                <div v-for="sequence in splitTestSequences" style="display:flex;flex-direction:row;gap:5px;">
+                    <div v-for="pair in sequence" class="MemoPair">
                         {{pair}}
                     </div>
                 </div>
@@ -48,9 +56,11 @@
         <div style="text-align:center;">
             You put:
             <div style="display: flex; flex-direction: column; gap: 15px; align-items: center;">
-                <div v-for="sequence in userSequences" style="display:flex;flex-direction:row;gap:5px;">
-                    <div v-if="sequence.length > 0" v-for="pair in sequence.split(' ')" class="MemoPair">
-                        {{pair}}
+                <div v-for="(sequence, i) in splitUserSequences" style="display:flex;flex-direction:row;gap:5px;">
+                    <div v-if="sequence.length > 0" 
+                         v-for="j in Math.max(splitTestSequences[i].length, splitUserSequences[i].length)" 
+                         :class="['MemoPair', (!isCorrectPair(i, j - 1) ? 'MemoPairIncorrect' : '')]">
+                        {{splitUserSequences[i][j - 1]}}
                     </div>
                 </div>
             </div>
@@ -62,3 +72,10 @@
          :class="['CustomButton','NextButton']"
          @click="emit('endTurn')" />
 </template>
+
+<style>
+    .MemoPair.MemoPairIncorrect {
+        border: 4px solid var(--error-800);
+        background-color: var(--error-700);
+    }
+</style>
