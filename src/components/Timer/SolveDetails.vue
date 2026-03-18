@@ -16,6 +16,11 @@
         get: () => (props.solveIndex > -1 && timerStore.isValidSessionID(props.sessionID)) ? timerStore.getSession(props.sessionID).solves[props.solveIndex] : null
     })
 
+    //Reconstruct by redirecting to recons tool with scramble in URL
+    function Reconstruct() {
+        sessionStorage.reconstructionSolve = JSON.stringify(selectedSolve.value)
+        router.push('/recons/' + selectedSolve.value[3])
+    }
 
     function handleKeydown(event) {
         //Status change keybinds
@@ -28,6 +33,7 @@
             timerStore.saveState()
         }
     }
+
     onMounted(() => {
         window.addEventListener('keydown', handleKeydown)
     })

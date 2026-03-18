@@ -107,6 +107,8 @@
                    :twoStage="true"
                    @update:solve-complete="onSolveComplete"
                    ref="timer" />
+            <div style="position: absolute; bottom:0px; right: 10px; font-size:0.8rem; color:var(--grey-100);">Inspired by <a href="https://cstimer.net/" target="_blank">csTimer</a> (obviously)</div>
+
         </div>
 
         <!--------RIGHT COLUMN-------->

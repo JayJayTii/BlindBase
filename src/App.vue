@@ -12,5 +12,7 @@
     <ConfirmationBox ref="confirmDialog" />
     <Navbar />
     <!--Vue handles routing, routes are defined in routers/index.js-->
-    <RouterView :key="$route.fullPath" />
+    <div style="height: calc(100vh - var(--navbar-height)); overflow: auto;" >
+        <RouterView :key="$route.fullPath"/>
+    </div>
 </template>

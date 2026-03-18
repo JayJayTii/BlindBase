@@ -110,7 +110,7 @@
 
         <!------SELECT------>
         <div v-show="stage === 0">
-            <MemoSelect @startRun="startRun" :stage="stage"/>
+            <MemoSelect @startRun="startRun" :stage="stage" />
         </div>
 
         <!------DISPLAY------>
@@ -127,7 +127,7 @@
         <!------INPUT------>
         <div v-else-if="stage === 3" class="MemoViewContainer">
             <MemoInput :cubes="runData.cubes" :maxSequenceLength="GetLongestStringLength(testSequences)"
-                       @stageComplete='stage = 4;  userSequences = userSequences.map((sequence) => FormatPairSequence(sequence))' 
+                       @stageComplete='stage = 4;  userSequences = userSequences.map((sequence) => FormatPairSequence(sequence))'
                        @updateUserSequences="userSequences = $event" />
         </div>
 
@@ -138,6 +138,7 @@
                         @endTurn="OnTurnComplete" />
         </div>
 
+        <div style="position: absolute; bottom:0px; right: 10px; font-size:0.8rem; color:var(--grey-100);">Inspired by <a href="https://willian-pessoa.github.io/bld-trainer/" target="_blank">BldTrainer</a></div>
     </div>
 </template>
 

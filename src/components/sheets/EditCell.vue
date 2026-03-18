@@ -172,10 +172,11 @@
 
         <!------RECOMMENDATIONS------>
         <div class="SheetEditingRow">Recommendations:</div>
-        <div v-if="sheetStore.getSheet(props.sheetID).type != 0" style="height:100%;overflow-y:auto;">
+        <div v-if="sheetStore.getSheet(props.sheetID).type != 0" style="overflow-y:auto;">
             <List :data="options"
                   :selectedIndex="-1"
                   @onItemClick="OptionClicked" />
+            <p class="credit">Recommendations from <a :href="sheetStore.getSheet(props.sheetID).type != 3 ? 'https://v2.blddb.net/' : 'https://bestsiteever.net/colpi/'" target="_blank">{{sheetStore.getSheet(props.sheetID).type != 3 ? "v2.blddb.net" : "bestsiteever.net/colpi"}}</a></p>
         </div>
         <div v-else class="CellOptions" style="color:var(--info-300);text-align:center;">
             Select a type for this sheet to show algorithm recommendations.
@@ -191,8 +192,16 @@
         text-transform: uppercase;
     }
 
+    .credit {
+        font-size: 10px;
+        text-align: end;
+        position: sticky;
+        bottom: 0px;
+        background-color: var(--panel-color);
+    }
 
     #EditCell {
+        overflow: hidden;
         position: absolute;
         z-index: 5;
         right: 0;
