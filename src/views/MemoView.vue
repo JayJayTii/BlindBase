@@ -143,7 +143,9 @@
 </template>
 
 <style>
-    .MemoView{
+    .MemoView {
+        height: calc(100vh - var(--navbar-height) - var(--footer-height));
+        position: relative;
         color: var(--text-color);
     }
 

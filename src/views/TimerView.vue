@@ -87,7 +87,7 @@
 </script>
 
 <template>
-    <div style="display: flex; flex-direction: row; height:93vh;" :key="sessionID">
+    <div :key="sessionID" style="display: flex; flex-direction: row; height: calc(100vh - var(--navbar-height) - var(--footer-height);">
         <!---------LEFT COLUMN--------->
         <div class="PanelColumn">
             <SessionSelect style="width: 100%; height: 33%;"

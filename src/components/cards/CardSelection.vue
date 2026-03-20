@@ -49,49 +49,52 @@
 </script>
 
 <template>
-    <div style="height:10vh"></div>
-
     <!------CARD MENU GRID------>
     <div class="CardsView">
-        <div class="CardsMenuGrid">
-            <!------HEADERS------>
-            <div v-for="(label,index) in columnHeaders"
-                 :title="columnTooltips[index]"
-                 :class="[label.length > 0 ? 'PanelHeader' : '']" 
-                 style="font-size:1.5rem;">
-                {{label}}
-            </div>
-            <div class="RowGap" v-for="x in columnHeaders"></div>
+        <div style="height: calc(100vh - var(--navbar-height) - var(--footer-height));">
+            <div style="height:10vh"></div>
 
-            <!------SHEET ROWS------>
-            <template v-for="(name,index) in sheetStore.getSheetNames">
-                <div>{{name}}</div>
-                <div style="display:flex;flex-direction:row; justify-content:center;gap:10px;align-items:center;">{{cardStore.getCardsForSheet(sheetStore.sheets[index].id).length}}/{{sheetStore.getFilledCellCount(sheetStore.sheets[index].id)}}
-                    <img title="Create flashcards from this sheet"
-                         @click="emit('sheetEditClicked', sheetStore.sheets[index].id);nextTick(()=>{UpdateSelectedCells()})"
-                         src="@/assets/icons/edit.svg"
-                         :class="['CustomButton', (sheetID === sheetStore.sheets[index].id) ? 'CustomButtonHovered': '']"
-                         style="height: 2rem;" />
+            <div class="CardsMenuGrid">
+                <!------HEADERS------>
+                <div v-for="(label,index) in columnHeaders"
+                     :title="columnTooltips[index]"
+                     :class="[label.length > 0 ? 'PanelHeader' : '']"
+                     style="font-size:1.5rem;">
+                    {{label}}
                 </div>
-                <div />
-                <div :title="columnTooltips[3]">{{cardStore.getCardsOfType(sheetStore.sheets[index].id, "New").length}}</div>
-                <div :title="columnTooltips[4]">{{cardStore.getCardsOfType(sheetStore.sheets[index].id, "Learning").length}}</div>
-                <div :title="columnTooltips[5]">{{cardStore.getCardsOfType(sheetStore.sheets[index].id, "Due").length}}</div>
-                <div>
-                    <img v-if="cardStore.getCardsToPracticeCount(sheetStore.sheets[index].id) > 0"
-                         title="Practice this card decks"
-                         src="@/assets/icons/arrow-right-long.svg"
-                         class="CustomButton"
-                         style="height: 40px; width: 60px;"
-                         @click="emit('beginPractice',sheetStore.sheets[index].id)" />
-                </div>
-                <div class="RowGap" v-for="x in columnHeaders.length" :title="columnTooltips[x]" v-if="index + 1 < sheetStore.sheets.length"></div>
-            </template>
+                <div class="RowGap" v-for="x in columnHeaders"></div>
+
+                <!------SHEET ROWS------>
+                <template v-for="(name,index) in sheetStore.getSheetNames">
+                    <div>{{name}}</div>
+                    <div style="display:flex;flex-direction:row; justify-content:center;gap:10px;align-items:center;">
+                        {{cardStore.getCardsForSheet(sheetStore.sheets[index].id).length}}/{{sheetStore.getFilledCellCount(sheetStore.sheets[index].id)}}
+                        <img title="Create flashcards from this sheet"
+                             @click="emit('sheetEditClicked', sheetStore.sheets[index].id);nextTick(()=>{UpdateSelectedCells()})"
+                             src="@/assets/icons/edit.svg"
+                             :class="['CustomButton', (sheetID === sheetStore.sheets[index].id) ? 'CustomButtonHovered': '']"
+                             style="height: 2rem;" />
+                    </div>
+                    <div />
+                    <div :title="columnTooltips[3]">{{cardStore.getCardsOfType(sheetStore.sheets[index].id, "New").length}}</div>
+                    <div :title="columnTooltips[4]">{{cardStore.getCardsOfType(sheetStore.sheets[index].id, "Learning").length}}</div>
+                    <div :title="columnTooltips[5]">{{cardStore.getCardsOfType(sheetStore.sheets[index].id, "Due").length}}</div>
+                    <div>
+                        <img v-if="cardStore.getCardsToPracticeCount(sheetStore.sheets[index].id) > 0"
+                             title="Practice this card decks"
+                             src="@/assets/icons/arrow-right-long.svg"
+                             class="CustomButton"
+                             style="height: 40px; width: 60px;"
+                             @click="emit('beginPractice',sheetStore.sheets[index].id)" />
+                    </div>
+                    <div class="RowGap" v-for="x in columnHeaders.length" :title="columnTooltips[x]" v-if="index + 1 < sheetStore.sheets.length"></div>
+                </template>
+            </div>
+            <div v-if="sheetStore.sheets.length === 0" style="color:var(--info-200); font-size:1.5rem;">
+                Create a sheet to begin making flashcards!
+            </div>
+            <div style="height:10vh"></div>
         </div>
-        <div v-if="sheetStore.sheets.length === 0" style="color:var(--info-200); font-size:1.5rem;">
-            Create a sheet to begin making flashcards!
-        </div>
-        <div style="height:10vh"></div>
 
         <!------EDITING------>
         <div v-if="sheetStore.isValidSheetID(sheetID)" style="display:flex;flex-direction:column;gap:5px;">
@@ -119,6 +122,7 @@
         text-justify: distribute;
         font-size: 1.5rem;
         gap: 10px;
+        height: 100%;
     }
 
     .CardsMenuGrid {

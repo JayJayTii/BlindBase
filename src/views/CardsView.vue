@@ -41,16 +41,20 @@
 </script>
 
 <template>
-    <div v-if="practicing === false">
-        <CardSelection :sheetID="sheetID"
-                       :updateStatsKey="updateStatsKey"
-                       @sheetEditClicked="sheetEditClicked"
-                       @beginPractice="beginPractice"/>
+    <div style="min-height: 100%; position: relative;">
+        <div v-if="practicing === false">
+            <CardSelection :sheetID="sheetID"
+                           :updateStatsKey="updateStatsKey"
+                           @sheetEditClicked="sheetEditClicked"
+                           @beginPractice="beginPractice" />
+        </div>
+        <div v-else>
+            <CardPractice :sheetID="sheetID"
+                          :updateStatsKey="updateStatsKey"
+                          @quitPractice="quitPractice" />
+        </div>
+        <div style="position: absolute; bottom:0px; right: 10px; font-size:0.8rem; color:var(--grey-100);">
+            Inspired by <a href="https://apps.ankiweb.net/" target="_blank">Anki</a>
+        </div>
     </div>
-    <div v-else>
-        <CardPractice :sheetID="sheetID"
-                      :updateStatsKey="updateStatsKey"
-                      @quitPractice="quitPractice"/>
-    </div>
-    <div style="position: absolute; bottom:0px; right: 10px; font-size:0.8rem; color:var(--grey-100);">Inspired by <a href="https://apps.ankiweb.net/" target="_blank">Anki</a></div>
 </template>

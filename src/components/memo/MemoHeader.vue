@@ -44,10 +44,10 @@
     .MemoHeader {
         display: grid;
         grid-template-columns: repeat(5, auto);
-        gap:100px;
+        gap: 100px;
         width: 100%;
         font-size: 1.5rem;
         justify-self: center;
-        margin-top: 10px;
+        padding-top: 10px;
     }
 </style>

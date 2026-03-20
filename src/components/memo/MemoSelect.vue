@@ -258,7 +258,7 @@
         align-items: center;
         height: 10vh;
 
-        min-width: 100vw;
+        min-width: 100%;
         display: flex;
         flex-direction: row;
         gap: 10px;

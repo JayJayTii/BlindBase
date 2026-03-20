@@ -107,6 +107,7 @@ body {
 
     min-height: 100vh;
     --navbar-height: 50px;
+    --footer-height: 25px;
     background-color: var(--grey-900);
     --panel-color: var(--grey-900);
     --border-color: var(--grey-800);
@@ -154,7 +155,7 @@ body {
     display: flex;
     flex-direction: column;
     width: 20vw;
-    height: 93vh;
+    height: 100%;
     color: var(--text-color);
     border: 3px solid var(--border-color);
 }

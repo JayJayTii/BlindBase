@@ -11,15 +11,17 @@
 </script>
 
 <template>
-    <div style="text-align:center; color:var(--grey-100);">
-        <div style="height:5vh" />
-        <h1 id="title">BlindBase</h1>
-        <p id="subtitle">The all-in-one tool for learning 3-Style</p>
-        <div style="height:5vh" />
-    </div>
-    <!-- Home button for each valid route/tool -->
-    <div class="row">
-        <HomeButton v-for="route in routes" :route="route" />
+    <div style="height: 100%;">
+        <div style="text-align:center; color:var(--grey-100);">
+            <div style="height:5vh" />
+            <h1 id="title">BlindBase</h1>
+            <p id="subtitle">The all-in-one tool for learning 3-Style</p>
+            <div style="height:5vh" />
+        </div>
+        <!-- Home button for each valid route/tool -->
+        <div class="row">
+            <HomeButton v-for="route in routes" :route="route" />
+        </div>
     </div>
 </template>
 

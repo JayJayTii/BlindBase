@@ -70,9 +70,9 @@
     .PracticeView {
         display: grid;
         grid-template-columns: 1fr 1fr 1fr;
-        margin-top: 10px;
         gap: 10px;
         padding: 5px;
+        padding-top: 10px;
     }
 
     .PracticeSheetName {
@@ -81,7 +81,7 @@
         align-items: center;
         text-align: center;
         width: 100%;
-        height:100%;
+        height: 100%;
         background-color: var(--brand-700);
         font-size: 2rem;
         color: var(--grey-100);

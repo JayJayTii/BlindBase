@@ -296,7 +296,6 @@
             </div>
         </div>
     </div>
-    <div style="height:100px;" />
     <img src="@/assets/icons/arrow-left-long.svg"
          title="Back"
          :class="['CustomButton','NextButton']" 
@@ -313,7 +312,7 @@
         display: grid;
         grid-template-columns: 35% 30% 35%;
         width: 100%;
-        height: 80vh;
+        height: 100%;
     }
 
     .ReconNotationInput {

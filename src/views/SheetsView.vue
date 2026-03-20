@@ -66,9 +66,9 @@
 
 
 <template>
-    <div style="display: flex; flex-direction: row;">
+    <div style="display: flex; flex-direction: row; height: calc(100vh - var(--navbar-height) - var(--footer-height));">
         <!---------LEFT COLUMN--------->
-        <div id="leftColumn" style="height: 10vh;">
+        <div id="leftColumn">
             <div class="PanelColumn">
                 <SheetSelect style="width:100%; height:33%;"
                              :sheetID="sheetID"
@@ -83,7 +83,7 @@
 
         <!------------GRID------------->
         <SheetGrid ref="gridRef"
-                   style="width: 100%; height: 93vh;"
+                   style="width: 100%; height: 100%;"
                    :sheet="sheetStore.getSheet(sheetID)"
                    :showIfNull="true"
                    :key="sheetID"
@@ -117,7 +117,7 @@
 
     #leftColumnToggle {
         position: relative;
-        transform: translate(20vw, -93vh);
+        transform: translate(20vw, calc(-93vh + var(--footer-height)));
         z-index: 5;
         cursor: pointer;
         width: 33px;

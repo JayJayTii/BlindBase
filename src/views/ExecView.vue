@@ -91,38 +91,40 @@
 </script>
 
 <template>
-    <ExecSelect ref="select" :key="settingsStore.settings.sheets_pairorder" 
-                @update:on-selected="updatePossiblePairs"/>
+    <div style="height: 100%;">
+        <ExecSelect ref="select" :key="settingsStore.settings.sheets_pairorder"
+                    @update:on-selected="updatePossiblePairs" />
 
-    <div style="display:grid;grid-template-columns:35% 30% 35%;">
-        <!-- LEFT COLUMN LAST SOLVE -->
-        <div id="execColumn">
-            <div v-show="lastScramble.length > 0" style="font-weight:bold; font-size:2rem;">
-                {{solveCount - 1}}
+        <div style="display:grid; grid-template-columns:35% 30% 35%;">
+            <!-- LEFT COLUMN LAST SOLVE -->
+            <div id="execColumn">
+                <div v-show="lastScramble.length > 0" style="font-weight:bold; font-size:2rem;">
+                    {{solveCount - 1}}
+                </div>
+                <div>{{lastScramble}}</div>
             </div>
-            <div>{{lastScramble}}</div>
-        </div>
 
-        <!-- MIDDLE COLUMN CURRENT SOLVE -->
-        <div>
-            <div v-show="selectionFinished()" style="text-align:center; color:var(--grey-100); font-weight:bold; font-size:2rem;">
-                {{solveCount}}
+            <!-- MIDDLE COLUMN CURRENT SOLVE -->
+            <div>
+                <div v-show="selectionFinished()" style="text-align:center; color:var(--grey-100); font-weight:bold; font-size:2rem;">
+                    {{solveCount}}
+                </div>
+                <Timer v-if="selectionFinished()"
+                       :key="timerKey"
+                       ref="timer"
+                       :clearOnSolved="false"
+                       @update:solve-complete="solveComplete"
+                       style="height: 73vh;width:100%;" />
             </div>
-            <Timer v-if="selectionFinished()"
-                   :key="timerKey"
-                   ref="timer"
-                   :clearOnSolved="false"
-                   @update:solve-complete="solveComplete"
-                   style="height: 73vh;width:100%;" />
-        </div>
 
-        <!-- RIGHT COLUMN NEXT SOLVE -->
-        <div id="execColumn" v-if="selectionFinished()">
-            <div style="font-weight:bold; font-size:2rem;">
-                {{solveCount + 1}}
-            </div>
-            <div style="color:transparent;text-shadow:0 0 8px var(--grey-300);user-select:none;">
-                {{nextScramble}}
+            <!-- RIGHT COLUMN NEXT SOLVE -->
+            <div id="execColumn" v-if="selectionFinished()">
+                <div style="font-weight:bold; font-size:2rem;">
+                    {{solveCount + 1}}
+                </div>
+                <div style="color:transparent;text-shadow:0 0 8px var(--grey-300);user-select:none;">
+                    {{nextScramble}}
+                </div>
             </div>
         </div>
     </div>

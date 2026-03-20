@@ -309,9 +309,9 @@
     #ExecSelect {
         justify-self: center;
         align-items: center;
-        height: 10vh;
         padding-inline: 1.5vw;
-        width: 100vw;
+        padding-block: 1.5vh;
+        width: 100%;
         display: grid;
         grid-template-columns: 0.2fr 1fr 0.2fr 1fr 0.2fr 1fr 0.2fr 1fr 0.2fr;
         gap: 10px;

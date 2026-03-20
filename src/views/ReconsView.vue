@@ -22,8 +22,10 @@
 </script>
 
 <template>
-    <!--Selects between creating, editing, and selecting a recon-->
-    <ReconCreate v-if="newRecon" :scramble="scrambleSequence" />
-    <ReconEdit v-else-if="reconIndex > -1" :reconIndex="reconIndex" />
-    <ReconSelect v-else />
+    <div style="min-height: 100%">
+        <!--Selects between creating, editing, and selecting a recon-->
+        <ReconCreate v-if="newRecon" :scramble="scrambleSequence" />
+        <ReconEdit v-else-if="reconIndex > -1" :reconIndex="reconIndex" />
+        <ReconSelect v-else />
+    </div>
 </template>

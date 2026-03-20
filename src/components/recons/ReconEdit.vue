@@ -135,46 +135,45 @@
 </script>
 
 <template>
-    <div id="ReconEditContainer" v-if="reconIndex < reconsStore.recons.length">
-        <div style="display: flex; flex-direction: column; gap: 10px;">
-            <input title="Name" v-model="reconName" maxlength="30" id="reconNameInput" />
-            <textarea ref="bodyRef"
-                      v-model="reconBody"
-                      id="reconBodyInput"
-                      maxlength="4000"/>
-        </div>
+    <div style="display: flex; flex-direction: row; padding: 20px; gap: 20px;">
+        <div id="ReconEditContainer" v-if="reconIndex < reconsStore.recons.length">
+            <div style="display: flex; flex-direction: column; gap: 10px;">
+                <input title="Name" v-model="reconName" maxlength="30" id="reconNameInput" />
+                <textarea ref="bodyRef"
+                          v-model="reconBody"
+                          id="reconBodyInput"
+                          maxlength="4000" />
+            </div>
 
-        <div></div>
-    </div>
-    <div style="position:fixed;right: 5%; top: 10%; width:45%;display:flex;flex-direction:column;gap:10px;">
-        <FaceletCube3D style="width: 100%;aspect-ratio: 4/3;" 
-                       :cube="cube" />
-        <div style="display: flex; flex-direction: row; justify-content:space-between; width:100%;">
-            <img src="@/assets/icons/delete-bin.svg" title="Delete this reconstruction" @click="Delete()" style="width:50px;" class="CustomButton" />
-            <div class="CustomButton" style=" width: 100px; height: 50px;"
-                 @click="CopyRecon()">
-                {{copyText}}
+            <div></div>
+        </div>
+        <div style="position: sticky; top: 20px; width: 50%; align-self: flex-start; display: flex; flex-direction: column; gap: 10px; ">
+            <FaceletCube3D style="width: 100%; aspect-ratio: 4/3; border: 1px solid var(--grey-100); border-radius: 5px;"
+                           :cube="cube" />
+            <div style="display: flex; flex-direction: row; justify-content:space-between; width: 100%;">
+                <img src="@/assets/icons/delete-bin.svg" title="Delete this reconstruction" @click="Delete()" style="width:50px;" class="CustomButton" />
+                <div class="CustomButton" style=" width: 100px; height: 50px;"
+                     @click="CopyRecon()">
+                    {{copyText}}
+                </div>
+                <div class="CustomButton" style="width:100px;height:50px;"
+                     @click="ExportRecon()">
+                    Open in CubeDB
+                </div>
+                <img src="@/assets/icons/arrow-right-long.svg"
+                     title="Continue to recon selection"
+                     style="height:50px;width:80px;"
+                     class="CustomButton"
+                     @click="ExitEdit()" />
             </div>
-            <div class="CustomButton" style="width:100px;height:50px;"
-                 @click="ExportRecon()">
-                Open in CubeDB
-            </div>
-            <img src="@/assets/icons/arrow-right-long.svg"
-                 title="Continue to recon selection"
-                 style="height:50px;width:80px;"
-                 class="CustomButton"
-                 @click="ExitEdit()" />
         </div>
     </div>
 </template>
 
 <style>
     #ReconEditContainer{
-        display: grid;
-        grid-template-columns: 50% 50%;
         gap: 10px;
-        width: 90%;
-        transform: translate(5%, 20px);
+        width: 50%;
     }
 
     #reconBodyInput {

@@ -78,7 +78,6 @@
                     <h1 style="font-size:2rem;" id="reconPreview"><u>{{reconsStore.recons[selectedRecon].name || "&nbsp"}}</u></h1>
                     <pre style="font-size:1.3rem;line-height:1.5rem;" id="reconPreview">{{reconsStore.recons[selectedRecon].body}}</pre>
                 </div>
-                <div style="height:4rem" />
             </div>
             <!-- MIDDLE COLUMN RECON LIST -->
             <div id="COLUMN2">
@@ -100,7 +99,7 @@
                                    :key="reconPreviewCube.corners.toString() + reconPreviewCube.edges.toString() + reconPreviewCube.centers.toString()" />
             </div>
         </div>
-        <div style="height:100px;"></div>
+        <div style="height:10px;"></div>
     </div>
 </template>
 
