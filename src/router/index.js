@@ -7,6 +7,7 @@ import ExecView from '@/views/ExecView.vue'
 import TimerView from '@/views/TimerView.vue'
 import ReconsView from '@/views/ReconsView.vue'
 import SettingsView from '@/views/SettingsView.vue'
+import DonateView from '@/views/DonateView.vue'
 import NotFoundView from '@/views/NotFound.vue'
 
 //These are all of the pages of the application.
@@ -86,6 +87,14 @@ const router = createRouter({
             path: '/settings',
             name: 'Settings',
             component: SettingsView,
+            meta: {
+                tool: false,
+            },
+        },
+        {
+            path: '/donate',
+            name: 'Donate',
+            component: DonateView,
             meta: {
                 tool: false,
             },
