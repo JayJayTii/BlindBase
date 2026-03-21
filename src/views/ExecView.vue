@@ -91,7 +91,7 @@
 </script>
 
 <template>
-    <div style="height: 100%;">
+    <div class="ExecView">
         <ExecSelect ref="select" :key="settingsStore.settings.sheets_pairorder"
                     @update:on-selected="updatePossiblePairs" />
 
@@ -131,6 +131,12 @@
 </template>
 
 <style>
+    .ExecView {
+        min-height: calc(100vh - var(--navbar-height) - var(--footer-height));
+        position: relative;
+        color: var(--text-color);
+    }
+
     #execColumn {
         display: flex;
         flex-direction: column;

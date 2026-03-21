@@ -39,30 +39,32 @@
 </script>
 
 <template>
-    <div class="PracticeView">
-        <!------BACK------>
-        <img src="@/assets/icons/arrow-left-long.svg" 
-             title="Leave practice - progress is saved"
-             @click="emit('quitPractice')"
-             class="CustomButton" style="margin-left: 10px; width:70px;height:50px;" />
+    <div style="height: calc(100vh - var(--navbar-height) - var(--footer-height));">
+        <div class="PracticeView">
+            <!------BACK------>
+            <img src="@/assets/icons/arrow-left-long.svg"
+                 title="Leave practice - progress is saved"
+                 @click="emit('quitPractice')"
+                 class="CustomButton" style="margin-left: 10px; width:70px;height:50px;" />
 
-        <!------SHEET NAME------>
-        <h3 class="PracticeSheetName">{{sheetStore.getSheet(props.sheetID).name}}</h3>
+            <!------SHEET NAME------>
+            <h3 class="PracticeSheetName">{{sheetStore.getSheet(props.sheetID).name}}</h3>
 
-        <!------REMAINING CARDS STATS------>
-        <div class="RemainingPanel" title="Remaining cards to practice in this deck" :key="props.updateStatsKey">
-            <div>New</div>
-            <div>Learning</div>
-            <div>Due</div>
-            <div>{{cardStore.getCardsOfType(props.sheetID, 'New').length}}</div>
-            <div>{{cardStore.getCardsOfType(props.sheetID,'Learning').length}}</div>
-            <div>{{cardStore.getCardsOfType(props.sheetID,'Due').length}}</div>
+            <!------REMAINING CARDS STATS------>
+            <div class="RemainingPanel" title="Remaining cards to practice in this deck" :key="props.updateStatsKey">
+                <div>New</div>
+                <div>Learning</div>
+                <div>Due</div>
+                <div>{{cardStore.getCardsOfType(props.sheetID, 'New').length}}</div>
+                <div>{{cardStore.getCardsOfType(props.sheetID,'Learning').length}}</div>
+                <div>{{cardStore.getCardsOfType(props.sheetID,'Due').length}}</div>
+            </div>
+
+            <!------FLASHCARD------>
+            <Flashcard :card="currentCard"
+                       :sheetID="props.sheetID"
+                       @finishedCard="finishedCard" />
         </div>
-
-        <!------FLASHCARD------>
-        <Flashcard :card="currentCard"
-                   :sheetID="props.sheetID"
-                   @finishedCard="finishedCard" />
     </div>
 </template>
 

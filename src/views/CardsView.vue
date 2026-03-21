@@ -41,7 +41,7 @@
 </script>
 
 <template>
-    <div style="min-height: 100%; position: relative;">
+    <div style="min-height: calc(100% - var(--navbar-height) - var(--footer-height)); position: relative;">
         <div v-if="practicing === false">
             <CardSelection :sheetID="sheetID"
                            :updateStatsKey="updateStatsKey"

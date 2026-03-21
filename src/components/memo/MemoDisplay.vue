@@ -29,6 +29,7 @@
         </div>
         <div style="height:20vh;" />
     </div>
+
     <img src="@/assets/icons/arrow-right-long.svg"
          title="Next"
          :class="['CustomButton','NextButton']"

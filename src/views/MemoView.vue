@@ -26,9 +26,10 @@
     var testSequences = [] //The sequences the user is tasked to remember
     var userSequences = [] //The sequences the user remembered
 
-    function startRun(_runData) {
+    function RestartRun(_runData) {
         runData = _runData
         length.value = useSettingsStore().settings.memo_startingmemolength
+        stage.value = 0 //needed to update MemoDisplay
         startTurn()
     }
 
@@ -50,14 +51,14 @@
             case "Corners":
                 length.value += getCorrect(testSequences, userSequences) > 0 ? 1 : -1
                 if (length.value < 1) {
-                    stage.value = 0
+                    startTurn()
                     return
                 }
                 break
             case "Edges":
                 length.value += getCorrect(testSequences, userSequences) > 0 ? 1 : -1
                 if (length.value < 1) {
-                    stage.value = 0
+                    startTurn()
                     return
                 }
                 break
@@ -65,21 +66,15 @@
                 if (getCorrect(testSequences, userSequences) > 0)
                     length.value += 1
                 else {
-                    stage.value = 0
+                    startTurn()
                     return
                 }
                 break
             case "Multiblind":
-                stage.value = 0
+                startTurn()
                 return
         }
         startTurn()
-    }
-    function quitRun() {
-        if (stage === 4)
-            UpdateHighscore()
-
-        stage.value = 0
     }
 
     function UpdateHighscore() {
@@ -103,15 +98,8 @@
 
 <template>
     <div class="MemoView">
-        <!------HEADER------>
-        <MemoHeader v-if="stage > 0"
-                    :runData="runData" :length="length"
-                    @quitRun="quitRun" />
-
         <!------SELECT------>
-        <div v-show="stage === 0">
-            <MemoSelect @startRun="startRun" :stage="stage" />
-        </div>
+        <MemoSelect @restartRun="RestartRun" @cancelRun="stage = 0" />
 
         <!------DISPLAY------>
         <div v-if="stage === 1" class="MemoViewContainer">
@@ -144,7 +132,7 @@
 
 <style>
     .MemoView {
-        height: calc(100vh - var(--navbar-height) - var(--footer-height));
+        min-height: calc(100vh - var(--navbar-height) - var(--footer-height));
         position: relative;
         color: var(--text-color);
     }
@@ -161,10 +149,9 @@
     .NextButton {
         height: 50px;
         width: 75px;
-        position: fixed;
-        right: 0px;
-        bottom: 0px;
-        transform: translate(-100%, -100%);
+        position: absolute;
+        right: 50px;
+        bottom: 50px;
     }
 
     .MemoPair {

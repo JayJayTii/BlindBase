@@ -55,7 +55,7 @@
             position: "Fixed",
             left: "-100px",
             top: `${pairHeights[i]}vh`,
-            zIndex: "1000",
+            zIndex: "10",
             animationDelay: `${i / pairCount * 5}s` // 0.1s stagger per item
         }
     }

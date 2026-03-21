@@ -227,6 +227,16 @@
         return count
     }
 
+    function editCustomPairButtonClicked() {
+        editingCustomPairs.value = !editingCustomPairs.value
+        const grid = document.getElementById("CustomExecPairGrid")
+        grid.classList.remove('AnimatedGridOpen','AnimatedGridClose')
+        if (editingCustomPairs.value)
+            grid.classList.add('AnimatedGridOpen');
+        else
+            grid.classList.add('AnimatedGridClose');
+    }
+
 
     function handleKeydown(event) {
         //Don't want to block the timer's space input!
@@ -281,10 +291,10 @@
                 </option>
             </select>
             <div v-if="pairSelect == 'From custom'" title="Select from a grid of letter pairs" style="display:flex; justify-content: center;">
-                <img @click="editingCustomPairs = !editingCustomPairs; UpdateSelectedCells()"
+                <img @click="editCustomPairButtonClicked(); UpdateSelectedCells()"
                      src="@/assets/icons/edit.svg"
                      :class="['CustomButton', editingCustomPairs ? 'CustomButtonHovered': '']"
-                     style="height: 45px;" />
+            :style="{height: '45px', backgroundColor: (editingCustomPairs ?  'var(--brand-400)' : '')}" />
             </div>
         </div>
 
@@ -295,8 +305,8 @@
         </select>
     </div>
 
-    <SheetGrid v-if="editingCustomPairs === true && pairSelect == 'From custom'"
-               style="height:83vh;"
+    <SheetGrid v-if="pairSelect == 'From custom'"
+               id="CustomExecPairGrid"
                :sheet="customSheet.value"
                :key="customSheet.value"
                :formatEmpty="true" :fullLineSelection="true"
@@ -307,19 +317,32 @@
 <style>
 
     #ExecSelect {
-        justify-self: center;
+        justify-self: start;
         align-items: center;
-        padding-inline: 1.5vw;
-        padding-block: 1.5vh;
-        width: 100%;
-        display: grid;
-        grid-template-columns: 0.2fr 1fr 0.2fr 1fr 0.2fr 1fr 0.2fr 1fr 0.2fr;
+        min-height: 10vh;
+        min-width: 100%;
+        display: flex;
+        flex-direction: row;
         gap: 10px;
+        padding-inline: 20px;
         border: 2px solid var(--brand-700);
     }
 
-    .ExecSelectLine{
+    .ExecSelectLine {
         border-block-end: 5px solid var(--grey-400);
-        border-radius:5px;
+        border-radius: 5px;
+        max-width: 100px;
+        min-width: 100px;
+    }
+
+    #CustomExecPairGrid {
+        height: 75vh;
+        width: 95vw;
+        position: absolute;
+        left: 2.5vw;
+        top: 10vh;
+        transform: translate(0vw, -100vh);
+        z-index: 20;
+        border-radius: 10px;
     }
 </style>

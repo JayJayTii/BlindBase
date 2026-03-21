@@ -11,11 +11,7 @@
     import { useSettingsStore } from '@/stores/SettingsStore'
     useSettingsStore().loadState()
 
-    const props = defineProps({
-        stage: Number, //Using v-show, so must suppress things when not in the right stage of memo
-    })
-
-    const emit = defineEmits(['startRun'])
+    const emit = defineEmits(['restartRun', 'cancelRun'])
 
     const modeValue = ref("")
     const mode = computed({
@@ -24,11 +20,12 @@
             modeValue.value = newValue
             if (newValue === "Multiblind" && cubes.value < 2)
                 cubes.value = 2
-
+            
             //Always clear custom pair settings
             generateCustomPairSheet()
             highlightedCells.value = []
             editingCustomPairs.value = false
+            RestartRun()
         }
     })
     const modeSelected = computed({
@@ -40,10 +37,13 @@
         get: () => cubesValue.value,
         set: (newValue) => {
             cubesValue.value = newValue
-            if (mode.value === "Multiblind" && newValue < 2)
-                cubesValue.value = 2
-            else if (mode.value === "Multiblind" && newValue > 200)
-                cubesValue.value = 200
+            if(mode.value === "Multiblind") {
+                if (newValue < 2)
+                    cubesValue.value = 2
+                else if (newValue > 200)
+                    cubesValue.value = 200
+                RestartRun()
+            }
         }
     })
 
@@ -60,6 +60,8 @@
                 highlightedCells.value = []
                 generateCustomPairSheet()
             }
+            editingCustomPairs.value = false
+            RestartRun()
         }
     })
     //Also includes selection of sheets/cards/custom pairs
@@ -74,6 +76,7 @@
         get: () => pairSelectSheetValue.value,
         set: (newValue) => {
             pairSelectSheetValue.value = newValue
+            RestartRun()
         }
     })
 
@@ -91,7 +94,17 @@
         return out.filter((card) => sheetStore.getSheet(card.sheetID).type === 3) 
     }
 
-    const editingCustomPairs = ref(false)
+    const editingCustomPairsValue = ref(false)
+    const editingCustomPairs = computed({
+        get: () => editingCustomPairsValue.value,
+        set: (newValue) => {
+            editingCustomPairsValue.value = newValue
+            const grid = document.getElementById("CustomPairGrid")
+            if(newValue === false && grid)
+                grid.classList.remove('AnimatedGridOpen','AnimatedGridClose')
+        }
+    })
+
     const gridRef = ref(null)
     const highlightedCells = ref([])
     const customSheet = ref({}) //Contains all the possible letter pairs that the user can select to practice from
@@ -131,6 +144,7 @@
             highlightedCells.value = newHighlightedCells
         }
         gridRef.value.changeHighlightedCells(highlightedCells.value)
+        RestartRun()
     }
 
     function getPossiblePairs() {
@@ -161,30 +175,32 @@
         }
     }
 
-    function StartRun() {
+    function RestartRun() {
+        if(!pairSelectFinished.value) {
+            emit('cancelRun')
+            return
+        }
         if (mode.value !== "Multiblind")
             cubes.value = 1
         const possiblePairs = getPossiblePairs()
-        emit('startRun', {
+        emit('restartRun', {
             mode: mode.value,
             cubes: cubes.value,
             pairSelect: pairSelect.value,
             pairSelectSheet: pairSelectSheet.value,
             possiblePairs: possiblePairs,
         })
-        editingCustomPairs.value = false //Hide grid for when run is finished
     }
 
-
-    function handleKeydown(event) {
-        if(props.stage !== 0) 
-            return //Not active right now
-
-        if ((event.code === 'Enter' || event.code === 'NumpadEnter') && pairSelectFinished.value)
-            StartRun()
+    function editCustomPairButtonClicked() {
+        editingCustomPairs.value = !editingCustomPairs.value
+        const grid = document.getElementById("CustomPairGrid")
+        grid.classList.remove('AnimatedGridOpen','AnimatedGridClose')
+        if (editingCustomPairs.value)
+            grid.classList.add('AnimatedGridOpen');
+        else
+            grid.classList.add('AnimatedGridClose');
     }
-    onMounted(() => { window.addEventListener('keydown', handleKeydown) })
-    onUnmounted(() => { window.removeEventListener('keydown', handleKeydown) })
 </script>
 
 <template>
@@ -226,11 +242,10 @@
             </select>
         </div>
         <div class="MemoViewHeader" title="Select from a grid of letter pairs" v-if="pairSelect === 3">
-            <img @click="editingCustomPairs = !editingCustomPairs;
-                 nextTick(()=> {if(gridRef){gridRef.changeHighlightedCells(highlightedCells)}})"
+            <img @click="editCustomPairButtonClicked(); nextTick(()=> {if(gridRef){gridRef.changeHighlightedCells(highlightedCells)}})"
             src="@/assets/icons/edit.svg"
             :class="['CustomButton', editingCustomPairs ? 'CustomButtonHovered': '']"
-            style="height: 45px;"/>
+            :style="{height: '45px', backgroundColor: (editingCustomPairs ?  'var(--brand-400)' : '')}"/>
         </div>
         <div class="MemoSelectLine" v-if="pairSelectFinished && pairSelect == 0" />
         <div class="MemoViewHeader" v-if="pairSelectFinished && pairSelect == 0">
@@ -238,26 +253,20 @@
         </div>
     </div>
 
-    <SheetGrid v-if="editingCustomPairs === true && pairSelect == 3"
-               style="height: 83vh;"
+    <SheetGrid v-if="pairSelect === 3"
+               id="CustomPairGrid"
                :sheet="customSheet"
                :key="customSheet.value"
                :formatEmpty="true" :fullLineSelection="true"
                ref="gridRef"
                @update:selected-cells="onCustomPairsClicked" />
-
-    <img v-if="pairSelectFinished"
-         src="@/assets/icons/arrow-right-long.svg"
-         :class="['CustomButton','NextButton']"
-         @click="StartRun()" />
 </template>
 
 <style>
     #MemoSelect {
         justify-self: start;
         align-items: center;
-        height: 10vh;
-
+        min-height: 10vh;
         min-width: 100%;
         display: flex;
         flex-direction: row;
@@ -279,4 +288,27 @@
         max-width: 100px;
         min-width: 100px;
     }
+
+    #CustomPairGrid {
+        height: 75vh;
+        width: 95vw;
+        position: absolute;
+        left: 2.5vw;
+        top: 10vh;
+        transform: translate(0vw, -100vh);
+        z-index: 20;
+        border-radius: 10px;
+    }
+
+    .AnimatedGridOpen { animation: animatedGridOpen 0.2s forwards; }
+    @keyframes animatedGridOpen {
+        from { transform: translate(0vw, -100vh); }
+        to { transform: translate(0vw, 0vh); }
+    }
+    .AnimatedGridClose { animation: animatedGridClose 0.2s forwards; }
+    @keyframes animatedGridClose {
+        from { transform: translate(0vw, 0vh); }
+        to { transform: translate(0vw, -100vh); }
+    }
+
 </style>
