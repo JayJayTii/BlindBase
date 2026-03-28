@@ -32,6 +32,8 @@
         if (sessionID.value != timerStore.sessions[index].id) {
             sessionID.value = timerStore.sessions[index].id
             solveIndex.value = -1
+            previousScramble.value = ""
+            currentScramble = ""
             await nextTick()
             generateNewScramble()
         }
@@ -44,10 +46,12 @@
         sessionID.value = -1
     }
 
+    const previousScramble = ref("")
     let currentScramble = ""
     async function generateNewScramble() {
         if (!currentSession.value)
             return
+        previousScramble.value = currentScramble
         switch (currentSession.value.type) {
             case 0: //3x3 Blindfolded
                 currentScramble = get3BLDscramble()
@@ -84,6 +88,14 @@
         await nextTick()
         timer.value.refresh()
     }
+
+    function lastScramble() {
+        timer.value.setScramble(previousScramble.value)
+        previousScramble.value = ""
+    }
+    function nextScramble() {
+        generateNewScramble()
+    }
 </script>
 
 <template>
@@ -101,12 +113,24 @@
 
         <!-----------TIMER------------>
         <div class="Panel" style="width: 60vw; height: 100%; position: relative; border: 3px solid var(--border-color);">
+            <img v-if="timerStore.isValidSessionID(sessionID) && previousScramble != ''"
+                 title="Last scramble"
+                 src="@/assets/icons/arrow-left-long.svg"
+                 class="CustomButton"
+                 style="height: 2rem; top:15px; left: 5px; position:absolute; cursor: pointer; z-index: 10;"
+                 @click="lastScramble()" />
             <Timer style="width:100%; height:100%;"
                    v-if="timerStore.isValidSessionID(sessionID)"
                    :lastSolve="solves.at(-1)"
                    :twoStage="true"
                    @update:solve-complete="onSolveComplete"
                    ref="timer" />
+            <img v-if="timerStore.isValidSessionID(sessionID)"
+                 title="Next scramble"
+                 src="@/assets/icons/arrow-right-long.svg"
+                 class="CustomButton"
+                 style="height: 2rem; top:15px; right: 5px; position:absolute; cursor: pointer; z-index: 10;"
+                 @click="nextScramble()" />
             <div style="position: absolute; bottom:0px; right: 10px; font-size:0.8rem; color:var(--grey-100);">Inspired by <a href="https://cstimer.net/" target="_blank">csTimer</a> (obviously)</div>
 
         </div>

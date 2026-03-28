@@ -69,12 +69,11 @@
     }
 
     const select = ref(null)
-    function updatePossiblePairs(newFullScramble, newPairs, newPieceType, newUseScramble) {
+    function updatePossiblePairs(newFullScramble, newPairs, newPieceType) {
         fullScramble = newFullScramble
         possiblePairs = newPairs
         pieceType = newPieceType
-        useScramble = newUseScramble
-
+        useScramble = !useSettingsStore().settings.exec_useletterpair
         nextTick(() => {
             if(!timer.value)
                 return
@@ -132,7 +131,7 @@
 
 <style>
     .ExecView {
-        min-height: calc(100vh - var(--navbar-height) - var(--footer-height));
+        height: calc(100vh - var(--navbar-height) - var(--footer-height));
         position: relative;
         color: var(--text-color);
     }

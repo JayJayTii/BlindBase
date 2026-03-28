@@ -42,6 +42,10 @@ export const defaults = {
         name: 'Include impossible pairs in \'All Pairs\'',
         default: false,
     },
+    exec_useletterpair: {
+        name: 'Letter pair instead of a scramble',
+        default: false,
+    },
     timer_spaceholdingtime: {
         name: 'Time keeping space down before starting',
         default: 0.3,

@@ -116,16 +116,8 @@
             acceptSpaceInput = false
             setTimeout(() => {
                 acceptSpaceInput = true
-            }, 1000)
+            }, 500)
         }
-    }
-    function mouseDown(event) {
-        event.code = "Mouse" + event.button
-        handleKeydown(event)
-    }
-    function mouseUp(event) {
-        event.code = "Mouse" + event.button
-        handleKeyup(event)
     }
 
     onMounted(() => {
@@ -158,9 +150,9 @@
 </script>
 
 <template>
-    <div id="TimerContainer" style="position:relative;cursor:pointer;">
+    <div id="TimerContainer" style="position:relative;">
         <!---------SCRAMBLE---------->
-        <div class="ScrambleText" v-if="!isSolving">
+        <div class="ScrambleText">
             {{scramble}}
         </div>
 
@@ -169,7 +161,7 @@
             {{timerStage === stages.memoing ? "MEMO" : (timerStage === stages.executing ? "EXEC" : "")}}
         </div>
 
-        <div @mousedown="mouseDown" @mouseup="mouseUp" class="StopwatchContainer">
+        <div class="StopwatchContainer">
             <!------STOPWATCH------>
             <div :class="getStopwatchCSSclasses()"
                  :key="solve + stopwatchKey">
@@ -197,7 +189,7 @@
     .ScrambleText {
         position: absolute;
         transform: translate(-50%, 0%);
-        width: 100%;
+        width: 90%;
         text-align: center;
         left: 50%;
         font-size: 2rem;
@@ -209,7 +201,7 @@
         text-align: center;
         position: absolute;
         left: 50%;
-        transform: translate(-50%, 0%);
+        transform: translate(-50%, 50%);
         font-size: 6rem;
         font-weight: bold;
         color: var(--grey-100);

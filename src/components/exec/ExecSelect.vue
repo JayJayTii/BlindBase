@@ -17,7 +17,6 @@
         modeValue.value = ""
         pairSelect.value = ""
         pairSelectSheetID.value = -1
-        scrambleMode.value = -1
         customSheet.value = {}
     }
 
@@ -56,11 +55,15 @@
         get: () => pairSelectValue.value,
         set: (newValue) => {
             pairSelectValue.value = newValue
-
             pairSelectSheetID.value = -1
-            scrambleMode.value = -1
 
-            if (newValue == "From custom") {
+            if (newValue == "From sheet") {
+                pairSelectSheetID.value = sheetStore.getSheetsOfType(Number(pieceType.value))[0].id
+            }
+            else if (newValue == "From cards") {
+                pairSelectSheetID.value = getValidCardDecks()[0].id
+            }
+            else if (newValue == "From custom") {
                 for (var y = 0; y < 24; y++) {
                     for (var x = 0; x < 24; x++) {
                         selectedCells.value[y][x] = false
@@ -68,6 +71,7 @@
                 }
                 generateCustomPairSheet()
             }
+            GeneratePairsAndEmit()
         }
     })
     const pairSelectSelected = computed({ get: () => (pairSelect.value != "")})
@@ -77,29 +81,7 @@
         set: (newValue) => {
             const oldValue = pairSelectSheetIDValue.value
             pairSelectSheetIDValue.value = newValue
-            if (newValue != -1 && oldValue != newValue && scrambleMode.value != -1) {
-                console.log("emittingoldValue")
-                GeneratePairsAndEmit()
-            }
-        }
-    })
-
-    const showScrambleModeSelect = computed({
-        get: () => pieceType.value != -1
-            && mode.value == "One pair"
-            && (pairSelect.value == 'From all pairs'
-                || (pairSelect.value == "From sheet" && pairSelectSheetID.value != -1)
-                || (pairSelect.value == "From cards" && pairSelectSheetID.value != -1)
-                || (pairSelect.value == "From custom" && getSelectedCellCount() > 0))
-    })
-
-    const scrambleModeValue = ref(-1)
-    const scrambleMode = computed({
-        get: () => scrambleModeValue.value,
-        set: (newValue) => {
-            scrambleModeValue.value = newValue
-
-            if(scrambleMode.value > -1)
+            if (newValue != -1 && oldValue != newValue)
                 GeneratePairsAndEmit()
         }
     })
@@ -111,12 +93,13 @@
                     && (pairSelect.value == 'From all pairs'
                         || (pairSelect.value == "From sheet" && pairSelectSheetID.value != -1)
                         || (pairSelect.value == "From cards" && pairSelectSheetID.value != -1)
-                        || (pairSelect.value == "From custom" && getSelectedCellCount() > 0))
-                    && scrambleMode.value != -1)
-               )      
+                        || (pairSelect.value == "From custom" && getSelectedCellCount() > 0)))
+                )      
     })
 
     function GeneratePairsAndEmit() {
+        if(!selectionFinished.value)
+            return
         let pairs = []
         switch (pairSelect.value) {
             case "From all pairs":
@@ -151,7 +134,7 @@
             default:
         }
 
-        emit('update:on-selected', mode.value == "Whole", pairs, Number(pieceType.value), scrambleMode.value == 0)
+        emit('update:on-selected', mode.value == "Whole", pairs, Number(pieceType.value))
     }
     
     function getValidCardDecks() {
@@ -203,7 +186,7 @@
         nextTick(() => {
             if (gridRef.value)
                 gridRef.value.changeHighlightedCells(formattedSelectedCells)
-            if (getSelectedCellCount() > 0 && scrambleMode.value != -1)
+            if (getSelectedCellCount() > 0)
                 GeneratePairsAndEmit()
         })
     }
@@ -297,12 +280,6 @@
             :style="{height: '45px', backgroundColor: (editingCustomPairs ?  'var(--brand-400)' : '')}" />
             </div>
         </div>
-
-        <div class="ExecSelectLine" v-if="showScrambleModeSelect" />
-        <select style="font-size: 2rem; text-align: center;" title="Use a scramble?" v-model="scrambleMode" v-if="showScrambleModeSelect">
-            <option value="0">With scramble</option>
-            <option value="1">No scramble</option>
-        </select>
     </div>
 
     <SheetGrid v-if="pairSelect == 'From custom'"
@@ -319,7 +296,7 @@
     #ExecSelect {
         justify-self: start;
         align-items: center;
-        min-height: 10vh;
+        height: 10vh;
         min-width: 100%;
         display: flex;
         flex-direction: row;

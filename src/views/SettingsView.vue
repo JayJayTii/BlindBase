@@ -149,6 +149,17 @@
                     </div>
                 </div>
 
+                <!--EXEC SETTINGS-->
+                <div class="Subsettings">
+                    <h2>Exec Settings</h2>
+                    <div id="Exec Use Letter Pair Instead of Scramble">
+                        {{ defaults.exec_useletterpair.name }}:
+                        <input v-model="settingsStore.settings.exec_useletterpair"
+                               type="checkbox"
+                               @change="SettingUpdated" />
+                    </div>
+                </div>
+
                 <!--TIMER SETTINGS-->
                 <div class="Subsettings">
                     <h2>Timer Settings</h2>
@@ -162,11 +173,6 @@
                                @change="SettingUpdated" />
                         seconds
                     </div>
-                </div>
-
-                <!--EXEC SETTINGS-->
-                <div class="Subsettings">
-                    <h2>Exec Settings</h2>
                 </div>
 
                 <!--RECONS SETTINGS-->
