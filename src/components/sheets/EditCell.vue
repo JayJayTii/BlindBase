@@ -10,47 +10,11 @@
     const props = defineProps({
         sheetID: Number,
         selectedCell: Object,
-        focusCellKey: Boolean,
     })
-    const emit = defineEmits(['cellKeyChanged'])
 
-    //Key of the selected cell e.g. AB, XP, DL
-    const selectedCellKey = computed({
-        get: () => sheetStore.coordToKey(props.sheetID, props.selectedCell),
-        set: (newKey) => {
-            const newCoord = sheetStore.keyToCoord(props.sheetID, newKey)
-            emit('cellKeyChanged', newCoord)
-        }
-    })
-    //Value of the selected cell (i.e. an algorithm)
     const selectedCellValue = computed({
         get: () => sheetStore.getCell(props.sheetID, props.selectedCell),
         set: (newValue) => sheetStore.setCell(props.sheetID, props.selectedCell, newValue)
-    })
-
-    //Filter any cell key input to only letters and 2 characters long
-    const selectedCellInput = ref(selectedCellKey.value)
-    watch(selectedCellInput, (newValue, oldValue) => {
-        const inputChar = [...newValue].filter(char => !oldValue.includes(char))[0]
-        if (!inputChar) { //Return if the change was not a character (e.g. backspace)
-            return
-        }
-
-        //Regex to check against letters
-        if (!/^[a-xA-X]$/.test(inputChar)) {
-            selectedCellInput.value = oldValue
-            return
-        }
-        //If it was 2 letters, replace with the new character
-        //Also put to uppercase
-        let updatedInput = newValue.length === 3 ? inputChar.toUpperCase() : newValue.toUpperCase()
-        if (selectedCellInput.value === updatedInput)
-            return //This is triggered to prevent infinite recursion
-        
-        selectedCellInput.value = updatedInput //This triggers this same function, hence why we need to prevent recursion
-
-        if (updatedInput.length == 2) //If the length is correct, finally update the whole system to this new key
-            selectedCellKey.value = updatedInput
     })
 
     //Get recommendations for this cell if a sheet is selected
@@ -143,26 +107,17 @@
     const cellValueInputBox = ref(null)
     const cellKeyInputBox = ref(null)
     nextTick(() => {
-        if (props.focusCellKey) {
-            if (cellKeyInputBox.value)
-                cellKeyInputBox.value.focus()
-        } else {
-            if (cellValueInputBox.value)
-                cellValueInputBox.value.focus()
-        }
+        if (cellValueInputBox.value)
+            cellValueInputBox.value.focus()
     })
 </script>
 
 <template>
     <div id="EditCell" class="Panel" v-if="sheetStore.isValidSheetID(props.sheetID)">
-        <div id="EditCellHeader" class="PanelHeader"> Edit cell:  </div>
-        <!------CELL KEY------>
-        <div class="SheetEditingRow">
-            <input v-model="selectedCellInput" class="editCurCellKey" ref="cellKeyInputBox" />
-        </div>
+        <div id="EditCellHeader" class="PanelHeader"> Editing {{sheetStore.coordToKey(props.sheetID, props.selectedCell)}}:  </div>
 
         <!------CELL VALUE------>
-        <div class="SheetEditingRow">
+        <div class="SheetEditingRow" style="padding-top: 10px;">
             <input v-model="selectedCellValue"
                    ref="cellValueInputBox"
                    maxlength="70"

@@ -47,7 +47,6 @@
             column.classList.add('slideLeft');
     }
 
-    const focusCellKey = ref(false)
     function onCellClicked(newValues, create) {
         if(create) { //New cell clicked
             selectedCell.x = newValues[0].x
@@ -87,13 +86,12 @@
                    style="width: 100%; height: 100%;"
                    :sheet="sheetStore.getSheet(sheetID)"
                    :key="sheetID"
-                   @update:selected-cells="(values, create) => {onCellClicked(values, create);focusCellKey=false;}" />
+                   @update:selected-cells="(values, create) => { onCellClicked(values, create); }" />
+
         <EditCell v-if="selectedCell.x  != -1 && selectedCell.y != -1"
                   ref="editCellRef"
-                  :key="sheetID + '-' + selectedCell.x+ '-' + selectedCell.y + '-' + (sheetStore.getSheet(sheetID)?.type || -1) + '-' + settingsStore.settings.sheets_notationtype.toString() + '-' + settingsStore.settings.sheets_extraximages.toString()"
-                  :sheetID="sheetID" :selectedCell="selectedCell"
-                  :focusCellKey="focusCellKey"
-                  @cellKeyChanged="(event) => {onCellClicked(event);focusCellKey=true;}" />
+                  :key="sheetID + '-' + selectedCell.x+ '-' + selectedCell.y + '-' + (sheetStore.getSheet(sheetID)?.type || -1)"
+                  :sheetID="sheetID" :selectedCell="selectedCell"/>
     </div>
 </template>
 
