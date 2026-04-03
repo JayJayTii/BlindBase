@@ -82,13 +82,12 @@
         </div>
 
         <!------------GRID------------->
-        <SheetGrid ref="gridRef"
+        <SheetGrid v-if="sheetStore.getSheet(sheetID)"
+                   ref="gridRef"
                    style="width: 100%; height: 100%;"
                    :sheet="sheetStore.getSheet(sheetID)"
-                   :showIfNull="true"
                    :key="sheetID"
                    @update:selected-cells="(values, create) => {onCellClicked(values, create);focusCellKey=false;}" />
-
         <EditCell v-if="selectedCell.x  != -1 && selectedCell.y != -1"
                   ref="editCellRef"
                   :key="sheetID + '-' + selectedCell.x+ '-' + selectedCell.y + '-' + (sheetStore.getSheet(sheetID)?.type || -1) + '-' + settingsStore.settings.sheets_notationtype.toString() + '-' + settingsStore.settings.sheets_extraximages.toString()"

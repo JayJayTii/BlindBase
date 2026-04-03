@@ -12,10 +12,6 @@
     const sheetID = ref(-1)
     const practicing = ref(false); //Whether to show CardSelection or CardPractice
 
-    //Called from CardSelection and CardPractice components
-    function sheetEditClicked(id) {
-        sheetID.value = (sheetID.value === id) ? -1 : id
-    }
     function beginPractice(id) {
         sheetID.value = id
         practicing.value = true
@@ -45,7 +41,6 @@
         <div v-if="practicing === false">
             <CardSelection :sheetID="sheetID"
                            :updateStatsKey="updateStatsKey"
-                           @sheetEditClicked="sheetEditClicked"
                            @beginPractice="beginPractice" />
         </div>
         <div v-else>

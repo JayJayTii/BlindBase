@@ -164,8 +164,8 @@ export function isEmpty(sheet) {
 
 //X and Y headings are the headings of the columns and rows respectively, returned as an array.
 export function getXHeadings(sheet) {
-    return sheet.xHeadings.split('')
+    return sheet ? sheet.xHeadings.split('') : 'ABCDEFGHIJKLMNOPQRSTUVWX'.split('')
 }
 export function getYHeadings(sheet) {
-    return sheet.yHeadings.split('')
+    return sheet ? sheet.yHeadings.split('') : 'ABCDEFGHIJKLMNOPQRSTUVWX'.split('')
 }

@@ -10,7 +10,6 @@
     const props = defineProps({
         sheet: Object,
         formatEmpty: Boolean,
-        showIfNull: Boolean,
         fullLineSelection: Boolean,
     })
 
@@ -40,6 +39,10 @@
             return
 
         emit('update:selected-cells', [ {x: absX,y: absY} ], create)
+    }
+
+    function getCell(x, y) {
+        return props.sheet ? props.sheet.grid[!flipped.value ? y : x][!flipped.value ? x : y] : ""
     }
 
     function columnClicked(index) { //This is absolute, so also a row with "Column then row" setting
@@ -174,7 +177,7 @@
 
         //Calculate the CSS classes that a given cell will have in the grid
         let classes = ['SheetGridCell']
-        if (props.formatEmpty && props.sheet.grid[absY][absX] === '')
+        if (!props.sheet || (props.formatEmpty && props.sheet.grid[absY][absX] === ''))
             classes.push('SheetGridCellEmpty')
         else {
             const letters = "ABCDEFGHIJKLMNOPQRSTUVWX"
@@ -194,7 +197,7 @@
 </script>
 
 <template>
-    <div class="SheetGridContainer" v-if="props.sheet">
+    <div class="SheetGridContainer">
         <!-----BLANK CORNER----->
         <div class="SheetGridCorner" >
             <div class="SheetGridCell" :style="{ cursor: (props.fullLineSelection ? 'pointer' : 'default') }"
@@ -231,12 +234,11 @@
                      @click="cellClicked(!flipped ? x : y, !flipped ? y : x); "
                      :id="x.toString() + ',' + y.toString()"
                      :class="calculateCellClasses(x,y)">
-                    {{ props.sheet.grid[!flipped ? y : x][!flipped ? x : y] }}
+                    {{ getCell(x,y) }}
                 </div>
             </div>
         </div>
     </div>
-    <div class="SheetGridContainer" v-else-if="showIfNull"></div>
 </template>
 
 <style>
