@@ -201,13 +201,14 @@
         <!-----BLANK CORNER----->
         <div class="SheetGridCorner" >
             <div class="SheetGridCell" :style="{ cursor: (props.fullLineSelection ? 'pointer' : 'default') }"
-                 :title="props.fullLineSelection ? 'Select/deselect the whole sheet' : ''"
+                 :title="props.fullLineSelection ? 'Select sheet' : ''"
                  @click="sheetClicked()"></div>
         </div>
 
         <!-----COLUMN HEADINGS----->
         <div class="SheetGridTopRow" ref="topRow">
             <div v-for="(char,index) in getXHeadings(sheet)"
+                 :title="props.fullLineSelection ? 'Select column' : ''"
                  class="SheetGridCell"
                  :style="{ cursor: props.fullLineSelection ? 'pointer' : 'default' }"
                  @click="!flipped ? columnClicked(index) : rowClicked(index)">
@@ -220,6 +221,7 @@
         <div class="SheetGridLeftColumn" ref="leftColumn" @scroll="syncScrollToLeftColumn">
             <div v-for="(char, index) in getYHeadings(sheet)"
                  class="SheetGridCell"
+                 :title="props.fullLineSelection ? 'Select row' : ''"
                  :style="{ cursor: props.fullLineSelection ? 'pointer' : 'default' }"
                  @click="!flipped ? rowClicked(index) : columnClicked(index)">
                 {{ char }}

@@ -12,7 +12,6 @@
     import { useMemoStore } from '../stores/MemoStore'
     const memoStore = useMemoStore()
     memoStore.loadState()
-    import MemoHeader from '@/components/memo/MemoHeader.vue'
     import MemoSelect from '@/components/memo/MemoSelect.vue'
     import MemoDisplay from '@/components/memo/MemoDisplay.vue'
     import MemoDistraction from '@/components/memo/MemoDistraction.vue'
@@ -78,7 +77,7 @@
     }
 
     function UpdateHighscore() {
-        if (runData.pairSelect !== 0) //Only allowed highscores when using all possible pairs
+        if (runData.pairSelect !== "From all pairs") //Only allowed highscores when using all possible pairs
             return
 
         if (runData.mode === "Multiblind") {

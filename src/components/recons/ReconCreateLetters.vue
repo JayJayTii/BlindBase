@@ -230,9 +230,10 @@
                  style="left:0px;transform:translate(100%,-100%);"
                  @click="revertToReconPage()" />
             <img v-if="pieceType > 1"
-                 title="Continue to notation"
+                 title="Continue"
                  src="@/assets/icons/arrow-right-long.svg"
                  :class="['CustomButton','NextButton']"
+                style="right:0px;transform:translate(-100%,-100%);"
                  @click="letterSelectionFinished()" />
         </div>
 

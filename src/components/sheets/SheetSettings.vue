@@ -71,7 +71,7 @@
         </div>
 
         <!------TYPE------>
-        <div class="SheetEditingRow" title="Sheet type - this affects many things so make sure it's correct!">
+        <div class="SheetEditingRow">
             Type: <select v-model="currentSheetType">
                 <option v-for="(type,index) in sheetStore.sheetTypes"
                         :key="index"

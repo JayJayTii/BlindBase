@@ -2,7 +2,7 @@
     import { nextTick, watch, computed, ref, onMounted, onUnmounted } from "vue"
     import { allEdgePairs, allCornerPairs, allPossiblePairs, allLetterPairs } from '@/helpers/pairs.js'
     import SheetGrid from '@/components/SheetGrid.vue'
-    import { useMemoStore, modes } from '@/stores/MemoStore.js'
+    import { useMemoStore, modes, modesDesc } from '@/stores/MemoStore.js'
     const memoStore = useMemoStore()
     import { useSheetStore } from '@/stores/SheetStore'
     const sheetStore = useSheetStore()
@@ -47,16 +47,16 @@
         }
     })
 
-    const pairSelectValue = ref(0)
+    const pairSelectValue = ref("From all pairs")
     const pairSelect = computed({
         get: () => pairSelectValue.value,
         set: (newValue) => {
             pairSelectValue.value = newValue
-            if (newValue === 1) //All pairs in sheet
+            if (newValue === "From sheet")
                 pairSelectSheet.value = sheetStore.getSheetsOfType(3)[0]
-            else if (newValue === 2) //All cards for a sheet
+            else if (newValue === "From cards")
                 pairSelectSheet.value = GetSheetsWithLearnedCards()[0]
-            else if (newValue === 3) {
+            else if (newValue === "From custom") {
                 highlightedCells.value = []
                 generateCustomPairSheet()
             }
@@ -64,14 +64,9 @@
             RestartRun()
         }
     })
-    //Also includes selection of sheets/cards/custom pairs
-    const pairSelectFinished = computed({
-        get: () => (pairSelect.value > -1 && pairSelect.value < 3)
-                    || pairSelect.value === 3 && highlightedCells.value.length > 0
-    })
 
     //Includes both "From sheet" and "From cards" because they both take from alg-sheets
-    const pairSelectSheetValue = ref({})
+    const pairSelectSheetValue = ref(null)
     const pairSelectSheet = computed({
         get: () => pairSelectSheetValue.value,
         set: (newValue) => {
@@ -80,6 +75,12 @@
         }
     })
 
+    const pairSelectFinished = computed({
+        get: () =>  pairSelect.value == "From all pairs"
+                    || pairSelect.value == "From sheet" && pairSelectSheet.value
+                    || pairSelect.value == "From cards" && pairSelectSheet.value
+                    || pairSelect.value == "From custom" && highlightedCells.value.length > 0
+    })
 
     function GetSheetsWithLearnedCards() {
         //All unique sheet with learning or due cards
@@ -150,11 +151,11 @@
     function getPossiblePairs() {
         let possiblePairs = []
         switch (pairSelect.value) {
-            case 0: //From all pairs
+            case "From all pairs":
                 return (useSettingsStore().settings.memo_includeimpossiblepairs ? allLetterPairs
                     : (mode.value == "Corners") ? allCornerPairs : ((mode.value == "Edges") ? allEdgePairs : allPossiblePairs))
 
-            case 1: //From sheet
+            case "From sheet":
                 for (var y = 0; y < 24; y++) {
                     for (var x = 0; x < 24; x++) {
                         if (pairSelectSheet.value.grid[y][x] == '')
@@ -164,12 +165,12 @@
                 }
                 return possiblePairs
 
-            case 2: //From cards (Get learned cards from selected sheet, then convert to letter pair)
+            case "From cards": // Get learned cards from selected sheet, then convert to letter pair
                 return GetLearnedCards()
                     .filter(card => card.sheetID === pairSelectSheet.value.id)
                     .map(card => (pairSelectSheet.value.xHeadings[card.coord.x] + pairSelectSheet.value.yHeadings[card.coord.y]))
 
-            case 3: //From custom (convert highlighted cell coords to letter pairs)
+            case "From custom": // Convert highlighted cell coords to letter pairs
                 const letters = "ABCDEFGHIJKLMNOPQRSTUVWX"
                 return highlightedCells.value.map(coord => letters[coord.y] + letters[coord.x])
         }
@@ -207,9 +208,9 @@
 <template>
     <div id="MemoSelect">
         <div class="MemoViewHeader">
-            <div style="display:flex;flex-direction:column;" title="Memo mode">
+            <div style="display:flex;flex-direction:column;">
                 <select style="font-size: 2rem; text-align:center;" v-model="mode">
-                    <option v-for="mode in modes">{{mode}}</option>
+                    <option v-for="(mode, index) in modes" :title="modesDesc[index]">{{mode}}</option>
                 </select>
             </div>
         </div>
@@ -222,39 +223,49 @@
         </div>
         <div class="MemoSelectLine" v-if="mode === 'Multiblind'" />
 
-        <div class="MemoViewHeader" title="Select letter pairs from..." v-if="modeSelected">
+        <div class="MemoViewHeader" v-if="modeSelected">
             <select v-model="pairSelect" style="font-size: 2rem; text-align:center;">
-                <option :value="0">From all pairs</option>
-                <option v-if="sheetStore.getSheetsOfType(3).length > 0" :value="1">From sheet</option>
-                <option v-if="GetLearnedCards().length > 0" :value="2">From cards</option>
-                <option :value="3">From custom</option>
+                <option title="All possible letter pairs can appear">From all pairs</option>
+                <option title="All letter pairs in a chosen sheet can appear">From sheet</option>
+                <option title="Flashcards that have been practiced in an images card deck can appear">From cards</option>
+                <option title="Select from a grid of letter pairs">From custom</option>
             </select>
         </div>
 
-        <div class="MemoSelectLine" v-if="pairSelect > 0" />
-        <div class="MemoViewHeader"  title="Which sheet?" v-if="pairSelect === 1">
-            <select v-model="pairSelectSheet" style="font-size: 2rem; text-align:center;">
-                <option v-for="sheetOption in sheetStore.getSheetsOfType(3)" :value="sheetOption">'{{ sheetOption.name }}'</option>
-            </select>
+        <div class="MemoSelectLine" v-if="pairSelect != '' && pairSelect != 'From all pairs'" />
+        <div class="MemoViewHeader" v-if="pairSelect == 'From sheet'">
+            <div v-if="sheetStore.getSheetsOfType(3).length > 0">
+                <select v-model="pairSelectSheet" style="font-size: 2rem; text-align:center;">
+                    <option v-for="sheetOption in sheetStore.getSheetsOfType(3)" :value="sheetOption">'{{ sheetOption.name }}'</option>
+                </select>
+            </div>
+            <div v-else>
+                No valid sheets
+            </div>
         </div>
-        <div class="MemoViewHeader" title="Which card deck?" v-if="pairSelect === 2">
-            <select v-model="pairSelectSheet" style="font-size: 2rem; text-align: center;">
-                <option v-for="sheetOption in GetSheetsWithLearnedCards()" :value="sheetOption">'{{ sheetOption.name }}'</option>
-            </select>
+        <div class="MemoViewHeader" v-if="pairSelect == 'From cards'">
+            <div v-if="GetLearnedCards().length > 0">
+                <select v-model="pairSelectSheet" style="font-size: 2rem; text-align: center;">
+                    <option v-for="sheetOption in GetSheetsWithLearnedCards()" :value="sheetOption">'{{ sheetOption.name }}'</option>
+                </select>
+            </div>
+            <div v-else>
+                No valid card decks
+            </div>
         </div>
-        <div class="MemoViewHeader" title="Select from a grid of letter pairs" v-if="pairSelect === 3">
+        <div class="MemoViewHeader" v-if="pairSelect == 'From custom'">
             <img @click="editCustomPairButtonClicked(); nextTick(()=> {if(gridRef){gridRef.changeHighlightedCells(highlightedCells)}})"
             src="@/assets/icons/edit.svg"
             :class="['CustomButton', editingCustomPairs ? 'CustomButtonHovered': '']"
             :style="{height: '45px', backgroundColor: (editingCustomPairs ?  'var(--brand-400)' : '')}"/>
         </div>
-        <div class="MemoSelectLine" v-if="pairSelectFinished && pairSelect == 0" />
-        <div class="MemoViewHeader" v-if="pairSelectFinished && pairSelect == 0">
+        <div class="MemoSelectLine" v-if="pairSelectFinished && pairSelect == 'From all pairs'" />
+        <div class="MemoViewHeader" v-if="pairSelectFinished && pairSelect == 'From all pairs'">
             Highscore: {{ memoStore.GetHighscore(mode) }}
         </div>
     </div>
 
-    <SheetGrid v-if="pairSelect === 3"
+    <SheetGrid v-if="pairSelect == 'From custom'"
                id="CustomPairGrid"
                :sheet="customSheet"
                :key="customSheet.value"

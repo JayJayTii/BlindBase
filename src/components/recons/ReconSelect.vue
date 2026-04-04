@@ -71,7 +71,7 @@
                 <div id="newReconRow">
                     <label>Scramble:</label>
                     <input style="flex-grow: 1;" v-model="newScramble" />
-                    <button title="Create reconstruction with this scramble" @click="createRecon">+</button>
+                    <button title="Create new" @click="createRecon">+</button>
                 </div>
             </div>
             <!-- RIGHT COLUMN RECON SCRAMBLE -->

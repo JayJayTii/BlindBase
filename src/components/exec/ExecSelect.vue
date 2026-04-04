@@ -18,6 +18,8 @@
         pairSelect.value = ""
         pairSelectSheetID.value = -1
         customSheet.value = {}
+        if(editingCustomPairs.value)
+            editCustomPairButtonClicked()
     }
 
     //Corners or Edges
@@ -31,7 +33,7 @@
             pieceTypeValue.value = newValue
         }
     })
-    const pieceTypes = ['', 'corner', 'edge']
+    const pieceTypes = ['', 'Corner', 'Edge']
     const pieceTypeSelected = computed({get: () => pieceType.value != -1 })
 
     //Whole or One pair
@@ -57,7 +59,9 @@
         set: (newValue) => {
             pairSelectValue.value = newValue
             pairSelectSheetID.value = -1
-
+    
+            if(editingCustomPairs.value)
+                editCustomPairButtonClicked()
             if (newValue == "From sheet") {
                 pairSelectSheetID.value = sheetStore.getSheetsOfType(Number(pieceType.value))[0].id
             }
@@ -243,8 +247,8 @@
 <template>
     <div id="ExecSelect">
         <select v-model="pieceType" style="font-size: 2rem; text-align: center;">
-            <option value=1 title="Scrambles for corners">Corners</option>
-            <option value=2 title="Scrambles for edges">Edges</option>
+            <option value=1>Corners</option>
+            <option value=2>Edges</option>
         </select>
 
         <div class="ExecSelectLine" v-if="pieceTypeSelected" />
@@ -258,24 +262,24 @@
             <option title="Any letter pair can appear">From all pairs</option>
             <option title="All letter pairs in a chosen sheet can appear">From sheet</option>
             <option title="Flashcards that have been practiced in a card deck can appear">From cards</option>
-            <option>From custom</option>
+            <option title="Select from a grid of letter pairs">From custom</option>
         </select>
 
         <div class="ExecSelectLine" v-if="pairSelect == 'From sheet' || pairSelect == 'From cards' || pairSelect == 'From custom'" />
         <div v-if="pairSelect == 'From sheet' || pairSelect == 'From cards' || pairSelect == 'From custom'">
             <div v-if="pairSelect == 'From sheet'">
-                <select v-if="sheetStore.getSheetsOfType(Number(pieceType)).length > 0" title="Which sheet?" v-model="pairSelectSheetID" style="font-size: 2rem;text-align:center;">
+                <select v-if="sheetStore.getSheetsOfType(Number(pieceType)).length > 0" v-model="pairSelectSheetID" style="font-size: 2rem;text-align:center;">
                     <option v-for="sheet in sheetStore.getSheetsOfType(Number(pieceType))"
                             :value="sheet.id">
                         '{{sheet.name}}'
                     </option>
                 </select>
                 <div v-else>
-                    No valid {{pieceTypes[pieceType]}} sheets
+                    No valid sheets
                 </div>
             </div>
             <div v-if="pairSelect == 'From cards'">
-                <select v-if="getValidCardDecks().length > 0" title="Which card deck?" v-model="pairSelectSheetID" style="font-size: 2rem;text-align:center;">
+                <select v-if="getValidCardDecks().length > 0" v-model="pairSelectSheetID" style="font-size: 2rem;text-align:center;">
                     <option v-for="sheet in getValidCardDecks()"
                             :value="sheet.id">
                         '{{sheet.name}}'
@@ -285,7 +289,7 @@
                     No valid card decks
                 </div>
             </div>
-            <div v-if="pairSelect == 'From custom'" title="Select from a grid of letter pairs" style="display:flex; justify-content: center;">
+            <div v-if="pairSelect == 'From custom'" style="display:flex; justify-content: center;">
                     <img @click="editCustomPairButtonClicked(); UpdateSelectedCells()"
                          src="@/assets/icons/edit.svg"
                          :class="['CustomButton', editingCustomPairs ? 'CustomButtonHovered': '']"
@@ -294,13 +298,19 @@
         </div>
     </div>
 
-    <SheetGrid v-if="pairSelect == 'From custom'"
-               id="CustomExecPairGrid"
-               :sheet="customSheet.value"
-               :key="customSheet.value"
-               :formatEmpty="true" :fullLineSelection="true"
-               ref="gridRef"
-               @update:selected-cells="onCustomPairsClicked"/>
+    <div id="CustomExecPairGrid" v-if="pairSelect == 'From custom'">
+        <button style="font-size:1rem;transform:translateX(calc(95vw - 100%));"
+                @click="editCustomPairButtonClicked()">
+            X
+        </button>
+        <SheetGrid :sheet="customSheet.value"
+                   :key="customSheet.value"
+                   :formatEmpty="true"
+                   :fullLineSelection="true"
+                   @update:selected-cells="onCustomPairsClicked"
+                   ref="gridRef" 
+                   style="height: 100%; width: 100%;"/>
+    </div>
 </template>
 
 <style>
@@ -329,7 +339,7 @@
         width: 95vw;
         position: absolute;
         left: 2.5vw;
-        top: 10vh;
+        top: 7vh;
         transform: translate(0vw, -100vh);
         z-index: 20;
         border-radius: 10px;

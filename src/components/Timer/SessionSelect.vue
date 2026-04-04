@@ -29,7 +29,7 @@
 
             <div style="display: flex;flex-direction: row; justify-content: space-between; width: 100%; ">
                 <div></div>
-                <img title="Create an empty session"
+                <img title="Create new"
                      @click="timerStore.newSession(); emit('updateSessionID',timerStore.sessions.length-1);"
                      class="CustomButton" src="@/assets/icons/add.svg" style="height:40px;" />
             </div>

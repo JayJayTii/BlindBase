@@ -230,7 +230,9 @@
     <div id="ReconCreateNotationLayout">
         <div style="display: flex; flex-direction: column; gap: 10px; padding: 10px;">
             <div class="ReconHeader">Edges:</div>
-            <div title="Fills the alg of a letter pair if the sheet contains one" style="color:var(--grey-100)" v-if="edgeSheets.length > 0">
+            <div v-if="edgeSheets.length > 0" 
+                 title="Fills the alg of a letter pair if the sheet contains one" 
+                 style="color:var(--grey-100)">
                 Algs from
                 <select v-model="edgeSheetID" @change="FillAllEdges()">
                     <option v-for="sheet in edgeSheets"
@@ -248,7 +250,6 @@
                 <textarea style="field-sizing: content; resize:none;"
                           class="ReconNotationInput"
                           v-model="edgeInput[index]"
-                          :title="'Algorithm for ' + pair"
                           :id="'Edges' + index.toString()"
                           :ref="el => edgeInputBox[index] = el" />
                 <img src="@/assets/icons/lightbulb-line.svg" title="Random algorithm" class="CustomButton" style="height:40px;min-width:40px;" @click="FillEdgeRecommendation(index)" />
@@ -280,7 +281,6 @@
                      v-for="(pair,index) in cornerPairs">
                     {{pair}}:
                     <textarea style="field-sizing: content; resize:none;"
-                              :title="'Algorithm for ' + pair"
                               class="ReconNotationInput"
                               v-model="cornerInput[index]"
                               :id="'Corns' + index.toString()"
@@ -296,14 +296,16 @@
             </div>
         </div>
     </div>
+
     <img src="@/assets/icons/arrow-left-long.svg"
          title="Back"
          :class="['CustomButton','NextButton']" 
          style="left:0px;transform:translate(100%,-100%);"
          @click="revertToLetterSelection()" />
     <img src="@/assets/icons/arrow-right-long.svg"
-         title="Finish reconstruction"
+         title="Continue"
          :class="['CustomButton','NextButton']" 
+         style="right:0px;transform:translate(-100%,-100%);"
          @click="notationSelectionFinished()" />
 </template>
 

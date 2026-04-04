@@ -73,7 +73,7 @@
 </script>
 
 <template>
-    <div id="scrambleText" title="Scramble">
+    <div id="scrambleText">
         {{scrambleStr}}
     </div>
     <ReconCreateLetters v-if="stage === 0"

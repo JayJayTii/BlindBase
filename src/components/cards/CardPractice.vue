@@ -43,7 +43,7 @@
         <div class="PracticeView">
             <!------BACK------>
             <img src="@/assets/icons/arrow-left-long.svg"
-                 title="Leave practice - progress is saved"
+                 title="Back"
                  @click="emit('quitPractice')"
                  class="CustomButton" style="margin-left: 10px; width:70px;height:50px;" />
 
@@ -51,7 +51,7 @@
             <h3 class="PracticeSheetName">{{sheetStore.getSheet(props.sheetID).name}}</h3>
 
             <!------REMAINING CARDS STATS------>
-            <div class="RemainingPanel" title="Remaining cards to practice in this deck" :key="props.updateStatsKey">
+            <div class="RemainingPanel" :key="props.updateStatsKey">
                 <div>New</div>
                 <div>Learning</div>
                 <div>Due</div>

@@ -20,7 +20,7 @@
     const sheetID = ref(-1)
 
     const columnHeaders = ['Sheet','Flashcards','','New','Learning','Due', '']
-    const columnTooltips = ['', '', '', `Cards you haven\'t learned yet (${settingsStore.settings.cards_dailymaximumnewcards} max per day)`,'Cards you are starting to learn', 'Cards using spaced repetition for optimal recall', '']
+    const columnTooltips = ['', '', '', `Cards you haven\'t learned yet (${settingsStore.settings.cards_dailymaximumnewcards} max per day)`,'Cards you are starting to learn', 'Long-term cards using spaced repetition', '']
     const gridRef = ref(null)
     const selectedCells = ref(Array.from({ length: 24 }, () =>
         Array.from({ length: 24 }, () => false),
@@ -84,16 +84,16 @@
                     <div>{{sheet.name}}</div>
                     <div style="display:flex;flex-direction:row; justify-content:center;gap:10px;align-items:center;">
                         {{cardStore.getCardsForSheet(sheet.id).length}}/{{sheetStore.getFilledCellCount(sheet.id)}}
-                        <img title="Create flashcards"
+                        <img title="Edit flashcards"
                              @click="sheetID = sheet.id; editFlashcardsButtonClicked()"
                              src="@/assets/icons/edit.svg"
                              :class="['CustomButton', (sheetID === sheet.id) ? 'CustomButtonHovered': '']"
                              style="height: 2rem;" />
                     </div>
                     <div />
-                    <div :title="columnTooltips[3]">{{cardStore.getCardsOfType(sheet.id, "New").length}}</div>
-                    <div :title="columnTooltips[4]">{{cardStore.getCardsOfType(sheet.id, "Learning").length}}</div>
-                    <div :title="columnTooltips[5]">{{cardStore.getCardsOfType(sheet.id, "Due").length}}</div>
+                    <div>{{cardStore.getCardsOfType(sheet.id, "New").length}}</div>
+                    <div>{{cardStore.getCardsOfType(sheet.id, "Learning").length}}</div>
+                    <div>{{cardStore.getCardsOfType(sheet.id, "Due").length}}</div>
                     <div>
                         <img v-if="cardStore.getCardsToPracticeCount(sheet.id) > 0"
                              title="Practice"
@@ -102,7 +102,7 @@
                              style="height: 40px; width: 60px;"
                              @click="emit('beginPractice', sheet.id)" />
                     </div>
-                    <div class="RowGap" v-for="x in columnHeaders.length" :title="columnTooltips[x]" v-if="index + 1 < sheetStore.sheets.length"></div>
+                    <div class="RowGap" v-for="x in columnHeaders.length" v-if="index + 1 < sheetStore.sheets.length"></div>
                 </template>
             </div>
             <div v-if="sheetStore.sheets.length === 0" style="color:var(--info-200); font-size:1.5rem;">

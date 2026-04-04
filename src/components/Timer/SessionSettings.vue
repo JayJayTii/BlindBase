@@ -52,7 +52,7 @@
                    style="white-space:nowrap;font-weight:bold;font-size:2rem;width:100%;text-align:center;" />
         </div>
         <!------TYPE------>
-        <div class="SessionEditingRow" title="Session type - this affects scrambles" id="editSessionType">
+        <div class="SessionEditingRow" id="editSessionType">
             Type: <select v-model="currentSessionType" >
                 <option v-for="(type,index) in timerStore.getSessionTypes"
                         :key="index"

@@ -151,7 +151,7 @@
             <FaceletCube3D style="width: 100%; aspect-ratio: 4/3; border: 1px solid var(--grey-100); border-radius: 5px;"
                            :cube="cube" />
             <div style="display: flex; flex-direction: row; justify-content:space-between; width: 100%;">
-                <img src="@/assets/icons/delete-bin.svg" title="Delete this reconstruction" @click="Delete()" style="width:50px;" class="CustomButton" />
+                <img src="@/assets/icons/delete-bin.svg" title="Delete" @click="Delete()" style="width:50px;" class="CustomButton" />
                 <div class="CustomButton" style=" width: 100px; height: 50px;"
                      @click="CopyRecon()">
                     {{copyText}}
@@ -161,7 +161,7 @@
                     Open in CubeDB
                 </div>
                 <img src="@/assets/icons/arrow-right-long.svg"
-                     title="Continue to recon selection"
+                     title="Continue"
                      style="height:50px;width:80px;"
                      class="CustomButton"
                      @click="ExitEdit()" />
