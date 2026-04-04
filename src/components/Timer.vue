@@ -55,7 +55,7 @@
     function handleKeydown(event) {
         const el = document.activeElement
         //Don't start timer if typing a keybind as text
-        if (!acceptSpaceInput || el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.isContentEditable)
+        if (!acceptSpaceInput || scramble.value == '' || el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.isContentEditable)
             return
 
         if (timerStage.value === stages.finished) {

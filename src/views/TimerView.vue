@@ -12,8 +12,15 @@
     const confirmDialog = inject('confirmDialog')
     import { Scramble, get3BLDscramble } from '@/helpers/scramble.js'
     import { scramblers } from '@/helpers/solver/scramble_333_edit.js'
-
-    scramblers['333'].initialize(null, Math) //Lag spike sorry
+    
+    let scramblersInitialized = false
+    setTimeout(() => {
+        scramblers['333'].initialize(() => { 
+            scramblersInitialized = true
+            if(currentSession.value.type == 1 || currentSession.value.type == 2)
+                generateNewScramble()
+        }, Math)
+    }, 0)
 
     //-1 means no session selected, otherwise it is the selected session's ID
     const sessionID = ref(-1)
@@ -56,10 +63,10 @@
                 currentScramble = get3BLDscramble()
                 break
             case 1: //3x3 Edges
-                currentScramble = scramblers['333'].getEdgeScramble()
+                currentScramble = scramblersInitialized ? scramblers['333'].getEdgeScramble() : ''
                 break
             case 2: //3x3 Corners
-                currentScramble = scramblers['333'].getCornerScramble()
+                currentScramble = scramblersInitialized ? scramblers['333'].getCornerScramble() : ''
                 break
         }
         await nextTick()
