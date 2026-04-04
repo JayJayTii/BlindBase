@@ -41,7 +41,6 @@
     }   
 
     function onCellsClicked(values, create) {
-        console.log(values)
         if(create)
             cardStore.createCards(sheetID.value, values)
         else

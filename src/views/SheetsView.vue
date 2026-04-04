@@ -22,12 +22,13 @@
     const editCellRef = ref(null)
 
     function updateSheetID(index) { //Triggered by SheetSelect component
-        if (sheetID.value != sheetStore.sheets[index].id) {
+        if (sheetStore.sheets.length > index && sheetID.value != sheetStore.sheets[index].id) {
             sheetID.value = sheetStore.sheets[index].id
             selectedCell.x = -1
             selectedCell.y = -1
         }
     }
+    updateSheetID(0)
     async function deleteSheet() {
         if (!(await confirmDialog.value.open('Are you sure you want to delete this sheet?'))) {
             return

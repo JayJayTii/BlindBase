@@ -83,18 +83,18 @@
 
         <div style="display: flex; flex-direction: row; justify-content:space-between; width:100%;">
             <!------DOWNLOAD------>
-            <img title="Download this sheet"
+            <img title="Download as .csv"
                  src="@/assets/icons/download.svg" @click="downloadSheet()" class="CustomButton"  style="height:40px;"/>
 
             <!------DELETE------>
-            <img title="Delete this sheet"
+            <img title="Delete"
                  src="@/assets/icons/delete-bin.svg" @click="emit('deleteSheet')" class="CustomButton" style="height:40px;" />
         </div>
     </div>
     <div v-else class="Panel">
         <div class="PanelHeader"> Sheet settings: </div>
         <div style="color:var(--info-200);text-align:center;">
-            Select a sheet to get started
+            Create a sheet to get started
         </div>
     </div>
 </template>

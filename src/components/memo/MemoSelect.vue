@@ -13,7 +13,7 @@
 
     const emit = defineEmits(['restartRun', 'cancelRun'])
 
-    const modeValue = ref("")
+    const modeValue = ref("Corners")
     const mode = computed({
         get: () => modeValue.value,
         set: (newValue) => {
@@ -47,7 +47,7 @@
         }
     })
 
-    const pairSelectValue = ref(-1)
+    const pairSelectValue = ref(0)
     const pairSelect = computed({
         get: () => pairSelectValue.value,
         set: (newValue) => {
@@ -191,6 +191,7 @@
             possiblePairs: possiblePairs,
         })
     }
+    RestartRun()
 
     function editCustomPairButtonClicked() {
         editingCustomPairs.value = !editingCustomPairs.value
@@ -222,7 +223,7 @@
         <div class="MemoSelectLine" v-if="mode === 'Multiblind'" />
 
         <div class="MemoViewHeader" title="Select letter pairs from..." v-if="modeSelected">
-            <select v-model="pairSelect" style="font-size: 2rem;text-align:center;">
+            <select v-model="pairSelect" style="font-size: 2rem; text-align:center;">
                 <option :value="0">From all pairs</option>
                 <option v-if="sheetStore.getSheetsOfType(3).length > 0" :value="1">From sheet</option>
                 <option v-if="GetLearnedCards().length > 0" :value="2">From cards</option>
@@ -232,12 +233,12 @@
 
         <div class="MemoSelectLine" v-if="pairSelect > 0" />
         <div class="MemoViewHeader"  title="Which sheet?" v-if="pairSelect === 1">
-            <select v-model="pairSelectSheet" style="font-size: 2rem;text-align:center;">
+            <select v-model="pairSelectSheet" style="font-size: 2rem; text-align:center;">
                 <option v-for="sheetOption in sheetStore.getSheetsOfType(3)" :value="sheetOption">'{{ sheetOption.name }}'</option>
             </select>
         </div>
         <div class="MemoViewHeader" title="Which card deck?" v-if="pairSelect === 2">
-            <select v-model="pairSelectSheet" style="font-size: 2rem">
+            <select v-model="pairSelectSheet" style="font-size: 2rem; text-align: center;">
                 <option v-for="sheetOption in GetSheetsWithLearnedCards()" :value="sheetOption">'{{ sheetOption.name }}'</option>
             </select>
         </div>

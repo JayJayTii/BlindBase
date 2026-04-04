@@ -64,7 +64,7 @@
         <div style="display: flex; flex-direction: row; justify-content:space-between; width:100%;">
             <div></div>
             <!------DELETE------>
-            <img src="@/assets/icons/delete-bin.svg" title="Delete this session"
+            <img src="@/assets/icons/delete-bin.svg" title="Delete"
                  @click="emit('deleteSession')" class="CustomButton" style="height:40px;" />
         </div>
     </div>

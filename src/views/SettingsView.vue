@@ -38,6 +38,7 @@
             catch (error) {
                 alert("Failed to import data, please make sure that it was previously exported from BlindBase and that it is a .json file.")
             }
+            alert("Successfully imported!")
             window.location.reload();
         }
         input.click()

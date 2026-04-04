@@ -26,7 +26,7 @@
     const selectedRecon = ref(-1)
     let reconPreviewCube = new FaceletCube()
     function ReconClicked(index) {
-        if (index == -1)
+        if (index == -1 || index >= reconsStore.recons.length)
             return
 
         if (index == selectedRecon.value) { //Edit this recon
@@ -40,25 +40,7 @@
         scramble.setAlgorithmNotation(reconsStore.recons[index].scramble)
         reconPreviewCube.TurnSequence(scramble)
     }
-
-    function handleKeydown(event) {
-        if (event.code === "Enter" || event.code === "NumpadEnter") {
-            ReconClicked(selectedRecon.value)
-            return
-        }
-        if (event.code === "ArrowUp" || event.code === "ArrowLeft") {
-            ReconClicked((selectedRecon.value == -1) ? (reconsStore.recons.length - 1) : ((selectedRecon.value - 1 + reconsStore.recons.length) % reconsStore.recons.length))
-        }
-        else if (event.code === "ArrowDown" || event.code === "ArrowRight") {
-            ReconClicked((selectedRecon.value == -1) ? 0 : (selectedRecon.value + 1) % reconsStore.recons.length)
-        }
-    }
-    onMounted(() => {
-        window.addEventListener('keydown', handleKeydown)
-    })
-    onUnmounted(() => {
-        window.removeEventListener('keydown', handleKeydown)
-    })
+    ReconClicked(0)
 </script>
 
 <template>

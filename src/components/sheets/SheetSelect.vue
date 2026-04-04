@@ -39,11 +39,11 @@
             
             <div style="display: flex;flex-direction: row; justify-content: space-between; width: 100%; ">
                 <!------UPLOAD------>
-                <img title="Upload an algsheet - must be saved as a .csv file"
+                <img title="Upload .csv file"
                      src="@/assets/icons/upload.svg" class="CustomButton" style="height:40px;" 
                       @click="UploadFile()" />
 
-                <img title="Create an empty algsheet"
+                <img title="Create new"
                      @click="sheetStore.newSheet(); emit('updateSheetID',sheetStore.sheets.length-1);"
                      class="CustomButton" src="@/assets/icons/add.svg" style="height:40px;" />
             </div>

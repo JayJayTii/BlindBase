@@ -13,10 +13,7 @@
     import { Scramble, get3BLDscramble } from '@/helpers/scramble.js'
     import { scramblers } from '@/helpers/solver/scramble_333_edit.js'
 
-    //Running the initialisation asynchronously to avoid lag spike when entering timer tool
-    setTimeout(() => {
-        scramblers['333'].initialize(null, Math)
-    }, 0)
+    scramblers['333'].initialize(null, Math) //Lag spike sorry
 
     //-1 means no session selected, otherwise it is the selected session's ID
     const sessionID = ref(-1)
@@ -29,7 +26,7 @@
     const solveIndex = ref(-1)
     const timer = ref(null)
     async function updateSessionID(index) { //Called from SessionSelect component
-        if (sessionID.value != timerStore.sessions[index].id) {
+        if (timerStore.sessions.length > index && sessionID.value != timerStore.sessions[index].id) {
             sessionID.value = timerStore.sessions[index].id
             solveIndex.value = -1
             previousScramble.value = ""
@@ -38,6 +35,8 @@
             generateNewScramble()
         }
     }
+    nextTick(() => { updateSessionID(0) })
+
     async function deleteSession() {
         if (!await confirmDialog.value.open('Are you sure you want to delete this session?'))
             return

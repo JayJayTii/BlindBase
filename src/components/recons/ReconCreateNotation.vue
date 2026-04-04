@@ -251,7 +251,7 @@
                           :title="'Algorithm for ' + pair"
                           :id="'Edges' + index.toString()"
                           :ref="el => edgeInputBox[index] = el" />
-                <img src="@/assets/icons/lightbulb-line.svg" title="Fill with a random recommendation" class="CustomButton" style="height:40px;min-width:40px;" @click="FillEdgeRecommendation(index)" />
+                <img src="@/assets/icons/lightbulb-line.svg" title="Random algorithm" class="CustomButton" style="height:40px;min-width:40px;" @click="FillEdgeRecommendation(index)" />
             </div>
             <textarea style="field-sizing: content; resize:none;"
                       title="Parity/Flips/Twists"
@@ -285,7 +285,7 @@
                               v-model="cornerInput[index]"
                               :id="'Corns' + index.toString()"
                               :ref="el => cornerInputBox[index] = el " />
-                    <img src="@/assets/icons/lightbulb-line.svg" title="Fill with a random recommendation" class="CustomButton" style="height:40px;min-width:40px;" @click="FillCornerRecommendation(index)"></img>
+                    <img src="@/assets/icons/lightbulb-line.svg" title="Random algorithm" class="CustomButton" style="height:40px;min-width:40px;" @click="FillCornerRecommendation(index)"></img>
                 </div>
                 <textarea style="field-sizing: content; resize:none;"
                           title="Parity/Flips/Twists"
