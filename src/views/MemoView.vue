@@ -131,7 +131,7 @@
 
 <style>
     .MemoView {
-        min-height: calc(100vh - var(--navbar-height) - var(--footer-height));
+        height: 100%;
         position: relative;
         color: var(--text-color);
     }

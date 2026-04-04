@@ -11,12 +11,14 @@
 
 <template>
     <ConfirmationBox ref="confirmDialog" />
-    <Navbar />
-    <!--Vue handles routing, routes are defined in routers/index.js-->
-    <div style="height: calc(100vh - var(--navbar-height)); overflow: auto;">
-        <div style="min-height: calc(100% - var(--footer-height));">
+    <div style="display: flex; flex-direction: column; height: 100vh;">
+        <Navbar />
+
+        <!--Vue handles routing, routes are defined in routers/index.js-->
+        <div style="overflow-y: auto; height: calc(100vh - var(--navbar-height) - var(--footer-height));">
             <RouterView :key="$route.fullPath" />
         </div>
-        <Footer />
+        <div style="height: var(--footer-height);"></div>
+        <Footer style="position: fixed; bottom: 0px; left: 0px; width: 100%;" />
     </div>
 </template>

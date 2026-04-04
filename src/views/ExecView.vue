@@ -113,7 +113,7 @@
                        ref="timer"
                        :clearOnSolved="false"
                        @update:solve-complete="solveComplete"
-                       style="height: 73vh;width:100%;" />
+                       style="height: 60vh; width:100%;" />
             </div>
 
             <!-- RIGHT COLUMN NEXT SOLVE -->
@@ -131,7 +131,7 @@
 
 <style>
     .ExecView {
-        height: calc(100vh - var(--navbar-height) - var(--footer-height));
+        height: 100%;
         position: relative;
         color: var(--text-color);
     }

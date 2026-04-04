@@ -260,6 +260,7 @@
                       v-model="edgeInput[edgeInput.length - 1]"
                       :id="'Edges' + (edgeInput.length - 1).toString()"
                       :ref="el => edgeInputBox[edgeInput.length - 1] = el" />
+            <div style="height: 110px;"></div>
         </div>
 
         <FaceletCube3D :cube="cube"

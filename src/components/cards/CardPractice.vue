@@ -39,7 +39,7 @@
 </script>
 
 <template>
-    <div style="height: calc(100vh - var(--navbar-height) - var(--footer-height));">
+    <div>
         <div class="PracticeView">
             <!------BACK------>
             <img src="@/assets/icons/arrow-left-long.svg"

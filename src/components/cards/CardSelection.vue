@@ -66,7 +66,7 @@
 <template>
     <!------CARD MENU GRID------>
     <div class="CardsView">
-        <div style="height: calc(100vh - var(--navbar-height) - var(--footer-height));">
+        <div>
             <div style="height:10vh"></div>
 
             <div class="CardsMenuGrid">

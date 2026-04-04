@@ -11,7 +11,7 @@
 </script>
 
 <template>
-    <div style="height: 100%;">
+    <div>
         <div style="text-align:center; color:var(--grey-100);">
             <div style="height:5vh" />
             <h1 id="title">BlindBase</h1>

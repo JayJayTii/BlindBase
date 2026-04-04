@@ -66,7 +66,7 @@
 
 
 <template>
-    <div style="display: flex; flex-direction: row; height: calc(100vh - var(--navbar-height) - var(--footer-height));">
+    <div style="display: flex; flex-direction: row; height: 100%;">
         <!---------LEFT COLUMN--------->
         <div id="leftColumn">
             <div class="PanelColumn">

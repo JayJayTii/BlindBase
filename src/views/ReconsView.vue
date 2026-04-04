@@ -22,7 +22,7 @@
 </script>
 
 <template>
-    <div style="min-height: 100%">
+    <div>
         <!--Selects between creating, editing, and selecting a recon-->
         <ReconCreate v-if="newRecon" :scramble="scrambleSequence" />
         <ReconEdit v-else-if="reconIndex > -1" :reconIndex="reconIndex" />
