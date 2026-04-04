@@ -111,7 +111,6 @@
                 <Timer v-if="selectionFinished()"
                        :key="timerKey"
                        ref="timer"
-                       :clearOnSolved="false"
                        @update:solve-complete="solveComplete"
                        style="height: 60vh; width:100%;" />
             </div>

@@ -105,7 +105,7 @@
 </script>
 
 <template>
-    <div :key="sessionID" style="display: flex; flex-direction: row; height: calc(100vh - var(--navbar-height) - var(--footer-height);">
+    <div :key="sessionID" style="display: flex; flex-direction: row; height: 100%;">
         <!---------LEFT COLUMN--------->
         <div class="PanelColumn">
             <SessionSelect style="width: 100%; height: 33%;"

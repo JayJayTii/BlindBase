@@ -8,7 +8,7 @@
 
 <template>
     <!--Navbar sticks to the top of the screen-->
-    <div class="Navbar">
+    <header>
         <div class="Navbar-left">
             <div @click="router.push('/')" class="clickable" style="padding-top: 5px;">
                 <img src="@/assets/logo.png" style="height: calc(var(--navbar-height) - 10px);" />
@@ -26,11 +26,11 @@
                 <img src="@/assets/icons/settings.svg" style="margin-top: 5px; height: calc(var(--navbar-height) - 10px);"/>
             </div>
         </div>
-    </div>
+    </header>
 </template>
 
 <style>
-    .Navbar {
+    header {
         display: flex;
         justify-content: space-between;
         height: var(--navbar-height);

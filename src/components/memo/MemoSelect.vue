@@ -255,9 +255,9 @@
         </div>
         <div class="MemoViewHeader" v-if="pairSelect == 'From custom'">
             <img @click="editCustomPairButtonClicked(); nextTick(()=> {if(gridRef){gridRef.changeHighlightedCells(highlightedCells)}})"
-            src="@/assets/icons/edit.svg"
-            :class="['CustomButton', editingCustomPairs ? 'CustomButtonHovered': '']"
-            :style="{height: '45px', backgroundColor: (editingCustomPairs ?  'var(--brand-400)' : '')}"/>
+                 src="@/assets/icons/edit.svg"
+                 :class="['CustomButton', editingCustomPairs ? 'CustomButtonHovered': '']"
+                 :style="{height: '45px', backgroundColor: (editingCustomPairs ?  'var(--brand-400)' : '')}" />
         </div>
         <div class="MemoSelectLine" v-if="pairSelectFinished && pairSelect == 'From all pairs'" />
         <div class="MemoViewHeader" v-if="pairSelectFinished && pairSelect == 'From all pairs'">
@@ -265,6 +265,8 @@
         </div>
     </div>
 
+    <hr />
+    
     <SheetGrid v-if="pairSelect == 'From custom'"
                id="CustomPairGrid"
                :sheet="customSheet"
@@ -284,7 +286,6 @@
         flex-direction: row;
         gap: 10px;
         padding-inline: 20px;
-        border: 2px solid var(--brand-700);
     }
     .MemoViewHeader {
         display: flex;

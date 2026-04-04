@@ -237,7 +237,7 @@
                  @click="letterSelectionFinished()" />
         </div>
 
-        <FaceletCube3D style="width: 45%; max-height: 78vh; aspect-ratio: 5/4;"
+        <FaceletCube3D style="width: 45%; height:100%; max-height: 78vh; aspect-ratio: 5/4; border: 1px solid var(--grey-100); border-radius: 4px;"
                        :cube="displayCube" />
     </div>
 </template>

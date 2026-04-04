@@ -2,6 +2,7 @@ import '@/helpers/3D/gl-matrix-min.js'
 const { mat4 } = glMatrix
 import { FaceletCube, faceColours } from '@/helpers/FaceletCube/FaceletCube.js'
 
+//https://youtube.com/playlist?list=PL2935W76vRNHFpPUuqmLoGCzwx_8eq5yK&si=ofNCSMJSk2rsow2t
 export function renderCube(gl, width, height, xSpin, ySpin, cube) {
     const gap = 0.03
     const vertexData = [

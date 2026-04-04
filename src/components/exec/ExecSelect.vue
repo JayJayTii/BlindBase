@@ -298,6 +298,8 @@
         </div>
     </div>
 
+    <hr />
+
     <div id="CustomExecPairGrid" v-if="pairSelect == 'From custom'">
         <button style="font-size:1rem;transform:translateX(calc(95vw - 100%));"
                 @click="editCustomPairButtonClicked()">
@@ -324,7 +326,6 @@
         flex-direction: row;
         gap: 10px;
         padding-inline: 20px;
-        border: 2px solid var(--brand-700);
     }
 
     .ExecSelectLine {

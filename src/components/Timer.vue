@@ -8,7 +8,6 @@
     const props = defineProps({
         lastSolve: Object,
         twoStage: Boolean,
-        clearOnSolved: Boolean,
     })
 
     //Goes through one stage at a time during an attempt
@@ -46,78 +45,96 @@
     refresh()
 
     let stopwatchStartTime = 0 //Current length of the solve is the current time - stopwatchStartTime
-    let timerUpdate = null //Holds the interval which updates the time
+    let timerUpdate = null //Holds the interval which updates the stopwatch
     let acceptSpaceInput = true //Space input is blocked for a period after a solve to prevent restarting
     let currentKeyPressed = "" //Avoids confusion when pressing two keys at once to progress the timer
     let waitingBeforeExec = false //Kind of a bodge to avoid adding an extra stage in the middle of the current ones
     let waitingTimeStart = 0 //Keeps track of how long space has been held before starting an attempt
+    let spacePressed = false
     const stopwatchKey = ref(0) //just so the yellow turns to green when holding space
     function handleKeydown(event) {
-        const el = document.activeElement
+        if(event.code === 'Space') 
+            spacePressed = true;
+
         //Don't start timer if typing a keybind as text
+        const el = document.activeElement
         if (!acceptSpaceInput || scramble.value == '' || el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.isContentEditable)
             return
 
-        if (timerStage.value === stages.finished) {
-            if (event.code === 'Space' || event.code === 'Mouse0') {
-                timerStage.value = stages.waiting //Wait for space up
-                waitingTimeStart = Date.now()
-                setTimeout(() => {
-                    stopwatchKey.value++
-                    solve.value = [0, 0, 0, scramble.value]
-                }, 1000 * useSettingsStore().settings.timer_spaceholdingtime)
-            }
-        }
-        if (timerStage.value === stages.memoing && currentKeyPressed == "") { //Wait for key up to start exec stage
-            currentKeyPressed = event.code
-            waitingBeforeExec = true
-            stopwatchKey.value++
-        }
-        if (timerStage.value === stages.executing && currentKeyPressed == "") { //Stop timer
-            currentKeyPressed = event.code
-            clearInterval(timerUpdate)
-            solve.value[0] = new Date().getTime() - stopwatchStartTime //Solve time
-            solve.value[2] = 0 //Status, default to no penalty
-            timerStage.value = stages.stopping
-            ratioTextSolve.value = solve.value
-            emit('update:solve-complete', solve.value)
-        }
+        if (timerStage.value === stages.finished && event.code === 'Space')
+            BeginWaiting()
+        else if (timerStage.value === stages.memoing && currentKeyPressed == "")
+            EndMemo()
+        else if (timerStage.value === stages.executing && currentKeyPressed == "")
+            StopTimer()
     }
     function handleKeyup(event) {
+        if(event.code === 'Space')
+            spacePressed = false
+        
         const el = document.activeElement
         if (!acceptSpaceInput || el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.isContentEditable)
             return
 
-        if (timerStage.value === stages.waiting) { //Begin timer
-            if (Date.now() - waitingTimeStart > 1000 * useSettingsStore().settings.timer_spaceholdingtime) {
-                timerStage.value = props.twoStage ? stages.memoing : stages.executing
-                stopwatchStartTime = new Date().getTime()
-                //Update the stopwatch text every 0.01 seconds
-                timerUpdate = setInterval(() => {
-                    solve.value[0] = new Date().getTime() - stopwatchStartTime //set solve time
-                }, 10)
+        if (timerStage.value === stages.waiting)
+            EndWaiting()
+        else if (timerStage.value === stages.memoing)
+            BeginExec()
+        else if (timerStage.value === stages.stopping)
+            FinishTimer()
+    }
+
+    function BeginWaiting() {
+        timerStage.value = stages.waiting //Wait for space up
+        waitingTimeStart = Date.now()
+        setTimeout((thisStartTime) => {
+            if(spacePressed && thisStartTime == waitingTimeStart) {
+                stopwatchKey.value++
+                solve.value = [0, 0, 0, scramble.value]
             }
-            else {
-                timerStage.value = stages.finished
-            }
+        }, 1000 * useSettingsStore().settings.timer_spaceholdingtime, waitingTimeStart)
+    }
+    function EndWaiting() {
+        if (Date.now() - waitingTimeStart > 1000 * useSettingsStore().settings.timer_spaceholdingtime) {
+            timerStage.value = props.twoStage ? stages.memoing : stages.executing
+            stopwatchStartTime = new Date().getTime()
+            //Update the stopwatch text every 0.01 seconds
+            timerUpdate = setInterval(() => {
+                solve.value[0] = new Date().getTime() - stopwatchStartTime //set solve time
+            }, 10)
         }
-        else if (event.code == currentKeyPressed && timerStage.value === stages.memoing) { //Begin exec stage
-            currentKeyPressed = ""
-            waitingBeforeExec = false
-            timerStage.value = stages.executing
-            solve.value[1] = solve.value[0] //Copy current solve time into memoTime
+        else {
+            timerStage.value = stages.finished // Cancel timer start
         }
-        else if (event.code == currentKeyPressed && timerStage.value === stages.stopping) { //Go back to default screen
-            currentKeyPressed = ""
-            timerStage.value = stages.finished
-            if (props.clearOnSolved)
-                solve.value[0] = 0 //Solve time
-            //Don't accept new spacebar presses for a bit after ending a solve just in case
-            acceptSpaceInput = false
-            setTimeout(() => {
-                acceptSpaceInput = true
-            }, 500)
-        }
+    }
+    function EndMemo() {
+        currentKeyPressed = event.code
+        waitingBeforeExec = true
+        stopwatchKey.value++
+    }
+    function BeginExec() {
+        currentKeyPressed = ""
+        waitingBeforeExec = false
+        timerStage.value = stages.executing
+        solve.value[1] = solve.value[0] // Copy current solve time into memoTime
+    }
+    function StopTimer() {
+        currentKeyPressed = event.code
+        clearInterval(timerUpdate)
+        solve.value[0] = new Date().getTime() - stopwatchStartTime //Solve time
+        solve.value[2] = 0 //Status, default to no penalty
+        timerStage.value = stages.stopping
+        ratioTextSolve.value = solve.value
+        emit('update:solve-complete', solve.value)
+    }
+    function FinishTimer() {
+        currentKeyPressed = ""
+        timerStage.value = stages.finished
+        //Don't accept new spacebar presses for a bit after ending a solve just in case
+        acceptSpaceInput = false
+        setTimeout(() => {
+            acceptSpaceInput = true
+        }, 500)
     }
 
     onMounted(() => {

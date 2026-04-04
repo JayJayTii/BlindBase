@@ -64,6 +64,12 @@ input {
     border-radius: 4px;
 }
 
+hr {
+    display: block;
+    border-width: 1px;
+    border-color: var(--grey-700);
+}
+
 textarea {
     background-color: var(--grey-700);
     color: var(--grey-100);

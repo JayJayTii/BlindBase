@@ -228,7 +228,7 @@
 
 <template>
     <div id="ReconCreateNotationLayout">
-        <div style="display: flex; flex-direction: column; gap: 10px; padding: 10px;">
+        <div style="display: flex; flex-direction: column; gap: 10px; padding: 5px;">
             <div class="ReconHeader">Edges:</div>
             <div v-if="edgeSheets.length > 0" 
                  title="Fills the alg of a letter pair if the sheet contains one" 
@@ -263,10 +263,12 @@
             <div style="height: 110px;"></div>
         </div>
 
-        <FaceletCube3D :cube="cube"
-                       style="align-self: center; aspect-ratio: 0.9;" />
+        <div style="padding: 10px;">
+            <FaceletCube3D :cube="cube"
+                           style="align-self: center; max-width: 100%; height: 100%; aspect-ratio: 1/1; border: 1px solid var(--grey-100); border-radius: 4px;" />
+        </div>
 
-        <div style="display: flex; flex-direction: column;gap:5px;padding: 10px;">
+        <div style="display: flex; flex-direction: column;gap:5px; padding: 5px;">
             <div class="ReconHeader">Corners:</div>
             <div title="Fills the alg of a letter pair if the sheet contains one" style="color:var(--grey-100)" v-if="cornerSheets.length > 0">
                 Algs from
@@ -313,6 +315,7 @@
 <style>
     #ReconCreateNotationLayout {
         display: grid;
+        padding: 5px;
         grid-template-columns: 35% 30% 35%;
         width: 100%;
         height: 100%;

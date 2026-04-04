@@ -131,7 +131,7 @@
 
 <style>
     .MemoView {
-        height: 100%;
+        min-height: 100%;
         position: relative;
         color: var(--text-color);
     }

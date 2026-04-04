@@ -76,9 +76,11 @@
             </div>
             <!-- RIGHT COLUMN RECON SCRAMBLE -->
             <div id="COLUMN3" v-if="selectedRecon != -1">
-                <FaceletCube3D style="width: 90%; aspect-ratio:1; position: relative; left: 5%; border: 3px solid var(--grey-100); border-radius: 5px;"
+                <div>
+                    <FaceletCube3D style="max-width: 90%; height: 100%; aspect-ratio:1; position: relative; left: 5%; border: 3px solid var(--grey-100); border-radius: 5px;"
                                    :cube="reconPreviewCube"
                                    :key="reconPreviewCube.corners.toString() + reconPreviewCube.edges.toString() + reconPreviewCube.centers.toString()" />
+                </div>
             </div>
         </div>
         <div style="height:10px;"></div>

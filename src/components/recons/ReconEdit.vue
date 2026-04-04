@@ -147,9 +147,10 @@
 
             <div></div>
         </div>
-        <div style="position: sticky; top: 20px; width: 50%; align-self: flex-start; display: flex; flex-direction: column; gap: 10px; ">
-            <FaceletCube3D style="width: 100%; aspect-ratio: 4/3; border: 1px solid var(--grey-100); border-radius: 5px;"
-                           :cube="cube" />
+        <div style="position: sticky; top: 20px; width: 40%; align-self: flex-start; display: flex; flex-direction: column; gap: 10px; ">
+            <div style="width: 100%; aspect-ratio: 4/3; max-height: 70vh; border: 1px solid var(--grey-100); border-radius: 4px;">
+                <FaceletCube3D :cube="cube" style="height: 100%;" />
+            </div>
             <div style="display: flex; flex-direction: row; justify-content:space-between; width: 100%;">
                 <img src="@/assets/icons/delete-bin.svg" title="Delete" @click="Delete()" style="width:50px;" class="CustomButton" />
                 <div class="CustomButton" style=" width: 100px; height: 50px;"
@@ -173,7 +174,7 @@
 <style>
     #ReconEditContainer{
         gap: 10px;
-        width: 50%;
+        width: 60%;
     }
 
     #reconBodyInput {

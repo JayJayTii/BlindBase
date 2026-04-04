@@ -11,6 +11,7 @@
 
 <template>
     <ConfirmationBox ref="confirmDialog" />
+
     <div style="display: flex; flex-direction: column; height: 100vh;">
         <Navbar />
 
@@ -18,7 +19,9 @@
         <div style="overflow-y: auto; height: calc(100vh - var(--navbar-height) - var(--footer-height));">
             <RouterView :key="$route.fullPath" />
         </div>
-        <div style="height: var(--footer-height);"></div>
-        <Footer style="position: fixed; bottom: 0px; left: 0px; width: 100%;" />
+
+        <div style="position: fixed; bottom: 0px; left: 0px; width: 100%;">
+            <Footer />
+        </div>
     </div>
 </template>
