@@ -50,6 +50,8 @@
 
         timerStore.deleteSession(sessionID.value)
         sessionID.value = -1
+        if(timerStore.sessions.length > 0)
+            updateSessionID(timerStore.sessions.length - 1)
     }
 
     const previousScramble = ref("")
@@ -88,9 +90,14 @@
         if (!(await confirmDialog.value.open('Are you sure you want to delete this solve?'))) {
             return
         }
-        solveIndex.value = -1 //Unselect any solve
+        const wasLastSolve = (solveIndex.value == currentSession.value.solves.length - 1)
         timerStore.deleteSolve(sessionID.value, solveIndex.value)
 
+        if(wasLastSolve && currentSession.value.solves.length > 0)
+            solveIndex.value = currentSession.value.solves.length - 1
+        else
+            solveIndex.value = -1 
+        
         await nextTick()
         timer.value.refresh()
     }

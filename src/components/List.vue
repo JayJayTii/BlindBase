@@ -23,6 +23,7 @@
         cursor: pointer;
         display: flex;
         justify-content:center;
+        align-items: center;
         text-align:center;
         text-overflow: ellipsis;
         word-break: break-all;

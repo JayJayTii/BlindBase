@@ -21,7 +21,7 @@
     const gridRef = ref(null)
     const editCellRef = ref(null)
 
-    function updateSheetID(index) { //Triggered by SheetSelect component
+    function updateSheetID(index) {
         if (sheetStore.sheets.length > index && sheetID.value != sheetStore.sheets[index].id) {
             sheetID.value = sheetStore.sheets[index].id
             selectedCell.x = -1
@@ -29,12 +29,15 @@
         }
     }
     updateSheetID(0)
+
     async function deleteSheet() {
         if (!(await confirmDialog.value.open('Are you sure you want to delete this sheet?'))) {
             return
         }
         sheetStore.deleteSheet(sheetID.value)
         sheetID.value = -1
+        if(sheetStore.sheets.length > 0)
+            updateSheetID(sheetStore.sheets.length - 1)
     }
 
     function toggleLeftColumn() {
@@ -71,7 +74,6 @@
         <div id="leftColumn">
             <div class="PanelColumn">
                 <SheetSelect style="width:100%; height:33%;"
-                             :sheetID="sheetID"
                              @updateSheetID="updateSheetID" />
 
                 <SheetSettings style="width:100%; height:67%;"

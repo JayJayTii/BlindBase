@@ -149,7 +149,9 @@
     }
 
     function getPossiblePairs() {
-        let possiblePairs = []
+		let possiblePairs = []
+		let letters = "ABCDEFGHIJKLMNOPQRSTUVWX"
+		const flipped = useSettingsStore().settings.sheets_pairorder === 1
         switch (pairSelect.value) {
             case "From all pairs":
                 return (useSettingsStore().settings.memo_includeimpossiblepairs ? allLetterPairs
@@ -159,19 +161,18 @@
                 for (var y = 0; y < 24; y++) {
                     for (var x = 0; x < 24; x++) {
                         if (pairSelectSheet.value.grid[y][x] == '')
-                            continue
-                        possiblePairs.push(pairSelectSheet.value.xHeadings[x] + pairSelectSheet.value.yHeadings[y])
+							continue
+						possiblePairs.push(letters[y] + letters[x])
                     }
                 }
                 return possiblePairs
 
-            case "From cards": // Get learned cards from selected sheet, then convert to letter pair
+			case "From cards": // Get learned cards from selected sheet, then convert to letter pair
                 return GetLearnedCards()
                     .filter(card => card.sheetID === pairSelectSheet.value.id)
-                    .map(card => (pairSelectSheet.value.xHeadings[card.coord.x] + pairSelectSheet.value.yHeadings[card.coord.y]))
+                    .map(card => (letters[card.coord.y] + letters[card.coord.x]))
 
             case "From custom": // Convert highlighted cell coords to letter pairs
-                const letters = "ABCDEFGHIJKLMNOPQRSTUVWX"
                 return highlightedCells.value.map(coord => letters[coord.y] + letters[coord.x])
         }
     }

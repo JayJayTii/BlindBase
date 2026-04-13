@@ -1,16 +1,14 @@
 <script setup>
-    import { nextTick } from 'vue'
+    import { nextTick, ref } from 'vue'
     import { CreateSheetFromFile } from '@/helpers/sheets.js'
     import { useSheetStore } from "@/stores/SheetStore"
     const sheetStore = useSheetStore()
-    import List from "@/components/List.vue"
 
-    const props = defineProps({
-        sheetID: Number,
-    })
     const emit = defineEmits(['updateSheetID'])
+    const selectedIndex = ref(0)
 
     function SheetClicked(index) {
+        selectedIndex.value = index
         emit('updateSheetID', index)
     }
 
@@ -34,14 +32,19 @@
         <div class="PanelHeader"> Select Sheet: </div>
 
         <div style="overflow-x:hidden; overflow-y:auto;">
-            <List :data="sheetStore.getSheetNames" :selectedIndex="sheetStore.getSheetIndexWithID(props.sheetID)"
-                  @onItemClick="SheetClicked" />
-            
+            <div v-for="(label, index) in sheetStore.getSheetNames"
+                 :class="['ListItem', selectedIndex  === index ? 'ListItemSelected' : 'ListItemUnselected']"
+                 style="position: relative;"
+                 @click="SheetClicked(index)">
+                <span v-if="label">{{label}}</span>
+                <span v-else>&nbsp</span>
+            </div>
+
             <div style="display: flex;flex-direction: row; justify-content: space-between; width: 100%; ">
                 <!------UPLOAD------>
                 <img title="Upload .csv file"
-                     src="@/assets/icons/upload.svg" class="CustomButton" style="height:40px;" 
-                      @click="UploadFile()" />
+                     src="@/assets/icons/upload.svg" class="CustomButton" style="height:40px;"
+                     @click="UploadFile()" />
 
                 <img title="Create new"
                      @click="sheetStore.newSheet(); emit('updateSheetID',sheetStore.sheets.length-1);"
