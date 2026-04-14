@@ -2,7 +2,7 @@
     //SheetGrid displays a given alg-sheet and provides callbacks for click events
     import { ref, reactive, watch, computed, nextTick } from 'vue'
     import { getXHeadings, getYHeadings } from '@/helpers/sheets.js'
-    import { allEdgePairs, allCornerPairs } from '@/helpers/pairs.js'
+	import { isPossiblePair } from '@/helpers/pairs.js'
     import { useSettingsStore } from '@/stores/SettingsStore'
     const settingsStore = useSettingsStore()
     settingsStore.loadState()
@@ -174,19 +174,16 @@
 
     function calculateCellClasses(x, y) {
         const [absX, absY] = (flipped.value ? ([y, x]) : ([x, y]))
-
         //Calculate the CSS classes that a given cell will have in the grid
         let classes = ['SheetGridCell']
         if (!props.sheet || (props.formatEmpty && props.sheet.grid[absY][absX] === ''))
             classes.push('SheetGridCellEmpty')
         else {
             const letters = "ABCDEFGHIJKLMNOPQRSTUVWX"
-            if (settingsStore.settings.sheets_greyoutinvalidpairs && (
-                (props.sheet.type == 1 && !allCornerPairs.includes(letters[x] + letters[y]))
-                || (props.sheet.type == 2 && !allEdgePairs.includes(letters[x] + letters[y])))) {
+			if (settingsStore.settings.sheets_greyoutinvalidpairs && (props.sheet.type == 1 || props.sheet.type == 2) && !isPossiblePair(props.sheet.type, letters[x] + letters[y], props.sheet.buffer)) {
                 classes.push('SheetGridCellGreyed')
             }
-            classes.push('SheetGridCellHoverable')
+			classes.push('SheetGridCellHoverable')
         }
         
         if (Array.isArray(highlightedCells.value) && highlightedCells.value.some((cell) => cell.x === absX && cell.y === absY))

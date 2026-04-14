@@ -44,6 +44,8 @@
             inspection: inspectionSolution.value,
             letters: letterSolution.value,
             notation: notationSolution.value,
+            cornerBuffer: useSettingsStore().settings.misc_defaultcornerbuffer,
+            edgeBuffer: useSettingsStore().settings.misc_defaultedgebuffer,
         }
         let reconSolve = ""
         //Only use the stored solve if its not an old scramble
@@ -78,10 +80,14 @@
     </div>
     <ReconCreateLetters v-if="stage === 0"
                         :scramble="props.scramble" 
+                        :cornerBuffer="useSettingsStore().settings.misc_defaultcornerbuffer"
+                        :edgeBuffer="useSettingsStore().settings.misc_defaultedgebuffer"
                         @lettersFinished="lettersFinished" />
     <ReconCreateNotation v-if="stage === 1"
                          :scramble="props.scramble"
                          :letterSolution="letterSolution"
+                         :cornerBuffer="useSettingsStore().settings.misc_defaultcornerbuffer"
+                         :edgeBuffer="useSettingsStore().settings.misc_defaultedgebuffer"
                          @notationFinished="notationFinished"
                          @revertToLetterSelection="revertToLetterSelection"/>
 </template>

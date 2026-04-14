@@ -63,15 +63,15 @@
             </div>
             <!-- MIDDLE COLUMN RECON LIST -->
             <div id="COLUMN2">
-                <div style="width:100%;font-size:1.5rem;">
-                    <List :data="reconsStore.recons.map((recon, i) => i == selectedRecon ? 'Edit \'' + recon.name + '\'?' : recon.name)"
-                          :selectedIndex="selectedRecon"
-                          @onItemClick="ReconClicked" />
-                </div>
                 <div id="newReconRow">
                     <label>Scramble:</label>
                     <input style="flex-grow: 1;" v-model="newScramble" />
                     <button title="Create new" @click="createRecon">+</button>
+                </div>
+                <div style="width:100%;font-size:1.5rem;">
+                    <List :data="reconsStore.recons.map((recon, i) => i == selectedRecon ? 'Edit \'' + recon.name + '\'?' : recon.name)"
+                          :selectedIndex="selectedRecon"
+                          @onItemClick="ReconClicked" />
                 </div>
             </div>
             <!-- RIGHT COLUMN RECON SCRAMBLE -->

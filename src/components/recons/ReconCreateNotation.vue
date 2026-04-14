@@ -16,6 +16,8 @@
     const props = defineProps({
         scramble: Sequence,
         letterSolution: Array,
+        cornerBuffer: Number,
+        edgeBuffer: Number,
     })
     const emit = defineEmits(['notationFinished', 'revertToLetterSelection'])
 
@@ -34,28 +36,20 @@
     const edgeInput = ref([])
     const edgeInputBox = ref([])
 
+
     const cornerPairs = ToLetters(props.letterSolution[0]).split(' ').filter(pair => pair.length > 1)
     for (const pair of cornerPairs) {
         cornerInput.value.push("")
     }
     const edgePairs = ToLetters(props.letterSolution[1]).split(' ').filter(pair => pair.length > 1)
     for (const pair of edgePairs) {
-        if (pair.length == 2)
-            edgeInput.value.push(GetRandomRecommendation(2, pair))
-        else
-            edgeInput.value.push("")
+        edgeInput.value.push("")
     }
 
-    const cornerSheets = sheetStore.getSheetsOfType(1)
-    const cornerSheetID = computed({
-        get: () => reconsStore.GetCornerAlgsheet(),
-        set: (newValue) => { reconsStore.algsheets.corners = newValue; reconsStore.saveState(); }
-    })
-    const edgeSheets = sheetStore.getSheetsOfType(2)
-    const edgeSheetID = computed({
-        get: () => reconsStore.GetEdgeAlgsheet(),
-        set: (newValue) => { reconsStore.algsheets.edges = newValue; reconsStore.saveState(); }
-    })
+	const cornerSheets = sheetStore.getSheetsOfType(1).filter((sheet) => sheet.buffer == props.cornerBuffer)
+    const cornerSheetID = ref(cornerSheets[0]?.id || -1)
+	const edgeSheets = sheetStore.getSheetsOfType(2).filter((sheet) => sheet.buffer == props.edgeBuffer)
+	const edgeSheetID = ref(edgeSheets[0]?.id || -1)
 
     function FillAllCorners() {
         //Fill in any corner algorithms with ones from the user's pre-existing alg-sheets
@@ -98,7 +92,7 @@
     }
     function FillCornerRecommendation(index) {
         //Fill in a valid algorithm for one of the corner input boxes
-        const recs = getCornerRecommendations(cornerPairs[index], 0)
+        const recs = getCornerRecommendations(cornerPairs[index], props.cornerBuffer, 0)
         let newRec = "" //Avoid giving the same recommendation again
         do {
             newRec = recs[Math.floor(Math.random() * recs.length)]
@@ -108,7 +102,7 @@
     }
     function FillEdgeRecommendation(index) {
         //Fill in a valid algorithm for one of the edge input boxes
-        const recs = getEdgeRecommendations(edgePairs[index], 0)
+		const recs = getEdgeRecommendations(edgePairs[index], props.edgeBuffer, 0)
         let newRec = ""
         do {
             newRec = recs[Math.floor(Math.random() * recs.length)]

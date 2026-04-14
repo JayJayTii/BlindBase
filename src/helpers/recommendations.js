@@ -3,21 +3,22 @@ import edgeData from '../assets/recommendations/edgeManmade_formatted.json'
 import imageData from '../assets/recommendations/imageRecommendations.json'
 import { useSettingsStore } from '../stores/SettingsStore'
 import { adjacentCornerStickers, adjacentEdgeStickers } from '@/helpers/stickers.js'
+import { cornerSpeffz, edgeSpeffz } from '@/helpers/letter_scheme.js'
 
 //A "recommendation" is an algorithm which solves a certain letter pair (for corners and edges)
 //For the "Images" sheet type, a recommendation is a phrase containing the letters in the pair to help with memorisation.
 
-export function getRecommendations(pieceType, key) {
+export function getRecommendations(pieceType, key, buffer = -1) {
     switch (pieceType) {
         case 0:
             //No sheet type, no recommendations
             return []
         case 1:
             //Corners
-            return getCornerRecommendations(key, useSettingsStore().settings.sheets_notationtype)
+            return getCornerRecommendations(key, buffer, useSettingsStore().settings.sheets_notationtype)
         case 2:
             //Edges
-            return getEdgeRecommendations(key, useSettingsStore().settings.sheets_notationtype)
+            return getEdgeRecommendations(key, buffer, useSettingsStore().settings.sheets_notationtype)
         case 3:
             //Images
             return getImageRecommendations(key)
@@ -25,16 +26,16 @@ export function getRecommendations(pieceType, key) {
 }
 
 //Gets a random recommendation for a letter pair (key) with a certain pieceType
-export function GetRandomRecommendation(pieceType, key) {
+export function GetRandomRecommendation(pieceType, key, buffer = -1) {
     if (key.length !== 2)
         return ""
 
     let recommendations = []
     if (pieceType === 1) {
-        recommendations = getCornerRecommendations(key, 0)
+        recommendations = getCornerRecommendations(key, buffer, 0)
     }
-    if (pieceType === 2) {
-        recommendations = getEdgeRecommendations(key, 0)
+    else if (pieceType === 2) {
+        recommendations = getEdgeRecommendations(key, buffer, 0)
     }
     const index = Math.floor(Math.random() * recommendations.length)
     if (recommendations[index] == undefined) {
@@ -85,9 +86,9 @@ function getEquivalentEdgeComms(key) {
     return output
 }
 
-export function getCornerRecommendations(baseKey, notationType) {
+export function getCornerRecommendations(baseKey, buffer, notationType) {
     //buffer is always included in the comm
-    baseKey = 'C' + baseKey
+    baseKey = cornerSpeffz[buffer] + baseKey
     const equivalentKeys = getEquivalentCornerComms(baseKey)
     let allComms = []
     for (var key of equivalentKeys) {
@@ -105,9 +106,9 @@ export function getCornerRecommendations(baseKey, notationType) {
     }
     return allComms
 }
-export function getEdgeRecommendations(baseKey, notationType) {
+export function getEdgeRecommendations(baseKey, buffer, notationType) {
     //buffer is always included in the comm
-    baseKey = 'C' + baseKey
+    baseKey = edgeSpeffz[buffer] + baseKey
     const equivalentKeys = getEquivalentEdgeComms(baseKey)
     let allComms = []
     for (var key of equivalentKeys) {

@@ -1,6 +1,7 @@
 <script setup>
     import { ref, computed, nextTick, onMounted, onUnmounted } from "vue"
     import { getCardType } from "@/helpers/cards.js"
+	import { cornerBuffers, edgeBuffers } from "@/helpers/letter_scheme.js"
     import { useSheetStore } from "@/stores/SheetStore"
     const sheetStore = useSheetStore()
     sheetStore.loadState()
@@ -40,6 +41,18 @@
     const cardType = computed({
         get: () => {
             return getCardType(props.card.value)
+        }
+    })
+    const getBufferStr = computed({
+        get: () => {
+            switch (sheetStore.getType(props.sheetID)) {
+                case 1: // Corners
+                    return cornerBuffers[sheetStore.getBuffer(props.sheetID)]
+                case 2: // Edges
+                    return edgeBuffers[sheetStore.getBuffer(props.sheetID)]
+                default:
+                    return ""
+            }
         }
     })
 
@@ -151,23 +164,20 @@
     <!------CARD------>
     <div id="Card" :class="['Card', cardFlipped ? 'FlippedCard' : '' ]"
          @click="FlipCard()">
-        <div class="CardTypeText">
-            <h3>{{cardType}}</h3>
-        </div>
+        <div class="CardTypeText"><h3>{{cardType}}</h3></div>
+        <div class="BufferText"><h3>{{getBufferStr}}</h3></div>
         <div class="FlashcardText">
             <div v-if="!cardFlipped">
                 {{sheetStore.coordToKey(props.sheetID, props.card.value.coord)}}
             </div>
             <div v-else>{{sheetStore.getCell(props.sheetID, props.card.value.coord)}}</div>
         </div>
-
-    </div>       
+    </div>
     <!------ANIMATED CARD------>
     <div id="AnimatedCard" style="position:fixed;left:10000%;"
          :class="['Card', lastFlipValue ? 'FlippedCard' : '' ]">
-        <div class="CardTypeText">
-            <h3>{{getCardType(lastCard.value)}}</h3>
-        </div>
+        <div class="CardTypeText"><h3>{{getCardType(lastCard.value)}}</h3></div>
+        <div class="BufferText"><h3>{{getBufferStr}}</h3></div>
         <div class="FlashcardText">
             <div v-if="!lastFlipValue">
                 {{sheetStore.coordToKey(props.sheetID, lastCard.value.coord)}}
@@ -239,6 +249,11 @@
         top: 0px;
         left: 10px;
     }
+	.BufferText {
+		position: absolute;
+		top: 0px;
+		right: 10px;
+	}
 
     .BadButton {
         background-color: var(--error-200);

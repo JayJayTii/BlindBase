@@ -10,7 +10,6 @@ export const useReconsStore = defineStore('reconsStore', {
     state: () => {
         return {
             recons: [],
-            algsheets: {corners: -1, edges: -1}, //Algsheets to take recommendations from
         }
     },
     actions: {
@@ -32,6 +31,18 @@ export const useReconsStore = defineStore('reconsStore', {
             this.saveState()
         },
 
+        getPseudoswap() {
+            return this.pseudoswap
+        },
+        setPseudoswap1(value) {
+            this.pseudoswap[0] = value
+            this.saveState()
+        },
+        setPseudoswap2(value) {
+            this.pseudoswap[1] = value
+            this.saveState()
+        },
+
         GetReconWithScramble(scramble) {
             //Just a linear search
             for (var i = 0; i < this.recons.length; i++) {
@@ -41,37 +52,12 @@ export const useReconsStore = defineStore('reconsStore', {
             }
             return -1
         },
-        GetCornerAlgsheet() {
-            //The recon tool saves which spreadsheet to take algorithms from, this function fetches that
-            if (!this.algsheets)
-                this.algsheets = { corners: -1, edges: -1 }
-
-            //If the sheet doesn't exist or is of the wrong type, override it
-            if (useSheetStore().getType(this.algsheets.corners) != 1) {
-                const cornerSheets = useSheetStore().getSheetsOfType(1)
-                this.algsheets.corners = (cornerSheets.length > 0) ? cornerSheets[0].id : -1
-            }
-            this.saveState()
-            return this.algsheets.corners
-        },
-        GetEdgeAlgsheet() {
-            if (!this.algsheets)
-                this.algsheets = { corners: -1, edges: -1 }
-
-            //If the sheet doesn't exist or is of the wrong type, override it
-            if (useSheetStore().getType(this.algsheets.edges) != 2) {
-                const edgeSheets = useSheetStore().getSheetsOfType(2)
-                this.algsheets.edges = (edgeSheets.length > 0) ? edgeSheets[0].id : -1
-            }
-            this.saveState()
-            return this.algsheets.edges
-        },
         saveState() {
             localStorage.setItem(
                 'reconsStore',
                 JSON.stringify({
                     recons: this.recons,
-                    algsheets: this.algsheets,
+                    pseudoswap: this.pseudoswap
                 }),
             )
         },
@@ -80,6 +66,7 @@ export const useReconsStore = defineStore('reconsStore', {
                 const data = JSON.parse(localStorage.getItem('reconsStore'))
                 this.recons = data.recons
                 this.algsheets = data.algsheets
+                this.pseudoswap = data.pseudoswap || [2, 1]
             } catch { }
         },
     },

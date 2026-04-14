@@ -45,6 +45,7 @@ export const useSheetStore = defineStore('sheetStore', {
                 name: 'Untitled',
                 id: this.getNewSheetID(),
                 type: 0,
+                buffer: 2,
                 xHeadings: DEFAULT_SHEET_XHEADINGS,
                 yHeadings: DEFAULT_SHEET_YHEADINGS,
                 grid: JSON.parse(JSON.stringify(DEFAULT_SHEET_GRID)),
@@ -78,6 +79,13 @@ export const useSheetStore = defineStore('sheetStore', {
             }
             return -1
         },
+        getBuffer(id) {
+            for (var i = 0; i < this.sheets.length; i++) {
+                if (this.sheets[i].id === id) return this.sheets[i].buffer
+            }
+            return -1
+        },
+
         getFilledCellCount(id) {
             const grid = this.sheets[this.getSheetIndexWithID(id)].grid
             const rows = Object.values(grid)
@@ -146,6 +154,15 @@ export const useSheetStore = defineStore('sheetStore', {
             return absoluteCoord
         },
 
+        updateSheets() {
+            for (var i = 0; i < this.sheets.length; i++) {
+                if (!this.sheets[i].hasOwnProperty("buffer"))
+                    this.sheets[i].buffer = 2
+            }
+            this.saveState()
+        },
+
+
         saveState() {
             localStorage.setItem(
                 'sheetStore',
@@ -158,6 +175,7 @@ export const useSheetStore = defineStore('sheetStore', {
             try {
                 const data = JSON.parse(localStorage.getItem('sheetStore'))
                 this.sheets = data.sheets
+                this.updateSheets()
             } catch {
                 this.sheets = []
             }

@@ -63,8 +63,8 @@ export async function CreateSheetFromFile(file) {
     let xHeadingsStart = null
     for (var i = 0; i < csvGrid.length; i++) {
         for (var j = 0; j < csvGrid[0].length - 1; j++) { //Start of xHeadings must have at least one cell to the right
-            if (csvGrid[i][j] === 'A') {
-                if (csvGrid[i][j + 1] === 'B') {
+            if (csvGrid[i][j].includes('A')) {
+                if (csvGrid[i][j + 1].includes('B')) {
                     xHeadingsStart = { x: j, y: i }
                     break
                 }
@@ -77,7 +77,7 @@ export async function CreateSheetFromFile(file) {
         alert("File formatted incorrectly. The file must contain a horizontal row of letters in alphabetical order, starting with A.")
         return
     }
-    if (csvGrid[xHeadingsStart.y + 1][xHeadingsStart.x - 1] !== 'A') {
+    if (!csvGrid[xHeadingsStart.y + 1][xHeadingsStart.x - 1].includes('A')) {
         alert("File formatted incorrectly. The file must have a vertical column of letters in alphabetical order next to the column headings, starting with A.")
         return
     }

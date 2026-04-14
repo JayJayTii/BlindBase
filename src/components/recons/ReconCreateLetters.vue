@@ -1,13 +1,17 @@
 <script setup>
-    import { nextTick, ref, watch, onMounted, onUnmounted }from 'vue'
+    import { nextTick, ref, watch, computed, onMounted, onUnmounted }from 'vue'
+	import { useReconsStore } from "@/stores/ReconsStore"
     import { FaceletCube } from '@/helpers/FaceletCube/FaceletCube.js'
     import { Sequence } from '@/helpers/sequence.js'
     import { GetInspectionMoves, FinishCornerCycle, FinishEdgeCycle, ToLetters } from '@/helpers/reconstruct.js'
+	import { cornerBuffers, edgeBuffers, cornerScheme, edgeScheme } from '@/helpers/letter_scheme.js'
     import FaceletCube3D from '@/components/FaceletCube3D.vue'
     import ReconCreateLetters from '@/components/recons/ReconCreateLetters.vue'
 
     const props = defineProps({
         scramble: Sequence,
+        cornerBuffer: Number,
+        edgeBuffer: Number,
     })
     const emit = defineEmits(['lettersFinished'])
 
@@ -26,24 +30,37 @@
     const cornerInput = ref("")
     const edgeInput = ref("")
     const letterOptions = ref([])
-    const cycleHistory = [] //A stack where each entry is [curlettersolution, piecetype, curletteroptions, cube state], used for undoing
+    //Pseudoswap 1 and 2 are the 2 edges that will be swapped when there is parity, normally this is UF-UR
+    const pseudoswap1 = computed({
+        get: () => useReconsStore().getPseudoswap()[0],
+        set: (newValue) => { useReconsStore().setPseudoswap1(newValue) }
+    })
+    const pseudoswap2 = computed({
+        get: () => useReconsStore().getPseudoswap()[1],
+        set: (newValue) => { useReconsStore().setPseudoswap2(newValue) }
+    })
+
+    const cycleHistory = [] //A stack where each entry is [curlettersolution, piecetype, curletteroptions, newbufferchoice, cube state], used for undoing
+
     const pieceType = ref(0) //Use corners = 0 for pieceType here due to indexing
 
-    letterSelected(2)
+    letterSelected(props.cornerBuffer)
 
     function letterSelected(letterIndex) {
         updating = true;
-        if (letterIndex !== 2) { //Skip if the buffer is swapping with itself
-            cycleHistory.push([JSON.stringify(letterSolution.value), pieceType.value, JSON.stringify(letterOptions.value), JSON.stringify(cube)])
+        if (pieceType.value === 0 && letterIndex !== props.cornerBuffer
+			|| pieceType.value === 1 && letterIndex !== props.edgeBuffer) { //Skip if the buffer is swapping with itself
+            cycleHistory.push([JSON.stringify(letterSolution.value), pieceType.value, JSON.stringify(letterOptions.value), JSON.stringify(letterIndex), JSON.stringify(cube)])
             letterSolution.value[pieceType.value].push(letterIndex) //Add the letter to the solution
         }
         //Simulate swapping the stickers
-        if(pieceType.value === 0)
-            cube.SwapCornerCubies(2, letterIndex)
-        else
-            cube.SwapEdgeCubies(2, letterIndex)
+        if (pieceType.value === 0) {
+            cube.SwapCornerCubies(props.cornerBuffer, letterIndex)
+        } else {
+			cube.SwapEdgeCubies(props.edgeBuffer, letterIndex)
+        }
         //Generate the rest of the cycle
-        const newCycle = pieceType.value === 0 ? FinishCornerCycle(cube) : FinishEdgeCycle(cube, letterSolution.value[0].length % 2 == 1)
+		const newCycle = pieceType.value === 0 ? FinishCornerCycle(cube, props.cornerBuffer) : FinishEdgeCycle(cube, props.edgeBuffer, [pseudoswap1.value, pseudoswap2.value], letterSolution.value[0].length % 2 == 1)
         letterSolution.value[pieceType.value] = letterSolution.value[pieceType.value].concat(newCycle[0])
         letterOptions.value = newCycle[1]
 
@@ -53,10 +70,10 @@
 
         if (letterOptions.value.length === 0) {
             pieceType.value++
-            if (pieceType.value < 2) {
-                if (letterSolution.value[0].length % 2 == 1) //Parity, swap the last corner back to keep solvable
-                    cube.SwapCornerCubies(2, letterSolution.value[0].at(-1))
-                letterSelected(2) //Trigger next cycle from buffer
+            if (pieceType.value == 1) { // Edges
+				if (letterSolution.value[0].length % 2 == 1) //Parity, swap the last corner back to keep solvable
+					cube.SwapCornerCubies(props.cornerBuffer, letterSolution.value[0].at(-1))
+				letterSelected(props.edgeBuffer) //Trigger next cycle from buffer
             }
         }
 
@@ -102,9 +119,22 @@
         //Update possible next buffers
         letterOptions.value = JSON.parse(lastCycle[2])
 
-        cube = Object.assign(new FaceletCube(), JSON.parse(lastCycle[3]))
+        cube = Object.assign(new FaceletCube(), JSON.parse(lastCycle[4]))
 
         nextTick(() => { updating = false })
+
+		return lastCycle
+    }
+
+    function restartEdges()
+    {
+        let lastChoice = [];
+		while (pieceType.value > 0 && cycleHistory.length > 0) {
+			lastChoice = JSON.parse(undoCycle()[3]) //Get the buffer choice chosen for the cycle that was undone
+        }
+        if (pieceType.value == 0) { //If rewound to the end of corners, select the last chosen cycle
+            letterSelected(lastChoice)
+        }
     }
 
     watch(cornerInput, (newValue, oldValue) => {
@@ -170,8 +200,8 @@
         if (!isCornerInput) { //Complete full corner sequence
             const cornerPairs = cornerInput.value.split(' ').filter(pair => pair.length > 1)
             for (const pair of cornerPairs) {
-                displayCube.value.SwapCornerCubies(2, (pair.charCodeAt(0) - 'A'.charCodeAt(0)))
-                displayCube.value.SwapCornerCubies(2, (pair.charCodeAt(1) - 'A'.charCodeAt(0)))
+                displayCube.value.SwapCornerCubies(props.cornerBuffer, (pair.charCodeAt(0) - 'A'.charCodeAt(0)))
+                displayCube.value.SwapCornerCubies(props.cornerBuffer, (pair.charCodeAt(1) - 'A'.charCodeAt(0)))
             }
         }
         let currentLetterSequence = ""
@@ -184,11 +214,11 @@
         currentLetterSequence = inputText.substring(0, sampleIndex)
         for (const pair of currentLetterSequence.split(' ').filter(pair => pair.length > 1)) {
             if (isCornerInput) {
-                displayCube.value.SwapCornerCubies(2, (pair.charCodeAt(0) - 'A'.charCodeAt(0)))
-                displayCube.value.SwapCornerCubies(2, (pair.charCodeAt(1) - 'A'.charCodeAt(0)))
+                displayCube.value.SwapCornerCubies(props.cornerBuffer, (pair.charCodeAt(0) - 'A'.charCodeAt(0)))
+                displayCube.value.SwapCornerCubies(props.cornerBuffer, (pair.charCodeAt(1) - 'A'.charCodeAt(0)))
             } else {
-                displayCube.value.SwapEdgeCubies(2, (pair.charCodeAt(0) - 'A'.charCodeAt(0)))
-                displayCube.value.SwapEdgeCubies(2, (pair.charCodeAt(1) - 'A'.charCodeAt(0)))
+                displayCube.value.SwapEdgeCubies(props.edgeBuffer, (pair.charCodeAt(0) - 'A'.charCodeAt(0)))
+                displayCube.value.SwapEdgeCubies(props.edgeBuffer, (pair.charCodeAt(1) - 'A'.charCodeAt(0)))
             }
         }
         cubeKey.value++ //Update the cube visual
@@ -213,9 +243,33 @@
             <input v-if="inspection.turns.length !== 0" style="font-size: 2rem;" :value="inspection.toString()" readonly />
 
             <div class="ReconHeader">Corners:</div>
+            <div style="color: var(--grey-100);">Buffer: {{cornerBuffers[cornerBuffer]}}</div>
             <input style="font-size: 2rem;" ref="cornerInputRef" v-model="cornerInput" id="cornerInput" />
 
             <div v-if="pieceType > 0" class="ReconHeader">Edges:</div>
+            <div v-if="pieceType > 0" style="color: var(--grey-100); display: flex; flex-direction:row; gap: 20px;">
+                Buffer: {{edgeBuffers[edgeBuffer]}}
+                <div v-if="(letterSolution[0].length % 2 == 1)" style="color: var(--grey-100);">
+                    Pseudoswap:
+                    <select v-model="pseudoswap1" @change="restartEdges()">
+                        <option v-for="(edgeBuffer, index) in edgeBuffers"
+                                :key="index"
+                                :disabled="index == pseudoswap2"
+                                :value="index">
+                            {{edgeBuffer}}
+                        </option>
+                    </select>
+                    -
+                    <select v-model="pseudoswap2" @change="restartEdges()">
+                        <option v-for="(edgeBuffer, index) in edgeBuffers"
+                                :key="index"
+                                :disabled="index == pseudoswap1"
+                                :value="index">
+                            {{edgeBuffer}}
+                        </option>
+                    </select>
+                </div>
+            </div>
             <input v-if="pieceType > 0" ref="edgeInputRef" style="font-size: 2rem;" v-model="edgeInput" id="edgeInput" />
 
             <div style="display:flex;flex-direction:row;">
@@ -226,14 +280,14 @@
 
             <img src="@/assets/icons/arrow-left-long.svg"
                  title="Back"
-                 :class="['CustomButton','NextButton']" 
+                 :class="['CustomButton','NextButton']"
                  style="left:0px;transform:translate(100%,-100%);"
                  @click="revertToReconPage()" />
             <img v-if="pieceType > 1"
                  title="Continue"
                  src="@/assets/icons/arrow-right-long.svg"
                  :class="['CustomButton','NextButton']"
-                style="right:0px;transform:translate(-100%,-100%);"
+                 style="right:0px;transform:translate(-100%,-100%);"
                  @click="letterSelectionFinished()" />
         </div>
 

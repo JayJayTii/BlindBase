@@ -38,10 +38,6 @@ export const defaults = {
         min: 1,
         max: 20,
     },
-    memo_includeimpossiblepairs: {
-        name: 'Include impossible pairs in \'All Pairs\'',
-        default: false,
-    },
     exec_useletterpair: {
         name: 'Letter pair instead of a scramble',
         default: false,
@@ -62,6 +58,16 @@ export const defaults = {
         name: 'Wide move type',
         default: 0,
         options: [{ id: 0, name: 'Rw' }, { id: 1, name: 'r' }],
+    },
+    misc_defaultcornerbuffer: {
+        name: 'Default corner buffer',
+        default: 2,
+        options: [{ id: 0, name: "UBL" }, { id: 1, name: "UBR" }, { id: 2, name: "UFR" }, { id: 3, name: "UFL" }, { id: 4, name: "LUB" }, { id: 5, name: "LUF" }, { id: 6, name: "LDF" }, { id: 7, name: "LDB" }, { id: 8, name: "FUL" }, { id: 9, name: "FUR" }, { id: 10, name: "FDR" }, { id: 11, name: "FDL" }, { id: 12, name: "RUF" }, { id: 13, name: "RUB" }, { id: 14, name: "RDB" }, { id: 15, name: "RDF" }, { id: 16, name: "BUR" }, { id: 17, name: "BUL" }, { id: 18, name: "BDL" }, { id: 19, name: "BDR" }, { id: 20, name: "DFL" }, { id: 21, name: "DFR" }, { id: 22, name: "DBR" }, { id: 23, name: "DBL" }]
+    },
+    misc_defaultedgebuffer: {
+        name: 'Default edge buffer',
+        default: 2,
+        options: [{ id: 0, name: "UB" }, { id: 1, name: "UR" }, { id: 2, name: "UF" }, { id: 3, name: "UL" }, { id: 4, name: "LU" }, { id: 5, name: "LF" }, { id: 6, name: "LD" }, { id: 7, name: "LB" }, { id: 8, name: "FU" }, { id: 9, name: "FR" }, { id: 10, name: "FD" }, { id: 11, name: "FL" }, { id: 12, name: "RU" }, { id: 13, name: "RB" }, { id: 14, name: "RD" }, { id: 15, name: "RF" }, { id: 16, name: "BU" }, { id: 17, name: "BL" }, { id: 18, name: "BD" }, { id: 19, name: "BR" }, { id: 20, name: "DF" }, { id: 21, name: "DR" }, { id: 22, name: "DB" }, { id: 23, name: "DL" }]
     }
 }
 

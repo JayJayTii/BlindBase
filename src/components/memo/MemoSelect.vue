@@ -1,6 +1,7 @@
 <script setup>
     import { nextTick, watch, computed, ref, onMounted, onUnmounted } from "vue"
-    import { allEdgePairs, allCornerPairs, allPossiblePairs, allLetterPairs } from '@/helpers/pairs.js'
+    import { allLetterPairs, isPossiblePair } from '@/helpers/pairs.js'
+    import { cornerBuffers, edgeBuffers } from '@/helpers/letter_scheme.js'
     import SheetGrid from '@/components/SheetGrid.vue'
     import { useMemoStore, modes, modesDesc } from '@/stores/MemoStore.js'
     const memoStore = useMemoStore()
@@ -21,7 +22,11 @@
             if (newValue === "Multiblind" && cubes.value < 2)
                 cubes.value = 2
             
-            //Always clear custom pair settings
+			//Always clear custom pair settings
+			if (mode.value == "Corners")
+				buffer.value = useSettingsStore().settings.misc_defaultcornerbuffer
+			else if (mode.value == "Edges")
+				buffer.value = useSettingsStore().settings.misc_defaultedgebuffer
             generateCustomPairSheet()
             highlightedCells.value = []
             editingCustomPairs.value = false
@@ -57,6 +62,11 @@
             else if (newValue === "From cards")
                 pairSelectSheet.value = GetSheetsWithLearnedCards()[0]
             else if (newValue === "From custom") {
+                if (mode.value == "Corners")
+					buffer.value = useSettingsStore().settings.misc_defaultcornerbuffer
+				else if (mode.value == "Edges")
+					buffer.value = useSettingsStore().settings.misc_defaultedgebuffer
+
                 highlightedCells.value = []
                 generateCustomPairSheet()
             }
@@ -106,6 +116,17 @@
         }
     })
 
+    const bufferValue = ref(-1)
+    const buffer = computed({
+        get: () => bufferValue.value,
+        set: (newValue) => {
+            bufferValue.value = newValue
+            highlightedCells.value = []
+            editingCustomPairs.value = false
+            generateCustomPairSheet()
+        }
+    })
+
     const gridRef = ref(null)
     const highlightedCells = ref([])
     const customSheet = ref({}) //Contains all the possible letter pairs that the user can select to practice from
@@ -114,21 +135,19 @@
         customSheet.value = {
             xHeadings: 'ABCDEFGHIJKLMNOPQRSTUVWX',
             yHeadings: 'ABCDEFGHIJKLMNOPQRSTUVWX',
+			type: 0,
+            buffer: buffer.value,
         }
-        let customPairOptions = []
-        if (useSettingsStore().settings.memo_includeimpossiblepairs)
-            customPairOptions = allLetterPairs
-        else if (mode.value == "Corners")
-            customPairOptions = allCornerPairs
-        else if (mode.value == "Edges")
-            customPairOptions = allEdgePairs
-        else
-            customPairOptions = allPossiblePairs
-
-        for (const pairOption of customPairOptions) {
-            const y = pairOption.charCodeAt(0) - 'A'.charCodeAt(0)
-            const x = pairOption.charCodeAt(1) - 'A'.charCodeAt(0)
-            grid[y][x] = pairOption
+        const letters = "ABCDEFGHIJKLMNOPQRSTUVWX"
+        for (var y = 0; y < 24; y++) {
+            for (var x = 0; x < 24; x++) {
+                if(mode.value == "Corners")
+					grid[y][x] = (Number(buffer.value) == -1 || isPossiblePair(1, letters[y] + letters[x], buffer.value)) ? (letters[y] + letters[x]) : ""
+                else if (mode.value == "Edges")
+					grid[y][x] = (Number(buffer.value) == -1 || isPossiblePair(2, letters[y] + letters[x], buffer.value)) ? (letters[y] + letters[x]) : ""
+                else
+					grid[y][x] = (letters[y] + letters[x])
+            }
         }
         customSheet.value.grid = grid
     }
@@ -153,9 +172,8 @@
 		let letters = "ABCDEFGHIJKLMNOPQRSTUVWX"
 		const flipped = useSettingsStore().settings.sheets_pairorder === 1
         switch (pairSelect.value) {
-            case "From all pairs":
-                return (useSettingsStore().settings.memo_includeimpossiblepairs ? allLetterPairs
-                    : (mode.value == "Corners") ? allCornerPairs : ((mode.value == "Edges") ? allEdgePairs : allPossiblePairs))
+			case "From all pairs":
+				return allLetterPairs
 
             case "From sheet":
                 for (var y = 0; y < 24; y++) {
@@ -226,7 +244,7 @@
 
         <div class="MemoViewHeader" v-if="modeSelected">
             <select v-model="pairSelect" style="font-size: 2rem; text-align:center;">
-                <option title="All possible letter pairs can appear">From all pairs</option>
+                <option title="All letter pairs can appear">From all pairs</option>
                 <option title="All letter pairs in a chosen sheet can appear">From sheet</option>
                 <option title="Flashcards that have been practiced in an images card deck can appear">From cards</option>
                 <option title="Select from a grid of letter pairs">From custom</option>
@@ -254,6 +272,21 @@
                 No valid card decks
             </div>
         </div>
+
+        <div class="MemoViewHeader" v-if="pairSelect == 'From custom' && mode == 'Corners'">
+            <select v-model="buffer" style="font-size: 2rem; text-align: center;">
+                <option :value="-1">*</option>
+                <option v-for="(buffer, index) in cornerBuffers" :value="index">{{ buffer }}</option>
+            </select>
+        </div>
+        <div class="MemoViewHeader" v-if="pairSelect == 'From custom' && mode == 'Edges'">
+            <select v-model="buffer" style="font-size: 2rem; text-align: center;">
+                <option :value="-1">*</option>
+                <option v-for="(buffer, index) in edgeBuffers" :value="index">{{ buffer }}</option>
+            </select>
+        </div>
+        <div class="MemoSelectLine" v-if="pairSelect == 'From custom' && (mode == 'Corners' || mode == 'Edges')" />
+
         <div class="MemoViewHeader" v-if="pairSelect == 'From custom'">
             <img @click="editCustomPairButtonClicked(); nextTick(()=> {if(gridRef){gridRef.changeHighlightedCells(highlightedCells)}})"
                  src="@/assets/icons/edit.svg"

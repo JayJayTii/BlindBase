@@ -1,6 +1,7 @@
 import { Sequence } from '@/helpers/sequence.js'
 import { FaceletCube } from '@/helpers/FaceletCube/FaceletCube.js'
 import { getSolveTimeString, getSolveRatioString } from '@/helpers/timer.js'
+import { cornerBuffers, edgeBuffers } from '@/helpers/letter_scheme.js'
 import { adjacentCornerIndices, adjacentEdgeIndices } from '@/helpers/stickers.js'
 import { useSettingsStore } from '../stores/SettingsStore'
 
@@ -40,13 +41,13 @@ export function GetInspectionMoves(cube) {
 }
 
 //This function finishes as much of the corners on the cube as possible until requiring more information from the user.
-export function FinishCornerCycle(cube) {
+export function FinishCornerCycle(cube, cornerBuffer) {
     //This keeps swapping the corner buffer piece with its target, until the buffer piece is back there.
-    const bufferStickers = [2, 9, 12]
+    const bufferStickers = adjacentCornerIndices[cornerBuffer]
     const cycle = []
-    while (!bufferStickers.includes(cube.corners[2])) { //While not at end of cycle
-        cycle.push(cube.corners[2])
-        cube.SwapCornerCubies(2,cube.corners[2])
+    while (!bufferStickers.includes(cube.corners[cornerBuffer])) { //While not at end of cycle
+        cycle.push(cube.corners[cornerBuffer])
+        cube.SwapCornerCubies(cornerBuffer, cube.corners[cornerBuffer])
     }
 
     const availableBuffers = []
@@ -61,17 +62,17 @@ export function FinishCornerCycle(cube) {
 
 
 //This function finishes as much of the edges on the cube as possible until requiring more information from the user.
-export function FinishEdgeCycle(cube, parity) {
+export function FinishEdgeCycle(cube, edgeBuffer, pseudoswap, parity) {
     //This keeps swapping the edge buffer piece with its target, until the buffer piece is back there.
     if (parity)
-        cube.SwapEdgeCubies(cube.edges.indexOf(2), cube.edges.indexOf(1))
-    const bufferStickers = [2, 8]
+        cube.SwapEdgeCubies(cube.edges.indexOf(pseudoswap[0]), cube.edges.indexOf(pseudoswap[1]))
+    const bufferStickers = adjacentEdgeIndices[edgeBuffer]
 
     const cycle = []
-    while (!bufferStickers.includes(cube.edges[2])) { //While not at end of cycle
-        let nextSwap = cube.edges[2]
+    while (!bufferStickers.includes(cube.edges[edgeBuffer])) { //While not at end of cycle
+        let nextSwap = cube.edges[edgeBuffer]
         cycle.push(nextSwap)
-        cube.SwapEdgeCubies(2, nextSwap)
+        cube.SwapEdgeCubies(edgeBuffer, nextSwap)
     }
 
     const availableBuffers = []
@@ -82,7 +83,7 @@ export function FinishEdgeCycle(cube, parity) {
         }
     }
     if (parity)
-        cube.SwapEdgeCubies(cube.edges.indexOf(2), cube.edges.indexOf(1))
+        cube.SwapEdgeCubies(cube.edges.indexOf(pseudoswap[0]), cube.edges.indexOf(pseudoswap[1]))
     return [cycle, availableBuffers]
 }
 
@@ -116,7 +117,7 @@ export function GenerateReconBody(recon) {
     }
 
     const edgesEmpty = (recon.notation.edges.length == 1 && recon.notation.edges[0] == '')
-    summary += edgesEmpty ? "" : "\n\n//Edges\n"
+    summary += edgesEmpty ? "" : `\n\n//Edges (${edgeBuffers[recon.edgeBuffer]})\n`
     const edgePairs = ToLetters(recon.letters[1]).split(' ').filter(pair => pair.length > 1)
     for (var i = 0; i < recon.notation.edges.length; i++) {
         summary += recon.notation.edges[i]
@@ -124,7 +125,7 @@ export function GenerateReconBody(recon) {
     }
 
     const cornersEmpty = (recon.notation.corners.length == 1 && recon.notation.corners[0] == '')
-    summary += cornersEmpty ? "" : "\n//Corners\n"
+    summary += cornersEmpty ? "" : `\n//Corners (${cornerBuffers[recon.cornerBuffer]})\n`
     const cornerPairs = ToLetters(recon.letters[0]).split(' ').filter(pair => pair.length > 1)
     for (var i = 0; i < recon.notation.corners.length; i++) {
         summary += recon.notation.corners[i]

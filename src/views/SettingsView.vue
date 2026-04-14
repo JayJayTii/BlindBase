@@ -1,6 +1,7 @@
 <script setup>
     import { computed, inject } from 'vue'
     import { useCardStore } from '@/stores/CardStore.js'
+    import { cornerScheme, edgeScheme } from '@/helpers/letter_scheme.js'
     import { defaults, useSettingsStore } from '.././stores/SettingsStore'
     const settingsStore = useSettingsStore()
     settingsStore.loadState()
@@ -75,6 +76,28 @@
             <h1 class="Subsettings">Settings</h1>
 
             <div id="SettingsScrollContainer">
+                <div class="Subsettings">
+                    <div id="Misc default corner buffer">
+                        {{ defaults.misc_defaultcornerbuffer.name }}:
+                        <select v-model="settingsStore.settings.misc_defaultcornerbuffer" @change="SettingUpdated">
+                            <option v-for="(type, index) in defaults.misc_defaultcornerbuffer.options"
+                                    :key="index"
+                                    :value="index">
+                                {{ type.name + " (" + cornerScheme[index] + ")" }}
+                            </option>
+                        </select>
+                    </div>
+                    <div id="Misc default edge buffer">
+                        {{ defaults.misc_defaultedgebuffer.name }}:
+                        <select v-model="settingsStore.settings.misc_defaultedgebuffer" @change="SettingUpdated">
+                            <option v-for="(type, index) in defaults.misc_defaultedgebuffer.options"
+                                    :key="index"
+                                    :value="index">
+                                {{ type.name + " (" + edgeScheme[index] + ")" }}
+                            </option>
+                        </select>
+                    </div>
+                </div>
                 <!--SHEET SETTINGS-->
                 <div class="Subsettings">
                     <h2>Sheets Settings</h2>
@@ -140,12 +163,6 @@
                                type="number"
                                :min="defaults.memo_startingmemolength.min"
                                :max="defaults.memo_startingmemolength.max"
-                               @change="SettingUpdated" />
-                    </div>
-                    <div id="Memo Include Impossible Pairs in All Pairs">
-                        {{ defaults.memo_includeimpossiblepairs.name }}:
-                        <input v-model="settingsStore.settings.memo_includeimpossiblepairs"
-                               type="checkbox"
                                @change="SettingUpdated" />
                     </div>
                 </div>

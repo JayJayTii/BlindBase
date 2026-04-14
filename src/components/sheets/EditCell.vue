@@ -19,7 +19,7 @@
 
     //Get recommendations for this cell if a sheet is selected
     const options = sheetStore.isValidSheetID(props.sheetID)
-                    ? getRecommendations(sheetStore.getSheet(props.sheetID).type, sheetStore.coordToKey(props.sheetID, props.selectedCell))
+		? getRecommendations(sheetStore.getSheet(props.sheetID).type, sheetStore.coordToKey(props.sheetID, props.selectedCell), sheetStore.getSheet(props.sheetID).buffer)
                     : []
 
     function OptionClicked(index) {

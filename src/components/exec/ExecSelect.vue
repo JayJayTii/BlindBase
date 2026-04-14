@@ -1,13 +1,16 @@
 <script setup>
     import { computed, watch, ref, reactive, nextTick, onMounted, onUnmounted} from "vue"
     import SheetGrid from '@/components/SheetGrid.vue'
-    import { allEdgePairs, allCornerPairs } from '@/helpers/pairs.js'
+    import { allLetterPairs, isPossiblePair } from '@/helpers/pairs.js'
+    import { cornerBuffers, edgeBuffers } from '@/helpers/letter_scheme.js'
     import { getFilledCells } from '@/helpers/sheets.js'
 
     import { useSheetStore } from '@/stores/SheetStore'
     const sheetStore = useSheetStore()
     import { useCardStore } from '@/stores/CardStore'
-    const cardStore = useCardStore()
+	const cardStore = useCardStore()
+	import { useSettingsStore } from '@/stores/SettingsStore'
+	useSettingsStore().loadState()
     sheetStore.loadState()
     cardStore.loadState()
 
@@ -27,10 +30,10 @@
     const pieceType = computed({
         get: () => pieceTypeValue.value,
         set: (newValue) => {
-            if (newValue !== pieceTypeValue.value) {
+            if (Number(newValue) !== pieceTypeValue.value) {
                 resetValues()
             }
-            pieceTypeValue.value = newValue
+            pieceTypeValue.value = Number(newValue)
         }
     })
     const pieceTypes = ['', 'Corner', 'Edge']
@@ -59,14 +62,20 @@
         set: (newValue) => {
             pairSelectValue.value = newValue
             pairSelectSheetID.value = -1
-    
+
             if(editingCustomPairs.value)
                 editCustomPairButtonClicked()
+
+			if (pieceType.value == 1) // Corners
+				buffer.value = useSettingsStore().settings.misc_defaultcornerbuffer
+			else if (pieceType.value == 2) // Edges
+                buffer.value = useSettingsStore().settings.misc_defaultedgebuffer
+
             if (newValue == "From sheet") {
-                pairSelectSheetID.value = sheetStore.getSheetsOfType(Number(pieceType.value))[0].id
+                pairSelectSheetID.value = getValidSheets().length > 0 ? getValidSheets()[0].id : -1
             }
             else if (newValue == "From cards") {
-                pairSelectSheetID.value = getValidCardDecks()[0].id
+				pairSelectSheetID.value = getValidCardDecks().length > 0 ? getValidCardDecks()[0].id : -1
             }
             else if (newValue == "From custom") {
                 for (var y = 0; y < 24; y++) {
@@ -102,47 +111,9 @@
                 )      
     })
 
-    function GeneratePairsAndEmit() {
-        if(!selectionFinished.value)
-            return
-        let pairs = []
-        switch (pairSelect.value) {
-            case "From all pairs":
-                pairs = (Number(pieceType.value) === 1) ? allCornerPairs : allEdgePairs
-                break
-            case "From sheet":
-                const sheet = sheetStore.getSheet(pairSelectSheetID.value)
-                for (var y = 0; y < sheet.yHeadings.length; y++) {
-                    for (var x = 0; x < sheet.xHeadings.length; x++) {
-                        if (sheet.grid[y][x] !== "") {
-                            pairs.push(sheet.xHeadings.split('')[x] + sheet.yHeadings.split('')[y])
-                        }
-                    }
-                }
-                break
-            case "From cards":
-                const cards = cardStore.cards
-                    .filter((card) => card.sheetID == pairSelectSheetID.value
-                        && card.successCount > 0)
-                for (var i = 0; i < cards.length; i++) {
-                    pairs.push(sheetStore.coordToKey(pairSelectSheetID.value, cards[i].coord))
-                }
-                break
-            case "From custom":
-                for (var i = 0; i < 24; i++) {
-                    for (var j = 0; j < 24; j++) {
-                        if(selectedCells.value[i][j])
-                            pairs.push(customSheet.value.grid[i][j])
-                    }
-                }
-                break
-            default:
-        }
-
-        emit('update:on-selected', mode.value == "Whole", pairs, Number(pieceType.value))
+    function getValidSheets() {
+		return sheetStore.getSheetsOfType(pieceType.value)
     }
-    GeneratePairsAndEmit()
-    
     function getValidCardDecks() {
         //Gets card decks which have been practiced before and match the selected piece type
         const out = [
@@ -152,30 +123,41 @@
                     .map((card) => card.sheetID),
             ),
         ].map((sheetID) => sheetStore.getSheet(sheetID))
-        return out.filter((sheet) => sheet.type === Number(pieceType.value))
+        return out.filter((sheet) => sheet.type === pieceType.value)
     }
+
+	const bufferValue = ref(useSettingsStore().settings.misc_defaultcornerbuffer)
+	const buffer = computed({
+		get: () => bufferValue.value,
+		set: (newValue) => {
+			bufferValue.value = newValue
+			selectedCells.value = Array.from({ length: 24 }, () => Array.from({ length: 24 }, () => false))
+			editingCustomPairs.value = false
+            generateCustomPairSheet()
+
+            if(pairSelect.value == "From all pairs")
+                GeneratePairsAndEmit()
+		}
+    })
 
     //customSheet is the sheet containing all possible letter pairs which the user selects from
     const customSheet = reactive({})
     customSheet.value = {}
     function generateCustomPairSheet() {
-        let grid = Array.from({ length: 24 }, () =>
-            Array.from({ length: 24 }, () => ''),
-        )
-        const allPairs = pieceType.value == 1 ? allCornerPairs : allEdgePairs
-        //Place all possible pairs into the custom sheet
-        for (var i = 0; i < allPairs.length; i++) {
-            const pair = allPairs[i]
-            const y = pair.charCodeAt(0) - 'A'.charCodeAt(0)
-            const x = pair.charCodeAt(1) - 'A'.charCodeAt(0)
-            grid[y][x] = pair
+		let grid = Array.from({ length: 24 }, () => Array.from({ length: 24 }, () => ''))
+		customSheet.value = {
+			xHeadings: 'ABCDEFGHIJKLMNOPQRSTUVWX',
+			yHeadings: 'ABCDEFGHIJKLMNOPQRSTUVWX',
+			type: pieceType.value,
+			buffer: buffer.value,
+		}
+		const letters = "ABCDEFGHIJKLMNOPQRSTUVWX"
+		for (var y = 0; y < 24; y++) {
+			for (var x = 0; x < 24; x++) {
+			    grid[y][x] = (isPossiblePair(pieceType.value, letters[y] + letters[x], buffer.value)) ? (letters[y] + letters[x]) : ""
+			}
         }
-
-        customSheet.value = {
-            xHeadings: 'ABCDEFGHIJKLMNOPQRSTUVWX',
-            yHeadings: 'ABCDEFGHIJKLMNOPQRSTUVWX',
-            grid: grid,
-        }
+		customSheet.value.grid = grid
     }
 
     const editingCustomPairs = ref(false)
@@ -226,6 +208,48 @@
             grid.classList.add('AnimatedGridClose');
     }
 
+	function GeneratePairsAndEmit() {
+		if (!selectionFinished.value)
+			return
+		let pairs = []
+		switch (pairSelect.value) {
+			case "From all pairs":
+				pairs = allLetterPairs.filter((pair) => isPossiblePair(pieceType.value, pair, buffer.value))
+				break
+			case "From sheet":
+				const sheet = sheetStore.getSheet(pairSelectSheetID.value)
+				for (var y = 0; y < sheet.yHeadings.length; y++) {
+					for (var x = 0; x < sheet.xHeadings.length; x++) {
+						if (sheet.grid[y][x] !== "") {
+							pairs.push(sheet.xHeadings.split('')[x] + sheet.yHeadings.split('')[y])
+						}
+					}
+                }
+                buffer.value = sheet.buffer
+				break
+			case "From cards":
+				const cards = cardStore.cards
+					.filter((card) => card.sheetID == pairSelectSheetID.value
+						&& card.successCount > 0)
+				for (var i = 0; i < cards.length; i++) {
+					pairs.push(sheetStore.coordToKey(pairSelectSheetID.value, cards[i].coord))
+                }
+                buffer.value = sheetStore.getBuffer(pairSelectSheetID.value)
+				break
+			case "From custom":
+				for (var i = 0; i < 24; i++) {
+					for (var j = 0; j < 24; j++) {
+						if (selectedCells.value[i][j])
+							pairs.push(customSheet.value.grid[i][j])
+					}
+				}
+				break
+			default:
+		}
+
+		emit('update:on-selected', mode.value == "Whole", pairs, pieceType.value, buffer.value)
+	}
+	GeneratePairsAndEmit()
 
     function handleKeydown(event) {
         //Don't want to block the timer's space input!
@@ -265,16 +289,24 @@
             <option title="Select from a grid of letter pairs">From custom</option>
         </select>
 
+        <!--Buffer box (only for 'From all pairs' and 'From custom')-->
+        <div class="ExecSelectLine" v-if="pairSelect == 'From custom' || pairSelect == 'From all pairs'" />
+        <div v-if="pairSelect == 'From custom' || pairSelect == 'From all pairs'">
+            <select v-model="buffer" style="font-size: 2rem; text-align: center;">
+                <option v-for="(buffer, index) in (pieceType == 1 ? cornerBuffers : edgeBuffers)" :value="index">{{ buffer }}</option>
+            </select>
+        </div>
+
         <div class="ExecSelectLine" v-if="pairSelect == 'From sheet' || pairSelect == 'From cards' || pairSelect == 'From custom'" />
         <div v-if="pairSelect == 'From sheet' || pairSelect == 'From cards' || pairSelect == 'From custom'">
             <div v-if="pairSelect == 'From sheet'">
-                <select v-if="sheetStore.getSheetsOfType(Number(pieceType)).length > 0" v-model="pairSelectSheetID" style="font-size: 2rem;text-align:center;">
-                    <option v-for="sheet in sheetStore.getSheetsOfType(Number(pieceType))"
+                <select v-if="getValidSheets().length > 0" v-model="pairSelectSheetID" style="font-size: 2rem;text-align:center;">
+                    <option v-for="sheet in getValidSheets()"
                             :value="sheet.id">
                         '{{sheet.name}}'
                     </option>
                 </select>
-                <div v-else>
+                <div v-else style="font-size: 2rem;">
                     No valid sheets
                 </div>
             </div>
@@ -285,15 +317,15 @@
                         '{{sheet.name}}'
                     </option>
                 </select>
-                <div v-else>
+                <div v-else style="font-size: 2rem;">
                     No valid card decks
                 </div>
             </div>
             <div v-if="pairSelect == 'From custom'" style="display:flex; justify-content: center;">
-                    <img @click="editCustomPairButtonClicked(); UpdateSelectedCells()"
-                         src="@/assets/icons/edit.svg"
-                         :class="['CustomButton', editingCustomPairs ? 'CustomButtonHovered': '']"
-                         :style="{height: '45px', backgroundColor: (editingCustomPairs ?  'var(--brand-400)' : '')}" />
+                <img @click="editCustomPairButtonClicked(); UpdateSelectedCells()"
+                     src="@/assets/icons/edit.svg"
+                     :class="['CustomButton', editingCustomPairs ? 'CustomButtonHovered': '']"
+                     :style="{height: '45px', backgroundColor: (editingCustomPairs ?  'var(--brand-400)' : '')}" />
             </div>
         </div>
     </div>
