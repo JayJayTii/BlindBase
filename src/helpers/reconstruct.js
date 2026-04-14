@@ -141,7 +141,6 @@ export function GenerateReconBody(recon) {
     const solve = JSON.parse(recon.solve)
     summary += "//" + getSolveTimeString(solve) + " (" + getSolveRatioString(solve) + ")\n"
     const tps = moveCount / (solve[0] - solve[1]) * 1000 //times are stored in milliseconds
-    const tpsPrecision = useSettingsStore().settings.recons_tpsprecision
-    summary += "//" + (Math.round(Math.pow(10, tpsPrecision) * tps) / Math.pow(10, tpsPrecision)).toString() + "TPS\n"
+    summary += "//" + (Math.round(10 * tps) / 10).toString() + "TPS\n"
     return summary
 }

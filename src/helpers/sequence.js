@@ -1,4 +1,6 @@
-﻿//Just a turn sequence, not an algorithm because that implies a goal
+﻿import { useSettingsStore } from '@/stores/settingsStore.js'
+
+//Just a turn sequence, not an algorithm because that implies a goal
 export class Sequence { 
     turns = []
 
@@ -66,7 +68,7 @@ export class Sequence {
     }
 
     //Converts a string of algorithm notation (like R U R' U') into the internal turn representation
-    setAlgorithmNotation(str) {
+    fromAlgorithmNotation(str) {
         str = str.replace(/[‘’′]/g, "'") // https://sqlpey.com/javascript/fixing-javascript-smart-quotes/
         //Splt into an array of turns
         const turnArr = str.split(/[ \n]/)
@@ -92,11 +94,11 @@ export class Sequence {
     }
 
     //Converts a string of commutator notation (like [U', R' D R]) into the internal turn representation
-    setCommNotation(str) { //e.g. [U', R' D R] or U' R U':[R' U R,D'] or [R2 : [D, R' U R]]
+    fromCommNotation(str) { //e.g. [U', R' D R] or U' R U':[R' U R,D'] or [R2 : [D, R' U R]]
         let setup = str.match(/\[?(.*):/) //After [ (if there is one) and before :
         setup = (setup == null) ? "" : setup[1]
         const setupSeq = new Sequence() 
-        setupSeq.setAlgorithmNotation(setup)
+        setupSeq.fromAlgorithmNotation(setup)
 
         let part1 = str.match(/:?.*\[(.*),/) //After : and [ and before ,
         if (part1 == null) { //Comm notation must have at least stuff between [ and ,
@@ -106,7 +108,7 @@ export class Sequence {
             part1 = part1[1]
         }
         const part1Seq = new Sequence()
-        part1Seq.setAlgorithmNotation(part1)
+        part1Seq.fromAlgorithmNotation(part1)
 
         let part2 = str.match(/,(.*)\]/) //After , and before ]
         if (part2 == null) {
@@ -116,9 +118,9 @@ export class Sequence {
             part2 = part2[1].replace(']', '')
         }
         const part2Seq = new Sequence()
-        part2Seq.setAlgorithmNotation(part2)
+        part2Seq.fromAlgorithmNotation(part2)
 
-        part2Seq.setAlgorithmNotation(part2)
+        part2Seq.fromAlgorithmNotation(part2)
 
         //A comm is performed as (setup) A B A' B' (setup)'
         //So add turns to this sequence with that pattern
@@ -135,10 +137,15 @@ export class Sequence {
 
     //Convert the internal turn representation into algorithm notation
     toString() {
+        useSettingsStore().loadIfNecessary()
         this.collapse()
         let out = ""
         for (var i = 0; i < this.turns.length; i++) {
-            out += this.turns[i][0]
+            if (useSettingsStore().settings.misc_widemovetype == 0) 
+                out += this.turns[i][0].replace(/[rufldb]/g, match => match.toUpperCase() + "w")
+            else
+                out += this.turns[i][0]
+
             if (this.turns[i][1] === 2)
                 out += "2"
             else if (this.turns[i][1] === 3)

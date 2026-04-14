@@ -2,6 +2,8 @@
     import { ref, provide } from 'vue'
     import { RouterView } from 'vue-router'
     import ConfirmationBox from '@/components/ConfirmationBox.vue'
+    import { useSettingsStore } from '@/stores/SettingsStore.js'
+    useSettingsStore().loadState()
     import Navbar from '@/components/Navbar.vue'
     import Footer from '@/components/Footer.vue'
     

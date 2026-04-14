@@ -129,7 +129,7 @@ export function getEdgeRecommendations(baseKey, buffer, notationType) {
 
 function getImageRecommendations(baseKey) {
     let result = imageData[baseKey]
-    if (!(baseKey.includes('X') && useSettingsStore().settings.sheets_extraximages == true)) {
+    if (!baseKey.includes('X')) {
         return result
     }
 

@@ -3,8 +3,8 @@ import { defineStore } from 'pinia'
 //Data here is used in the Settings View
 export const defaults = {
     sheets_pairorder: {
-        name: 'Letter pair order',
-        options: [{ id: 0, name: 'Row then column' }, { id: 1, name: 'Column then row' }],
+        name: 'Algsheet letter pair format',
+        options: [{ id: 0, name: 'row-column' }, { id: 1, name: 'column-row' }],
         default: 0,
     },
     sheets_notationtype: {
@@ -12,22 +12,8 @@ export const defaults = {
         options: [{ id: 0, name: 'Algorithm notation' }, { id: 1, name: 'Commutator notation' }],
         default: 0,
     },
-    sheets_extraximages: {
-        name: 'Include sh/ch in X images',
-        default: true,
-    },
-    sheets_greyoutinvalidpairs: {
-        name: 'Grey out invalid pairs',
-        default: true,
-    },
-    cards_learningtoduethreshold: {
-        name: 'Revisions of a card before spaced repetition',
-        default: 5,
-        min: 2,
-        max: 20,
-    },
     cards_dailymaximumnewcards: {
-        name: 'Daily maximum new cards',
+        name: 'Daily new flashcards',
         default: 20,
         min: 1,
         max: 500,
@@ -38,24 +24,14 @@ export const defaults = {
         min: 1,
         max: 20,
     },
-    exec_useletterpair: {
-        name: 'Letter pair instead of a scramble',
-        default: false,
-    },
     timer_spaceholdingtime: {
-        name: 'Time keeping space down before starting',
+        name: 'Hold space down for ___ seconds',
         default: 0.3,
         min: 0,
         max: 2,
     },
-    recons_tpsprecision: {
-        name: 'TPS precision',
-        default: 1,
-        min: 0,
-        max: 3
-    },
     misc_widemovetype: {
-        name: 'Wide move type',
+        name: 'Wide move notation',
         default: 0,
         options: [{ id: 0, name: 'Rw' }, { id: 1, name: 'r' }],
     },
@@ -110,5 +86,10 @@ export const useSettingsStore = defineStore('settingsStore', {
             this.settings = this.ValidateValues(data.settings)
             this.saveState()
         },
+        loadIfNecessary() {
+            if (this.data != {})
+                return
+            this.loadState()
+        }
     },
 })

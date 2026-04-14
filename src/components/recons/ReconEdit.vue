@@ -37,7 +37,7 @@
     })
 
     const scramble = new Sequence()
-    scramble.setAlgorithmNotation(recon.value.scramble)
+    scramble.fromAlgorithmNotation(recon.value.scramble)
     const cube = ref(new FaceletCube())
     cube.value.TurnSequence(scramble) //Apply the scramble to the cube visualisation by default
 
@@ -105,7 +105,7 @@
                 const commentIndex = inputTextLines[i].indexOf('//')
                 inputText += (commentIndex == -1 ? inputTextLines[i] : inputTextLines[i].substring(0, commentIndex)) + " "
             }
-            currentAlgorithm.setAlgorithmNotation(inputText)
+            currentAlgorithm.fromAlgorithmNotation(inputText)
 
             cube.value = new FaceletCube()
             cube.value.TurnSequence(currentAlgorithm)

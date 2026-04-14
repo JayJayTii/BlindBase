@@ -63,7 +63,7 @@
             //If it's in comm notation, convert to alg notation
             if (newValue.includes('[') && newValue.includes(',') && newValue.includes(']')) {
                 let commSequence = new Sequence()   
-                commSequence.setCommNotation(newValue)
+                commSequence.fromCommNotation(newValue)
                 newValue = commSequence.toString()
             }
             cornerInput.value.push(newValue)
@@ -83,7 +83,7 @@
             //If it's in comm notation, convert to alg notation
             if (newValue.includes('[') && newValue.includes(',') && newValue.includes(']')) {
                 let commSequence = new Sequence()
-                commSequence.setCommNotation(newValue)
+                commSequence.fromCommNotation(newValue)
                 newValue = commSequence.toString()
             }
             edgeInput.value.push(newValue)
@@ -145,12 +145,12 @@
         const inputIndex = parseInt(selectedID.substring(5))
         for (var i = 0; i < (isEdgeInput ? inputIndex : edgeInput.value.length); i++) {
             const algorithm = new Sequence()
-            algorithm.setAlgorithmNotation(edgeInput.value[i])
+            algorithm.fromAlgorithmNotation(edgeInput.value[i])
             cube.value.TurnSequence(algorithm)
         }
         for (var i = 0; i < (isEdgeInput ? 0 : inputIndex); i++) {
             const algorithm = new Sequence()
-            algorithm.setAlgorithmNotation(cornerInput.value[i])
+            algorithm.fromAlgorithmNotation(cornerInput.value[i])
             cube.value.TurnSequence(algorithm)
         }
         const currentAlgorithm = new Sequence()
@@ -161,7 +161,7 @@
             || sampleIndex == 0 || sampleIndex >= inputText.length)) {
             sampleIndex++
         }
-        currentAlgorithm.setAlgorithmNotation(inputText.substring(0, sampleIndex))
+        currentAlgorithm.fromAlgorithmNotation(inputText.substring(0, sampleIndex))
 
         cube.value.TurnSequence(currentAlgorithm)
     }

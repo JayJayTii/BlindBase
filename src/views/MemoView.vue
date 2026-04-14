@@ -2,7 +2,8 @@
     import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue'
     import { gaussianRandom, GeneratePairSequence, FormatPairSequence, GetLongestStringLength, getCorrect, getScore } from '@/helpers/memo.js'
     //Sheet and card stores for memo header for fetching sheet and card names
-    import { useSettingsStore } from '@/stores/SettingsStore.js'
+    import { defaults, useSettingsStore } from '@/stores/SettingsStore.js'
+    const settingsStore = useSettingsStore()
     import { useSheetStore } from '../stores/SheetStore'
     const sheetStore = useSheetStore()
     sheetStore.loadState()
@@ -21,6 +22,7 @@
     const stage = ref(0)
     let runData = {} //Contains mode, cube count, pair selection mode, pair select sheet, possible pairs
     const length = ref(-1)
+    let firstTurn = true;
 
     var testSequences = [] //The sequences the user is tasked to remember
     var userSequences = [] //The sequences the user remembered
@@ -29,6 +31,7 @@
         runData = _runData
         length.value = useSettingsStore().settings.memo_startingmemolength
         stage.value = 0 //needed to update MemoDisplay
+        firstTurn = true;
         startTurn()
     }
 
@@ -50,27 +53,31 @@
             case "Corners":
                 length.value += getCorrect(testSequences, userSequences) > 0 ? 1 : -1
                 if (length.value < 1) {
-                    startTurn()
+                    RestartRun(runData)
                     return
                 }
+                firstTurn = false;
                 break
             case "Edges":
                 length.value += getCorrect(testSequences, userSequences) > 0 ? 1 : -1
-                if (length.value < 1) {
-                    startTurn()
+				if (length.value < 1) {
+					RestartRun(runData)
                     return
                 }
+                firstTurn = false;
                 break
             case "One mistake":
-                if (getCorrect(testSequences, userSequences) > 0)
+                if (getCorrect(testSequences, userSequences) > 0) {
                     length.value += 1
-                else {
-                    startTurn()
+                    firstTurn = false
+                }
+				else {
+					RestartRun(runData)
                     return
                 }
                 break
-            case "Multiblind":
-                startTurn()
+			case "Multiblind":
+				RestartRun(runData)
                 return
         }
         startTurn()
@@ -93,6 +100,12 @@
         if (getCorrect(testSequences, userSequences) > 0 && length.value > memoStore.GetHighscore(runData.mode))
             memoStore.SetHighscore(runData.mode, length.value)
     }
+
+    function lengthUpdated() {
+        settingsStore.saveState()
+        length.value = settingsStore.settings.memo_startingmemolength
+        startTurn()
+    }
 </script>
 
 <template>
@@ -100,6 +113,23 @@
         <!------SELECT------>
         <MemoSelect @restartRun="RestartRun" @cancelRun="stage = 0" />
 
+        <div style="height:15vh; position: relative;">
+            <div v-if="runData.mode != 'Multiblind' && stage == 1" 
+                 style="position:absolute;bottom: 0px;left:50%; transform:translateX(-50%); display:flex; flex-direction: row;">
+                <div v-if="firstTurn">
+                    Starting length: 
+                    <input v-model="settingsStore.settings.memo_startingmemolength"
+                           type="number"
+                           :min="defaults.memo_startingmemolength.min"
+                           :max="defaults.memo_startingmemolength.max"
+                           style="width: 5ch;"
+                           @change="lengthUpdated()" />
+                </div>
+                <div v-else>
+                    Length: {{length}}
+                </div>
+            </div>
+        </div>
         <!------DISPLAY------>
         <div v-if="stage === 1" class="MemoViewContainer">
             <MemoDisplay :testSequences="testSequences"
@@ -140,7 +170,6 @@
         display: flex;
         flex-direction: column;
         justify-self: center;
-        padding-top: 15vh;
         gap: 20px;
         font-size: 2rem;
     }

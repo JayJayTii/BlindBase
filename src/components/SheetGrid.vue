@@ -180,7 +180,7 @@
             classes.push('SheetGridCellEmpty')
         else {
             const letters = "ABCDEFGHIJKLMNOPQRSTUVWX"
-			if (settingsStore.settings.sheets_greyoutinvalidpairs && (props.sheet.type == 1 || props.sheet.type == 2) && !isPossiblePair(props.sheet.type, letters[x] + letters[y], props.sheet.buffer)) {
+			if ((props.sheet.type == 1 || props.sheet.type == 2) && !isPossiblePair(props.sheet.type, letters[x] + letters[y], props.sheet.buffer)) {
                 classes.push('SheetGridCellGreyed')
             }
 			classes.push('SheetGridCellHoverable')

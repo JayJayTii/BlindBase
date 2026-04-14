@@ -71,161 +71,80 @@
 </script>
 
 <template>
-    <div style="display:flex;justify-content:center;">
+    <div style="display:flex;flex-direction:column;width: 100%; align-items:center;">
+        <h1 style="font-size: 3rem;color:var(--grey-100);">Settings</h1>
         <div class="Settings">
-            <h1 class="Subsettings">Settings</h1>
+            <div>{{ defaults.misc_defaultcornerbuffer.name }}</div>
+            <div>
+                <select v-model="settingsStore.settings.misc_defaultcornerbuffer" @change="SettingUpdated">
+                    <option v-for="(type, index) in defaults.misc_defaultcornerbuffer.options"
+                            :key="index"
+                            :value="index">
+                        {{ type.name + " (" + cornerScheme[index] + ")" }}
+                    </option>
+                </select>
+            </div>
 
-            <div id="SettingsScrollContainer">
-                <div class="Subsettings">
-                    <div id="Misc default corner buffer">
-                        {{ defaults.misc_defaultcornerbuffer.name }}:
-                        <select v-model="settingsStore.settings.misc_defaultcornerbuffer" @change="SettingUpdated">
-                            <option v-for="(type, index) in defaults.misc_defaultcornerbuffer.options"
-                                    :key="index"
-                                    :value="index">
-                                {{ type.name + " (" + cornerScheme[index] + ")" }}
-                            </option>
-                        </select>
-                    </div>
-                    <div id="Misc default edge buffer">
-                        {{ defaults.misc_defaultedgebuffer.name }}:
-                        <select v-model="settingsStore.settings.misc_defaultedgebuffer" @change="SettingUpdated">
-                            <option v-for="(type, index) in defaults.misc_defaultedgebuffer.options"
-                                    :key="index"
-                                    :value="index">
-                                {{ type.name + " (" + edgeScheme[index] + ")" }}
-                            </option>
-                        </select>
-                    </div>
-                </div>
-                <!--SHEET SETTINGS-->
-                <div class="Subsettings">
-                    <h2>Sheets Settings</h2>
-                    <div id="Sheets pair order">
-                        {{ defaults.sheets_pairorder.name }}:
-                        <select v-model="settingsStore.settings.sheets_pairorder" @change="SettingUpdated">
-                            <option v-for="(type, index) in defaults.sheets_pairorder.options"
-                                    :key="index"
-                                    :value="index">
-                                {{ type.name }}
-                            </option>
-                        </select>
-                    </div>
-                    <div id="Sheets Notation Type">
-                        {{ defaults.sheets_notationtype.name }}:
-                        <select v-model="settingsStore.settings.sheets_notationtype" @change="SettingUpdated">
-                            <option v-for="(type, index) in defaults.sheets_notationtype
-                            .options"
-                                    :key="index"
-                                    :value="index">
-                                {{ type.name }}
-                            </option>
-                        </select>
-                    </div>
-                    <div id="Sheets Extra X Images">
-                        {{ defaults.sheets_extraximages.name }}:
-                        <input v-model="settingsStore.settings.sheets_extraximages" type="checkbox" @change="SettingUpdated" />
-                    </div>
-                    <div id="Sheets Grey Out Invalid Pairs">
-                        {{ defaults.sheets_greyoutinvalidpairs.name }}:
-                        <input v-model="settingsStore.settings.sheets_greyoutinvalidpairs" type="checkbox" @change="SettingUpdated" />
-                    </div>
-                </div>
+            <div>{{ defaults.misc_defaultedgebuffer.name }}</div>
+            <div>
+                <select v-model="settingsStore.settings.misc_defaultedgebuffer" @change="SettingUpdated">
+                    <option v-for="(type, index) in defaults.misc_defaultedgebuffer.options"
+                            :key="index"
+                            :value="index">
+                        {{ type.name + " (" + edgeScheme[index] + ")" }}
+                    </option>
+                </select>
+            </div>
 
-                <!--CARDS SETTINGS-->
-                <div class="Subsettings">
-                    <h2>Cards Settings</h2>
-                    <div id="Cards Learning To Due Threshold">
-                        {{ defaults.cards_learningtoduethreshold.name }}:
-                        <input v-model="settingsStore.settings.cards_learningtoduethreshold"
-                               type="number"
-                               :min="defaults.cards_learningtoduethreshold.min"
-                               :max="defaults.cards_learningtoduethreshold.max"
-                               @change="SettingUpdated" />
-                    </div>
-                    <div id="Cards Daily Maximum New Cards">
-                        {{ defaults.cards_dailymaximumnewcards.name }}:
-                        <input v-model="settingsStore.settings.cards_dailymaximumnewcards"
-                               type="number"
-                               :min="defaults.cards_dailymaximumnewcards.min"
-                               :max="defaults.cards_dailymaximumnewcards.max"
-                               @change="SettingUpdated" />
-                        ({{useCardStore().dailyStats.dailyNewCards}} new cards done today)
-                    </div>
-                </div>
+            <div>{{ defaults.sheets_pairorder.name }}</div>
+            <div>
+                <select v-model="settingsStore.settings.sheets_pairorder" @change="SettingUpdated">
+                    <option v-for="(type, index) in defaults.sheets_pairorder.options"
+                            :key="index"
+                            :value="index">
+                        {{ type.name }}
+                    </option>
+                </select>
+            </div>
 
-                <!--MEMO SETTINGS-->
-                <div class="Subsettings">
-                    <h2>Memo Settings</h2>
-                    <div id="Memo Starting Memo Length">
-                        {{ defaults.memo_startingmemolength.name }}:
-                        <input v-model="settingsStore.settings.memo_startingmemolength"
-                               type="number"
-                               :min="defaults.memo_startingmemolength.min"
-                               :max="defaults.memo_startingmemolength.max"
-                               @change="SettingUpdated" />
-                    </div>
-                </div>
+            <div>{{ defaults.cards_dailymaximumnewcards.name }}</div>
+            <div>
+                <input v-model="settingsStore.settings.cards_dailymaximumnewcards"
+                       type="number"
+                       :min="defaults.cards_dailymaximumnewcards.min"
+                       :max="defaults.cards_dailymaximumnewcards.max"
+                       @change="SettingUpdated"
+                       style="width: 6ch;" />
+            </div>
 
-                <!--EXEC SETTINGS-->
-                <div class="Subsettings">
-                    <h2>Exec Settings</h2>
-                    <div id="Exec Use Letter Pair Instead of Scramble">
-                        {{ defaults.exec_useletterpair.name }}:
-                        <input v-model="settingsStore.settings.exec_useletterpair"
-                               type="checkbox"
-                               @change="SettingUpdated" />
-                    </div>
-                </div>
+            <div>{{ defaults.timer_spaceholdingtime.name }}</div>
+            <div>
+                <input v-model="settingsStore.settings.timer_spaceholdingtime"
+                       type="number"
+                       :min="defaults.timer_spaceholdingtime.min"
+                       :max="defaults.timer_spaceholdingtime.max"
+                       step="0.1"
+                       @change="SettingUpdated"
+                       style="width:6ch;" />
+            </div>
 
-                <!--TIMER SETTINGS-->
-                <div class="Subsettings">
-                    <h2>Timer Settings</h2>
-                    <div id="Timer Time Keeping Space Down">
-                        {{ defaults.timer_spaceholdingtime.name }}:
-                        <input v-model="settingsStore.settings.timer_spaceholdingtime"
-                               type="number"
-                               :min="defaults.timer_spaceholdingtime.min"
-                               :max="defaults.timer_spaceholdingtime.max"
-                               step="0.1"
-                               @change="SettingUpdated" />
-                        seconds
-                    </div>
-                </div>
-
-                <!--RECONS SETTINGS-->
-                <div class="Subsettings">
-                    <h2>Recons Settings</h2>
-                    <div id="Resons TPS precision">
-                        {{ defaults.recons_tpsprecision.name }}:
-                        <input v-model="settingsStore.settings.recons_tpsprecision"
-                               type="number"
-                               :min="defaults.recons_tpsprecision.min"
-                               :max="defaults.recons_tpsprecision.max"
-                               @change="SettingUpdated" />
-                        decimal places
-                    </div>
-                </div>
-
-                <!--MISC SETTINGS-->
-                <div class="Subsettings">
-                    <h2>Miscellaneous</h2>
-                    <div id="Misc Wide Move Type">
-                        {{ defaults.misc_widemovetype.name }}:
-                        <select v-model="settingsStore.settings.misc_widemovetype" @change="SettingUpdated">
-                            <option v-for="(type, index) in defaults.misc_widemovetype.options"
-                                    :key="index"
-                                    :value="type.id">
-                                {{ type.name }}
-                            </option>
-                        </select>
-                    </div>
-                </div>
-
-                <div style="display:flex;flex-direction:row;gap:20px;justify-content:center;">
-                    <button @click="ImportAll"><h2>Import Data</h2></button>
-                    <button @click="ExportAll"><h2>Export Data</h2></button>
-                </div>
+            <div>{{ defaults.misc_widemovetype.name }}</div>
+            <div>
+                <select v-model="settingsStore.settings.misc_widemovetype" @change="SettingUpdated">
+                    <option v-for="(type, index) in defaults.misc_widemovetype.options"
+                            :key="index"
+                            :value="type.id">
+                        {{ type.name }}
+                    </option>
+                </select>
+            </div>
+        </div>
+        <div style="display: flex; flex-direction: row; margin-top: 20px;justify-content: space-between; width: min(400px, 100%); ">
+            <div>
+                <button @click="ImportAll"><h2>Import Data</h2></button>
+            </div>
+            <div>
+                <button @click="ExportAll"><h2>Export Data</h2></button>
             </div>
         </div>
     </div>
@@ -234,25 +153,24 @@
 
 <style>
     .Settings {
-        width: 30vw;
+        width: min(600px, 100%);
         border-radius: 10px;
         color: var(--text-color);
         padding: 4px;
         overflow: hidden;
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        font-size: 1.3rem;
+        padding: 20px;
+        gap: 10px;
     }
 
-    .Settings .Subsettings {
-        text-align:center;
-    }
-
-    #SettingsScrollContainer {
-        overflow-y: auto;
-        overflow-x: hidden;
-        height: 100%;
-        display: flex;
-        flex-direction: column;
-        gap:10px;
-    }
+		.Settings * {
+			font-size: inherit;
+		}
+		.Settings > :nth-child(even) {
+            text-align: end;
+		}
 
 
     .Subsettings {

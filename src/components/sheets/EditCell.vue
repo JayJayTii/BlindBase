@@ -17,10 +17,20 @@
         set: (newValue) => sheetStore.setCell(props.sheetID, props.selectedCell, newValue)
     })
 
+    const notationType = computed({
+        get: () => settingsStore.settings.sheets_notationtype == 1 ? true : false,
+        set: (newValue) => {
+                settingsStore.settings.sheets_notationtype = (newValue ? 1 : 0)
+                settingsStore.saveState()
+                getOptions()
+            }
+    })
     //Get recommendations for this cell if a sheet is selected
-    const options = sheetStore.isValidSheetID(props.sheetID)
-		? getRecommendations(sheetStore.getSheet(props.sheetID).type, sheetStore.coordToKey(props.sheetID, props.selectedCell), sheetStore.getSheet(props.sheetID).buffer)
-                    : []
+    let options = []
+    function getOptions() {
+		options = getRecommendations(sheetStore.getSheet(props.sheetID).type, sheetStore.coordToKey(props.sheetID, props.selectedCell), sheetStore.getSheet(props.sheetID).buffer)
+    }
+    getOptions()
 
     function OptionClicked(index) {
         selectedCellValue.value = options[index]
@@ -126,7 +136,13 @@
         </div>
 
         <!------RECOMMENDATIONS------>
-        <div class="SheetEditingRow">Recommendations:</div>
+        <div style="display: flex; justify-content:space-between; align-items: center;">
+            <div>Recommendations:</div>
+            <div v-if="sheetStore.getType(props.sheetID) == 1 || sheetStore.getType(props.sheetID) == 2" style="display:flex;flex-direction:row;align-items:center; font-size: 10px;gap:2px;">
+                Comm:
+                <input type="checkbox" v-model="notationType" />
+            </div>
+        </div>
         <div v-if="sheetStore.getSheet(props.sheetID).type != 0" style="overflow-y:auto;">
             <List :data="options"
                   :selectedIndex="-1"

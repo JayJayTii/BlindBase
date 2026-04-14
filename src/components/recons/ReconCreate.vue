@@ -19,8 +19,6 @@
         scramble: Sequence,
     })
     let scrambleStr = props.scramble.toString()
-    if (useSettingsStore().settings.misc_widemovetype == 0) 
-        scrambleStr = scrambleStr.replace(/[rufldb]/g, match => match.toUpperCase() + "w")
 
     const stage = ref(0)
 
@@ -52,7 +50,7 @@
         if (sessionStorage.reconstructionSolve) {
             reconSolve = JSON.parse(sessionStorage.reconstructionSolve)
             const reconScramble = new Sequence()
-            reconScramble.setAlgorithmNotation(newRecon.scramble)
+            reconScramble.fromAlgorithmNotation(newRecon.scramble)
             if (newRecon.scramble == reconScramble.toString()) {
                 newRecon.solve = sessionStorage.reconstructionSolve
                 newRecon.name += " " + getSolveTimeString(reconSolve)

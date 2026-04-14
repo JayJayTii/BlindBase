@@ -41,9 +41,10 @@ export const useSheetStore = defineStore('sheetStore', {
 
         newSheet() {
             //Create a default sheet
+            const newID = this.getNewSheetID()
             this.sheets.push({
                 name: 'Untitled',
-                id: this.getNewSheetID(),
+                id: newID,
                 type: 0,
                 buffer: 2,
                 xHeadings: DEFAULT_SHEET_XHEADINGS,
@@ -53,6 +54,8 @@ export const useSheetStore = defineStore('sheetStore', {
 
             this.saveState()
             this.loadState()
+
+            return newID
         },
         deleteSheet(id) {
             //Removes the sheet at its index in the array, then saves the change

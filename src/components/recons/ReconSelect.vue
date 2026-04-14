@@ -19,7 +19,7 @@
 
         //Done to avoid invalid scrambles in URL allowing for duplicate of the same real scramble
         const scrambleSequence = new Sequence()
-        scrambleSequence.setAlgorithmNotation(newScramble.value)
+        scrambleSequence.fromAlgorithmNotation(newScramble.value)
         router.push(`/recons/${scrambleSequence.toString()}`)
     }
 
@@ -37,7 +37,7 @@
         //Apply the recon's scramble to a cube and show to the user
         reconPreviewCube = new FaceletCube()
         const scramble = new Sequence()
-        scramble.setAlgorithmNotation(reconsStore.recons[index].scramble)
+        scramble.fromAlgorithmNotation(reconsStore.recons[index].scramble)
         reconPreviewCube.TurnSequence(scramble)
     }
     ReconClicked(0)

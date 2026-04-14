@@ -20,7 +20,6 @@
     let possiblePairs = []
     let pieceType = 0
     let buffer = -1
-    let useScramble = false
 
     const solveCount = ref(1)
 
@@ -54,17 +53,12 @@
             return (pieceType === 1) ? scramblers['333'].getCornerScramble() : scramblers['333'].getEdgeScramble()
 
         const pair = possiblePairs[Math.floor(Math.random() * possiblePairs.length)]
-        if (!useScramble) //Scramble is just a pair like "AB"
-            return pair
-        //Else scramble ends with cube at "AB" state
         const solution = GetRandomRecommendation(pieceType, pair, buffer)
         //This is done by reversing a solution to that state
         let scramble = new Sequence()
-        scramble.setAlgorithmNotation(solution)
+        scramble.fromAlgorithmNotation(solution)
         scramble.reverse()
         let scrambleStr = scramble.toString()
-        if (useSettingsStore().settings.misc_widemovetype == 0)
-            scrambleStr = scrambleStr.replace(/[rufldb]/g, match => match.toUpperCase() + "w")
         return scrambleStr
     }
 
@@ -74,7 +68,6 @@
         possiblePairs = newPairs
         pieceType = newPieceType
         buffer = newBuffer
-        useScramble = !useSettingsStore().settings.exec_useletterpair
         nextTick(() => {
             if(!timer.value)
                 return

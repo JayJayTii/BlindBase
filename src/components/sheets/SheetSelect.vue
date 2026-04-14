@@ -4,12 +4,16 @@
     import { useSheetStore } from "@/stores/SheetStore"
     const sheetStore = useSheetStore()
 
-    const emit = defineEmits(['updateSheetID'])
-    const selectedIndex = ref(0)
+	const emit = defineEmits(['updateSheetID'])
+	const selectedID = ref(0)
 
-    function SheetClicked(index) {
-        selectedIndex.value = index
-        emit('updateSheetID', index)
+    function SheetClicked(id) {
+        selectedID.value = id
+        emit('updateSheetID', id)
+    }
+
+    function selectSheet(id) {
+        selectedID.value = id
     }
 
     function UploadFile() {
@@ -19,11 +23,16 @@
         input.accept = '.csv'
         input.onchange = async e => {
             var file = e.target.files[0]
-            await CreateSheetFromFile(file)
-            SheetClicked(sheetStore.sheets.length - 1)
+            const newSheetID = await CreateSheetFromFile(file)
+            if(newSheetID != -1)
+                SheetClicked(newSheetID)
         }
         input.click()
-    }
+	}
+
+	defineExpose({
+		selectSheet
+	})
 </script>
 
 <template>
@@ -33,9 +42,9 @@
 
         <div style="overflow-x:hidden; overflow-y:auto;">
             <div v-for="(label, index) in sheetStore.getSheetNames"
-                 :class="['ListItem', selectedIndex  === index ? 'ListItemSelected' : 'ListItemUnselected']"
+                 :class="['ListItem', selectedID === sheetStore.sheets[index].id ? 'ListItemSelected' : 'ListItemUnselected']"
                  style="position: relative;"
-                 @click="SheetClicked(index)">
+                 @click="SheetClicked(sheetStore.sheets[index].id)">
                 <span v-if="label">{{label}}</span>
                 <span v-else>&nbsp</span>
             </div>
@@ -47,7 +56,7 @@
                      @click="UploadFile()" />
 
                 <img title="Create new"
-                     @click="sheetStore.newSheet(); emit('updateSheetID',sheetStore.sheets.length-1);"
+                     @click="emit('updateSheetID', sheetStore.newSheet());"
                      class="CustomButton" src="@/assets/icons/add.svg" style="height:40px;" />
             </div>
         </div>

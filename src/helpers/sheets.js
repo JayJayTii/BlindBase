@@ -49,7 +49,7 @@ export async function CreateSheetFromFile(file) {
     //Need to do checking for validity
     if (!file.name.toLowerCase().endsWith('.csv')) {
         alert('Invalid file type, we only support .csv files. Please "Save as" / "Download" your spreadsheet as a .csv file from your spreadsheet editor.')
-        return
+        return -1
     }
 
     let csvGrid = content.split('\n').filter(line => line.length > 0) //Filter random 0-length end lines
@@ -75,11 +75,11 @@ export async function CreateSheetFromFile(file) {
     }
     if (xHeadingsStart == null) {
         alert("File formatted incorrectly. The file must contain a horizontal row of letters in alphabetical order, starting with A.")
-        return
+        return -1
     }
     if (!csvGrid[xHeadingsStart.y + 1][xHeadingsStart.x - 1].includes('A')) {
         alert("File formatted incorrectly. The file must have a vertical column of letters in alphabetical order next to the column headings, starting with A.")
-        return
+        return -1
     }
     const yHeadingsStart = { x: xHeadingsStart.x - 1, y: xHeadingsStart.y + 1 } 
     csvGrid = csvGrid.slice(xHeadingsStart.y).map(line => line.slice(yHeadingsStart.x))
@@ -134,17 +134,19 @@ export async function CreateSheetFromFile(file) {
 
     let name = file.name.slice(0, file.name.lastIndexOf('.')) //Remove file extension
     if (name.length > 20)
-        name = name.substr(0,20)
+        name = name.substr(0, 20)
+
+    const newID = useSheetStore().getNewSheetID()
     useSheetStore().sheets.push({
         name: name,
-        id: useSheetStore().getNewSheetID(),
+        id: newID,
         type: 0,
         xHeadings: "ABCDEFGHIJKLMNOPQRSTUVWX",
         yHeadings: "ABCDEFGHIJKLMNOPQRSTUVWX",
         grid: sheetGrid,
     })
     useSheetStore().saveState()
-    return useSheetStore().sheets.length - 1
+    return newID
 }
 
 //Checks if every cell in the given sheet is empty.

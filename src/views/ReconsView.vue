@@ -12,7 +12,7 @@
     const route = useRoute()
     const scramble = decodeURIComponent(route.params.pathMatch)
     const scrambleSequence = new Sequence()
-    scrambleSequence.setAlgorithmNotation(scramble)
+    scrambleSequence.fromAlgorithmNotation(scramble)
     //Only allow legitimate scrambles and avoids duplicates by checking it is the same once a sequence has corrected it
     if (scramble !== scrambleSequence.toString()) 
         router.replace(`/recons/${scrambleSequence.toString()}`)

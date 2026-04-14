@@ -28,7 +28,5 @@ export function get3BLDscramble() {
 		scrambleSequence.add([wideMoves[Math.floor(3 * Math.random())], 1 + Math.floor(3 * Math.random())])
 	}
 	let scrambleStr = scrambleSequence.toString()
-	if (useSettingsStore().settings.misc_widemovetype == 0)
-		scrambleStr = scrambleStr.replace(/[rufldb]/g, match => match.toUpperCase() + "w")
 	return scrambleStr
 }
