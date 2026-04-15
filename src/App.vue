@@ -5,8 +5,7 @@
     import { useSettingsStore } from '@/stores/SettingsStore.js'
     useSettingsStore().loadState()
     import Navbar from '@/components/Navbar.vue'
-    import Footer from '@/components/Footer.vue'
-    
+
     const confirmDialog = ref()
     provide('confirmDialog', confirmDialog)
 </script>
@@ -14,19 +13,31 @@
 <template>
     <ConfirmationBox ref="confirmDialog" />
 
-    <el-container>
-        <el-header>
+    <div style="min-height: 100dvh; display: flex; flex-direction: column;">
+        <el-header style="position: sticky; top: 0; z-index: 10;">
             <Navbar />
         </el-header>
-
-        <el-main style="overflow-y: auto; height: calc(100vh - var(--navbar-height) - var(--footer-height));">
+        <el-main>
             <RouterView :key="$route.fullPath" />
         </el-main>
-
+        <hr />
         <el-footer>
-            <div style="position: fixed; bottom: 0px; left: 0px; width: 100%;">
-                <Footer />
-            </div>
+            <div><el-link underline="always" href="https://www.youtube.com/@BlindBase" target="_blank">YouTube</el-link></div>
+            <div><el-link underline="always" href="https://github.com/JayJayTii/BlindBase" target="_blank">GitHub</el-link></div>
+            <div><el-link underline="always" href="https://www.worldcubeassociation.org/persons/2018TUPP02" target="_blank">Created by James Tuppenney</el-link></div>
+            <div><el-link underline="always" href="/donate/">Donate</el-link></div>
         </el-footer>
-    </el-container>
+    </div>
 </template>
+
+<style>
+    .el-footer {
+        margin-top: auto;
+        display: grid;
+        grid-template-columns: repeat(4, auto);
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        gap: 60px;
+    }
+</style>

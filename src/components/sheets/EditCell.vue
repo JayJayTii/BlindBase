@@ -88,7 +88,8 @@
 
             // set the element's new position:
             var newTop = top
-            const navbarHeight = parseFloat(window.getComputedStyle(document.body).getPropertyValue('--navbar-height'))
+            //const navbarHeight = parseFloat(window.getComputedStyle(document.body).getPropertyValue('--navbar-height'))
+            const navbarHeight = 60;
             if(newTop < navbarHeight)
                 newTop = navbarHeight
             if(newTop + elmntHeight > window.innerHeight)

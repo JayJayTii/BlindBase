@@ -7,7 +7,6 @@
 </script>
 
 <template>
-    <!--Navbar sticks to the top of the screen-->
     <el-menu style="width: 100%;" :default-active="routes.indexOf(currentRoute.name).toString()" 
              :ellipsis="false" mode="horizontal">
         <el-menu-item index="0" @click="router.push('/')">
@@ -20,7 +19,7 @@
             Sheets
         </el-menu-item>
         <el-menu-item index="2" @click="router.push('/cards')">
-            Cards
+            Flashcards
         </el-menu-item>
         <el-menu-item index="3" @click="router.push('/memo')">
             Memo
@@ -31,8 +30,8 @@
         <el-menu-item index="5" @click="router.push('/timer')">
             Timer
         </el-menu-item>
-        <el-menu-item index="6" @click="router.push('/recons')">
-            Recons
+        <el-menu-item index="6" style="width:150px;" @click="router.push('/recons')">
+            Reconstructions
         </el-menu-item>
         <el-menu-item index="7" @click="router.push('/settings')" style="margin-left: auto;">
             <el-icon :size="30" style="width: 40px;"><Setting /></el-icon>

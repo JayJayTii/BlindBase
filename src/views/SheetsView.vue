@@ -122,7 +122,7 @@
 
     #leftColumnToggle {
         position: relative;
-        transform: translate(20vw, calc(-93vh + var(--footer-height)));
+        transform: translate(20vw, -93vh);
         z-index: 5;
         cursor: pointer;
         width: 33px;
