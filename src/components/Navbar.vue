@@ -3,82 +3,46 @@
     import { useRouter, useRoute } from 'vue-router'
     const router = useRouter()
     const currentRoute = useRoute()
-    const routes = router.getRoutes().filter((route) => route.meta.tool)
+    const routes = ['Home', 'Sheets', 'Cards', 'Memo', 'Exec', 'Timer', 'Recons', 'Settings']
 </script>
 
 <template>
     <!--Navbar sticks to the top of the screen-->
-    <header>
-        <div class="Navbar-left">
-            <div @click="router.push('/')" class="clickable" style="padding-top: 5px;">
-                <img src="@/assets/logo.png" style="height: calc(var(--navbar-height) - 10px);" />
-            </div>
-        </div>
-        <div class="Navbar-center">
-            <div v-for="route in routes" 
-                 :class="['clickable', 'routeHeader', currentRoute.name == route.name ? 'selectedRouteHeader' : 'unselectedRouteHeader']" 
-                 @click="router.push(currentRoute.name == route.name ? '/' : route.path.split(':')[0])">
-                {{route.name}}
-            </div>
-        </div>
-        <div class="Navbar-right">
-            <div @click="router.push('/settings/')" :class="['clickable', currentRoute.name == 'Settings' ? 'selected' : '']">
-                <img src="@/assets/icons/settings.svg" style="margin-top: 5px; height: calc(var(--navbar-height) - 10px);"/>
-            </div>
-        </div>
-    </header>
+    <el-menu style="width: 100%;" :default-active="routes.indexOf(currentRoute.name).toString()" 
+             :ellipsis="false" mode="horizontal">
+        <el-menu-item index="0" @click="router.push('/')">
+            <el-icon>
+                <img src="@/assets/logo.png" style="height: 30px;" />
+            </el-icon>
+        </el-menu-item>
+        
+        <el-menu-item index="1" @click="router.push('/sheets')">
+            Sheets
+        </el-menu-item>
+        <el-menu-item index="2" @click="router.push('/cards')">
+            Cards
+        </el-menu-item>
+        <el-menu-item index="3" @click="router.push('/memo')">
+            Memo
+        </el-menu-item>
+        <el-menu-item index="4" @click="router.push('/exec')">
+            Exec
+        </el-menu-item>
+        <el-menu-item index="5" @click="router.push('/timer')">
+            Timer
+        </el-menu-item>
+        <el-menu-item index="6" @click="router.push('/recons')">
+            Recons
+        </el-menu-item>
+        <el-menu-item index="7" @click="router.push('/settings')" style="margin-left: auto;">
+            <el-icon :size="30" style="width: 40px;"><Setting /></el-icon>
+        </el-menu-item>
+    </el-menu>
 </template>
 
 <style>
-    header {
-        display: flex;
-        justify-content: space-between;
-        height: var(--navbar-height);
-        background-color: var(--brand-700);
-        padding-left: 10px;
-    }
-    .Navbar-left,
-    .Navbar-center,
-    .Navbar-right {
-        display: flex;
-        align-items: center;
-    }
-        .Navbar-center .routeHeader {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            height: var(--navbar-height);
-            width: 100px;
-        }
-
-
-    .unselectedRouteHeader {
-        color: var(--grey-100);
-        text-decoration: none;
-        height: var(--navbar-height);
-        text-align: center;
-        font-size: 20px;
-    }
-        .unselectedRouteHeader:hover {
-            background-color: var(--brand-800);
-        }
-
-    .selectedRouteHeader {
-        background-color: var(--grey-100);
-        color: var(--grey-900);
-        text-decoration: none;
-        font-weight: bold;
-        height: var(--navbar-height);
-        text-align: center;
-        font-size: 20px;
-    }
-
-    .clickable {
-        cursor: pointer;
-        user-select: none;
-    }
-    .selected {
-        filter: invert(1);
-        background-color: var(--grey-900);
+    .el-menu .el-menu-item {
+        width: 100px;
+        font-size: 1rem;
     }
 </style>

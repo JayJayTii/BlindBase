@@ -114,7 +114,6 @@ body {
     min-height: 100vh;
     --navbar-height: 50px;
     --footer-height: 25px;
-    background-color: var(--grey-900);
     --panel-color: var(--grey-900);
     --border-color: var(--grey-800);
     --panel-header-color: var(--brand-700);
