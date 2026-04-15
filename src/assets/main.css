@@ -121,6 +121,14 @@ body {
     -moz-osx-font-smoothing: grayscale;
 }
 
+/* Needed for custom icons inside el-icon */
+.ep-icon {
+    width: 1em;
+    height: 1em;
+    display: inline-block;
+    color: inherit;
+}
+
 /*  Common classes  */
 .PanelHeader {
     width: 100%;

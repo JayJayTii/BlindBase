@@ -1,6 +1,7 @@
 <script setup>
     import { ref, nextTick } from 'vue'
     import { useRouter, useRoute } from 'vue-router'
+    import Logo from '@/components/Icons/Logo.vue'
     const router = useRouter()
     const currentRoute = useRoute()
     const routes = ['Home', 'Sheets', 'Cards', 'Memo', 'Exec', 'Timer', 'Recons', 'Settings']
@@ -10,8 +11,8 @@
     <el-menu style="width: 100%;" :default-active="routes.indexOf(currentRoute.name).toString()" 
              :ellipsis="false" mode="horizontal">
         <el-menu-item index="0" @click="router.push('/')">
-            <el-icon>
-                <img src="@/assets/logo.png" style="height: 30px;" />
+            <el-icon :size="35" style="width: auto;">
+                <Logo style="width: 100%;"/>
             </el-icon>
         </el-menu-item>
         
@@ -33,8 +34,8 @@
         <el-menu-item index="6" style="width:150px;" @click="router.push('/recons')">
             Reconstructions
         </el-menu-item>
-        <el-menu-item index="7" @click="router.push('/settings')" style="margin-left: auto;">
-            <el-icon :size="30" style="width: 40px;"><Setting /></el-icon>
+        <el-menu-item index="7" @click="router.push('/settings')" style="margin-left: auto; width: 70px;">
+            <el-icon :size="35" style="width: auto; margin-left: 5px;"><Setting style="width: 100%;"/></el-icon>
         </el-menu-item>
     </el-menu>
 </template>
