@@ -54,9 +54,9 @@
 		}
 	})
 
+	const mainDropdownRef = ref(null)
 
-
-	const sheetEditRef = ref()
+	const sheetEditRef = ref(null)
 	const dropdownPositionRef = ref(null)
 	const sheetEditOpen = ref(false)
 	function onVisibleChange(isOpen) {
@@ -73,18 +73,19 @@
 </script>
 
 <template>
-	<div>
+	<div style="height: 100%;">
 		<el-dropdown placement="bottom-end"
 					 :split-button="true"
 					 trigger="click"
 					 @command="selectSheet"
-					 @click="handleClick">
+					 @click="handleClick"
+					 ref="mainDropdownRef">
 			<div class="el-dropdown-link" ref="dropdownPositionRef" style="width: min(300px, 20vw);">
 				<el-text :truncated="true">{{sheetStore.getSheet(sheetID)?.name || ''}}</el-text>
 			</div>
 			<!-- Dropdown with sheets to select from -->
 			<template #dropdown>
-				<el-dropdown-menu style="width: min(200px, 20vw); padding: 5px;">
+				<el-dropdown-menu style="width: min(200px, 20vw); max-height: 400px; padding: 5px;">
 					<el-dropdown-item v-for="sheet in sheetStore.sheets"
 									  :style="(sheet.id == sheetID) ? 'font-weight: bolder;' : ''"
 									  :command="sheet.id">
@@ -92,20 +93,24 @@
 					</el-dropdown-item>
 					<hr v-if="sheetStore.sheets.length > 0" />
 					<div style="display: grid; grid-template-columns: 1fr 1fr; text-align: center; gap: 5px; margin-top: 5px;">
-						<el-button type="primary" :plain="true" @click="UploadSheet()" style="justify-content: center; height: auto;">
-							<el-tooltip placement="left" content="Upload">
+						<!-- UPLOAD -->
+						<el-tooltip placement="left" content="Upload">
+							<el-button type="primary" :plain="true" @click="UploadSheet(); mainDropdownRef.handleClose()" 
+									   style="justify-content: center; height: auto;">
 								<el-icon :size="40">
 									<Upload />
 								</el-icon>
-							</el-tooltip>
-						</el-button>
-						<el-button type="primary" :plain="true" @click="NewSheet()" style="justify-content: center; height: auto;">
-							<el-tooltip placement="right" content="New">
+							</el-button>
+						</el-tooltip>
+						<!-- NEW -->
+						<el-tooltip placement="right" content="New">
+							<el-button type="primary" :plain="true" @click="NewSheet(); mainDropdownRef.handleClose()" 
+									   style="justify-content: center; height: auto;">
 								<el-icon :size="40">
 									<Plus />
 								</el-icon>
-							</el-tooltip>
-						</el-button>
+							</el-button>
+						</el-tooltip>
 					</div>
 				</el-dropdown-menu>
 			</template>
@@ -123,7 +128,7 @@
 				<el-dropdown-menu style="width: min(300px, 20vw); height: 100px; font-size: 1.5rem; padding: 5px; display: flex; flex-direction: column; gap: 10px;">
 					<!------NAME------>
 					<input v-model="currentSheetName"
-						   maxlength="20"
+						   maxlength="30"
 						   style="width: 100%; font-size: inherit;" />
 
 					<div style="width: 100%; display: grid; grid-template-columns: 1fr 1fr;">

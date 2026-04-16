@@ -1,8 +1,8 @@
 <script setup>
     import { computed } from 'vue'
-    import { useSheetStore } from "@/stores/SheetStore"
+    import { sheet_types, useSheetStore } from "@/stores/SheetStore"
     const sheetStore = useSheetStore()
-    import { useSettingsStore } from '@/stores/SettingsStore'
+    import { defaults, useSettingsStore } from '@/stores/SettingsStore'
     const settingsStore = useSettingsStore()
     settingsStore.loadState()
     import { cornerBuffers, edgeBuffers, cornerScheme, edgeScheme } from '@/helpers/letter_scheme.js'
@@ -42,35 +42,35 @@
     <div id="sheet-settings" v-if="sheetStore.isValidSheetID(props.sheetID)">
         <!------TYPE------>
         <div>
-            Type: <select v-model="currentSheetType">
-                <option v-for="(type,index) in sheetStore.sheetTypes"
-                        :key="index"
-                        :value="index">
-                    {{type.name}}
-                </option>
-            </select>
+            Type: 
+            <el-select v-model="currentSheetType"
+                       size="small"
+                       style="width: 100px;"
+                       :options="sheet_types"
+                       :props="{value: 'id',label: 'name', options: sheet_types}">
+            </el-select>
         </div>
         <!------CORNERS BUFFER------>
         <hr v-if="currentSheetType == 1" />
         <div v-if="currentSheetType == 1">
-            Buffer: <select v-model="currentSheetBuffer">
-                <option v-for="(cornerBuffer, index) in cornerBuffers"
-                        :key="index"
-                        :value="index">
-                    {{cornerBuffer + " (" + cornerScheme[index] + ")"}}
-                </option>
-            </select>
+            Buffer:
+            <el-select v-model="currentSheetBuffer"
+                       size="small"
+                       style="width: 100px;"
+                       :options="defaults.misc_defaultcornerbuffer.options"
+                       :props="{value: 'id',label: 'name', options: defaults.misc_defaultcornerbuffer.options}">
+            </el-select>
         </div>
         <!------EDGES BUFFER------>
         <hr v-if="currentSheetType == 2" />
         <div v-if="currentSheetType == 2">
-            Buffer: <select v-model="currentSheetBuffer">
-                <option v-for="(edgeBuffer, index) in edgeBuffers"
-                        :key="index"
-                        :value="index">
-                    {{edgeBuffer + " (" + edgeScheme[index] + ")"}}
-                </option>
-            </select>
+            Buffer:
+            <el-select v-model="currentSheetBuffer"
+                       size="small"
+                       style="width: 100px;"
+                       :options="defaults.misc_defaultedgebuffer.options"
+                       :props="{value: 'id',label: 'name', options: defaults.misc_defaultedgebuffer.options}">
+            </el-select>
         </div>
     </div>
     <div id="sheet-settings" v-else></div>

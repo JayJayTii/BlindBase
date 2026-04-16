@@ -2,7 +2,8 @@
     import { computed, inject } from 'vue'
     import { useCardStore } from '@/stores/CardStore.js'
     import { cornerScheme, edgeScheme } from '@/helpers/letter_scheme.js'
-    import { defaults, useSettingsStore } from '.././stores/SettingsStore'
+	import { defaults, useSettingsStore } from '.././stores/SettingsStore'
+	import { ElMessageBox } from 'element-plus'
     const settingsStore = useSettingsStore()
     settingsStore.loadState()
     
@@ -34,13 +35,17 @@
                 for(var key of Object.keys(jsonData)) {
                     localStorage.setItem(key, JSON.stringify(jsonData[key]));
                 }
-                window.location.reload();
             }
-            catch (error) {
-                alert("Failed to import data, please make sure that it was previously exported from BlindBase and that it is a .json file.")
+			catch (error) {
+				ElMessageBox.alert('Failed to import data, please make sure that it was previously exported from BlindBase and that it is a .json file.', 'Import Data', {
+					confirmButtonText: 'OK',
+				})
+                return
             }
-            alert("Successfully imported!")
-            window.location.reload();
+			ElMessageBox.alert('Data successfully imported!', 'Import Data', {
+				confirmButtonText: 'OK',
+                callback: (action) => { window.location.reload(); },
+            })
         }
         input.click()
     }
@@ -78,75 +83,75 @@
         <div class="Settings">
             <div>{{ defaults.misc_defaultcornerbuffer.name }}</div>
             <div>
-                <select v-model="settingsStore.settings.misc_defaultcornerbuffer" @change="SettingUpdated">
-                    <option v-for="(type, index) in defaults.misc_defaultcornerbuffer.options"
-                            :key="index"
-                            :value="index">
-                        {{ type.name + " (" + cornerScheme[index] + ")" }}
-                    </option>
-                </select>
+                <el-select v-model="settingsStore.settings.misc_defaultcornerbuffer" 
+                           @change="SettingUpdated"
+                           style="width: 100px;"
+                           :options="defaults.misc_defaultcornerbuffer.options"
+                           :props="{value: 'id',label: 'name', options: defaults.misc_defaultcornerbuffer.options}">
+                </el-select>
             </div>
 
             <div>{{ defaults.misc_defaultedgebuffer.name }}</div>
             <div>
-                <select v-model="settingsStore.settings.misc_defaultedgebuffer" @change="SettingUpdated">
-                    <option v-for="(type, index) in defaults.misc_defaultedgebuffer.options"
-                            :key="index"
-                            :value="index">
-                        {{ type.name + " (" + edgeScheme[index] + ")" }}
-                    </option>
-                </select>
+                <el-select v-model="settingsStore.settings.misc_defaultedgebuffer"
+                           @change="SettingUpdated"
+                           style="width: 100px;"
+                           :options="defaults.misc_defaultedgebuffer.options"
+                           :props="{value: 'id',label: 'name', options: defaults.misc_defaultedgebuffer.options}">
+                </el-select>
             </div>
 
             <div>{{ defaults.sheets_pairorder.name }}</div>
             <div>
-                <select v-model="settingsStore.settings.sheets_pairorder" @change="SettingUpdated">
-                    <option v-for="(type, index) in defaults.sheets_pairorder.options"
-                            :key="index"
-                            :value="index">
-                        {{ type.name }}
-                    </option>
-                </select>
+                <el-select v-model="settingsStore.settings.sheets_pairorder"
+                           @change="SettingUpdated"
+                           style="width: 180px;"
+                           :options="defaults.sheets_pairorder.options"
+                           :props="{value: 'id',label: 'name', options: defaults.sheets_pairorder.options}">
+                </el-select>
             </div>
 
             <div>{{ defaults.cards_dailymaximumnewcards.name }}</div>
             <div>
-                <input v-model="settingsStore.settings.cards_dailymaximumnewcards"
+                <el-input v-model="settingsStore.settings.cards_dailymaximumnewcards"
                        type="number"
                        :min="defaults.cards_dailymaximumnewcards.min"
                        :max="defaults.cards_dailymaximumnewcards.max"
                        @change="SettingUpdated"
-                       style="width: 6ch;" />
+                       style="width: 70px;" />
             </div>
 
             <div>{{ defaults.timer_spaceholdingtime.name }}</div>
             <div>
-                <input v-model="settingsStore.settings.timer_spaceholdingtime"
+                <el-input v-model="settingsStore.settings.timer_spaceholdingtime"
                        type="number"
                        :min="defaults.timer_spaceholdingtime.min"
                        :max="defaults.timer_spaceholdingtime.max"
                        step="0.1"
                        @change="SettingUpdated"
-                       style="width:6ch;" />
+                       style="width: 70px;" />
             </div>
 
             <div>{{ defaults.misc_widemovetype.name }}</div>
             <div>
-                <select v-model="settingsStore.settings.misc_widemovetype" @change="SettingUpdated">
-                    <option v-for="(type, index) in defaults.misc_widemovetype.options"
-                            :key="index"
-                            :value="type.id">
-                        {{ type.name }}
-                    </option>
-                </select>
+                <el-select v-model="settingsStore.settings.misc_widemovetype"
+                           @change="SettingUpdated"
+                           style="width: 100px;"
+                           :options="defaults.misc_widemovetype.options"
+                           :props="{value: 'id',label: 'name', options: defaults.misc_widemovetype.options}">
+                </el-select>
             </div>
         </div>
         <div style="display: flex; flex-direction: row; margin-top: 20px;justify-content: space-between; width: min(400px, 100%); ">
             <div>
-                <button @click="ImportAll"><h2>Import Data</h2></button>
+                <el-button type="primary" :plain="true" @click="ExportAll">
+                    <h2>Export Data</h2>
+                </el-button>
             </div>
             <div>
-                <button @click="ExportAll"><h2>Export Data</h2></button>
+                <el-button type="danger" :plain="true" @click="ImportAll">
+                    <h2>Import Data</h2>
+                </el-button>
             </div>
         </div>
     </div>

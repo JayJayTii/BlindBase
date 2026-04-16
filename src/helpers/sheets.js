@@ -1,3 +1,4 @@
+import { ElMessageBox } from 'element-plus'
 import { useSheetStore } from '@/stores/SheetStore.js'
 import { useSettingsStore } from '@/stores/SettingsStore.js'
 
@@ -75,7 +76,9 @@ export async function CreateSheetFromFile(file) {
     
     //Need to do checking for validity
     if (!file.name.toLowerCase().endsWith('.csv')) {
-        alert('Invalid file type, we only support .csv files. Please "Save as" / "Download" your spreadsheet as a .csv file from your spreadsheet editor.')
+        ElMessageBox.alert('Invalid file type, we only support .csv files. Please "Save as" / "Download" your spreadsheet as a .csv file from your spreadsheet editor.', 'Import Sheet', {
+            confirmButtonText: 'OK',
+        })
         return -1
     }
 
@@ -101,11 +104,15 @@ export async function CreateSheetFromFile(file) {
             break
     }
     if (xHeadingsStart == null) {
-        alert("File formatted incorrectly. The file must contain a horizontal row of letters in alphabetical order, starting with A.")
+        ElMessageBox.alert('File formatted incorrectly. The file must contain a horizontal row of letters in alphabetical order, starting with A.', 'Import Sheet', {
+            confirmButtonText: 'OK',
+        })
         return -1
     }
     if (!csvGrid[xHeadingsStart.y + 1][xHeadingsStart.x - 1].includes('A')) {
-        alert("File formatted incorrectly. The file must have a vertical column of letters in alphabetical order next to the column headings, starting with A.")
+        ElMessageBox.alert('File formatted incorrectly. The file must have a vertical column of letters in alphabetical order next to the column headings, starting with A.', 'Import Sheet', {
+            confirmButtonText: 'OK',
+        })
         return -1
     }
     const yHeadingsStart = { x: xHeadingsStart.x - 1, y: xHeadingsStart.y + 1 } 

@@ -6,7 +6,7 @@ export function getSettingsStore() {
     return useSettingsStore()
 }
 
-const DEFAULT_SHEET_TYPES = [
+export const sheet_types = [
     { name: 'None', id: 0 },
     { name: 'Corners', id: 1 },
     { name: 'Edges', id: 2 },
@@ -22,7 +22,6 @@ const DEFAULT_SHEET_GRID = Array.from({ length: DEFAULT_SHEET_YHEADINGS.length }
 export const useSheetStore = defineStore('sheetStore', {
     state: () => {
         return {
-            sheetTypes: DEFAULT_SHEET_TYPES,
             sheets: [],
         }
     },
@@ -185,7 +184,6 @@ export const useSheetStore = defineStore('sheetStore', {
         },
     },
     getters: {
-        getSheetTypes: (state) => state.sheetTypes,
         getSheetNames: (state) => state.sheets.map((sheet) => sheet.name),
     },
 })
