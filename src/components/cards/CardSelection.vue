@@ -145,7 +145,6 @@
         display: grid;
         column-gap: 5px;
         row-gap:5px;
-        color: var(--text-color);
         grid-template-columns: 1.5fr 1fr 0.25fr 0.7fr 0.7fr 0.7fr 0.5fr;
     }
 

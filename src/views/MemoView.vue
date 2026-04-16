@@ -163,7 +163,6 @@
     .MemoView {
         min-height: 100%;
         position: relative;
-        color: var(--text-color);
     }
 
     .MemoViewContainer {

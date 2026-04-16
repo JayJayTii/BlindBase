@@ -72,7 +72,9 @@
 
 <template>
     <div style="display:flex;flex-direction:column;width: 100%; align-items:center;">
-        <h1 style="font-size: 3rem;color:var(--grey-100);">Settings</h1>
+        <el-text style="font-size: 5rem; font-weight: 600;">
+            Settings
+        </el-text>
         <div class="Settings">
             <div>{{ defaults.misc_defaultcornerbuffer.name }}</div>
             <div>
@@ -154,10 +156,6 @@
 <style>
     .Settings {
         width: min(600px, 100%);
-        border-radius: 10px;
-        color: var(--text-color);
-        padding: 4px;
-        overflow: hidden;
         display: grid;
         grid-template-columns: 2fr 1fr;
         font-size: 1.3rem;
@@ -171,9 +169,4 @@
 		.Settings > :nth-child(even) {
             text-align: end;
 		}
-
-
-    .Subsettings {
-        border-bottom: 2px solid var(--text-color);
-    }
 </style>

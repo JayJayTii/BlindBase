@@ -312,7 +312,6 @@
         border: 1px solid var(--border-color);
         overflow: hidden;
         text-overflow: ellipsis;
-        color: var(--text-color);
         white-space: nowrap;
         background-color: transparent;
         font-size: 14px;

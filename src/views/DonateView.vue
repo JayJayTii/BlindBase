@@ -27,7 +27,6 @@
     #DonateInfo {
         width: 30vw;
         border-radius: 10px;
-        color: var(--text-color);
         padding: 4px;
         overflow: hidden;
         text-align: center;

@@ -1,6 +1,33 @@
 import { useSheetStore } from '@/stores/SheetStore.js'
 import { useSettingsStore } from '@/stores/SettingsStore.js'
 
+export function downloadSheet(sheet) {
+    const flipped = useSettingsStore().settings.sheets_pairorder === 1
+
+    //Convert sheet object into csv format
+    let csvString = "," + sheet.xHeadings.split('').join(',') + ",\n"
+    for (var i = 0; i < sheet.yHeadings.length; i++) {
+        csvString += sheet.yHeadings[i] + ","
+        for (var j = 0; j < sheet.xHeadings.length; j++) {
+            let cellVal = sheet.grid[flipped ? i : j][flipped ? j : i]
+            if (cellVal.includes(','))
+                cellVal = '\"' + cellVal + '\"'
+            csvString += cellVal + ","
+        }
+        csvString += "\n"
+    }
+    const encodedUri = "data:text/csv;charset=utf-8," + encodeURIComponent(csvString)
+
+    //Perform web dev stupidity to download it
+    const link = document.createElement("a")
+    link.setAttribute("href", encodedUri)
+    link.setAttribute("download", sheet.name + ".csv")
+    document.body.appendChild(link)
+    link.click();
+    document.body.removeChild(link)
+}
+
+
 //The number of filled cells in a sheet means the number of cells that aren't empty
 //This is used to count the number of possible flashcards that can be made from a sheet
 //Since an empty flashcard is not allowed

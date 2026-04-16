@@ -47,7 +47,6 @@
         border: 4px solid var(--brand-700);
         border-radius: 10px;
         z-index: 100;
-        color: var(--text-color);
         display:flex;
         flex-direction:column;
         padding: 4px;

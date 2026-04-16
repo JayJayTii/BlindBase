@@ -96,7 +96,6 @@
         display: grid;
         grid-template-columns: 1fr auto 1fr;
         gap: 2px;
-        color: var(--text-color);
         background-color: var(--brand-800);
         border: 3px solid var(--grey-100);
         border-radius: 10px;
