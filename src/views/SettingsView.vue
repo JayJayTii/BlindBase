@@ -12,6 +12,14 @@
     function SettingUpdated() {
         settingsStore.saveState()
     }
+    
+	function UpdateTheme() {
+        if(settingsStore.settings.misc_theme == 1)
+		    document.documentElement.classList.add('dark')
+        else
+		    document.documentElement.classList.remove('dark')
+
+	}
 
     async function ImportAll() {
         if (!(await confirmDialog.value.open('Do you want to import BlindBase data? This will delete and overwrite anything currently saved on BlindBase, it might be worth exporting your data first, just in case.'))) {
@@ -83,7 +91,7 @@
         <div class="Settings">
             <div>{{ defaults.misc_defaultcornerbuffer.name }}</div>
             <div>
-                <el-select v-model="settingsStore.settings.misc_defaultcornerbuffer" 
+                <el-select v-model="settingsStore.settings.misc_defaultcornerbuffer"
                            @change="SettingUpdated"
                            style="width: 100px;"
                            :options="defaults.misc_defaultcornerbuffer.options"
@@ -114,22 +122,22 @@
             <div>{{ defaults.cards_dailymaximumnewcards.name }}</div>
             <div>
                 <el-input v-model="settingsStore.settings.cards_dailymaximumnewcards"
-                       type="number"
-                       :min="defaults.cards_dailymaximumnewcards.min"
-                       :max="defaults.cards_dailymaximumnewcards.max"
-                       @change="SettingUpdated"
-                       style="width: 70px;" />
+                          type="number"
+                          :min="defaults.cards_dailymaximumnewcards.min"
+                          :max="defaults.cards_dailymaximumnewcards.max"
+                          @change="SettingUpdated"
+                          style="width: 70px;" />
             </div>
 
             <div>{{ defaults.timer_spaceholdingtime.name }}</div>
             <div>
                 <el-input v-model="settingsStore.settings.timer_spaceholdingtime"
-                       type="number"
-                       :min="defaults.timer_spaceholdingtime.min"
-                       :max="defaults.timer_spaceholdingtime.max"
-                       step="0.1"
-                       @change="SettingUpdated"
-                       style="width: 70px;" />
+                          type="number"
+                          :min="defaults.timer_spaceholdingtime.min"
+                          :max="defaults.timer_spaceholdingtime.max"
+                          step="0.1"
+                          @change="SettingUpdated"
+                          style="width: 70px;" />
             </div>
 
             <div>{{ defaults.misc_widemovetype.name }}</div>
@@ -139,6 +147,16 @@
                            style="width: 100px;"
                            :options="defaults.misc_widemovetype.options"
                            :props="{value: 'id',label: 'name', options: defaults.misc_widemovetype.options}">
+                </el-select>
+            </div>
+
+            <div>{{ defaults.misc_theme.name }}</div>
+            <div>
+                <el-select v-model="settingsStore.settings.misc_theme"
+                           @change="SettingUpdated(); UpdateTheme()"
+                           style="width: 100px;"
+                           :options="defaults.misc_theme.options"
+                           :props="{value: 'id',label: 'name', options: defaults.misc_theme.options}">
                 </el-select>
             </div>
         </div>
@@ -155,7 +173,6 @@
             </div>
         </div>
     </div>
-    <div style="min-height: 80px;"></div>
 </template>
 
 <style>

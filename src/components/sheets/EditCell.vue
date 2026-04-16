@@ -30,9 +30,10 @@
         }
 		options = getRecommendations(sheetStore.getSheet(props.sheetID).type, sheetStore.coordToKey(props.sheetID, props.selectedCell), sheetStore.getSheet(props.sheetID).buffer)
     }
-	watch(props.selectedCell, () => {
+	watch(props.selectedCell, async () => {
         getOptions()
-		cellValueInputBox.value.focus()
+        await nextTick()
+        cellValueInputBox.value.focus()
     });
 
 	const sheetSettings = computed(() => {

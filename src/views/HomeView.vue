@@ -21,7 +21,7 @@
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(30%, 1fr)); gap: 20px; padding: 20px;">
             <el-card shadow="hover" body-style="padding: 0px;">
                 <div slot="header" class="el-card__header">
-                    Sheets <el-button @click="router.push('/sheets')" plain="true" type="primary">></el-button>
+                    Sheets <el-button @click="router.push('/sheets')" :plain="true" type="primary">></el-button>
                 </div>
                 <div class="home-card-body">
                     Create algsheets for edges, corners, and images. You are given recommendations from <el-link href="https://bestsiteever.net/colpi/" target="_blank" underline="always">coLPI</el-link> and <el-link href="https://v2.blddb.net" target="_blank" underline="always">BLDDB</el-link> to quickly find your favourites.
@@ -30,7 +30,7 @@
 
             <el-card shadow="hover" body-style="padding: 0px;">
                 <div slot="header" class="el-card__header">
-                    Flashcards <el-button @click="router.push('/cards')" plain="true" type="primary">></el-button>
+                    Flashcards <el-button @click="router.push('/cards')" :plain="true" type="primary">></el-button>
                 </div>
                 <div class="home-card-body">
                     Create flashcards for your algsheets in one click and revise them using spaced repetition inspired by <el-link href="https://apps.ankiweb.net/" target="_blank" underline="always">Anki</el-link>.
@@ -39,7 +39,7 @@
 
             <el-card shadow="hover" body-style="padding: 0px;">
                 <div slot="header" class="el-card__header">
-                    Memo <el-button @click="router.push('/memo')" plain="true" type="primary">></el-button>
+                    Memo <el-button @click="router.push('/memo')" :plain="true" type="primary">></el-button>
                 </div>
                 <div class="home-card-body">
                     Practice memorisation by remembering longer and longer strings of letter pairs. You can choose what letter pairs you're given to practice more effectively. Inspired by Willian Pessoa's <el-link href="https://willian-pessoa.github.io/bld-trainer/" target="_blank" underline="always">Memo Trainer</el-link>.
@@ -48,7 +48,7 @@
 
             <el-card shadow="hover" body-style="padding: 0px;">
                 <div slot="header" class="el-card__header">
-                    Exec <el-button @click="router.push('/exec')" plain="true" type="primary">></el-button>
+                    Exec <el-button @click="router.push('/exec')" :plain="true" type="primary">></el-button>
                 </div>
                 <div class="home-card-body">
                     Practice sets of algorithms that you are learning or receive corner/edge-only scrambles.
@@ -57,7 +57,7 @@
 
             <el-card shadow="hover" body-style="padding: 0px;">
                 <div slot="header" class="el-card__header">
-                    Timer <el-button @click="router.push('/timer')" plain="true" type="primary">></el-button>
+                    Timer <el-button @click="router.push('/timer')" :plain="true" type="primary">></el-button>
                 </div>
                 <div class="home-card-body">
                     Time your solves with quick access to the reconstruction tool in case you get a notable solve. Get statistics on each stage of the solve and find out what your averages <i>would</i> have been if you didn't DNF. Inspired (of course) by <el-link href="https://cstimer.net/" target="_blank" underline="always">csTimer</el-link>.
@@ -66,7 +66,7 @@
 
             <el-card shadow="hover" body-style="padding: 0px;">
                 <div slot="header" class="el-card__header">
-                    Reconstructions <el-button @click="router.push('/recons')" plain="true" type="primary">></el-button>
+                    Reconstructions <el-button @click="router.push('/recons')" :plain="true" type="primary">></el-button>
                 </div>
                 <div class="home-card-body">
                     Reconstruct your 3-Style solves <i>fast</i>, with cycles finished for you and algorithms taken from your algsheets automatically.

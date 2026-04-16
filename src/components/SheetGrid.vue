@@ -22,17 +22,6 @@
         get: () => settingsStore.settings.sheets_pairorder === 1
     })
 
-    //Grid and headings are separate, so their scrolls need to be synchronised
-    const leftColumn = ref(null)
-    const topRow = ref(null)
-    const mainGrid = ref(null)
-    function syncScrollToGrid() {
-        if (leftColumn.value && topRow.value && mainGrid.value) {
-            leftColumn.value.scrollTop = mainGrid.value.scrollTop
-            topRow.value.scrollLeft = mainGrid.value.scrollLeft
-        }
-    }
-
     function cellClicked(absX, absY) { //Absolute x and y coords
         const create = !highlightedCells.value.some((cell) => cell.x === absX && cell.y === absY)
         if(props.formatEmpty && props.sheet.grid[absY][absX] == "")
@@ -150,7 +139,7 @@
         highlightedCells.value = newValue
         if (highlightedCells.value.length != 1)
             return
-
+        /*
         //Scroll to make sure if there is one highlightedCell, it is visible
         const parent = mainGrid.value
         if (!parent)    
@@ -166,6 +155,7 @@
         const offsetTop = childRect.top - parentRect.top + parent.scrollTop - (parent.clientHeight / 2) + (child.clientHeight / 2)
         const offsetLeft = childRect.left - parentRect.left + parent.scrollLeft - (parent.clientWidth / 2) + (child.clientWidth / 2)
         parent.scrollTo({ top: offsetTop, left: offsetLeft })
+        */
     }
 
     defineExpose({
@@ -194,147 +184,129 @@
 </script>
 
 <template>
-    <div class="SheetGridContainer">
-        <!-----BLANK CORNER----->
-        <div class="SheetGridCorner" >
-            <div class="SheetGridCell" :style="{ cursor: (props.fullLineSelection ? 'pointer' : 'default') }"
-                 :title="props.fullLineSelection ? 'Select sheet' : ''"
-                 @click="sheetClicked()"></div>
-        </div>
-
-        <!-----COLUMN HEADINGS----->
-        <div class="SheetGridTopRow" ref="topRow">
-            <div v-for="(char,index) in getXHeadings(sheet)"
-                 :title="props.fullLineSelection ? 'Select column' : ''"
-                 class="SheetGridCell"
-                 :style="{ cursor: props.fullLineSelection ? 'pointer' : 'default' }"
-                 @click="!flipped ? columnClicked(index) : rowClicked(index)">
-                {{ char }}
-            </div>
-            <div class="SheetGridCell" style="background-color: var(--border-color);"></div>
-        </div>
-
-        <!-----ROW HEADINGS----->
-        <div class="SheetGridLeftColumn" ref="leftColumn" @scroll="syncScrollToLeftColumn">
-            <div v-for="(char, index) in getYHeadings(sheet)"
-                 class="SheetGridCell"
-                 :title="props.fullLineSelection ? 'Select row' : ''"
-                 :style="{ cursor: props.fullLineSelection ? 'pointer' : 'default' }"
-                 @click="!flipped ? rowClicked(index) : columnClicked(index)">
-                {{ char }}
-            </div>
-            <div class="SheetGridCell" style="background-color: var(--border-color);"></div>
-        </div>
-
-        <!---------GRID--------->
-        <div class="SheetGrid" ref="mainGrid" @scroll="syncScrollToGrid">
-            <div v-for="(col, x) in 24">
-                <div v-for="(row, y) in 24"
-                     @click="cellClicked(!flipped ? x : y, !flipped ? y : x); "
-                     :id="x.toString() + ',' + y.toString()"
-                     :class="calculateCellClasses(x,y)">
-                    {{ getCell(x,y) }}
+    <div class="SheetGrid">
+        <template v-for="(col, y) in 25">
+            <template v-for="(row, x) in 25">
+                <!-- Corner -->
+                <div v-if="x == 0 && y == 0"
+                     class="SheetGridCorner" 
+                     :style="{ cursor: (props.fullLineSelection ? 'pointer' : 'default') }"
+                     :title="props.fullLineSelection ? 'Select sheet' : ''"
+                     @click="sheetClicked()">
                 </div>
-            </div>
-        </div>
+                <!-- Column headings -->
+                <div v-else-if="y == 0"
+                     class="SheetGridTopRow"
+                     :title="props.fullLineSelection ? 'Select column' : ''"
+                     :style="{ cursor: props.fullLineSelection ? 'pointer' : 'default' }"
+                     @click="!flipped ? columnClicked(x-1) : rowClicked(x-1)">
+                    {{ "ABCDEFGHIJKLMNOPQRSTUVWX"[x-1] }}
+                </div>
+                <!-- Row headings -->
+                <div v-else-if="x == 0"
+                     class="SheetGridLeftColumn"
+                     :title="props.fullLineSelection ? 'Select row' : ''"
+                     :style="{ cursor: props.fullLineSelection ? 'pointer' : 'default' }"
+                     @click="!flipped ? rowClicked(x-1) : columnClicked(x-1)">
+                    {{ "ABCDEFGHIJKLMNOPQRSTUVWX"[y-1] }}
+                </div>
+                <!-- Main grid -->
+                <div v-else :class="calculateCellClasses(x-1,y-1)"
+                            :id="(x-1).toString() + ',' + (y-1).toString()"
+                            @click="cellClicked(!flipped ? (x-1) : (y-1), !flipped ? (y-1) : (x-1));">
+                    {{ getCell(x-1,y-1) }}
+                </div>
+            </template>
+        </template>
     </div>
 </template>
 
 <style>
-    .SheetGridContainer {
-        --sheet-cell-height: 2rem;
-        --sheet-cell-width: 100px;
+	.SheetGrid {
+		--sheet-cell-height: 2rem;
+		--sheet-cell-width: 100px;
+		max-height: calc(24 * var(--sheet-cell-height));
+		max-width: calc(24 * var(--sheet-cell-width) + var(--sheet-cell-height));
+		display: grid;
+		grid-template-rows: repeat(25, var(--sheet-cell-height));
+		grid-template-columns: var(--sheet-cell-height) repeat(24, var(--sheet-cell-width));
+		height: 100%;
+		overflow: auto;
+		border: 1px solid var(--el-border-color);
+		border-radius: var(--el-border-radius-base);
+	}
 
-        border: 3px solid var(--border-color);
-        background-color: var(--panel-color);
-        display: grid;
-        grid-template-columns: auto 1fr;
-        grid-template-rows: auto 1fr;
-        grid-template-areas:
-            'corner top'
-            'left grid';
-        overflow: hidden;
-    }
+	.SheetGridCorner {
+		background-color: var(--el-color-primary-light-8);
+		border-block-end: 3px solid var(--el-color-primary-light-3);
+		border-inline-end: 3px solid var(--el-color-primary-light-3);
+		width: var(--sheet-cell-height);
+		height: var(--sheet-cell-height);
+		position: sticky;
+		top: 0;
+		left: 0;
+		z-index: 10;
+	}
 
-.SheetGrid {
-    grid-area: grid;
-    display: grid;
-    grid-template-rows: repeat(24, var(--sheet-cell-height));
-    grid-template-columns: repeat(24, var(--sheet-cell-width));
-    height: 100%;
-    overflow: auto;
-}
+	.SheetGridTopRow {
+		position: sticky;
+		top: 0;
+		z-index: 5;
+		width: var(--sheet-cell-width);
+		height: var(--sheet-cell-height);
+		background-color: var(--el-color-primary-light-8);
+		border: 1px solid var(--el-border-color-dark);
+		border-block-end: 3px solid var(--el-color-primary-light-3);
+		user-select: none;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		font-size: 14px;
+	}
 
-    .SheetGridCorner {
-        grid-area: corner;
-        background-color: var(--brand-800);
-        width: var(--sheet-cell-height);
-        border-inline-end: 2px solid var(--border-color);
-    }
+	.SheetGridLeftColumn {
+		position: sticky;
+		left: 0;
+		z-index: 5;
+		width: var(--sheet-cell-height);
+		height: var(--sheet-cell-height);
+		background-color: var(--el-color-primary-light-8);
+		border: 1px solid var(--el-border-color-dark);
+		border-inline-end: 3px solid var(--el-color-primary-light-3);
+		user-select: none;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		font-size: 14px;
+	}
 
-    .SheetGridTopRow {
-        display: flex;
-        flex-direction: row;
-        grid-area: top;
-        overflow: hidden;
-        user-select: none;
-    }
-        .SheetGridTopRow .SheetGridCell {
-            background-color: var(--brand-700);
-            min-width: var(--sheet-cell-width);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
+	.SheetGridCell {
+		width: var(--sheet-cell-width);
+		height: var(--sheet-cell-height);
+		background-color: var(--el-fill-color-blank);
+		border: 1px solid var(--el-border-color-dark);
+		padding: 0px 4px;
+		cursor: pointer;
+		font-size: 14px;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		word-break: break-word;
+		line-height: var(--sheet-cell-height);
+	}
+	.SheetGridCellHoverable:hover {
+		background-color: color-mix(in srgb, var(--el-color-primary) 10%, var(--el-fill-color-blank));
+	}
 
-    .SheetGridLeftColumn {
-        grid-area: left;
-        overflow: hidden;
-        user-select: none;
-    }
-        .SheetGridLeftColumn::after {
-            content: '';
-            display: block;
-            height: 50px;
-        }
-        .SheetGridLeftColumn .SheetGridCell {
-            background-color: var(--brand-700);
-            height: var(--sheet-cell-height);
-            width: var(--sheet-cell-height);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            border-inline-end: 2px solid var(--border-color);
-        }
-    
-    .SheetGridCell {
-        padding: 0px 4px;
-        border: 1px solid var(--border-color);
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-        background-color: transparent;
-        font-size: 14px;
-        word-break: break-word;
-        height: var(--sheet-cell-height);
-        line-height: var(--sheet-cell-height);
-        width: var(--sheet-cell-width);
-        cursor: pointer;
-    }
-    .SheetGridCellHoverable:hover {
-        background-color: var(--grey-700);
-    }
-    
-    .SheetGridCellEmpty {
-        background-color: var(--brand-800);
-        cursor: default;
-    }
+	.SheetGridCellEmpty {
+		background-color: var(--el-border-color);
+		cursor: default;
+	}
 
-    .SheetGridCellGreyed{
-        background-color: var(--border-color);
-    }
+	.SheetGridCellGreyed {
+		background-color: var(--el-fill-color);
+	}
 
     .SheetGridCellHightlighted {
-        border: 3px solid var(--grey-100);
+        border: 3px solid var(--el-color-primary);
     }
 </style>

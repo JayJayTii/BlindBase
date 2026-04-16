@@ -1,5 +1,5 @@
 <script setup>
-    import { reactive, computed, ref } from "vue"
+    import { reactive, computed, nextTick, ref } from "vue"
     import { useSheetStore } from "../stores/SheetStore"
     import { useSettingsStore } from "../stores/SettingsStore"
     const sheetStore = useSheetStore()
@@ -15,19 +15,19 @@
     //-1 means no sheet selected, otherwise it is the selected sheet's ID
     const sheetID = ref(-1)
     const selectedCell = ref({})
-    selectedCell.value.x = -1
-    selectedCell.value.y = -1
 
     const gridRef = ref(null)
     const editCellRef = ref(null)
 
-    function updateSheetID(id) {
+    async function updateSheetID(id) {
         if (sheetID.value == id)
             return
 
         sheetID.value = id
-        selectedCell.value.x = -1
-        selectedCell.value.y = -1
+        selectedCell.value.x = 0
+        selectedCell.value.y = 0
+        await nextTick()
+        gridRef.value.changeHighlightedCells([selectedCell.value])
     }
     updateSheetID(sheetStore.sheets[0]?.id || -1)
 
@@ -64,11 +64,9 @@
         <!------------GRID------------->
         <SheetGrid v-if="sheetStore.getSheet(sheetID)"
                    ref="gridRef"
-                   style="width: 100%;"
+                   style="width: 100%; height: 75vh;"
                    :sheet="sheetStore.getSheet(sheetID)"
                    :key="sheetID"
                    @update:selected-cells="(values, create) => { onCellClicked(values, create); }" />
-
-
     </div>
 </template>

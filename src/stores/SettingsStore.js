@@ -44,7 +44,12 @@ export const defaults = {
         name: 'Default edge buffer',
         default: 2,
         options: [{ id: 0, name: "UB" }, { id: 1, name: "UR" }, { id: 2, name: "UF" }, { id: 3, name: "UL" }, { id: 4, name: "LU" }, { id: 5, name: "LF" }, { id: 6, name: "LD" }, { id: 7, name: "LB" }, { id: 8, name: "FU" }, { id: 9, name: "FR" }, { id: 10, name: "FD" }, { id: 11, name: "FL" }, { id: 12, name: "RU" }, { id: 13, name: "RB" }, { id: 14, name: "RD" }, { id: 15, name: "RF" }, { id: 16, name: "BU" }, { id: 17, name: "BL" }, { id: 18, name: "BD" }, { id: 19, name: "BR" }, { id: 20, name: "DF" }, { id: 21, name: "DR" }, { id: 22, name: "DB" }, { id: 23, name: "DL" }]
-    }
+    },
+    misc_theme: {
+        name: 'Theme',
+        default: 0,
+        options: [{ id: 0, name: "Light" }, {id: 1, name: "Dark"}]
+    },
 }
 
 export const useSettingsStore = defineStore('settingsStore', {
@@ -85,6 +90,9 @@ export const useSettingsStore = defineStore('settingsStore', {
             
             this.settings = this.ValidateValues(data.settings)
             this.saveState()
+
+            if(this.settings.misc_theme == 1)
+                document.documentElement.classList.add('dark')
         },
         loadIfNecessary() {
             if (this.data != {})
