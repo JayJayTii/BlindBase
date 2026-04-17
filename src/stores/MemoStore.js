@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 
 export const modes = ['Corners', 'Edges', 'One mistake', 'Multiblind']
-export const modesDesc = ['Memorise with a distraction in the middle', 'Memorise then recall', 'Length resets if you get anything wrong', 'Memorise multiple cubes\' worth of memo']
+export const modesDesc = ['Memorise with a distraction', 'Memorise then recall', 'Restart after one mistake', 'Multiple cubes of memo']
 
 export const useMemoStore = defineStore('memoStore', {
     state: () => {

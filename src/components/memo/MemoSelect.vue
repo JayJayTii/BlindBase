@@ -52,6 +52,10 @@
         }
     })
 
+    const pairSelectValues = [{ value: 'From all pairs', tooltip: 'All letter pairs' },
+        { value: 'From sheet', tooltip: 'All letter pairs in an images sheet' },
+        { value: 'From cards', tooltip: 'Flashcards in an images card deck' },
+        { value: 'From custom', tooltip: 'Select from a grid of letter pairs' }]
     const pairSelectValue = ref("From all pairs")
     const pairSelect = computed({
         get: () => pairSelectValue.value,
@@ -105,16 +109,7 @@
         return out.filter((card) => sheetStore.getSheet(card.sheetID).type === 3) 
     }
 
-    const editingCustomPairsValue = ref(false)
-    const editingCustomPairs = computed({
-        get: () => editingCustomPairsValue.value,
-        set: (newValue) => {
-            editingCustomPairsValue.value = newValue
-            const grid = document.getElementById("CustomPairGrid")
-            if(newValue === false && grid)
-                grid.classList.remove('AnimatedGridOpen','AnimatedGridClose')
-        }
-    })
+    const editingCustomPairs = ref(false)
 
     const bufferValue = ref(-1)
     const buffer = computed({
@@ -129,6 +124,7 @@
 
     const gridRef = ref(null)
     const highlightedCells = ref([])
+    let possibleCustomPairs = 0
     const customSheet = ref({}) //Contains all the possible letter pairs that the user can select to practice from
     function generateCustomPairSheet() {
         let grid = Array.from({ length: 24 }, () => Array.from({ length: 24 }, () => ''))
@@ -138,6 +134,7 @@
 			type: 0,
             buffer: buffer.value,
         }
+        possibleCustomPairs = 0
         const letters = "ABCDEFGHIJKLMNOPQRSTUVWX"
         for (var y = 0; y < 24; y++) {
             for (var x = 0; x < 24; x++) {
@@ -147,6 +144,9 @@
 					grid[y][x] = (Number(buffer.value) == -1 || isPossiblePair(2, letters[y] + letters[x], buffer.value)) ? (letters[y] + letters[x]) : ""
                 else
 					grid[y][x] = (letters[y] + letters[x])
+
+                if (grid[y][x] != '')
+                    possibleCustomPairs++
             }
         }
         customSheet.value.grid = grid
@@ -164,9 +164,12 @@
             highlightedCells.value = newHighlightedCells
         }
         gridRef.value.changeHighlightedCells(highlightedCells.value)
-        RestartRun()
-    }
-
+	}
+	const handleCustomPairClose = (done) => {
+		RestartRun()
+		done()
+	}
+	
     function getPossiblePairs() {
 		let possiblePairs = []
 		let letters = "ABCDEFGHIJKLMNOPQRSTUVWX"
@@ -205,7 +208,7 @@
         const possiblePairs = getPossiblePairs()
         emit('restartRun', {
             mode: mode.value,
-            cubes: cubes.value,
+            cubes: Number(cubes.value),
             pairSelect: pairSelect.value,
             pairSelectSheet: pairSelectSheet.value,
             possiblePairs: possiblePairs,
@@ -213,101 +216,105 @@
     }
     RestartRun()
 
-    function editCustomPairButtonClicked() {
+    async function editCustomPairButtonClicked() {
         editingCustomPairs.value = !editingCustomPairs.value
-        const grid = document.getElementById("CustomPairGrid")
-        grid.classList.remove('AnimatedGridOpen','AnimatedGridClose')
-        if (editingCustomPairs.value)
-            grid.classList.add('AnimatedGridOpen');
-        else
-            grid.classList.add('AnimatedGridClose');
+        await nextTick()
+        if (gridRef.value)
+			gridRef.value.changeHighlightedCells(highlightedCells.value)
     }
 </script>
 
 <template>
     <div id="MemoSelect">
-        <div class="MemoViewHeader">
-            <div style="display:flex;flex-direction:column;">
-                <select style="font-size: 2rem; text-align:center;" v-model="mode">
-                    <option v-for="(mode, index) in modes" :title="modesDesc[index]">{{mode}}</option>
-                </select>
-            </div>
-        </div>
-        <div class="MemoSelectLine" v-if="modeSelected" />
+        <!-- MODE -->
+        <el-select v-model="mode" size="large" style="width: 130px;">
+            <el-tooltip v-for="(mode, index) in modes" :content="modesDesc[index]" placement="right">
+                <el-option :value="mode">{{ mode }}</el-option>
+            </el-tooltip>
+        </el-select>
+        <el-divider class="MemoSelectLine" v-if="modeSelected" />
 
-        <div class="MemoViewHeader" v-if="mode === 'Multiblind'">
-            <input type="number" v-model="cubes" min="2" max="200"
-                   style="font-size: 2rem; height:2.5rem; width: 80px; align-self:center; text-align: end;" />
-            cubes
-        </div>
-        <div class="MemoSelectLine" v-if="mode === 'Multiblind'" />
+        <!-- MULTIBLIND => CUBES -->
+        <el-input v-if="mode === 'Multiblind'"
+                  type="number" v-model="cubes"
+                  min="2" max="200"
+                  size="large" style="width: 70px;" />
+        <el-divider class="MemoSelectLine" v-if="mode === 'Multiblind'" />
 
-        <div class="MemoViewHeader" v-if="modeSelected">
-            <select v-model="pairSelect" style="font-size: 2rem; text-align:center;">
-                <option title="All letter pairs can appear">From all pairs</option>
-                <option title="All letter pairs in a chosen sheet can appear">From sheet</option>
-                <option title="Flashcards that have been practiced in an images card deck can appear">From cards</option>
-                <option title="Select from a grid of letter pairs">From custom</option>
-            </select>
+        <!-- MODE => FROM [___] -->
+        <div v-if="modeSelected">
+            <el-select v-model="pairSelect" size="large" style="width: 150px;">
+                <el-tooltip v-for="option in pairSelectValues" :content="option.tooltip" placement="right">
+                    <el-option :value="option.value">{{option.value}}</el-option>
+                </el-tooltip>
+            </el-select>
         </div>
 
-        <div class="MemoSelectLine" v-if="pairSelect != '' && pairSelect != 'From all pairs'" />
-        <div class="MemoViewHeader" v-if="pairSelect == 'From sheet'">
+        <!-- MODE => FROM SHEET => [____] -->
+        <el-divider class="MemoSelectLine" v-if="pairSelect != '' && pairSelect != 'From all pairs'" />
+        <div v-if="pairSelect == 'From sheet'">
             <div v-if="sheetStore.getSheetsOfType(3).length > 0">
-                <select v-model="pairSelectSheet" style="font-size: 2rem; text-align:center;">
-                    <option v-for="sheetOption in sheetStore.getSheetsOfType(3)" :value="sheetOption">'{{ sheetOption.name }}'</option>
-                </select>
+                <el-select v-model="pairSelectSheet" size="large" style="width: 250px;">
+                    <el-option v-for="sheetOption in sheetStore.getSheetsOfType(3)" :label="sheetOption.name" :value="sheetOption">'{{ sheetOption.name }}'</el-option>
+                </el-select>
             </div>
             <div v-else>
                 No valid sheets
             </div>
         </div>
-        <div class="MemoViewHeader" v-if="pairSelect == 'From cards'">
+        <!-- MODE => FROM CARDS => [____] -->
+        <div v-if="pairSelect == 'From cards'">
             <div v-if="GetLearnedCards().length > 0">
-                <select v-model="pairSelectSheet" style="font-size: 2rem; text-align: center;">
-                    <option v-for="sheetOption in GetSheetsWithLearnedCards()" :value="sheetOption">'{{ sheetOption.name }}'</option>
-                </select>
+                <el-select v-model="pairSelectSheet" size="large" style="width: 250px">
+                    <el-option v-for="sheetOption in GetSheetsWithLearnedCards()" :label="sheetOption.name" :value="sheetOption">'{{ sheetOption.name }}'</el-option>
+                </el-select>
             </div>
             <div v-else>
                 No valid card decks
             </div>
         </div>
 
-        <div class="MemoViewHeader" v-if="pairSelect == 'From custom' && mode == 'Corners'">
-            <select v-model="buffer" style="font-size: 2rem; text-align: center;">
-                <option :value="-1">*</option>
-                <option v-for="(buffer, index) in cornerBuffers" :value="index">{{ buffer }}</option>
-            </select>
-        </div>
-        <div class="MemoViewHeader" v-if="pairSelect == 'From custom' && mode == 'Edges'">
-            <select v-model="buffer" style="font-size: 2rem; text-align: center;">
-                <option :value="-1">*</option>
-                <option v-for="(buffer, index) in edgeBuffers" :value="index">{{ buffer }}</option>
-            </select>
-        </div>
-        <div class="MemoSelectLine" v-if="pairSelect == 'From custom' && (mode == 'Corners' || mode == 'Edges')" />
+        <!-- CORNERS => FROM CUSTOM => CORNER BUFFER -->
+        <el-select v-if="pairSelect == 'From custom' && mode == 'Corners'"
+                   v-model="buffer" size="large" style="width: 80px;">
+            <el-option label="*" :value="-1">*</el-option>
+            <el-option v-for="(buffer, index) in cornerBuffers" :label="buffer" :value="index">{{ buffer }}</el-option>
+        </el-select>
+        <!-- EDGES => FROM CUSTOM => EDGE BUFFER -->
+        <el-select v-if="pairSelect == 'From custom' && mode == 'Edges'"
+                   v-model="buffer" size="large" style="width: 80px;">
+            <el-option label="*" :value="-1">*</el-option>
+            <el-option v-for="(buffer, index) in edgeBuffers" :label="buffer" :value="index">{{ buffer }}</el-option>
+        </el-select>
+        <el-divider class="MemoSelectLine" v-if="pairSelect == 'From custom' && (mode == 'Corners' || mode == 'Edges')" />
 
-        <div class="MemoViewHeader" v-if="pairSelect == 'From custom'">
-            <img @click="editCustomPairButtonClicked(); nextTick(()=> {if(gridRef){gridRef.changeHighlightedCells(highlightedCells)}})"
-                 src="@/assets/icons/edit.svg"
-                 :class="['CustomButton', editingCustomPairs ? 'CustomButtonHovered': '']"
-                 :style="{height: '45px', backgroundColor: (editingCustomPairs ?  'var(--brand-400)' : '')}" />
-        </div>
-        <div class="MemoSelectLine" v-if="pairSelectFinished && pairSelect == 'From all pairs'" />
-        <div class="MemoViewHeader" v-if="pairSelectFinished && pairSelect == 'From all pairs'">
+        <el-button v-if="pairSelect == 'From custom'" type="primary" :plain="true" style="height: 40px;"
+                   @click="editCustomPairButtonClicked()">
+            <el-icon :size="25"><Edit /></el-icon>
+        </el-button>
+
+        <el-divider class="MemoSelectLine" v-if="pairSelectFinished && pairSelect == 'From all pairs'" />
+        <div v-if="pairSelectFinished && pairSelect == 'From all pairs'">
             Highscore: {{ memoStore.GetHighscore(mode) }}
         </div>
     </div>
 
     <hr />
-    
-    <SheetGrid v-if="pairSelect == 'From custom'"
-               id="CustomPairGrid"
-               :sheet="customSheet"
-               :key="customSheet.value"
-               :formatEmpty="true" :fullLineSelection="true"
-               ref="gridRef"
-               @update:selected-cells="onCustomPairsClicked" />
+
+    <el-drawer v-model="editingCustomPairs"
+               :title="'Select letter pairs to practice: ' + highlightedCells.length.toString() + '/' + possibleCustomPairs.toString()"
+               size="95%"
+               direction="rtl"
+               body-class="drawer-body"
+               :before-close="handleCustomPairClose">
+        <SheetGrid :sheet="customSheet"
+                   :formatEmpty="true"
+                   :fullLineSelection="true"
+                   :key="customSheet.value"
+                   @update:selected-cells="onCustomPairsClicked"
+                   ref="gridRef"
+                   style="height: 100%; width: 100%;" />
+    </el-drawer>
 </template>
 
 <style>
@@ -321,19 +328,10 @@
         gap: 10px;
         padding-inline: 20px;
     }
-    .MemoViewHeader {
-        display: flex;
-        flex-direction: row;
-        gap: 10px;
-        justify-content: center;
-        font-size: 2rem;
-    }
 
     .MemoSelectLine {
-        border-block-end: 5px solid var(--grey-400);
-        border-radius: 5px;
-        max-width: 100px;
-        min-width: 100px;
+        border-width: 2px;
+        width: 100px;
     }
 
     #CustomPairGrid {

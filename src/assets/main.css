@@ -64,6 +64,8 @@
 body {
     margin: 0;
 
+    --footer-height: 50px;
+
     --panel-color: var(--grey-900);
     --border-color: var(--grey-800);
     --panel-header-color: var(--brand-700);

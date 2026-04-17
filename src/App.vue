@@ -21,7 +21,7 @@
             <RouterView :key="$route.fullPath" />
         </el-main>
         <hr />
-        <el-footer>
+        <el-footer style="height: var(--footer-height);">
             <div><el-link underline="always" href="https://www.youtube.com/@BlindBase" target="_blank">YouTube</el-link></div>
             <div><el-link underline="always" href="https://github.com/JayJayTii/BlindBase" target="_blank">GitHub</el-link></div>
             <div><el-link underline="always" href="https://www.worldcubeassociation.org/persons/2018TUPP02" target="_blank">Created by James Tuppenney</el-link></div>

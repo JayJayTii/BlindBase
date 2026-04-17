@@ -26,10 +26,10 @@
 
     var testSequences = [] //The sequences the user is tasked to remember
     var userSequences = [] //The sequences the user remembered
-
+   
     function RestartRun(_runData) {
         runData = _runData
-        length.value = useSettingsStore().settings.memo_startingmemolength
+        length.value = Number(useSettingsStore().settings.memo_startingmemolength)
         stage.value = 0 //needed to update MemoDisplay
         firstTurn = true;
         startTurn()
@@ -100,36 +100,14 @@
         if (getCorrect(testSequences, userSequences) > 0 && length.value > memoStore.GetHighscore(runData.mode))
             memoStore.SetHighscore(runData.mode, length.value)
     }
-
-    function lengthUpdated() {
-        settingsStore.saveState()
-        length.value = settingsStore.settings.memo_startingmemolength
-        startTurn()
-    }
 </script>
 
 <template>
-    <div class="MemoView">
+    <div>
         <!------SELECT------>
         <MemoSelect @restartRun="RestartRun" @cancelRun="stage = 0" />
 
-        <div style="height:15vh; position: relative;">
-            <div v-if="runData.mode != 'Multiblind' && stage == 1" 
-                 style="position:absolute;bottom: 0px;left:50%; transform:translateX(-50%); display:flex; flex-direction: row;">
-                <div v-if="firstTurn">
-                    Starting length: 
-                    <input v-model="settingsStore.settings.memo_startingmemolength"
-                           type="number"
-                           :min="defaults.memo_startingmemolength.min"
-                           :max="defaults.memo_startingmemolength.max"
-                           style="width: 5ch;"
-                           @change="lengthUpdated()" />
-                </div>
-                <div v-else>
-                    Length: {{length}}
-                </div>
-            </div>
-        </div>
+        <div style="height:15vh;"></div>
         <!------DISPLAY------>
         <div v-if="stage === 1" class="MemoViewContainer">
             <MemoDisplay :testSequences="testSequences"
@@ -155,16 +133,13 @@
                         @endTurn="OnTurnComplete" />
         </div>
 
-        <div style="position: absolute; bottom:0px; right: 10px; font-size:0.8rem; color:var(--grey-100);">Inspired by <a href="https://willian-pessoa.github.io/bld-trainer/" target="_blank">BldTrainer</a></div>
+        <div style="position: absolute; bottom: calc(var(--footer-height) + 5px); right: 10px; font-size:0.8rem;">
+            Inspired by <a href="https://willian-pessoa.github.io/bld-trainer/" target="_blank">BldTrainer</a>
+        </div>
     </div>
 </template>
 
 <style>
-    .MemoView {
-        min-height: 100%;
-        position: relative;
-    }
-
     .MemoViewContainer {
         display: flex;
         flex-direction: column;
@@ -175,20 +150,20 @@
 
     .NextButton {
         height: 50px;
-        width: 75px;
-        position: absolute;
+        width: 80px;
+        position: fixed;
         right: 50px;
-        bottom: 50px;
+        bottom: calc(var(--footer-height) + 50px);
     }
 
     .MemoPair {
-        border: 4px solid var(--brand-900);
-        border-radius: 5px;
-        background-color: var(--brand-700);
+        background-color: var(--el-fill-color);
+        border: 2px solid var(--el-border-color-dark);
+        border-radius: 4px;
         width: 2.7rem;
         height: 2.7rem;
-        justify-content: center;
         text-align: center;
+        padding-top: 5px;
         font-size: 1.2rem;
     }
 </style>

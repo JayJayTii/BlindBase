@@ -129,6 +129,16 @@
                           style="width: 70px;" />
             </div>
 
+            <div>{{ defaults.memo_startingmemolength.name }}</div>
+            <div>
+                <el-input v-model="settingsStore.settings.memo_startingmemolength"
+                          type="number"
+                          :min="defaults.memo_startingmemolength.min"
+                          :max="defaults.memo_startingmemolength.max"
+                          @change="SettingUpdated"
+                          style="width: 70px;" />
+            </div>
+
             <div>{{ defaults.timer_spaceholdingtime.name }}</div>
             <div>
                 <el-input v-model="settingsStore.settings.timer_spaceholdingtime"

@@ -7,10 +7,10 @@
     })
     const emit = defineEmits(['stageComplete', 'updateUserSequences'])
 
-    let userSequences = Array(props.cubes).fill('')
+    const userSequences = ref(Array(props.cubes).fill(''))
 
     function FinishStage() {
-        emit('updateUserSequences', userSequences)
+        emit('updateUserSequences', userSequences.value)
         emit('stageComplete')
     }
 
@@ -20,9 +20,14 @@
         }
     }
 
-    const inputRef = ref(null)
+    const formatText = (value) => {
+        return value.toString().toUpperCase()
+	}
+
+    const inputRefs = ref(Array(props.cubes).fill(null))
+
     onMounted(() => {
-        inputRef.value[0].focus()
+        inputRefs.value[0]?.focus()
         window.addEventListener('keydown', handleKeydown)
     })
     onUnmounted(() => {
@@ -32,19 +37,18 @@
 
 <template>
     <!-- Input box for each of the sequences the user had to remember -->
-    <input v-for="cube in cubes"
-           v-model="userSequences[cube - 1]"
-           ref="inputRef"
-           :maxlength="props.maxSequenceLength"
-           :style="{
-                textTransform: 'uppercase',
-                fontSize: '2rem',
-                width: props.maxSequenceLength + 1 + 'ch',
-            }" />
+    <div v-for="(cube, index) in cubes" :key="index">
+        <el-input v-model="userSequences[index]"
+                 :ref="el => inputRefs[index] = el"
+                 :maxlength="props.maxSequenceLength"
+                 :formatter="formatText"
+                  size="large"
+                  class="memo-input-box"
+                 :style="{ fontSize: '1.5rem', width: 1.5*(props.maxSequenceLength + 2) + 'ch'}" />
+    </div>
     <div style="height:20vh;" />
 
-    <img src="@/assets/icons/arrow-right-long.svg"     
-         title="Next"
-         :class="['CustomButton','NextButton']"
-         @click="FinishStage()" />
+    <el-button class="NextButton" type="primary" :plain=true @click="FinishStage()">
+        <el-icon size="25"><DArrowRight /></el-icon>
+    </el-button>
 </template>

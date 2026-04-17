@@ -82,8 +82,8 @@
                     {{isImageSheet ? "bestsiteever.net/colpi" : "v2.blddb.net"}}
                 </el-link>
             </el-text>
-            <div v-if="sheetStore.getType(props.sheetID) == 1 || sheetStore.getType(props.sheetID) == 2" style="font-size: inherit; margin-bottom: 4px;" >
-                <el-checkbox v-model="notationType" size="small" label="Comm notation" />
+            <div v-if="sheetStore.getType(props.sheetID) == 1 || sheetStore.getType(props.sheetID) == 2" style="font-size: inherit; margin-bottom: 4px;">
+                {{notationType ? 'Comm' : 'Alg'}} notation <el-switch v-model="notationType" size="small" />
             </div>
         </div>
     </div>

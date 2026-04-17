@@ -121,7 +121,7 @@
 
         <el-drawer v-model="editingFlashcards"
                    :title="'\'' + (sheetStore.getSheet(sheetID)?.name || '') + '\' flashcards: ' + cardStore.getCardsForSheet(sheetID).length.toString() + '/' + sheetStore.getFilledCellCount(sheetID).toString()"
-                   size="90%"
+                   size="95%"
                    direction="rtl"
                    body-class="drawer-body"
                    :before-close="handleClose">
