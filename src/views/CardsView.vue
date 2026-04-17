@@ -48,7 +48,7 @@
                           :updateStatsKey="updateStatsKey"
                           @quitPractice="quitPractice" />
         </div>
-        <div style="position: absolute; bottom:0px; right: 10px; font-size:0.8rem; color:var(--grey-100);">
+        <div style="position: absolute; bottom:0px; right: 10px; font-size:0.8rem;">
             Inspired by <a href="https://apps.ankiweb.net/" target="_blank">Anki</a>
         </div>
     </div>

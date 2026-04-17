@@ -89,6 +89,8 @@ export const useSheetStore = defineStore('sheetStore', {
         },
 
         getFilledCellCount(id) {
+            if (!id || !this.isValidSheetID(id))
+                return 0
             const grid = this.sheets[this.getSheetIndexWithID(id)].grid
             const rows = Object.values(grid)
             return rows.reduce(function (a, b) {

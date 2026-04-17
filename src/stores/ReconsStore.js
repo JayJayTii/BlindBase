@@ -32,6 +32,8 @@ export const useReconsStore = defineStore('reconsStore', {
         },
 
         getPseudoswap() {
+            if (!this.pseudoswap || this.pseudoswap.length < 2)
+                this.pseudoswap = [2, 1]
             return this.pseudoswap
         },
         setPseudoswap1(value) {
