@@ -18,7 +18,7 @@
         </el-text>
 
 
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(30%, 1fr)); gap: 20px; padding: 20px;">
+        <div id="home-view-cards">
             <el-card shadow="hover" body-style="padding: 0px;">
                 <div slot="header" class="el-card__header">
                     Sheets <el-button @click="router.push('/sheets')" :plain="true" type="primary">></el-button>
@@ -77,11 +77,18 @@
 </template>
 
 <style>
-	.el-card .el-card__header {
+	#home-view-cards {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(30%, 1fr));
+		gap: 20px;
+		padding: 20px;
+	}
+
+	#home-view-cards .el-card .el-card__header {
 		display: flex;
 		justify-content: space-between;
 		font-size: 1.2rem;
-        font-weight: bold;
+		font-weight: bold;
 	}
 
 	.home-card-body {

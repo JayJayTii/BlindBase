@@ -40,43 +40,33 @@
 
 <template>
     <div>
-        <div class="PracticeView">
-            <!------BACK------>
-            <img src="@/assets/icons/arrow-left-long.svg"
-                 title="Back"
-                 @click="emit('quitPractice')"
-                 class="CustomButton" style="margin-left: 10px; width:70px;height:50px;" />
+        <!------BACK------>
+        <div style="position: absolute; top: 5px; left: 20px; height: auto;">
+            <el-tooltip content="Back">
+                <el-button type="primary" :plain="true" style="height: 40px;" @click="emit('quitPractice')">
+                    <el-icon :size="30"><DArrowLeft /></el-icon>
+                </el-button>
+            </el-tooltip>
+        </div>
+        
+        <!------FLASHCARD------>
+        <Flashcard :card="currentCard"
+                   :sheetID="props.sheetID"
+                   @finishedCard="finishedCard" />
 
-            <!------SHEET NAME------>
-            <h3 class="PracticeSheetName">{{sheetStore.getSheet(props.sheetID).name}}</h3>
-
-            <!------REMAINING CARDS STATS------>
-            <div class="RemainingPanel" :key="props.updateStatsKey">
-                <div>New</div>
-                <div>Learning</div>
-                <div>Due</div>
-                <div>{{cardStore.getCardsOfType(props.sheetID, 'New').length}}</div>
-                <div>{{cardStore.getCardsOfType(props.sheetID,'Learning').length}}</div>
-                <div>{{cardStore.getCardsOfType(props.sheetID,'Due').length}}</div>
-            </div>
-
-            <!------FLASHCARD------>
-            <Flashcard :card="currentCard"
-                       :sheetID="props.sheetID"
-                       @finishedCard="finishedCard" />
+        <!------REMAINING CARDS STATS------>
+        <div id="RemainingPanel" :key="props.updateStatsKey">
+            <div>New</div>
+            <div>Learning</div>
+            <div>Due</div>
+            <div>{{cardStore.getCardsOfType(props.sheetID, 'New').length}}</div>
+            <div>{{cardStore.getCardsOfType(props.sheetID, 'Learning').length}}</div>
+            <div>{{cardStore.getCardsOfType(props.sheetID, 'Due').length}}</div>
         </div>
     </div>
 </template>
 
 <style>
-    .PracticeView {
-        display: grid;
-        grid-template-columns: 1fr 1fr 1fr;
-        gap: 10px;
-        padding: 5px;
-        padding-top: 10px;
-    }
-
     .PracticeSheetName {
         display: flex;
         justify-content: center;
@@ -92,14 +82,20 @@
         word-break: break-all;
     }
 
-    .RemainingPanel {
+    #RemainingPanel {
         display: grid;
         grid-template-columns: 1fr auto 1fr;
         gap: 2px;
-        background-color: var(--brand-800);
-        border: 3px solid var(--grey-100);
-        border-radius: 10px;
+        width: 300px;
+        height: 80px;
+        position: absolute;
+        top: 0px;
+        right: 0px;
+        border: 1px solid var(--el-border-color);
+        border-radius: 4px;
         text-align: center;
-        font-size: 2vw;
+        padding: 10px;
+        font-size: 1.2rem;
+        background-color: var(--el-bg-color);
     }
 </style>
