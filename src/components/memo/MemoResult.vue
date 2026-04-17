@@ -68,7 +68,7 @@
         <div style="height:20vh;"></div>
     </div>
 
-    <el-button class="NextButton" type="primary" :plain=true @click="emit('endTurn')">
+    <el-button class="NextButton" type="primary" @click="emit('endTurn')">
         <el-icon size="25"><DArrowRight /></el-icon>
     </el-button>
 </template>

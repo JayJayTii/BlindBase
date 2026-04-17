@@ -48,7 +48,7 @@
     </div>
     <div style="height:20vh;" />
 
-    <el-button class="NextButton" type="primary" :plain=true @click="FinishStage()">
+    <el-button class="NextButton" type="primary" @click="FinishStage()">
         <el-icon size="25"><DArrowRight /></el-icon>
     </el-button>
 </template>

@@ -43,7 +43,7 @@
         <!------BACK------>
         <div style="position: absolute; top: 5px; left: 20px; height: auto;">
             <el-tooltip content="Back">
-                <el-button type="primary" :plain="true" style="height: 40px;" @click="emit('quitPractice')">
+                <el-button type="primary" style="height: 40px;" @click="emit('quitPractice')">
                     <el-icon :size="30"><DArrowLeft /></el-icon>
                 </el-button>
             </el-tooltip>

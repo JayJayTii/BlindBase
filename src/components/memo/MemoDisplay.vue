@@ -30,7 +30,7 @@
         <div style="height:20vh;" />
     </div>
 
-    <el-button class="NextButton" type="primary" :plain=true @click="emit('stageComplete')">
+    <el-button class="NextButton" type="primary" @click="emit('stageComplete')">
         <el-icon size="25"><DArrowRight /></el-icon>
     </el-button>
 </template>

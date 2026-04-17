@@ -142,8 +142,10 @@
 
     //customSheet is the sheet containing all possible letter pairs which the user selects from
     const customSheet = reactive({})
-    customSheet.value = {}
+	customSheet.value = {}
+	let possibleCustomPairs = 0
     function generateCustomPairSheet() {
+		possibleCustomPairs = 0
 		let grid = Array.from({ length: 24 }, () => Array.from({ length: 24 }, () => ''))
 		customSheet.value = {
 			xHeadings: 'ABCDEFGHIJKLMNOPQRSTUVWX',
@@ -155,6 +157,8 @@
 		for (var y = 0; y < 24; y++) {
 			for (var x = 0; x < 24; x++) {
 			    grid[y][x] = (isPossiblePair(pieceType.value, letters[y] + letters[x], buffer.value)) ? (letters[y] + letters[x]) : ""
+                if(grid[y][x] != '')
+					possibleCustomPairs += 1
 			}
         }
 		customSheet.value.grid = grid
@@ -174,17 +178,18 @@
         nextTick(() => {
             if (gridRef.value)
                 gridRef.value.changeHighlightedCells(formattedSelectedCells)
-            if (getSelectedCellCount() > 0)
-                GeneratePairsAndEmit()
         })
     }
     nextTick(() => { UpdateSelectedCells() })
 
+	const handleCustomPairClose = (done) => {
+		GeneratePairsAndEmit()
+		done()
+	}
 
     function onCustomPairsClicked(values, create) {
         for(const cell of values)
             selectedCells.value[cell.y][cell.x] = create
-
         UpdateSelectedCells()
     }
    
@@ -200,12 +205,6 @@
 
     function editCustomPairButtonClicked() {
         editingCustomPairs.value = !editingCustomPairs.value
-        const grid = document.getElementById("CustomExecPairGrid")
-        grid.classList.remove('AnimatedGridOpen','AnimatedGridClose')
-        if (editingCustomPairs.value)
-            grid.classList.add('AnimatedGridOpen');
-        else
-            grid.classList.add('AnimatedGridClose');
     }
 
 	function GeneratePairsAndEmit() {
@@ -270,81 +269,94 @@
 
 <template>
     <div id="ExecSelect">
-        <select v-model="pieceType" style="font-size: 2rem; text-align: center;">
-            <option value=1>Corners</option>
-            <option value=2>Edges</option>
-        </select>
 
-        <div class="ExecSelectLine" v-if="pieceTypeSelected" />
-        <select v-if="pieceTypeSelected" v-model="mode" style="font-size: 2rem; text-align: center;">
-            <option title="One pair per scramble">One pair</option>
-            <option :title="pieceTypes[pieceType] + '-only scramble'">Whole</option>
-        </select>
+        <!-- PIECE TYPE -->
+        <el-select v-model="pieceType" size="large" style="width: 130px;">
+            <el-option :value="1" label="Corners">Corners</el-option>
+            <el-option :value="2" label="Edges">Edges</el-option>
+        </el-select>
 
-        <div class="ExecSelectLine" v-if="mode == 'One pair'" />
-        <select v-if="mode == 'One pair'" v-model="pairSelect" style="font-size: 2rem; text-align: center;">
-            <option title="Any letter pair can appear">From all pairs</option>
-            <option title="All letter pairs in a chosen sheet can appear">From sheet</option>
-            <option title="Flashcards that have been practiced in a card deck can appear">From cards</option>
-            <option title="Select from a grid of letter pairs">From custom</option>
-        </select>
+        <!-- PIECE TYPE => MODE -->
+        <el-divider class="ExecSelectLine" v-if="pieceTypeSelected" />
+        <el-select v-if="pieceTypeSelected" v-model="mode" size="large" style="width: 120px;">
+            <el-tooltip content="One pair per scramble" placement="right">
+                <el-option value="One pair">One pair</el-option>
+            </el-tooltip>
+            <el-tooltip :content="pieceTypes[pieceType] + '-only scramble'" placement="right">
+                <el-option value="Whole">Whole</el-option>
+            </el-tooltip>
+        </el-select>
 
-        <!--Buffer box (only for 'From all pairs' and 'From custom')-->
-        <div class="ExecSelectLine" v-if="pairSelect == 'From custom' || pairSelect == 'From all pairs'" />
-        <div v-if="pairSelect == 'From custom' || pairSelect == 'From all pairs'">
-            <select v-model="buffer" style="font-size: 2rem; text-align: center;">
-                <option v-for="(buffer, index) in (pieceType == 1 ? cornerBuffers : edgeBuffers)" :value="index">{{ buffer }}</option>
-            </select>
-        </div>
+        <!-- PIECE TYPE => ONE PAIR => FROM [___] -->
+        <el-divider class="ExecSelectLine" v-if="mode == 'One pair'" />
+        <el-select v-if="mode == 'One pair'" v-model="pairSelect" size="large" style="width: 150px;">
+            <el-tooltip content="All letter pairs" placement="right">
+                <el-option value="From all pairs">From all pairs</el-option>
+            </el-tooltip>
+            <el-tooltip content="All letter pairs in an alg-sheet" placement="right">
+                <el-option value="From sheet">From sheet</el-option>
+            </el-tooltip>
+            <el-tooltip content="Flashcards in a card deck" placement="right">
+                <el-option value="From cards">From cards</el-option>
+            </el-tooltip>
+            <el-tooltip content="Select from a grid of letter pairs" placement="right">
+                <el-option value="From custom">From custom</el-option>
+            </el-tooltip>
+        </el-select>
 
-        <div class="ExecSelectLine" v-if="pairSelect == 'From sheet' || pairSelect == 'From cards' || pairSelect == 'From custom'" />
+        <!-- PIECE TYPE => ONE PAIR => FROM ALL PAIRS/CUSTOM => BUFFER -->
+        <el-divider class="ExecSelectLine" v-if="pairSelect == 'From custom' || pairSelect == 'From all pairs'" />
+        <el-select v-if="pairSelect == 'From custom' || pairSelect == 'From all pairs'"
+                   v-model="buffer" size="large" style="width: 80px;">
+            <el-option v-for="(buffer, index) in (pieceType == 1 ? cornerBuffers : edgeBuffers)" :label="buffer" :value="index">{{ buffer }}</el-option>
+        </el-select>
+
+        <el-divider class="ExecSelectLine" v-if="pairSelect == 'From sheet' || pairSelect == 'From cards' || pairSelect == 'From custom'" />
         <div v-if="pairSelect == 'From sheet' || pairSelect == 'From cards' || pairSelect == 'From custom'">
+            <!-- PIECE TYPE => ONE PAIR => FROM SHEET => [_______] -->
             <div v-if="pairSelect == 'From sheet'">
-                <select v-if="getValidSheets().length > 0" v-model="pairSelectSheetID" style="font-size: 2rem;text-align:center;">
-                    <option v-for="sheet in getValidSheets()"
-                            :value="sheet.id">
-                        '{{sheet.name}}'
-                    </option>
-                </select>
-                <div v-else style="font-size: 2rem;">
+                <el-select v-if="getValidSheets().length > 0" v-model="pairSelectSheetID"
+                           size="large" style="width: 250px;">
+                    <el-option v-for="sheet in getValidSheets()" :label="sheet.name" :value="sheet.id">{{sheet.name}}</el-option>
+                </el-select>
+                <div v-else>
                     No valid sheets
                 </div>
             </div>
+            <!-- PIECE TYPE => ONE PAIR => FROM CARDS => [_______] -->
             <div v-if="pairSelect == 'From cards'">
-                <select v-if="getValidCardDecks().length > 0" v-model="pairSelectSheetID" style="font-size: 2rem;text-align:center;">
-                    <option v-for="sheet in getValidCardDecks()"
-                            :value="sheet.id">
-                        '{{sheet.name}}'
-                    </option>
-                </select>
-                <div v-else style="font-size: 2rem;">
+                <el-select v-if="getValidCardDecks().length > 0" v-model="pairSelectSheetID"
+                           size="large" style="width: 250px;">
+                    <el-option v-for="sheet in getValidCardDecks()" :label="sheet.name" :value="sheet.id">{{sheet.name}}</el-option>
+                </el-select>
+                <div v-else>
                     No valid card decks
                 </div>
             </div>
-            <div v-if="pairSelect == 'From custom'" style="display:flex; justify-content: center;">
-                <img @click="editCustomPairButtonClicked(); UpdateSelectedCells()"
-                     src="@/assets/icons/edit.svg"
-                     :class="['CustomButton', editingCustomPairs ? 'CustomButtonHovered': '']"
-                     :style="{height: '45px', backgroundColor: (editingCustomPairs ?  'var(--brand-400)' : '')}" />
-            </div>
+            <!-- PIECE TYPE => ONE PAIR => FROM CUSTOM => [_] -->
+            <el-button v-if="pairSelect == 'From custom'" type="primary" style="height: 40px;" @click="editCustomPairButtonClicked()">
+                <el-icon :size="25"><Edit /></el-icon>
+            </el-button>
         </div>
     </div>
 
     <hr />
 
-    <div id="CustomExecPairGrid" v-if="pairSelect == 'From custom'">
-        <button style="font-size:1rem;transform:translateX(calc(95vw - 100%));"
-                @click="editCustomPairButtonClicked()">
-            X
-        </button>
+
+    <el-drawer v-model="editingCustomPairs"
+               :title="'Select letter pairs to practice: ' + getSelectedCellCount().toString() + '/' + possibleCustomPairs.toString()"
+               size="95%"
+               direction="rtl"
+               body-class="drawer-body"
+               :before-close="handleCustomPairClose">
         <SheetGrid :sheet="customSheet.value"
-                   :key="customSheet.value"
                    :formatEmpty="true"
                    :fullLineSelection="true"
+                   :key="customSheet.value"
                    @update:selected-cells="onCustomPairsClicked"
-                   ref="gridRef" 
-                   style="height: 100%; width: 100%;"/>
-    </div>
+                   ref="gridRef"
+                   style="height: 100%; width: 100%;" />
+    </el-drawer>
 </template>
 
 <style>
@@ -361,10 +373,8 @@
     }
 
     .ExecSelectLine {
-        border-block-end: 5px solid var(--grey-400);
-        border-radius: 5px;
-        max-width: 100px;
-        min-width: 100px;
+        border-width: 2px;
+        width: 100px;
     }
 
     #CustomExecPairGrid {

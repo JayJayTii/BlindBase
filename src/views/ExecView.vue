@@ -99,7 +99,7 @@
 
             <!-- MIDDLE COLUMN CURRENT SOLVE -->
             <div>
-                <div v-show="selectionFinished()" style="text-align:center; color:var(--grey-100); font-weight:bold; font-size:2rem;">
+                <div v-show="selectionFinished()" style="text-align:center; font-weight:bold; font-size:2rem;">
                     {{solveCount}}
                 </div>
                 <Timer v-if="selectionFinished()"
@@ -131,7 +131,6 @@
     #execColumn {
         display: flex;
         flex-direction: column;
-        color: var(--grey-300);
         text-align: center;
         font-size: 1.2rem;
         height: 100%;

@@ -151,7 +151,7 @@
                 <!------BAD------>
                 <div>
                     <el-tooltip content="Bad" placement="left">
-                        <el-button type="danger" :disabled="cardType == 'New'" :plain="true"
+                        <el-button type="danger" :disabled="cardType == 'New'"
                                    @click="finishedCard('Bad')">
                             <el-icon><Close /></el-icon>
                         </el-button>
@@ -160,7 +160,7 @@
                 <!------GOOD------>
                 <div>
                     <el-tooltip content="Good" placement="right">
-                        <el-button type="success" :plain="true"
+                        <el-button type="success"
                                    @click="finishedCard('Good')">
                             <el-icon><Check /></el-icon>
                         </el-button>

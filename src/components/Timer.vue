@@ -210,7 +210,6 @@
         text-align: center;
         left: 50%;
         font-size: 2rem;
-        color: var(--grey-100);
         cursor: text;
     }
     .StageText {
@@ -221,36 +220,33 @@
         transform: translate(-50%, 50%);
         font-size: 6rem;
         font-weight: bold;
-        color: var(--grey-100);
         user-select: none;
     }
 
-    .StopwatchText {
-        width: 100%;
-        text-align: center;
-        font-size: 7rem;
-        font-weight: bold;
-        white-space: nowrap;
-        overflow: hidden;
-        color: var(--grey-100);
-        position: absolute;
-
-    }
-    .StopwatchStartYellow {
-        color: var(--warn-300);
-    }
-    .StopwatchStartSpaceDown {
-        color: var(--brand-300);
-    }
-    .StopwatchEndSpaceDown {
-        color: var(--error-300);
-    }
+	.StopwatchText {
+		width: 100%;
+		text-align: center;
+		font-size: 7rem;
+		font-weight: bold;
+		white-space: nowrap;
+		overflow: hidden;
+		position: absolute;
+		text-shadow: 0px 0px 3px black;
+	}
+	.StopwatchStartYellow {
+		color: hsl(60, 79%, 66%);
+	}
+	.StopwatchStartSpaceDown {
+		color: hsl(147, 73%, 70%);
+	}
+	.StopwatchEndSpaceDown {
+		color: hsl(0, 76%, 70%);
+	}
 
     .RatioText {
         width: 100%;
         font-size: 1.5rem;
         text-align: center;
-        color: var(--grey-100);
         position: absolute;
         transform: translate(0%,5rem);
     }

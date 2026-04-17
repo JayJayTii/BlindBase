@@ -67,7 +67,7 @@
                       :disabled="(selectedCell.x == -1 || selectedCell.y == -1)" />
 
             <div style="display: flex; flex-direction: row; overflow-x: auto; gap: 5px;" :key="sheetSettings">
-                <el-button type="primary" :plain="true"
+                <el-button type="primary"
                            style="margin: 0px;"
                            v-for="(option, index) in options"
                            @click="cellValueInput = options[index]">{{option}}</el-button>

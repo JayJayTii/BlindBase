@@ -255,7 +255,7 @@
         <div v-if="pairSelect == 'From sheet'">
             <div v-if="sheetStore.getSheetsOfType(3).length > 0">
                 <el-select v-model="pairSelectSheet" size="large" style="width: 250px;">
-                    <el-option v-for="sheetOption in sheetStore.getSheetsOfType(3)" :label="sheetOption.name" :value="sheetOption">'{{ sheetOption.name }}'</el-option>
+                    <el-option v-for="sheetOption in sheetStore.getSheetsOfType(3)" :label="sheetOption.name" :value="sheetOption">{{ sheetOption.name }}</el-option>
                 </el-select>
             </div>
             <div v-else>
@@ -266,7 +266,7 @@
         <div v-if="pairSelect == 'From cards'">
             <div v-if="GetLearnedCards().length > 0">
                 <el-select v-model="pairSelectSheet" size="large" style="width: 250px">
-                    <el-option v-for="sheetOption in GetSheetsWithLearnedCards()" :label="sheetOption.name" :value="sheetOption">'{{ sheetOption.name }}'</el-option>
+                    <el-option v-for="sheetOption in GetSheetsWithLearnedCards()" :label="sheetOption.name" :value="sheetOption">{{ sheetOption.name }}</el-option>
                 </el-select>
             </div>
             <div v-else>
@@ -288,8 +288,7 @@
         </el-select>
         <el-divider class="MemoSelectLine" v-if="pairSelect == 'From custom' && (mode == 'Corners' || mode == 'Edges')" />
 
-        <el-button v-if="pairSelect == 'From custom'" type="primary" :plain="true" style="height: 40px;"
-                   @click="editCustomPairButtonClicked()">
+        <el-button v-if="pairSelect == 'From custom'" type="primary" style="height: 40px;" @click="editCustomPairButtonClicked()">
             <el-icon :size="25"><Edit /></el-icon>
         </el-button>
 

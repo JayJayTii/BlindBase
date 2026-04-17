@@ -94,7 +94,7 @@
                         {{scope.row.flashcards}}
 
                         <el-tooltip content="Edit" placement="right">
-                            <el-button type="primary" :plain="true"
+                            <el-button type="primary"
                                        @click="editFlashcardsButtonClicked(scope.row.sheet_id)">
                                 <el-icon><Edit /></el-icon>
                             </el-button>
@@ -109,7 +109,7 @@
                 <template #default="scope">
                     <div v-if="scope.row.can_practice">
                         <el-tooltip content="Practice" placement="right">
-                            <el-button type="primary" :plain=true @click="emit('beginPractice', scope.row.sheet_id)">
+                            <el-button type="primary" @click="emit('beginPractice', scope.row.sheet_id)">
                                 <el-icon><DArrowRight /></el-icon>
                             </el-button>
                         </el-tooltip>

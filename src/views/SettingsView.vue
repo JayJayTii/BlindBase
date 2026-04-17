@@ -172,12 +172,12 @@
         </div>
         <div style="display: flex; flex-direction: row; margin-top: 20px;justify-content: space-between; width: min(400px, 100%); ">
             <div>
-                <el-button type="primary" :plain="true" @click="ExportAll">
+                <el-button type="primary" @click="ExportAll">
                     <h2>Export Data</h2>
                 </el-button>
             </div>
             <div>
-                <el-button type="danger" :plain="true" @click="ImportAll">
+                <el-button type="danger" @click="ImportAll">
                     <h2>Import Data</h2>
                 </el-button>
             </div>

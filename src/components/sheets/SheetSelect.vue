@@ -95,7 +95,7 @@
 					<div style="display: grid; grid-template-columns: 1fr 1fr; text-align: center; gap: 5px; margin-top: 5px;">
 						<!-- UPLOAD -->
 						<el-tooltip placement="left" content="Upload">
-							<el-button type="primary" :plain="true" @click="UploadSheet(); mainDropdownRef.handleClose()" 
+							<el-button type="primary" @click="UploadSheet(); mainDropdownRef.handleClose()" 
 									   style="justify-content: center; height: auto;">
 								<el-icon :size="40">
 									<Upload />
@@ -104,7 +104,7 @@
 						</el-tooltip>
 						<!-- NEW -->
 						<el-tooltip placement="right" content="New">
-							<el-button type="primary" :plain="true" @click="NewSheet(); mainDropdownRef.handleClose()" 
+							<el-button type="primary" @click="NewSheet(); mainDropdownRef.handleClose()" 
 									   style="justify-content: center; height: auto;">
 								<el-icon :size="40">
 									<Plus />
@@ -134,7 +134,7 @@
 					<div style="width: 100%; display: grid; grid-template-columns: 1fr 1fr;">
 						<!------DOWNLOAD------>
 						<el-tooltip content="Download">
-							<el-button type="primary" :plain="true" style="height: auto;" @click="downloadSheet(sheetStore.getSheet(sheetID))">
+							<el-button type="primary" style="height: auto;" @click="downloadSheet(sheetStore.getSheet(sheetID))">
 								<el-icon :size="30">
 									<Download />
 								</el-icon>
@@ -142,7 +142,7 @@
 						</el-tooltip>
 						<!------DELETE------>
 						<el-tooltip content="Delete">
-							<el-button type="danger" :plain="true" style="height: auto;" @click="deleteSheet()">
+							<el-button type="danger" style="height: auto;" @click="deleteSheet()">
 								<el-icon :size="30">
 									<Delete />
 								</el-icon>
