@@ -1,5 +1,5 @@
 <script setup>
-    import { ref, reactive, computed, onMounted, onUnmounted, nextTick } from 'vue'
+    import { ref,watch, reactive, computed, onMounted, onUnmounted, nextTick } from 'vue'
     import { getSolveTimeString, getSolveRatioString } from '@/helpers/timer.js'
     import { useSettingsStore } from '@/stores/SettingsStore.js'
     useSettingsStore().loadState()
@@ -9,7 +9,7 @@
         lastSolve: Object,
         twoStage: Boolean,
     })
-
+    
     //Goes through one stage at a time during an attempt
     const stages = {
         finished: 0,

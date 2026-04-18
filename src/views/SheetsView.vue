@@ -27,7 +27,8 @@
         selectedCell.value.x = 0
         selectedCell.value.y = 0
         await nextTick()
-        gridRef.value.changeHighlightedCells([selectedCell.value])
+        if(gridRef.value)
+            gridRef.value.changeHighlightedCells([selectedCell.value])
     }
     updateSheetID(sheetStore.sheets[0]?.id || -1)
 

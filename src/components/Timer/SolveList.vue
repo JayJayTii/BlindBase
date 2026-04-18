@@ -1,55 +1,104 @@
 <script setup>
-    import { ref, onMounted, nextTick, watch } from 'vue'
+    import { ref, computed } from 'vue'
     import { getSolveTimeString } from "@/helpers/timer.js"
     import { useTimerStore } from "@/stores/TimerStore"
-    const timerStore = useTimerStore()
+	const timerStore = useTimerStore()
+	import { calculateMean, formatTime } from '@/helpers/timer.js'
 
     const props = defineProps({
+        solveIndex: Number,
         sessionID: Number,
     })
     const emit = defineEmits(['selectSolve'])
 
-    //When the solve list is updated, scroll to latest solve
-    const solveListRef = ref(null)
-    nextTick(() => {
-        if(solveListRef.value)
-            solveListRef.value.scrollTop = solveListRef.value.scrollHeight
+	const solves = computed({
+		get: () => timerStore.getSession(props.sessionID)?.solves || []
     })
-    watch(() => timerStore.getSession(props.sessionID)?.solves.length,
-        async () => {
-            await nextTick()
-            solveListRef.value.scrollTop = solveListRef.value.scrollHeight
-        }
-    )
 
     function SolveClicked(index) {
         emit('selectSolve', index)
     }
+
+    const data = computed({
+        get: () => {
+            //iterating in reverse so the end is at the top of the table
+            return solves.value.map((solve, index) => ({
+                    index: solves.value.length - index - 1,
+                    value: solves.value[solves.value.length - index - 1]}))
+        }
+	})
+
+	const rowEventHandlers = {
+        onClick: ({ rowData, event }) => {
+            SolveClicked(rowData.index)
+		}
+    };
+    function getRowClass({ rowData }) {
+		if (rowData.index == props.solveIndex)
+            return ['table-row','row-selected']
+        return 'table-row'
+    }
+
+	const columns = [
+		{
+            title: 'No.',
+			cellRenderer: ({ rowData }) => {
+				return rowData.index + 1
+			},
+            key: 0,
+            width: 60,
+        },
+		{
+			title: 'Time',
+			cellRenderer: ({ rowData }) => {
+				const result = getSolveTimeString(rowData.value)
+				return result
+            },
+            key: 1,
+			width: 100,
+		},
+		{
+			title: 'Mo3',
+			cellRenderer: ({ rowData }) => {
+                if (rowData.index < 2)
+                    return ''
+				const mean = calculateMean(solves.value.slice(rowData.index - 2, rowData.index + 1), 1)
+                return formatTime(mean[0]) + (mean[1] ? " (DNF)" : "")
+			},
+			key: 2,
+			width: 100,
+		}
+	]
 </script>
 
 <template>
-    <div class="Panel" ref="solveListRef" v-if="timerStore.isValidSessionID(sessionID)">
-        <!--List of all the solves in the current session-->
-        <div class="PanelHeader" style="position:sticky;"> Solves: </div>
-        <div >
-            <div v-for="(label, index) in timerStore.getSession(props.sessionID).solves.map((solve,index) => (index+1).toString() + ' | ' + getSolveTimeString(solve))"
-                class="ListItem"
-                 @click="SolveClicked(index)">
-                {{label}}
-            </div>
-        </div>
-    </div>
-    <div v-else class="Panel">
-        <div class="PanelHeader"> Solves: </div>
-        <div style="color:var(--info-200); text-align:center;">
-            Select a session to get started
-        </div>
+    <div :key="solves.length">
+        <el-auto-resizer>
+            <template #default="{ height, width }">
+                <el-table-v2 :columns="columns"
+                             :data="data"
+                             :row-event-handlers="rowEventHandlers"
+                             :header-height="20"
+                             :row-class="getRowClass"
+                             :row-height="30"
+                             :width="width"
+                             :height="height">
+                    <template #empty><div /></template>
+                </el-table-v2>
+            </template>
+        </el-auto-resizer>
     </div>
 </template>
 
 <style>
-    .scroller {
-        height: 100%;
-        overflow-x: hidden;
+	.row-selected {
+		background-color: var(--el-color-primary-light-5);
+	}
+	.row-selected:hover {
+		background-color: var(--el-color-primary-light-5);
+	}
+    .table-row {
+        cursor: pointer
     }
+
 </style>

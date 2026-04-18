@@ -33,7 +33,7 @@
 
 <template>
     <!--Contains info like single, mo3, ao5, etc. for this session-->
-    <div class="Panel" v-if="timerStore.isValidSessionID(sessionID)">
+    <div v-if="timerStore.isValidSessionID(sessionID)">
         <div class="PanelHeader"> Session Details:  </div>
         <div style="text-align:center;">{{dnfRatio[0]}} successes : {{dnfRatio[1]}} DNFs</div>
         <div class="SessionDetailsGrid">
@@ -56,12 +56,13 @@
 </template>
 
 <style>
-    .SessionDetailsGrid {
-        width: 100%;
-        display: grid;
-        grid-template-columns: auto 2fr 2fr;
-        text-align: center;
-    }
+
+	.SessionDetailsGrid {
+		width: 100%;
+		display: grid;
+		grid-template-columns: auto 2fr 2fr;
+		text-align: center;
+	}
 
     .SessionDetail {
         font-size: 0.75rem;

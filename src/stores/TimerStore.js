@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import { getSumOfTimes, getSolveTimes, calculateBestMon, calculateMean, calculateAvg, calculateBestAon, formatTime } from '@/helpers/timer.js'
 
-const DEFAULT_SESSION_TYPES = [
+export const session_types = [
     { name: '3x3 Blindfolded', id: 0 },
     { name: '3x3 Edges', id: 1 },
     { name: '3x3 Corners', id: 2 },
@@ -15,7 +15,6 @@ const DEFAULT_SOLVE_STATUSES = [
 export const useTimerStore = defineStore('timerStore', {
     state: () => {
         return {
-            sessionTypes: DEFAULT_SESSION_TYPES,
             solveStatuses: DEFAULT_SOLVE_STATUSES,
             sessions: [],
         }
@@ -33,9 +32,10 @@ export const useTimerStore = defineStore('timerStore', {
 
         newSession() {
             //Creates a default, empty session
+            const newID = this.getNewSessionID()
             this.sessions.push({
                 name: 'Untitled',
-                id: this.getNewSessionID(),
+                id: newID,
                 type: 0,
                 solves: [],
                 bests: {},
@@ -43,6 +43,8 @@ export const useTimerStore = defineStore('timerStore', {
 
             this.saveState()
             this.loadState()
+
+            return newID
         },
         deleteSession(id) {
             //Deletes the session at its index in the array of sessions, then saves
@@ -134,7 +136,6 @@ export const useTimerStore = defineStore('timerStore', {
         },
     },
     getters: {
-        getSessionTypes: (state) => state.sessionTypes,
         getSessionNames: (state) => state.sessions.map((session) => session.name),
     },
 })

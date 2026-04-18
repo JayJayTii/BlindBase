@@ -1,7 +1,6 @@
 <script setup>
     import { computed, watch, nextTick, ref } from 'vue'
     import { getRecommendations } from "@/helpers/Recommendations"
-    import List from "@/components/List.vue"
     import { useSheetStore } from "@/stores/SheetStore"
     const sheetStore = useSheetStore()
     import { useSettingsStore } from "@/stores/SettingsStore"

@@ -43,50 +43,49 @@
 </script>
 
 <template>
-    <div class="Panel" v-if="props.solveIndex > -1 && timerStore.isValidSessionID(props.sessionID)">
-        <div style="display:flex;flex-direction:row;height:">
-            <div class="PanelHeader"> Solve {{props.solveIndex + 1}}: </div>
+    <div v-if="props.solveIndex > -1 && timerStore.isValidSessionID(props.sessionID)">
+        <div style="display: grid; grid-template-columns: 1fr 3fr 1fr; border-block-end: 1px solid var(--el-border-color);">
+            <el-tooltip content="Reconstruct">
+                <el-button type="primary" style="width: 30px; height: 30px;"
+                           @click="Reconstruct()">
+                    <img title="Reconstruct" style="width: 40px; height: 30px;" src="@/assets/tool_icons/ReconsIcon.png" />
+                </el-button>
+            </el-tooltip>
+            <el-text style="color: var(--el-text-color-primary); text-align: center; font-size: 1.5rem; font-weight: bold;">
+                Solve {{props.solveIndex + 1}}:
+            </el-text>
+            <el-tooltip content="Delete">
+                <el-button type="danger" style="width: 30px; height: 30px; margin-left: auto;"
+                           @click="emit('deleteSolve')">
+                    <el-icon :size="20"><Delete /></el-icon>
+                </el-button>
+            </el-tooltip>
         </div>
-        <div class="SolveDetails">
-            <!------CONTROLS------>
-            <div style="display:flex; justify-content:space-between;  width:100%;">
-                <img @click="emit('unselectSolve')" title="Back" src="@/assets/icons/arrow-left-long.svg" class="CustomButton" style="width:60px; height: 40px;" />
-                <img @click="Reconstruct()"         title="Reconstruct" src="@/assets/tool_icons/ReconsIcon.png"      class="CustomButton" style="width:52px; height:40px;"  />
-                <img @click="emit('deleteSolve')"   title="Delete" src="@/assets/icons/delete-bin.svg"      class="CustomButton" style="width:40px; height:40px;" />
-            </div>  
-            
+        <div style="display: flex; flex-direction: column; gap: 5px; overflow-y: auto;">
             <!------SOLVE RESULTS------>
-            <div>{{selectedSolve[3]}}</div>
-            <h1>{{getSolveTimeString(selectedSolve)}}</h1>
-            <h3>{{getSolveRatioString(selectedSolve)}}</h3>
+            <el-text size="large" style="text-align: center;">{{selectedSolve[3]}}</el-text>
+            <el-text style="font-size: 2rem; font-weight: bold;">{{getSolveTimeString(selectedSolve)}}</el-text>
+            <el-text>{{getSolveRatioString(selectedSolve)}}</el-text>
             <!------SOLVE STATUS------>
-            <div class="StatusRow">
-                <template v-for="status in timerStore.solveStatuses">
-                    <div :class="['ListItem', selectedSolve[2] === status.id ? 'ListItemSelected' : 'ListItemUnselected']"
-                         @click="selectedSolve[2] = status.id; timerStore.saveState()">
-                        {{status.name}}
-                    </div>
-                </template>
+            <div style="display: grid; grid-template-columns: 80px 10px 80px 10px 80px; width: 260px; align-self: center;">
+                <el-button type="primary" :plain="selectedSolve[2] === timerStore.solveStatuses[0].id ? false : true" style="height: 25px; width: 80px;"
+                           @click="selectedSolve[2] = timerStore.solveStatuses[0].id; timerStore.saveState()">
+                    {{timerStore.solveStatuses[0].name}}
+                </el-button>
+                <div style="width: 10px;"/>
+                <el-button type="primary" :plain="selectedSolve[2] === timerStore.solveStatuses[1].id ? false : true" style="height: 25px; width: 80px;"
+                           @click="selectedSolve[2] = timerStore.solveStatuses[1].id; timerStore.saveState()">
+                    {{timerStore.solveStatuses[1].name}}
+                </el-button>
+                <div style="width: 10px;"/>
+                <el-button type="primary" :plain="selectedSolve[2] === timerStore.solveStatuses[2].id ? false : true" style="height: 25px; width: 80px;"
+                           @click="selectedSolve[2] = timerStore.solveStatuses[2].id; timerStore.saveState()">
+                    {{timerStore.solveStatuses[2].name}}
+                </el-button>
             </div>
         </div>
     </div>
+    <div v-else>
+        
+    </div>
 </template>
-
-<style>
-    .SolveDetails {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        text-align: center;
-        gap: 2px;
-        overflow-x: hidden;
-        overflow-y: auto;
-    }
-
-    .StatusRow {
-        display: grid;
-        grid-template-columns: 70px 70px 70px;
-        text-align: center;
-        color: var(--grey-100);
-    }
-</style>
