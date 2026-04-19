@@ -1,11 +1,21 @@
-import './assets/main.css'
+import 'element-plus/theme-chalk/dark/css-vars.css'
 import { createApp, nextTick } from 'vue'
 import { createPinia } from 'pinia'
+import ElementPlus from 'element-plus'
+import * as ElementPlusIconsVue from '@element-plus/icons-vue'
+import 'element-plus/dist/index.css'
+import './assets/main.css'
 import App from './App.vue'
 import router from './router'
 
+
 const app = createApp(App)
-app.use(router).use(createPinia())
+app.use(ElementPlus)
+app.use(router)
+app.use(createPinia())
+for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
+    app.component(key, component)
+}
 
 //Could be redirected from 404.html to work around Single-Page Application limitations
 const redirectPath = sessionStorage.redirect 

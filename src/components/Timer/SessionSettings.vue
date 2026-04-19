@@ -1,36 +1,26 @@
 <script setup>
     import { computed, inject, onMounted, onUnmounted } from 'vue'
-    import { useTimerStore } from "@/stores/TimerStore"
+    import { session_types, useTimerStore } from "@/stores/TimerStore"
     const timerStore = useTimerStore()
 
     const props = defineProps({
         sessionID: Number,
     })
-    const emit = defineEmits(['deleteSession','regenerateScramble'])
 
-    const currentSessionName = computed({
-        get: () => timerStore.getSession(props.sessionID)?.name || '',
-        set: (newName) => {
-            if (timerStore.isValidSessionID(props.sessionID)) {
-                timerStore.sessions[timerStore.getSessionIndexWithID(props.sessionID)].name = newName
-                timerStore.saveState()
-            }
-        }
-    })
     const currentSessionType = computed({
         get: () => timerStore.getSession(props.sessionID).type,
         set: (newType) => {
             if (timerStore.isValidSessionID(props.sessionID)) {
                 timerStore.sessions[timerStore.getSessionIndexWithID(props.sessionID)].type = newType
                 timerStore.saveState()
-                emit('regenerateScramble')
             }
         }
     })
 
     function handleKeydown(event) {
-        if (event.code == "Space" && document.activeElement.tagName == "SELECT")
+        if (event.code == "Space" && document.activeElement.tagName == "SELECT") {
             event.preventDefault()
+        }
     }
 
     onMounted(() => {
@@ -42,47 +32,27 @@
 </script>
 
 <template>
-    <div class="Panel" v-if="timerStore.isValidSessionID(props.sessionID)">
-        <div class="PanelHeader"> Session Settings: </div>
-        <!------NAME------>
-        <div class="SessionEditingRow">
-            <input v-model="currentSessionName"
-                   title="Name"
-                   maxlength="20"
-                   style="white-space:nowrap;font-weight:bold;font-size:2rem;width:100%;text-align:center;" />
-        </div>
+    <div id="session-settings" v-if="timerStore.isValidSessionID(props.sessionID)">
         <!------TYPE------>
-        <div class="SessionEditingRow" id="editSessionType">
-            Type: <select v-model="currentSessionType" >
-                <option v-for="(type,index) in timerStore.getSessionTypes"
-                        :key="index"
-                        :value="index">
-                    {{type.name}}
-                </option>
-            </select>
-        </div>
-        <div style="display: flex; flex-direction: row; justify-content:space-between; width:100%;">
-            <div></div>
-            <!------DELETE------>
-            <img src="@/assets/icons/delete-bin.svg" title="Delete"
-                 @click="emit('deleteSession')" class="CustomButton" style="height:40px;" />
-        </div>
-    </div>
-    <div v-else class="Panel">
-        <div class="PanelHeader"> Session settings: </div>
-        <div style="color:var(--info-200);text-align:center;">
-            Select a session to get started
+        <hr style="height: 100%;" />
+        <div>
+            Type:
+            <el-select v-model="currentSessionType"
+                       style="width: 150px;"
+                       :options="session_types"
+                       :props="{value: 'id',label: 'name', options: session_types}">
+            </el-select>
         </div>
     </div>
 </template>
 
 <style>
-    .SessionEditingRow {
-        display: flex;
-        flex-direction: row;
-        justify-content: center;
-        padding: 2px;
-        gap: 5px;
-        width: 100%;
-    }
+	#session-settings {
+		display: flex;
+		flex-direction: row;
+		gap: 5px;
+		padding: 2px;
+		padding-left: 5px;
+        align-items: center;
+	}
 </style>

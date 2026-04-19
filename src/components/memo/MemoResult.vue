@@ -57,9 +57,9 @@
             You put:
             <div style="display: flex; flex-direction: column; gap: 15px; align-items: center;">
                 <div v-for="(sequence, i) in splitUserSequences" style="display:flex;flex-direction:row;gap:5px;">
-                    <div v-if="sequence.length > 0" 
-                         v-for="j in Math.max(splitTestSequences[i].length, splitUserSequences[i].length)" 
-                         :class="['MemoPair', (!isCorrectPair(i, j - 1) ? 'MemoPairIncorrect' : '')]">
+                    <div v-if="sequence.length > 0"
+                         v-for="j in Math.max(splitTestSequences[i].length, splitUserSequences[i].length)"
+                         :class="['MemoPair', (!isCorrectPair(i, j - 1) ? 'MemoPairIncorrect' : 'MemoPairCorrect')]">
                         {{splitUserSequences[i][j - 1]}}
                     </div>
                 </div>
@@ -67,15 +67,19 @@
         </div>
         <div style="height:20vh;"></div>
     </div>
-    <img src="@/assets/icons/arrow-right-long.svg"  
-         title="Next"
-         :class="['CustomButton','NextButton']"
-         @click="emit('endTurn')" />
+
+    <el-button class="NextButton" type="primary" @click="emit('endTurn')">
+        <el-icon size="25"><DArrowRight /></el-icon>
+    </el-button>
 </template>
 
 <style>
     .MemoPair.MemoPairIncorrect {
-        border: 4px solid var(--error-800);
-        background-color: var(--error-700);
+        border: 2px solid var(--el-color-error);
+        background-color: var(--el-color-error-light-3);
     }
+	.MemoPair.MemoPairCorrect {
+		border: 2px solid var(--el-color-success);
+		background-color: var(--el-color-success-light-3);
+	}
 </style>

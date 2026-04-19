@@ -1,5 +1,5 @@
 <script setup>
-    import { inject, ref, watch, nextTick } from 'vue'
+    import { ref, watch, nextTick } from 'vue'
     import { useSheetStore } from "@/stores/SheetStore"
     const sheetStore = useSheetStore()
     import { useCardStore } from "@/stores/CardStore"
@@ -9,7 +9,6 @@
     settingsStore.loadState()
 
     import SheetGrid from "@/components/SheetGrid.vue"
-    const confirmDialog = inject('confirmDialog')
 
     const props = defineProps({
         updateStatsKey: Number,
@@ -21,7 +20,38 @@
 
     const columnHeaders = ['Sheet','Flashcards','','New','Learning','Due', '']
     const columnTooltips = ['', '', '', `Cards you haven\'t learned yet (${settingsStore.settings.cards_dailymaximumnewcards} max per day)`,'Cards you are starting to learn', 'Long-term cards using spaced repetition', '']
-    const gridRef = ref(null)
+
+    const tableData = ref([])
+	function calculateTableData() {
+        tableData.value = []
+		for (var i = 0; i < sheetStore.sheets.length; i++) {
+			const sheet = sheetStore.sheets[i]
+			tableData.value.push({
+				sheet_name: sheet.name,
+				sheet_id: sheet.id,
+				flashcards: cardStore.getCardsForSheet(sheet.id).length.toString() + "/" + sheetStore.getFilledCellCount(sheet.id).toString(),
+				cards_new: cardStore.getCardsOfType(sheet.id, "New").length.toString(),
+				cards_learning: cardStore.getCardsOfType(sheet.id, "Learning").length.toString(),
+				cards_due: cardStore.getCardsOfType(sheet.id, "Due").length.toString(),
+				can_practice: (cardStore.getCardsToPracticeCount(sheet.id) > 0),
+			})
+		}
+    }
+    calculateTableData()
+
+
+	const gridRef = ref(null)
+	const editingFlashcards = ref(false)
+	async function editFlashcardsButtonClicked(id) {
+		sheetID.value = id;
+		editingFlashcards.value = !editingFlashcards.value
+        await nextTick()
+        UpdateSelectedCells()
+    }
+    const handleClose = (done) => {
+        calculateTableData()
+        done()
+    }
     const selectedCells = ref(Array.from({ length: 24 }, () =>
         Array.from({ length: 24 }, () => false),
     )) //Selected cells stored as a matrix of booleans which say if that cell is selected
@@ -48,82 +78,59 @@
         UpdateSelectedCells();
     }
 
-    const editingFlashcards = ref(false)
-    function editFlashcardsButtonClicked() {
-        editingFlashcards.value = !editingFlashcards.value
-        const grid = document.getElementById("CardSelectSheetGrid")
-        grid.classList.remove('AnimatedGridOpen','AnimatedGridClose')
-        if (editingFlashcards.value) {
-            grid.classList.add('AnimatedGridOpen');
-            UpdateSelectedCells()
-        }
-        else
-            grid.classList.add('AnimatedGridClose');
-
-    }
 </script>
 
 <template>
     <!------CARD MENU GRID------>
     <div class="CardsView">
-        <div>
-            <div style="height:10vh"></div>
+        <div style="height: 50px;"></div>
+        <el-table :data="tableData" :border="true" 
+                  empty-text="Create an alg-sheet to get started" style="width: auto; box-shadow: 0px 0px 10px var(--el-border-color-dark); border-radius: 4px;">
+            <el-table-column prop="sheet_name" label="Sheet" width="250" />
+            <el-table-column label="Flashcards" prop="flashcards" width="150">
+                <template #default="scope">
+                    <div style="display: flex; justify-content: space-between;">
+                        {{scope.row.flashcards}}
 
-            <div class="CardsMenuGrid">
-                <!------HEADERS------>
-                <div v-for="(label,index) in columnHeaders"
-                     :title="columnTooltips[index]"
-                     :class="[label.length > 0 ? 'PanelHeader' : '']"
-                     style="font-size:1.5rem;">
-                    {{label}}
-                </div>
-                <div class="RowGap" v-for="x in columnHeaders"></div>
-
-                <!------SHEET ROWS------>
-                <template v-for="(sheet,index) in sheetStore.sheets">
-                    <div>{{sheet.name}}</div>
-                    <div style="display:flex;flex-direction:row; justify-content:center;gap:10px;align-items:center;">
-                        {{cardStore.getCardsForSheet(sheet.id).length}}/{{sheetStore.getFilledCellCount(sheet.id)}}
-                        <img title="Edit flashcards"
-                             @click="sheetID = sheet.id; editFlashcardsButtonClicked()"
-                             src="@/assets/icons/edit.svg"
-                             :class="['CustomButton', (sheetID === sheet.id) ? 'CustomButtonHovered': '']"
-                             style="height: 2rem;" />
+                        <el-tooltip content="Edit" placement="right">
+                            <el-button type="primary" :plain="true"
+                                       @click="editFlashcardsButtonClicked(scope.row.sheet_id)">
+                                <el-icon><Edit /></el-icon>
+                            </el-button>
+                        </el-tooltip>
                     </div>
-                    <div />
-                    <div>{{cardStore.getCardsOfType(sheet.id, "New").length}}</div>
-                    <div>{{cardStore.getCardsOfType(sheet.id, "Learning").length}}</div>
-                    <div>{{cardStore.getCardsOfType(sheet.id, "Due").length}}</div>
-                    <div>
-                        <img v-if="cardStore.getCardsToPracticeCount(sheet.id) > 0"
-                             title="Practice"
-                             src="@/assets/icons/arrow-right-long.svg"
-                             class="CustomButton"
-                             style="height: 40px; width: 60px;"
-                             @click="emit('beginPractice', sheet.id)" />
-                    </div>
-                    <div class="RowGap" v-for="x in columnHeaders.length" v-if="index + 1 < sheetStore.sheets.length"></div>
                 </template>
-            </div>
-            <div v-if="sheetStore.sheets.length === 0" style="color:var(--info-200); font-size:1.5rem;">
-                Create a sheet to begin making flashcards!
-            </div>
-            <div style="height:10vh"></div>
-        </div>
+            </el-table-column>
+            <el-table-column prop="cards_new" label="New" width="100" />
+            <el-table-column prop="cards_learning" label="Learning" width="100" />
+            <el-table-column prop="cards_due" label="Due" width="100" />
+            <el-table-column label="" props="can_practice" width="70">
+                <template #default="scope">
+                    <div v-if="scope.row.can_practice">
+                        <el-tooltip content="Practice" placement="right">
+                            <el-button type="success" @click="emit('beginPractice', scope.row.sheet_id)">
+                                <el-icon><DArrowRight /></el-icon>
+                            </el-button>
+                        </el-tooltip>
+                    </div>
+                </template>
+            </el-table-column>
+        </el-table>
 
-        <!------EDITING------>
-        <div id="CardSelectSheetGrid">
-            <button style="font-size:1rem;transform:translateX(calc(47.5vw - 50%));"
-                    @click="editFlashcardsButtonClicked()">
-                X
-            </button>
+
+        <el-drawer v-model="editingFlashcards"
+                   :title="'\'' + (sheetStore.getSheet(sheetID)?.name || '') + '\' flashcards: ' + cardStore.getCardsForSheet(sheetID).length.toString() + '/' + sheetStore.getFilledCellCount(sheetID).toString()"
+                   size="95%"
+                   direction="rtl"
+                   body-class="drawer-body"
+                   :before-close="handleClose">
             <SheetGrid :sheet="sheetStore.getSheet(sheetID)"
                        :formatEmpty="true"
                        :fullLineSelection="true"
                        @update:selected-cells="onCellsClicked"
-                       ref="gridRef" 
-                       style="height: 100%; width: 100%;"/>
-        </div>
+                       ref="gridRef"
+                       style="height: 100%; width: 100%;" />
+        </el-drawer>
     </div>
 </template>
 
@@ -132,49 +139,8 @@
         display: flex;
         flex-direction: column;
         align-items: center;
-        text-align: center;
-        text-justify: distribute;
         font-size: 1.5rem;
         gap: 10px;
         height: 100%;
     }
-
-    .CardsMenuGrid {
-        justify-content: center;
-        width: 80vw;
-        display: grid;
-        column-gap: 5px;
-        row-gap:5px;
-        color: var(--text-color);
-        grid-template-columns: 1.5fr 1fr 0.25fr 0.7fr 0.7fr 0.7fr 0.5fr;
-    }
-
-    #CardSelectSheetGrid {
-        height: 75vh;
-        width: 95vw;
-        position: absolute;
-        left: 2.5vw;
-        top: 2vh;
-        transform: translate(0vw, -100vh);
-        z-index: 20;
-        border-radius: 10px;
-    }
-
-    .RowGap {
-        height: 2px;
-        width: 110%;
-        background-color: var(--border-color);
-    }
-
-    .cardSelectButton {
-        background-color: var(--brand-700);
-        color: var(--brand-900);
-        font-size: 1rem;
-        width: 110px;
-        border-radius: 5px;
-        cursor: pointer;
-    }
-        .cardSelectButton:hover {
-            background-color: var(--brand-500);
-        }
 </style>

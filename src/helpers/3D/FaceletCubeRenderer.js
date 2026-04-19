@@ -1,10 +1,9 @@
-import '@/helpers/3D/gl-matrix-min.js'
-const { mat4 } = glMatrix
+import { mat4 } from 'gl-matrix'
 import { FaceletCube, faceColours } from '@/helpers/FaceletCube/FaceletCube.js'
 
 //https://youtube.com/playlist?list=PL2935W76vRNHFpPUuqmLoGCzwx_8eq5yK&si=ofNCSMJSk2rsow2t
 export function renderCube(gl, width, height, xSpin, ySpin, cube) {
-    const gap = 0.03
+    const gap = 0.02
     const vertexData = [
         //Corner 0
         -1, 3,-3,
@@ -719,27 +718,24 @@ export function renderCube(gl, width, height, xSpin, ySpin, cube) {
         1e-3, //near clip plane
         1e4 //far clip plane
     )
-    
+
     const mvMatrix = mat4.create() //model-view
     const mvpMatrix = mat4.create() //model-view-projection
 
     gl.clearColor(0,0,0,0)
-    function animate() {
-        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
 
-        //View matrix
-        viewMatrix = mat4.create()
-        mat4.rotateY(viewMatrix, viewMatrix, degToRad(ySpin));
-        mat4.rotateX(viewMatrix, viewMatrix, degToRad(xSpin));
-        mat4.translate(viewMatrix, viewMatrix, [0, 0, 13])
-        mat4.invert(viewMatrix, viewMatrix)
+    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
 
-        mat4.multiply(mvMatrix, viewMatrix, modelMatrix)
-        mat4.multiply(mvpMatrix, projectionMatrix, mvMatrix)
+    //View matrix
+    viewMatrix = mat4.create()
+    mat4.rotateY(viewMatrix, viewMatrix, degToRad(ySpin));
+    mat4.rotateX(viewMatrix, viewMatrix, degToRad(xSpin));
+    mat4.translate(viewMatrix, viewMatrix, [0, 0, 13])
+    mat4.invert(viewMatrix, viewMatrix)
 
-        gl.uniformMatrix4fv(uniformLocations.matrix, false, mvpMatrix)
-        gl.drawArrays(gl.TRIANGLES, 0, vertexData.length / 3)
-    }
+    mat4.multiply(mvMatrix, viewMatrix, modelMatrix)
+    mat4.multiply(mvpMatrix, projectionMatrix, mvMatrix)
 
-    animate()
+    gl.uniformMatrix4fv(uniformLocations.matrix, false, mvpMatrix)
+    gl.drawArrays(gl.TRIANGLES, 0, vertexData.length / 3)
 }

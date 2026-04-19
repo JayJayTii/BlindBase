@@ -15,18 +15,16 @@
     })
     const emit = defineEmits(['lettersFinished'])
 
-    let cube = new FaceletCube()
-    cube.TurnSequence(props.scramble) //Apply the scramble to the cube
-    const inspection = Object.assign(new Sequence(), GetInspectionMoves(cube))
-    cube.TurnSequence(inspection) //Apply the inspection rotations to get green-front and white-top
-    const displayCube = ref(Object.assign(new FaceletCube(), JSON.parse(JSON.stringify(cube))))
+	let cube = new FaceletCube()
+	cube.TurnSequence(props.scramble) //Apply the scramble to the cube
+	const inspection = Object.assign(new Sequence(), GetInspectionMoves(cube))
+    const displayCube = ref({})
 
     let updating = false //Prevents recursion in watchers
     const edgeInputRef = ref(null)
     const cornerInputRef = ref(null)
-    nextTick(() => { cornerInputRef.value.focus()})
 
-    const letterSolution = ref([[],[]])
+    const letterSolution = ref([[], []])
     const cornerInput = ref("")
     const edgeInput = ref("")
     const letterOptions = ref([])
@@ -40,11 +38,26 @@
         set: (newValue) => { useReconsStore().setPseudoswap2(newValue) }
     })
 
-    const cycleHistory = [] //A stack where each entry is [curlettersolution, piecetype, curletteroptions, newbufferchoice, cube state], used for undoing
+    let cycleHistory = [] //A stack where each entry is [curlettersolution, piecetype, curletteroptions, newbufferchoice, cube state], used for undoing
 
     const pieceType = ref(0) //Use corners = 0 for pieceType here due to indexing
 
-    letterSelected(props.cornerBuffer)
+	nextTick(() => { cornerInputRef.value.focus() })
+	restart()
+
+    function restart() {
+		cube = new FaceletCube()
+		cube.TurnSequence(props.scramble) //Apply the scramble to the cube
+		cube.TurnSequence(inspection) //Apply the inspection rotations to get green-front and white-top
+		displayCube.value = Object.assign(new FaceletCube(), JSON.parse(JSON.stringify(cube)))
+        letterSolution.value = [[], []]
+        letterOptions.value = []
+        cornerInput.value = ""
+        edgeInput.value = ""
+        pieceType.value = 0
+        cycleHistory = []
+        letterSelected(props.cornerBuffer)
+    }
 
     function letterSelected(letterIndex) {
         updating = true;
@@ -132,6 +145,9 @@
 		while (pieceType.value > 0 && cycleHistory.length > 0) {
 			lastChoice = JSON.parse(undoCycle()[3]) //Get the buffer choice chosen for the cycle that was undone
         }
+        if (cycleHistory.length == 0) {
+            restart()
+        }
         if (pieceType.value == 0) { //If rewound to the end of corners, select the last chosen cycle
             letterSelected(lastChoice)
         }
@@ -146,9 +162,6 @@
 
     function letterSelectionFinished() {
         emit('lettersFinished', letterSolution.value)
-    }
-    function revertToReconPage() {
-        history.back()
     }
 
     function handleKeydown(event) {
@@ -240,75 +253,51 @@
     <div style="display:flex; justify-content:space-between;padding:10px;">
         <div style="display:flex;flex-direction:column;gap:5px;">
             <div v-if="inspection.turns.length !== 0" class="ReconHeader">Inspection:</div>
-            <input v-if="inspection.turns.length !== 0" style="font-size: 2rem;" :value="inspection.toString()" readonly />
+            <el-input v-if="inspection.turns.length !== 0" size="large" style="font-size: 2rem;" :value="inspection.toString()" readonly />
 
             <div class="ReconHeader">Corners:</div>
-            <div style="color: var(--grey-100);">Buffer: {{cornerBuffers[cornerBuffer]}}</div>
-            <input style="font-size: 2rem;" ref="cornerInputRef" v-model="cornerInput" id="cornerInput" />
+            <div>Buffer: {{cornerBuffers[cornerBuffer]}}</div>
+            <el-input size="large" style="font-size: 2rem;" ref="cornerInputRef" v-model="cornerInput" id="cornerInput" />
 
             <div v-if="pieceType > 0" class="ReconHeader">Edges:</div>
-            <div v-if="pieceType > 0" style="color: var(--grey-100); display: flex; flex-direction:row; gap: 20px;">
+            <div v-if="pieceType > 0" style="display: flex; flex-direction:row; gap: 20px;">
                 Buffer: {{edgeBuffers[edgeBuffer]}}
-                <div v-if="(letterSolution[0].length % 2 == 1)" style="color: var(--grey-100);">
+                <div v-if="(letterSolution[0].length % 2 == 1)" style="display: flex; flex-direction: row;">
                     Pseudoswap:
-                    <select v-model="pseudoswap1" @change="restartEdges()">
-                        <option v-for="(edgeBuffer, index) in edgeBuffers"
-                                :key="index"
-                                :disabled="index == pseudoswap2"
-                                :value="index">
+                    <el-select v-model="pseudoswap1" size="small" style="width: 50px;" @change="restartEdges()">
+                        <el-option v-for="(edgeBuffer, index) in edgeBuffers"
+                                   :key="index" :label="edgeBuffer"
+                                   :disabled="index == pseudoswap2" :value="index">
                             {{edgeBuffer}}
-                        </option>
-                    </select>
+                        </el-option>
+                    </el-select>
                     -
-                    <select v-model="pseudoswap2" @change="restartEdges()">
-                        <option v-for="(edgeBuffer, index) in edgeBuffers"
-                                :key="index"
-                                :disabled="index == pseudoswap1"
-                                :value="index">
+                    <el-select v-model="pseudoswap2" size="small" style="width: 50px;" @change="restartEdges()">
+                        <el-option v-for="(edgeBuffer, index) in edgeBuffers"
+                                   :key="index" :label="edgeBuffer"
+                                   :disabled="index == pseudoswap1" :value="index">
                             {{edgeBuffer}}
-                        </option>
-                    </select>
+                        </el-option>
+                    </el-select>
                 </div>
             </div>
-            <input v-if="pieceType > 0" ref="edgeInputRef" style="font-size: 2rem;" v-model="edgeInput" id="edgeInput" />
+            <el-input v-if="pieceType > 0" v-model="edgeInput" size="large" style="font-size: 2rem;" ref="edgeInputRef" id="edgeInput" />
 
             <div style="display:flex;flex-direction:row;">
-                <div v-for="(letterIndex, index) in letterOptions" @click="letterSelected(letterIndex)" class="newBufferOption">
+                <el-button style="font-size: 1.2rem; width: 25px;" type="primary" :plain="true"
+                           v-for="(letterIndex, index) in letterOptions" @click="letterSelected(letterIndex)">
                     <i>{{ToLetters([letterIndex])[0]}}</i>
-                </div>
+                </el-button>
             </div>
 
-            <img src="@/assets/icons/arrow-left-long.svg"
-                 title="Back"
-                 :class="['CustomButton','NextButton']"
-                 style="left:0px;transform:translate(100%,-100%);"
-                 @click="revertToReconPage()" />
-            <img v-if="pieceType > 1"
-                 title="Continue"
-                 src="@/assets/icons/arrow-right-long.svg"
-                 :class="['CustomButton','NextButton']"
-                 style="right:0px;transform:translate(-100%,-100%);"
-                 @click="letterSelectionFinished()" />
+            <el-button v-if="pieceType > 1"
+                       style="width: 80px; height: 30px;" type="success"
+                       @click="letterSelectionFinished()">
+                Confirm
+            </el-button>
         </div>
 
-        <FaceletCube3D style="width: 45%; height:100%; max-height: 78vh; aspect-ratio: 5/4; border: 1px solid var(--grey-100); border-radius: 4px;"
+        <FaceletCube3D style="height: calc(100dvh - 250px); aspect-ratio: 1;"
                        :cube="displayCube" />
     </div>
 </template>
-
-<style>
-
-    .newBufferOption {
-        border: 2px solid var(--grey-200);
-        text-align: center;
-        border-radius: 4px;
-        background-color: var(--grey-600);
-        cursor: pointer;
-        width: 2ch;
-        color: var(--grey-100);
-        font-size: 1.5rem;
-    }
-    .newBufferOption:hover {
-        background-color: var(--grey-500);
-    }
-</style>

@@ -56,183 +56,188 @@
         }
     })
 
-    const lastCard = ref({ value: { sheetID: 0, coord: { x: 0, y: 0 } } })
-    const lastFlipValue = ref(false)
     function finishedCard(result) {
-        lastCard.value = { ...props.card }
-        lastFlipValue.value = cardFlipped.value
-        const AnimatedCard = document.getElementById('AnimatedCard')
-        const RealCard = document.getElementById('Card')
-        //Match animated card's position to real card
-        AnimatedCard.style.position = "fixed"
-        AnimatedCard.style.top = `${RealCard.getBoundingClientRect().top}px`
-        AnimatedCard.style.left = `${RealCard.getBoundingClientRect().left}px`
-        //Translate the card
-        AnimatedCard.classList.remove('RightAnimatedCard')
-        AnimatedCard.classList.remove('LeftAnimatedCard')
-        void AnimatedCard.offsetWidth
-
-
         hasFlipped.value = false
-        cardFlipped.value = false
-
-        var updated = JSON.parse(JSON.stringify(props.card.value)) //Done to deep-copy the reference as well
+        
+        var updatedCard = JSON.parse(JSON.stringify(props.card.value)) //Done to deep-copy the reference as well
+        const CardMovementWrapper = document.getElementById('card-movement-wrapper')
         if (result == 'Good') {
-            updated.successCount += 1
-            nextTick(() => { AnimatedCard.classList.add('RightAnimatedCard') })
+			updatedCard.successCount += 1
+            CardMovementWrapper.classList.add('RightAnimatedCard')
         }
-        else {
-            updated.failCount += 1
-            nextTick(() => { AnimatedCard.classList.add('LeftAnimatedCard') })
+        else if (result == 'Bad') {
+			updatedCard.failCount += 1
+            CardMovementWrapper.classList.add('LeftAnimatedCard')
         }
+        void CardMovementWrapper.offsetWidth
+        setTimeout(() => {
+			CardMovementWrapper.classList.remove('RightAnimatedCard')
+			CardMovementWrapper.classList.remove('LeftAnimatedCard')
+			void CardMovementWrapper.offsetWidth
+			cardFlipped.value = false
+        }, 150)
 
-        if (cardType.value == "New") {
-            //10 minutes later for a new card (can only select good)
-            var nextTime = new Date()
-            nextTime.setMinutes(nextTime.getMinutes() + 10)
-            updated.nextPracticeTime = nextTime.toISOString()
+		var nextTime = new Date()
+        switch (cardType.value) {
+			case "New":
+				//10 minutes later for a new card (can only select good)
+				nextTime.setMinutes(nextTime.getMinutes() + 10)
+				updatedCard.nextPracticeTime = nextTime.toISOString()
+                break
+			case "Learning":
+				//10 minutes later no matter what result
+				//But you repeat it more often if it was bad#
+				nextTime.setMinutes(nextTime.getMinutes() + 10)
+				updatedCard.nextPracticeTime = nextTime.toISOString()
+                break
+			case "Due":
+				//Both successes and fails taken into account
+				const score = updatedCard.successCount - updatedCard.failCount
+				if (score < 4)
+					nextTime.setDate(nextTime.getDate() + 1) //1 day
+				else if (score < 7)
+					nextTime.setDate(nextTime.getDate() + 2) //2 days
+				else if (score < 11)
+					nextTime.setDate(nextTime.getDate() + 7) //7 days
+				else if (score < 14)
+					nextTime.setDate(nextTime.getDate() + 30)//30 days
+				else
+					nextTime.setDate(nextTime.getDate() + 90)//90 days
+                break
         }
-        else if (cardType.value == "Learning") {
-            //10 minutes later no matter what result
-            //But you repeat it more often if it was bad
-            var nextTime = new Date()
-            nextTime.setMinutes(nextTime.getMinutes() + 10)
-            updated.nextPracticeTime = nextTime.toISOString()
-        }
-        else if (cardType.value == "Due") {
-            //Both successes and fails taken into account
-            var nextTime = new Date()
-            const score = updated.successCount - updated.failCount
-            if (score < 4)
-                nextTime.setDate(nextTime.getDate() + 1) //1 day
-            else if (score < 7)
-                nextTime.setDate(nextTime.getDate() + 2) //2 days
-            else if (score < 11)
-                nextTime.setDate(nextTime.getDate() + 7) //7 days
-            else if (score < 14)
-                nextTime.setDate(nextTime.getDate() + 30)//30 days
-            else
-                nextTime.setDate(nextTime.getDate() + 90)//90 days
-
-            updated.nextPracticeTime = nextTime.toISOString()
-        }
-        cardStore.completeCard(updated)
+		updatedCard.nextPracticeTime = nextTime.toISOString()
+		cardStore.completeCard(updatedCard)
         emit('finishedCard')
     }
 
     function FlipCard() {
         //Need to animate the card flipping and update the variables at the right time in the animation
-        const RealCard = document.getElementById('Card')
-        RealCard.classList.remove('AnimatedCardFlipBackward')
-        RealCard.classList.add('AnimatedCardFlipForward')
+        const card = document.getElementById('Card')
+		card.classList.remove('AnimatedCardFlipBackward')
+		card.classList.add('AnimatedCardFlipForward')
 
         setTimeout(() => {
-            RealCard.classList.remove('AnimatedCardFlipForward')
-            if (!hasFlipped.value) {
-                hasFlipped.value = true
-                nextTick(() => {
-                    const goodButton = document.getElementById('GoodButton')
-                    const badButton = document.getElementById('BadButton')
-                    goodButton.classList.remove('AnimatedCardFlipBackward')
-                    void goodButton.offsetWidth
-                    goodButton.classList.add('AnimatedCardFlipBackward')
-                    if (badButton) {
-                        badButton.classList.remove('AnimatedCardFlipBackward')
-                        void badButton.offsetWidth
-                        badButton.classList.add('AnimatedCardFlipBackward')
-                    }
-                })
-            }
-
+			card.classList.remove('AnimatedCardFlipForward')
             cardFlipped.value = !cardFlipped.value;
             hasFlipped.value = true
-            nextTick(() => { RealCard.classList.add('AnimatedCardFlipBackward') })
+			nextTick(() => { card.classList.add('AnimatedCardFlipBackward') })
         }, 50)
 
     }
 </script>
 
 <template>
-    <!------BAD------>
-    <img v-if="cardType != 'New' && hasFlipped"
-         @click="finishedCard('Bad')"
-         id="BadButton"
-         class="BadButton"
-         src="@/assets/icons/thumb-down.svg" />
-    <div v-else></div>
-
-    <!------CARD------>
-    <div id="Card" :class="['Card', cardFlipped ? 'FlippedCard' : '' ]"
-         @click="FlipCard()">
-        <div class="CardTypeText"><h3>{{cardType}}</h3></div>
-        <div class="BufferText"><h3>{{getBufferStr}}</h3></div>
-        <div class="FlashcardText">
-            <div v-if="!cardFlipped">
-                {{sheetStore.coordToKey(props.sheetID, props.card.value.coord)}}
+    <div style="overflow: hidden; width: 97vw; height: 70vh;">
+        <div id="card-practice">
+            <div id="card-movement-wrapper">
+                <el-card id="Card" shadow="always" body-style="padding: 0px;" @click="FlipCard()">
+                    <div v-if="!cardFlipped" slot="header" class="el-card__header">
+                        <div>{{cardType}}</div>
+                        <div>{{sheetStore.getSheet(props.sheetID).name}}</div>
+                        <div>{{getBufferStr}}</div>
+                    </div>
+                    <div v-else style="height: 50px;"></div>
+                    <div slot="default" id="card-body">
+                        <div v-if="!cardFlipped">
+                            {{sheetStore.coordToKey(props.sheetID, props.card.value.coord)}}
+                        </div>
+                        <div v-else>
+                            {{sheetStore.getCell(props.sheetID, props.card.value.coord)}}
+                        </div>
+                    </div>
+                </el-card>
             </div>
-            <div v-else>{{sheetStore.getCell(props.sheetID, props.card.value.coord)}}</div>
+            <div v-if="hasFlipped" id="result-buttons">
+                <!------BAD------>
+                <div>
+                    <el-tooltip content="Bad" placement="left">
+                        <el-button type="danger" :disabled="cardType == 'New'"
+                                   @click="finishedCard('Bad')" style="width: 70px; height: 40px;">
+                            <el-icon><Close /></el-icon>
+                        </el-button>
+                    </el-tooltip>
+                </div>
+                <!------GOOD------>
+                <div>
+                    <el-tooltip content="Good" placement="right">
+                        <el-button type="success"
+                                   @click="finishedCard('Good')" style="width: 70px; height: 40px;">
+                            <el-icon><Check /></el-icon>
+                        </el-button>
+                    </el-tooltip>
+                </div>
+            </div>
         </div>
     </div>
-    <!------ANIMATED CARD------>
-    <div id="AnimatedCard" style="position:fixed;left:10000%;"
-         :class="['Card', lastFlipValue ? 'FlippedCard' : '' ]">
-        <div class="CardTypeText"><h3>{{getCardType(lastCard.value)}}</h3></div>
-        <div class="BufferText"><h3>{{getBufferStr}}</h3></div>
-        <div class="FlashcardText">
-            <div v-if="!lastFlipValue">
-                {{sheetStore.coordToKey(props.sheetID, lastCard.value.coord)}}
-            </div>
-            <div v-else>{{sheetStore.getCell(props.sheetID, lastCard.value.coord)}}</div>
-        </div>
-    </div>
 
-
-    <!------GOOD------>
-    <img v-if="hasFlipped"
-         @click="finishedCard('Good')"
-         id="GoodButton"
-         class="GoodButton"
-         src="@/assets/icons/thumb-up.svg" />
 </template>
 
 <style>
-    .Card {
-        width: 40vw;
-        aspect-ratio: 1.5;
-        background-color: var(--brand-700);
-        border: 5px solid var(--grey-100);
-        border-radius: 20px;
-        display: flex;
-        position: relative;
-        color: var(--grey-100);
-        font-size: 1.5rem;
-        cursor: pointer;
+	#card-practice {
+        --card-width: 50vw;
+        --card-height: 55vh;
+	}
+   
+	#Card {
+		width: var(--card-width);
+		height: var(--card-height);
+		position: absolute;
+		left: calc(50dvw - var(--card-width) / 2);
+		top: calc(35dvh - var(--card-height) / 2);
+		border-radius: 10px;
+		cursor: pointer;
+		transition-duration: 0s;
         user-select: none;
-    }
+	}
+		#Card .el-card__header {
+			display: flex;
+			justify-content: space-between;
+			font-size: 1.2rem;
+			font-weight: bold;
+		}
+
+	#card-body {
+		text-align: center;
+		align-content: center;
+        height: calc(100% - 90px);
+		width: 100%;
+		font-size: 2rem;
+	}
+
+	#result-buttons {
+		display: grid;
+		grid-template-columns: 60px 60px;
+		gap: 20px;
+		position: absolute;
+		left: calc(50dvw);
+		top: calc(35dvh + var(--card-height) / 2 + 30px);
+        transform: translate(-50%, -50%);
+	}
+
     .FlippedCard {
-        background-color: var(--brand-800);
-        border: 5px solid var(--grey-200);
+        background-color: var(--el-color-primary-light-9);
     }
+
     .AnimatedCardFlipForward {
         animation: animatedCardFlipForward 0.05s forwards;
     }
     @keyframes animatedCardFlipForward {
-        from { transform: scale(1, 1); }
-        to { transform: scale(1.2, 0); }
+		from { transform: scale(1, 1); }
+		to { transform: scale(1.2, 0); }
     }
     .AnimatedCardFlipBackward {
         animation: animatedCardFlipBackward 0.05s forwards;
     }
     @keyframes animatedCardFlipBackward {
-        from { transform: scale(1.2, 0); }
-        to { transform: scale(1, 1); }
+		from { transform: scale(1.2, 0); }
+		to { transform: scale(1, 1); }
     }
 
     .RightAnimatedCard {
-        animation: rightAnimatedFlashcardMove 0.1s ease-in forwards;
+        animation: rightAnimatedFlashcardMove 0.15s ease-in forwards;
     }
     .LeftAnimatedCard {
-        animation: leftAnimatedFlashcardMove 0.1s ease-in forwards;
+        animation: leftAnimatedFlashcardMove 0.15s ease-in forwards;
     }
 
     @keyframes rightAnimatedFlashcardMove {
@@ -243,54 +248,4 @@
         from { transform: translate(0px, 0px); }
         to { transform: translate(-200vw, 0px); }
     }
-
-    .CardTypeText {
-        position: absolute;
-        top: 0px;
-        left: 10px;
-    }
-	.BufferText {
-		position: absolute;
-		top: 0px;
-		right: 10px;
-	}
-
-    .BadButton {
-        background-color: var(--error-200);
-        border-radius: 10px;
-        align-self: center;
-        justify-self: end;
-        width: 10vw;
-        cursor: pointer;
-        user-select: none;
-    }
-        .BadButton:hover {
-            background-color: var(--error-300);
-        }
-
-    .GoodButton {
-        background-color: var(--confirm-200);
-        border-radius: 10px;
-        align-self: center;
-        justify-self: start;
-        width: 10vw;
-        cursor: pointer;
-        user-select: none;
-    }
-        .GoodButton:hover {
-            background-color: var(--confirm-300);
-        }
-
-    .FlashcardText {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        text-align: center;
-        align-content: center;
-        width: 100%;
-        height: 100%;
-        font-size: 2rem;
-    }
-
 </style>

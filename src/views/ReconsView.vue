@@ -13,16 +13,13 @@
     const scramble = decodeURIComponent(route.params.pathMatch)
     const scrambleSequence = new Sequence()
     scrambleSequence.fromAlgorithmNotation(scramble)
-    //Only allow legitimate scrambles and avoids duplicates by checking it is the same once a sequence has corrected it
-    if (scramble !== scrambleSequence.toString()) 
-        router.replace(`/recons/${scrambleSequence.toString()}`)
-
     const reconIndex = reconsStore.GetReconWithScramble(scramble)
+
     const newRecon = (scramble != "" && reconIndex == -1)
 </script>
 
 <template>
-    <div>
+    <div style="position: relative;">
         <!--Selects between creating, editing, and selecting a recon-->
         <ReconCreate v-if="newRecon" :scramble="scrambleSequence" />
         <ReconEdit v-else-if="reconIndex > -1" :reconIndex="reconIndex" />

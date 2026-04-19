@@ -1,5 +1,5 @@
 <script setup>
-    import { computed } from 'vue'
+    import { computed, ref } from 'vue'
     import { useTimerStore } from "@/stores/TimerStore"
     import { formatTime } from '@/helpers/timer.js'
     const timerStore = useTimerStore()
@@ -23,6 +23,16 @@
         return formatTime(stat[0])
     }
 
+    const data = computed({
+        get: () => timerStore.getSessionStatistics(props.sessionID).map((statRow) => ({
+                                name: statRow[0],
+					            current: format(statRow[1][section.value]),
+					            best:    format(statRow[2][section.value])}))
+    })
+
+    const section = ref(0)
+	const sectionOptions = [{ label: 'Full', value: 0 }, { label: 'Memo', value: 1 }, { label: 'Exec', value: 2 }]
+
     const dnfRatio = computed({
         get: () => {
             const dnfs = timerStore.getDnfCount(props.sessionID)
@@ -33,41 +43,25 @@
 
 <template>
     <!--Contains info like single, mo3, ao5, etc. for this session-->
-    <div class="Panel" v-if="timerStore.isValidSessionID(sessionID)">
-        <div class="PanelHeader"> Session Details:  </div>
-        <div style="text-align:center;">{{dnfRatio[0]}} successes : {{dnfRatio[1]}} DNFs</div>
-        <div class="SessionDetailsGrid">
-            <div class="SessionDetail"></div>
-            <div class="SessionDetail">Current</div>
-            <div class="SessionDetail">Best</div>
-            <template v-for="statRow in timerStore.getSessionStatistics(props.sessionID)">
-                <div class="SessionDetail">{{statRow[0]}}</div>
-                <div class="SessionDetail">{{format(statRow[1][0])}}<br />({{format(statRow[1][1])}} : {{format(statRow[1][2])}})</div>
-                <div class="SessionDetail">{{format(statRow[2][0])}}<br />({{format(statRow[2][1])}} : {{format(statRow[2][2])}})</div>
-            </template>
+    <div v-if="timerStore.isValidSessionID(sessionID)" style="display: flex; flex-direction: column; gap: 5px;">
+        <div style="display: flex; flex-direction: column; border: 1px solid var(--el-border-color); border-radius: 4px;">
+            <el-table :data="data" size="small" style="border-radius: 4px;" border>
+                <el-table-column prop="name" label="" width="90">
+
+                    <template #header>
+                        <el-select size="small" v-model="section" style="font-size: 0.2rem;">
+                            <el-option :value="0" label="Full">Full</el-option>
+                            <el-option :value="1" label="Memo">Memo</el-option>
+                            <el-option :value="2" label="Exec">Exec</el-option>
+                        </el-select>
+                    </template>
+                </el-table-column>
+                <el-table-column prop="current" label="Current" width="99" />
+                <el-table-column prop="best" label="Best" width="99" />
+            </el-table>
         </div>
+        <el-text style="text-align:center;">{{dnfRatio[0]}} successes : {{dnfRatio[1]}} DNFs</el-text>
     </div>
-    <div v-else class="Panel">
-        <div class="PanelHeader"> Session Details: </div>
-        <div style="color:var(--info-200);text-align:center;">
-            Select a session to get started
-        </div>
+    <div v-else>
     </div>
 </template>
-
-<style>
-    .SessionDetailsGrid {
-        width: 100%;
-        display: grid;
-        grid-template-columns: auto 2fr 2fr;
-        text-align: center;
-    }
-
-    .SessionDetail {
-        font-size: 0.75rem;
-        border-inline-start: 1px solid var(--border-color);
-        border-inline-end: 1px solid var(--border-color);
-        border-block-start: 1px solid var(--border-color);
-        border-block-end: 1px solid var(--border-color);
-    }
-</style>

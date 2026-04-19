@@ -1,5 +1,5 @@
 <script setup>
-    import { ref, reactive, computed, onMounted, onUnmounted, nextTick } from 'vue'
+    import { ref,watch, reactive, computed, onMounted, onUnmounted, nextTick } from 'vue'
     import { getSolveTimeString, getSolveRatioString } from '@/helpers/timer.js'
     import { useSettingsStore } from '@/stores/SettingsStore.js'
     useSettingsStore().loadState()
@@ -9,7 +9,7 @@
         lastSolve: Object,
         twoStage: Boolean,
     })
-
+    
     //Goes through one stage at a time during an attempt
     const stages = {
         finished: 0,
@@ -41,6 +41,8 @@
             solve.value = props.lastSolve
         else
             solve.value = [0, 0, 0, ""] //Initialise timer to 0.00 if this is the first solve
+
+		ratioTextSolve.value = solve.value
     }
     refresh()
 
@@ -210,48 +212,45 @@
         text-align: center;
         left: 50%;
         font-size: 2rem;
-        color: var(--grey-100);
         cursor: text;
     }
+
     .StageText {
         width: 100%;
         text-align: center;
         position: absolute;
         left: 50%;
         transform: translate(-50%, 50%);
-        font-size: 6rem;
+        font-size: 5rem;
         font-weight: bold;
-        color: var(--grey-100);
         user-select: none;
     }
 
-    .StopwatchText {
-        width: 100%;
-        text-align: center;
-        font-size: 7rem;
-        font-weight: bold;
-        white-space: nowrap;
-        overflow: hidden;
-        color: var(--grey-100);
-        position: absolute;
-
-    }
-    .StopwatchStartYellow {
-        color: var(--warn-300);
-    }
-    .StopwatchStartSpaceDown {
-        color: var(--brand-300);
-    }
-    .StopwatchEndSpaceDown {
-        color: var(--error-300);
-    }
+	.StopwatchText {
+		width: 100%;
+		text-align: center;
+		font-size: 7rem;
+		font-weight: bold;
+		white-space: nowrap;
+		overflow: hidden;
+		position: absolute;
+		text-shadow: 0px 0px 3px black;
+	}
+	.StopwatchStartYellow {
+		color: hsl(60, 79%, 66%);
+	}
+	.StopwatchStartSpaceDown {
+		color: hsl(147, 73%, 70%);
+	}
+	.StopwatchEndSpaceDown {
+		color: hsl(0, 76%, 70%);
+	}
 
     .RatioText {
         width: 100%;
-        font-size: 1.5rem;
+        font-size: 1.3rem;
         text-align: center;
-        color: var(--grey-100);
         position: absolute;
-        transform: translate(0%,5rem);
+        transform: translate(0%,5.5rem);
     }
 </style>

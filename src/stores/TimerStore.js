@@ -1,22 +1,20 @@
 import { defineStore } from 'pinia'
 import { getSumOfTimes, getSolveTimes, calculateBestMon, calculateMean, calculateAvg, calculateBestAon, formatTime } from '@/helpers/timer.js'
 
-const DEFAULT_SESSION_TYPES = [
+export const session_types = [
     { name: '3x3 Blindfolded', id: 0 },
     { name: '3x3 Edges', id: 1 },
     { name: '3x3 Corners', id: 2 },
 ]
-const DEFAULT_SOLVE_STATUSES = [
-    {name: "Success", id: 0},
-    {name: "DNF", id: 1},
-    {name: "+2", id: 2},
+export const solve_statuses = [
+    {label: "Success", value: 0},
+    {label: "DNF", value: 1},
+    {label: "+2", value: 2},
 ]
 
 export const useTimerStore = defineStore('timerStore', {
     state: () => {
         return {
-            sessionTypes: DEFAULT_SESSION_TYPES,
-            solveStatuses: DEFAULT_SOLVE_STATUSES,
             sessions: [],
         }
     },
@@ -33,9 +31,10 @@ export const useTimerStore = defineStore('timerStore', {
 
         newSession() {
             //Creates a default, empty session
+            const newID = this.getNewSessionID()
             this.sessions.push({
                 name: 'Untitled',
-                id: this.getNewSessionID(),
+                id: newID,
                 type: 0,
                 solves: [],
                 bests: {},
@@ -43,6 +42,8 @@ export const useTimerStore = defineStore('timerStore', {
 
             this.saveState()
             this.loadState()
+
+            return newID
         },
         deleteSession(id) {
             //Deletes the session at its index in the array of sessions, then saves
@@ -92,20 +93,20 @@ export const useTimerStore = defineStore('timerStore', {
             if (this.getSession(sessionID).solves.length < n)
                 return [[-1, true], [-1, true], [-1, true]]
             const solves = this.getSession(sessionID).solves.slice(-n) //Latest n solves
-            const means = [calculateMean(solves, 1), calculateMean(solves, 2), calculateMean(solves, 3)]
+            const means = [calculateMean(solves, 0), calculateMean(solves, 1), calculateMean(solves, 2)]
             return means
         },
         aoN(sessionID, n) { //Average of N
             if (this.getSession(sessionID).solves.length < n)
                 return [[-1, true], [-1, true], [-1, true]]
             const solves = this.getSession(sessionID).solves.slice(-n) //Latest n solves
-            return [calculateAvg(solves, 1), calculateAvg(solves, 2), calculateAvg(solves, 3)]
+            return [calculateAvg(solves, 0), calculateAvg(solves, 1), calculateAvg(solves, 2)]
         },
 
         getSessionStatistics(id) {
             const solves = this.getSession(id).solves
             const out = [
-                ["single",  this.moN(id, 1)  , calculateBestMon(solves, 1)],
+                ["time",  this.moN(id, 1)  , calculateBestMon(solves, 1)],
                 ["mo3",     this.moN(id, 3)  , calculateBestMon(solves, 3)],
                 ["ao5",     this.aoN(id, 5)  , calculateBestAon(solves, 5)],
                 ["ao12",    this.aoN(id, 12) , calculateBestAon(solves, 12)],
@@ -134,7 +135,6 @@ export const useTimerStore = defineStore('timerStore', {
         },
     },
     getters: {
-        getSessionTypes: (state) => state.sessionTypes,
         getSessionNames: (state) => state.sessions.map((session) => session.name),
     },
 })

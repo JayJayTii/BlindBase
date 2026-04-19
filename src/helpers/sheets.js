@@ -1,5 +1,33 @@
+import { ElMessageBox } from 'element-plus'
 import { useSheetStore } from '@/stores/SheetStore.js'
 import { useSettingsStore } from '@/stores/SettingsStore.js'
+
+export function downloadSheet(sheet) {
+    const flipped = useSettingsStore().settings.sheets_pairorder === 1
+
+    //Convert sheet object into csv format
+    let csvString = "," + sheet.xHeadings.split('').join(',') + ",\n"
+    for (var i = 0; i < sheet.yHeadings.length; i++) {
+        csvString += sheet.yHeadings[i] + ","
+        for (var j = 0; j < sheet.xHeadings.length; j++) {
+            let cellVal = sheet.grid[flipped ? i : j][flipped ? j : i]
+            if (cellVal.includes(','))
+                cellVal = '\"' + cellVal + '\"'
+            csvString += cellVal + ","
+        }
+        csvString += "\n"
+    }
+    const encodedUri = "data:text/csv;charset=utf-8," + encodeURIComponent(csvString)
+
+    //Perform web dev stupidity to download it
+    const link = document.createElement("a")
+    link.setAttribute("href", encodedUri)
+    link.setAttribute("download", sheet.name + ".csv")
+    document.body.appendChild(link)
+    link.click();
+    document.body.removeChild(link)
+}
+
 
 //The number of filled cells in a sheet means the number of cells that aren't empty
 //This is used to count the number of possible flashcards that can be made from a sheet
@@ -48,7 +76,9 @@ export async function CreateSheetFromFile(file) {
     
     //Need to do checking for validity
     if (!file.name.toLowerCase().endsWith('.csv')) {
-        alert('Invalid file type, we only support .csv files. Please "Save as" / "Download" your spreadsheet as a .csv file from your spreadsheet editor.')
+        ElMessageBox.alert('Invalid file type, we only support .csv files. Please "Save as" / "Download" your spreadsheet as a .csv file from your spreadsheet editor.', 'Import Sheet', {
+            confirmButtonText: 'OK',
+        })
         return -1
     }
 
@@ -74,11 +104,15 @@ export async function CreateSheetFromFile(file) {
             break
     }
     if (xHeadingsStart == null) {
-        alert("File formatted incorrectly. The file must contain a horizontal row of letters in alphabetical order, starting with A.")
+        ElMessageBox.alert('File formatted incorrectly. The file must contain a horizontal row of letters in alphabetical order, starting with A.', 'Import Sheet', {
+            confirmButtonText: 'OK',
+        })
         return -1
     }
     if (!csvGrid[xHeadingsStart.y + 1][xHeadingsStart.x - 1].includes('A')) {
-        alert("File formatted incorrectly. The file must have a vertical column of letters in alphabetical order next to the column headings, starting with A.")
+        ElMessageBox.alert('File formatted incorrectly. The file must have a vertical column of letters in alphabetical order next to the column headings, starting with A.', 'Import Sheet', {
+            confirmButtonText: 'OK',
+        })
         return -1
     }
     const yHeadingsStart = { x: xHeadingsStart.x - 1, y: xHeadingsStart.y + 1 } 

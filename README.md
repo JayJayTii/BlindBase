@@ -23,6 +23,5 @@ npm run build
 npx serve dist
 ```
 
-Algorithm recommendations taken from [v2.blddb.net](https://github.com/nbwzx/blddb)
-Image recommendations taken from [coLPI](https://bestsiteever.net/colpi/)
-Icons taken from [remixicon.com](https://remixicon.com/)
+Algorithm recommendations taken from [v2.blddb.net](https://github.com/nbwzx/blddb)  
+Image recommendations taken from [coLPI](https://bestsiteever.net/colpi/)  

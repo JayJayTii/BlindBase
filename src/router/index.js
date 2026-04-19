@@ -29,7 +29,6 @@ const router = createRouter({
             meta: { 
                 tool: true,
                 description: 'Create and edit your own algsheets',
-                iconPath: new URL('@/assets/tool_icons/SheetsIcon.png', import.meta.url).href,
             },
         },
         {
@@ -39,7 +38,6 @@ const router = createRouter({
             meta: {
                 tool: true,
                 description: 'Revise your algorithms with flashcards',
-                iconPath: new URL('@/assets/tool_icons/CardsIcon.png', import.meta.url).href,
             },
         },
         {
@@ -49,7 +47,6 @@ const router = createRouter({
             meta: {
                 tool: true,
                 description: 'Improve your long-term memorisation',
-                iconPath: new URL('@/assets/tool_icons/MemoIcon.png', import.meta.url).href,
             },
         },
         {
@@ -59,7 +56,6 @@ const router = createRouter({
             meta: {
                 tool: true,
                 description: 'Execute your algorithms with targeted practice',
-                iconPath: new URL('@/assets/tool_icons/ExecIcon.png', import.meta.url).href,
             },
         },
         {
@@ -69,7 +65,6 @@ const router = createRouter({
             meta: {
                 tool: true,
                 description: 'Put your skills to use in full solves',
-                iconPath: new URL('@/assets/tool_icons/TimerIcon.png', import.meta.url).href,
             },
         },
         {
@@ -78,8 +73,6 @@ const router = createRouter({
             component: ReconsView,
             meta: {
                 tool: true,
-                description: '',
-                iconPath: new URL('@/assets/tool_icons/ReconsIcon.png', import.meta.url).href,
                 description: 'Create reconstructions of your best solves',
             },
         },

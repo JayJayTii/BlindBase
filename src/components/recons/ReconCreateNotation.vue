@@ -92,21 +92,25 @@
     }
     function FillCornerRecommendation(index) {
         //Fill in a valid algorithm for one of the corner input boxes
-        const recs = getCornerRecommendations(cornerPairs[index], props.cornerBuffer, 0)
+		const recs = getCornerRecommendations(cornerPairs[index], props.cornerBuffer, 0)
+		if (recs.length == 0)
+			return
         let newRec = "" //Avoid giving the same recommendation again
         do {
             newRec = recs[Math.floor(Math.random() * recs.length)]
-        } while (newRec == cornerInput.value[index]);
+        } while (newRec == cornerInput.value[index] && recs.length != 1);
         cornerInput.value[index] = newRec
         cornerInputBox.value[index].focus()
     }
-    function FillEdgeRecommendation(index) {
+	function FillEdgeRecommendation(index) {
         //Fill in a valid algorithm for one of the edge input boxes
 		const recs = getEdgeRecommendations(edgePairs[index], props.edgeBuffer, 0)
+        if (recs.length == 0)
+            return
         let newRec = ""
         do {
             newRec = recs[Math.floor(Math.random() * recs.length)]
-        } while (newRec == edgeInput.value[index]);
+        } while (newRec == edgeInput.value[index] && recs.length != 1);
         edgeInput.value[index] = newRec
         edgeInputBox.value[index].focus()
     }
@@ -224,31 +228,36 @@
     <div id="ReconCreateNotationLayout">
         <div style="display: flex; flex-direction: column; gap: 10px; padding: 5px;">
             <div class="ReconHeader">Edges:</div>
-            <div v-if="edgeSheets.length > 0" 
-                 title="Fills the alg of a letter pair if the sheet contains one" 
-                 style="color:var(--grey-100)">
+            <div v-if="edgeSheets.length > 0"
+                 title="Fills the alg of a letter pair if the sheet contains one">
                 Algs from
-                <select v-model="edgeSheetID" @change="FillAllEdges()">
-                    <option v-for="sheet in edgeSheets"
-                            :value="sheet.id">
+                <el-select v-model="edgeSheetID" size="small" @change="FillAllEdges()" style="width: 150px;">
+                    <el-option v-for="sheet in edgeSheets"
+                               :label="sheet.name"
+                               :value="sheet.id">
                         {{sheet.name}}
-                    </option>
-                </select>
+                    </el-option>
+                </el-select>
             </div>
-            <div style="display:flex;color: var(--grey-100); font-size: 1.5rem; gap: 10px;" v-if="inspection.turns.length > 0">
-                <input class="ReconNotationInput" title="Inspection" readonly :value="inspection.toString()"/>
+            <div style="display:flex; font-size: 1.5rem; gap: 10px;" v-if="inspection.turns.length > 0">
+                <el-input size="large" class="ReconNotationInput" title="Inspection" readonly :value="inspection.toString()" />
             </div>
-            <div style="display:flex;color: var(--grey-100); font-size: 1.5rem; gap: 10px;"
+            <div style="display:flex; font-size: 1.5rem; gap: 10px;"
                  v-for="(pair, index) in edgePairs">
                 {{pair}}:
-                <textarea style="field-sizing: content; resize:none;"
+                <el-input type="textarea" resize="none" autosize
                           class="ReconNotationInput"
                           v-model="edgeInput[index]"
                           :id="'Edges' + index.toString()"
                           :ref="el => edgeInputBox[index] = el" />
-                <img src="@/assets/icons/lightbulb-line.svg" title="Random algorithm" class="CustomButton" style="height:40px;min-width:40px;" @click="FillEdgeRecommendation(index)" />
+                <el-tooltip content="Randomise" placement="left">
+                    <el-button style="height:45px; width:45px;" type="primary" :plain="true"
+                               @click="FillEdgeRecommendation(index)">
+                        <el-icon :size="20"><Bell /></el-icon>
+                    </el-button>
+                </el-tooltip>
             </div>
-            <textarea style="field-sizing: content; resize:none;"
+            <el-input type="textarea" resize="none" autosize
                       title="Parity/Flips/Twists"
                       class="ReconNotationInput"
                       v-model="edgeInput[edgeInput.length - 1]"
@@ -257,53 +266,53 @@
             <div style="height: 110px;"></div>
         </div>
 
-        <div style="padding: 10px;">
-            <FaceletCube3D :cube="cube"
-                           style="align-self: center; max-width: 100%; height: 100%; aspect-ratio: 1/1; border: 1px solid var(--grey-100); border-radius: 4px;" />
+        <div style="padding: 10px; display: flex; flex-direction: column;">
+            <FaceletCube3D :cube="cube" style="width: 100%; aspect-ratio: 1;" />
         </div>
 
-        <div style="display: flex; flex-direction: column;gap:5px; padding: 5px;">
+        <div style="display: flex; flex-direction: column; gap: 5px; padding: 5px;">
             <div class="ReconHeader">Corners:</div>
-            <div title="Fills the alg of a letter pair if the sheet contains one" style="color:var(--grey-100)" v-if="cornerSheets.length > 0">
+            <div title="Fills the alg of a letter pair if the sheet contains one" v-if="cornerSheets.length > 0">
                 Algs from
-                <select v-model="cornerSheetID" @change="FillAllCorners()">
-                    <option v-for="sheet in cornerSheets"
-                            :value="sheet.id">
+                <el-select v-model="cornerSheetID" @change="FillAllCorners()" size="small" style="width: 150px;">
+                    <el-option v-for="sheet in cornerSheets"
+                               :label="sheet.name"
+                               :value="sheet.id">
                         {{sheet.name}}
-                    </option>
-                </select>
+                    </el-option>
+                </el-select>
             </div>
             <div style="display:flex;flex-direction:column;gap:10px;">
-                <div style="display: flex; color: var(--grey-100); font-size: 1.5rem; gap: 10px;"
+                <div style="display: flex; font-size: 1.5rem; gap: 10px;"
                      v-for="(pair,index) in cornerPairs">
                     {{pair}}:
-                    <textarea style="field-sizing: content; resize:none;"
+                    <el-input type="textarea" resize="none" autosize
                               class="ReconNotationInput"
                               v-model="cornerInput[index]"
                               :id="'Corns' + index.toString()"
                               :ref="el => cornerInputBox[index] = el " />
-                    <img src="@/assets/icons/lightbulb-line.svg" title="Random algorithm" class="CustomButton" style="height:40px;min-width:40px;" @click="FillCornerRecommendation(index)"></img>
+                    <el-tooltip content="Randomise" placement="left">
+                        <el-button style="height:45px; width:45px;" type="primary" :plain="true"
+                                   @click="FillCornerRecommendation(index)">
+                            <el-icon :size="20"><Bell /></el-icon>
+                        </el-button>
+                    </el-tooltip>
                 </div>
-                <textarea style="field-sizing: content; resize:none;"
+                <el-input typeof="textarea" resize="none" autosize
                           title="Parity/Flips/Twists"
                           class="ReconNotationInput"
                           v-model="cornerInput[cornerInput.length - 1]"
                           :id="'Corns' + (cornerInput.length - 1).toString()"
                           :ref="el => cornerInputBox[cornerInput.length - 1] = el" />
+
+                <el-button style="width: 80px; height: 30px; align-self: end;" type="success"
+                           @click="notationSelectionFinished()">
+                    Confirm
+                </el-button>
             </div>
         </div>
     </div>
 
-    <img src="@/assets/icons/arrow-left-long.svg"
-         title="Back"
-         :class="['CustomButton','NextButton']" 
-         style="left:0px;transform:translate(100%,-100%);"
-         @click="revertToLetterSelection()" />
-    <img src="@/assets/icons/arrow-right-long.svg"
-         title="Continue"
-         :class="['CustomButton','NextButton']" 
-         style="right:0px;transform:translate(-100%,-100%);"
-         @click="notationSelectionFinished()" />
 </template>
 
 <style>

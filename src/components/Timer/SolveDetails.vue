@@ -1,7 +1,8 @@
 <script setup>
     import { computed, onMounted, onUnmounted } from 'vue'
     import { getSolveTimeString, getSolveRatioString } from "@/helpers/timer.js"
-    import { useTimerStore } from "@/stores/TimerStore"
+    import Hammer from "@/components/Icons/Hammer.vue"
+    import { useTimerStore, solve_statuses } from "@/stores/TimerStore"
     const timerStore = useTimerStore()
     import { useRouter } from 'vue-router'
     const router = useRouter()
@@ -43,50 +44,39 @@
 </script>
 
 <template>
-    <div class="Panel" v-if="props.solveIndex > -1 && timerStore.isValidSessionID(props.sessionID)">
-        <div style="display:flex;flex-direction:row;height:">
-            <div class="PanelHeader"> Solve {{props.solveIndex + 1}}: </div>
-        </div>
-        <div class="SolveDetails">
-            <!------CONTROLS------>
-            <div style="display:flex; justify-content:space-between;  width:100%;">
-                <img @click="emit('unselectSolve')" title="Back" src="@/assets/icons/arrow-left-long.svg" class="CustomButton" style="width:60px; height: 40px;" />
-                <img @click="Reconstruct()"         title="Reconstruct" src="@/assets/tool_icons/ReconsIcon.png"      class="CustomButton" style="width:52px; height:40px;"  />
-                <img @click="emit('deleteSolve')"   title="Delete" src="@/assets/icons/delete-bin.svg"      class="CustomButton" style="width:40px; height:40px;" />
-            </div>  
-            
+    <div v-if="props.solveIndex > -1 && timerStore.isValidSessionID(props.sessionID)">
+        <div style="display: flex; flex-direction: column; overflow-y: auto;">
+            <!-- SOLVE X -->
+            <el-text style="color: var(--el-text-color-primary); margin-top: -2px; padding-bottom: 5px; text-align: center; font-size: 1.5rem; font-weight: bold; width: 100%; border-block-end: 2px solid var(--el-border-color);">
+                Solve {{props.solveIndex + 1}}:
+            </el-text>
             <!------SOLVE RESULTS------>
-            <div>{{selectedSolve[3]}}</div>
-            <h1>{{getSolveTimeString(selectedSolve)}}</h1>
-            <h3>{{getSolveRatioString(selectedSolve)}}</h3>
-            <!------SOLVE STATUS------>
-            <div class="StatusRow">
-                <template v-for="status in timerStore.solveStatuses">
-                    <div :class="['ListItem', selectedSolve[2] === status.id ? 'ListItemSelected' : 'ListItemUnselected']"
-                         @click="selectedSolve[2] = status.id; timerStore.saveState()">
-                        {{status.name}}
-                    </div>
-                </template>
+            <el-text size="large" style="text-align: center;">{{selectedSolve[3]}}</el-text>
+            <el-text style="font-size: 2rem; font-weight: bold;">{{getSolveTimeString(selectedSolve)}}</el-text>
+            <el-text>{{getSolveRatioString(selectedSolve)}}</el-text>
+
+            <div style="margin-top: 10px; height: 30px; display: grid; grid-template-columns: 1fr 5fr 1fr;">
+                <!-- RECONSTRUCT BUTTON -->
+                <el-tooltip content="Reconstruct">
+                    <el-button type="primary" style="width: 30px; height: 30px;" @click="Reconstruct()">
+                        <el-icon :size="25"><Hammer /></el-icon>
+                    </el-button>
+                </el-tooltip>
+                <!------SOLVE STATUS------>
+                <el-segmented v-model="selectedSolve[2]" size="small" style="border: 1px solid var(--el-border-color); background-color: var(--el-fill-color-blank);"
+                              :options="solve_statuses" @change="timerStore.saveState()" />
+                <!-- DELETE BUTTON -->
+                <el-popconfirm title="Are you sure?" @confirm="emit('deleteSolve')">
+                    <template #reference>
+                        <el-button type="danger" style="width: 30px; height: 30px; margin-left: auto;">
+                            <el-icon :size="20"><Delete /></el-icon>
+                        </el-button>
+                    </template>
+                </el-popconfirm>
             </div>
         </div>
     </div>
+    <div v-else>
+        
+    </div>
 </template>
-
-<style>
-    .SolveDetails {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        text-align: center;
-        gap: 2px;
-        overflow-x: hidden;
-        overflow-y: auto;
-    }
-
-    .StatusRow {
-        display: grid;
-        grid-template-columns: 70px 70px 70px;
-        text-align: center;
-        color: var(--grey-100);
-    }
-</style>
