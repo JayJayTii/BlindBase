@@ -13,7 +13,7 @@
         fullLineSelection: Boolean,
     })
 
-    const emit = defineEmits(['update:selected-cells'])
+	const emit = defineEmits(['update:selected-cells', 'update:mouse-enter-cell', 'update:mouse-exit-cell'])
 
     const sheet = computed({
         get: () => props.sheet
@@ -212,7 +212,9 @@
                 <!-- Main grid -->
                 <div v-else :class="calculateCellClasses(x-1,y-1)"
                             :id="(x-1).toString() + ',' + (y-1).toString()"
-                            @click="cellClicked(!flipped ? (x-1) : (y-1), !flipped ? (y-1) : (x-1));">
+                            @click="cellClicked(!flipped ? (x-1) : (y-1), !flipped ? (y-1) : (x-1));"
+                            @mouseover="emit('update:mouse-enter-cell',!flipped ? (x-1) : (y-1), !flipped ? (y-1) : (x-1))"
+                            @mouseout="emit('update:mouse-exit-cell',!flipped ? (x-1) : (y-1), !flipped ? (y-1) : (x-1))">
                     {{ getCell(x-1,y-1) }}
                 </div>
             </template>

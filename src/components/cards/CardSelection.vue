@@ -1,5 +1,6 @@
 <script setup>
-    import { ref, watch, nextTick } from 'vue'
+	import { ref, computed, nextTick } from 'vue'
+	import { ElMessage } from 'element-plus'
     import { useSheetStore } from "@/stores/SheetStore"
     const sheetStore = useSheetStore()
     import { useCardStore } from "@/stores/CardStore"
@@ -71,12 +72,40 @@
     }   
 
     function onCellsClicked(values, create) {
-        if(create)
+        if (create) {
+            if (inCardDeletionMode.value) {
+				ElMessage({ message: 'Must be in flashcard creation mode to create flashcards', type: 'info'})
+                return
+            }
             cardStore.createCards(sheetID.value, values)
-        else
+        }
+        else {
+			if (!inCardDeletionMode.value) {
+				ElMessage({ message: 'Must be in flashcard deletion mode to delete flashcards', type: 'error' })
+				return
+			}
             cardStore.deleteCards(sheetID.value, values)
+        }
         UpdateSelectedCells();
     }
+
+
+    const inCardDeletionMode = ref(false)
+    const cardDeletionDialog = ref(false)
+    function cardDeletionModeChanged() {
+        if (inCardDeletionMode.value)
+            cardDeletionDialog.value = true //Open card deletion confirmation dialog
+	}
+	const hoveredCell = ref({ x: -1, y: -1 })
+	const hoveredCellCard = computed({
+		get: () => (hoveredCell.x != -1 && hoveredCell.y != -1) ? cardStore.getCard(sheetID.value, hoveredCell.value) : null
+	})
+    function cellEntered(x, y) {
+        hoveredCell.value = {x: x, y: y}
+	}
+	function cellExited(x, y) {
+        hoveredCell.value = {x: -1, y: -1}
+	}
 
 </script>
 
@@ -84,7 +113,7 @@
     <!------CARD MENU GRID------>
     <div class="CardsView">
         <div style="height: 50px;"></div>
-        <el-table :data="tableData" :border="true" 
+        <el-table :data="tableData" :border="true"
                   empty-text="Create an alg-sheet to get started" style="width: auto; box-shadow: 0px 0px 10px var(--el-border-color-dark); border-radius: 4px;">
             <el-table-column prop="sheet_name" label="Sheet" width="250" />
             <el-table-column label="Flashcards" prop="flashcards" width="150">
@@ -123,14 +152,40 @@
                    size="95%"
                    direction="rtl"
                    body-class="drawer-body"
-                   :before-close="handleClose">
+                   :before-close="handleClose"
+                   @close="inCardDeletionMode = false;">
+            <div style="display: flex; justify-content: space-between; margin-top: -20px;">
+                <div>
+                    <el-switch v-model="inCardDeletionMode" @change="cardDeletionModeChanged" />
+                    {{inCardDeletionMode ? 'Flashcard deletion mode' : 'Flashcard creation mode'}} <el-icon v-if="inCardDeletionMode"><WarnTriangleFilled style="color: var(--el-color-danger);" /></el-icon>
+                </div>
+                <div v-if="hoveredCell.x != -1 && hoveredCell.y != -1 && sheetStore.getCell(sheetID, hoveredCell) != '' && hoveredCellCard">
+                    {{sheetStore.coordToKey(sheetID, hoveredCell)}} | {{sheetStore.getCell(sheetID, hoveredCell)}} | Created: {{new Date(hoveredCellCard.creationTime).toDateString()}} | Practiced: {{hoveredCellCard.successCount + hoveredCellCard.failCount}} times
+                </div>
+            </div>
+           
+            
             <SheetGrid :sheet="sheetStore.getSheet(sheetID)"
                        :formatEmpty="true"
                        :fullLineSelection="true"
                        @update:selected-cells="onCellsClicked"
+                       @update:mouse-enter-cell="cellEntered"
+                       @update:mouse-exit-cell="cellExited"
                        ref="gridRef"
-                       style="height: 100%; width: 100%;" />
+                       style="height: calc(100% - 15px); width: 100%;" />
         </el-drawer>
+
+        <el-dialog v-model="cardDeletionDialog" title="Flashcard Deletion Mode" width="500" @close="inCardDeletionMode = false">
+            <span style="font-size: 1rem;">Warning! Any flashcard you click on will be deleted in this mode. That includes any that you hold very dear to you. You have been warned!</span>
+            <template #footer>
+                <div>
+                    <el-button @click="cardDeletionDialog = false;">Cancel</el-button>
+                    <el-button type="danger" @click="cardDeletionDialog = false; nextTick(() => {inCardDeletionMode = true})">
+                        Confirm
+                    </el-button>
+                </div>
+            </template>
+        </el-dialog>
     </div>
 </template>
 

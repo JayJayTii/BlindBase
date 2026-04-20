@@ -89,6 +89,9 @@ export const useCardStore = defineStore('cardStore', {
             this.saveState()
         },
 
+        getCard(sheetID, coord) {
+            return (this.cards.filter((card) => card.sheetID == sheetID && card.coord.x == coord.x && card.coord.y == coord.y)[0] || null)
+        },
         getCardsForSheet(sheetID) {
             return this.cards.filter((card) => card.sheetID === sheetID)
         },
