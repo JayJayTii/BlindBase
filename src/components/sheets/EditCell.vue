@@ -9,17 +9,9 @@
     const props = defineProps({
         sheetID: Number,
         selectedCell: Object,
-    })
-    const isImageSheet = computed({ get: () => sheetStore.getType(props.sheetID) == 3 })
-
-	const cellKeyInput = computed({
-		get: () => (props.selectedCell.x == -1 || props.selectedCell.y == -1) ? '' : sheetStore.coordToKey(props.sheetID, props.selectedCell)
 	})
-	const cellValueInput = computed({
-		get: () => (props.selectedCell.x == -1 || props.selectedCell.y == -1) ? '' : sheetStore.getCell(props.sheetID, props.selectedCell),
-		set: (newValue) => { sheetStore.setCell(props.sheetID, props.selectedCell, newValue) }
-    })
-    const cellValueInputBox = ref(null)
+	const emit = defineEmits(['cellKeyChanged'])
+    const isImageSheet = computed({ get: () => sheetStore.getType(props.sheetID) == 3 })
 
     let options = []
     function getOptions() {
@@ -32,6 +24,7 @@
 	watch(props.selectedCell, async () => {
         getOptions()
         await nextTick()
+        cellKeyInput.value = sheetStore.coordToKey(props.sheetID, props.selectedCell)
         cellValueInputBox.value.focus()
     });
 
@@ -52,15 +45,60 @@
 			settingsStore.saveState()
 			getOptions()
 		}
+    })
+
+    const cellValueInputBox = ref(null)
+
+	//Key of the selected cell e.g. AB, XP, DL
+	const cellKey = computed({
+		get: () => sheetStore.coordToKey(props.sheetID, props.selectedCell),
+		set: (newKey) => {
+			const newCoord = sheetStore.keyToCoord(props.sheetID, newKey)
+            emit('cellKeyChanged', newCoord)
+            cellKeyInput.value = newKey
+		}
+    })
+	//Value of the selected cell (i.e. an algorithm)
+	const cellValue = computed({
+		get: () => sheetStore.getCell(props.sheetID, props.selectedCell),
+		set: (newValue) => sheetStore.setCell(props.sheetID, props.selectedCell, newValue)
+	})
+
+	//Filter any cell key input to only letters and 2 characters long
+	const cellKeyInput = ref(cellKey.value)
+	const cellKeyInputBox = ref(null)
+	watch(cellKeyInput, (newValue, oldValue) => {
+		const inputChar = [...newValue].filter(char => !oldValue.includes(char))[0]
+		if (!inputChar) { //Return if the change was not a character (e.g. backspace)
+			return
+		}
+
+		//Regex to check against letters
+		if (!/^[a-xA-X]$/.test(inputChar)) {
+			cellKeyInput.value = oldValue
+			return
+		}
+		//If it was 2 letters, replace with the new character
+		//Also put to uppercase
+		let updatedInput = newValue.length === 3 ? inputChar.toUpperCase() : newValue.toUpperCase()
+		if (cellKeyInput.value === updatedInput)
+			return //This is triggered to prevent infinite recursion
+
+		cellKeyInput.value = updatedInput //This triggers this same function, hence why we need to prevent recursion
+
+		if (updatedInput.length == 2) //If the length is correct, finally update the whole system to this new key
+			cellKey.value = updatedInput
 	})
 </script>
 
 <template>
     <div style="display: flex; flex-direction: column; position: relative;">
         <div style="display: grid; grid-template-columns: 45px 400px auto; gap: 5px; width: 100%;">
-            <el-input v-model="cellKeyInput" 
+            <el-input ref="cellKeyInputBox" 
+                      v-model="cellKeyInput"
                       style="height: 32px;" />
-            <el-input v-model="cellValueInput" ref="cellValueInputBox" 
+            <el-input v-model="cellValue"
+                      ref="cellValueInputBox"
                       maxlength="80" 
                       style="height: 32px;" 
                       :disabled="(selectedCell.x == -1 || selectedCell.y == -1)" />
@@ -69,7 +107,7 @@
                 <el-button type="primary"
                            style="margin: 0px;"
                            v-for="(option, index) in options"
-                           @click="cellValueInput = options[index]">{{option}}</el-button>
+                           @click="cellValue = options[index]">{{option}}</el-button>
             </div>
         </div>
 
