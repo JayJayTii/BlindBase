@@ -39,48 +39,48 @@
 </script>
 
 <template>
-    <div id="sheet-settings" v-if="sheetStore.isValidSheetID(props.sheetID)">
+    <span id="sheet-settings" v-if="sheetStore.isValidSheetID(props.sheetID)">
         <!------TYPE------>
-        <hr style="height: 100%;" />
-        <div>
+        <span>
             Type:
             <el-select v-model="currentSheetType"
                        style="width: 100px;"
                        :options="sheet_types"
                        :props="{value: 'id',label: 'name', options: sheet_types}">
             </el-select>
-        </div>
+        </span>
         <!------CORNERS BUFFER------>
-        <hr style="height: 100%;" v-if="currentSheetType == 1" />
-        <div v-if="currentSheetType == 1">
+        <span v-if="currentSheetType == 1">
             Buffer:
             <el-select v-model="currentSheetBuffer"
                        style="width: 100px;"
                        :options="defaults.misc_defaultcornerbuffer.options"
                        :props="{value: 'id',label: 'name', options: defaults.misc_defaultcornerbuffer.options}">
             </el-select>
-        </div>
+        </span>
         <!------EDGES BUFFER------>
-        <hr style="height: 100%;" v-if="currentSheetType == 2" />
-        <div v-if="currentSheetType == 2">
+        <span v-if="currentSheetType == 2">
             Buffer:
             <el-select v-model="currentSheetBuffer"
                        style="width: 100px;"
                        :options="defaults.misc_defaultedgebuffer.options"
                        :props="{value: 'id',label: 'name', options: defaults.misc_defaultedgebuffer.options}">
             </el-select>
-        </div>
-    </div>
+        </span>
+    </span>
     <div id="sheet-settings" v-else></div>
 </template>
 
 <style>
 	#sheet-settings {
-		display: flex;
-		flex-direction: row;
         gap: 5px;
 		padding: 2px;
 		padding-left: 5px;
         align-items: center;
 	}
+		#sheet-settings > * {
+			margin-left: 5px;
+			height: 100%;
+			border-left: 1px solid var(--el-border-color);
+		}
 </style>

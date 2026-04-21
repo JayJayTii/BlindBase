@@ -66,22 +66,9 @@ function splitCSVline(str) {
 
 
 //This is the sheet uploading feature, which takes in a selected file and creates an alg-sheet from it.
-export async function CreateSheetFromFile(file) {
-    const content = await new Promise((resolve, reject) => {
-        const reader = new FileReader()
-        reader.readAsText(file, 'UTF-8')
-        reader.onload = e => resolve(e.target.result)
-        reader.onerror = reject
-    })
-    
-    //Need to do checking for validity
-    if (!file.name.toLowerCase().endsWith('.csv')) {
-        ElMessageBox.alert('Invalid file type, we only support .csv files. Please "Save as" / "Download" your spreadsheet as a .csv file from your spreadsheet editor.', 'Import Sheet', {
-            confirmButtonText: 'OK',
-        })
-        return -1
-    }
-
+//Just converts csv to algsheet grid! Everything must be handled elsewhere
+//Returns tuple, first is a boolean for success, second is either an error message or the sheet's grid
+export function CreateSheetFromFile(content, flipped) {
     let csvGrid = content.split('\n').filter(line => line.length > 0) //Filter random 0-length end lines
     for (var i = 0; i < csvGrid.length; i++) {
         csvGrid[i] = splitCSVline(csvGrid[i])
@@ -103,18 +90,12 @@ export async function CreateSheetFromFile(file) {
         if (xHeadingsStart != null)
             break
     }
-    if (xHeadingsStart == null) {
-        ElMessageBox.alert('File formatted incorrectly. The file must contain a horizontal row of letters in alphabetical order, starting with A.', 'Import Sheet', {
-            confirmButtonText: 'OK',
-        })
-        return -1
-    }
-    if (!csvGrid[xHeadingsStart.y + 1][xHeadingsStart.x - 1].includes('A')) {
-        ElMessageBox.alert('File formatted incorrectly. The file must have a vertical column of letters in alphabetical order next to the column headings, starting with A.', 'Import Sheet', {
-            confirmButtonText: 'OK',
-        })
-        return -1
-    }
+    if (xHeadingsStart == null)
+        return [false, 'File formatted incorrectly.The file must contain a horizontal row of letters in alphabetical order, starting with A.']
+
+    if (!csvGrid[xHeadingsStart.y + 1][xHeadingsStart.x - 1].includes('A'))
+        return [false, 'File formatted incorrectly. The file must have a vertical column of letters in alphabetical order next to the column headings, starting with A.']
+
     const yHeadingsStart = { x: xHeadingsStart.x - 1, y: xHeadingsStart.y + 1 } 
     csvGrid = csvGrid.slice(xHeadingsStart.y).map(line => line.slice(yHeadingsStart.x))
     //Now xHeadingsStart is always 1,0
@@ -157,7 +138,6 @@ export async function CreateSheetFromFile(file) {
     let sheetGrid = Array.from({ length: 24 }, () =>
         Array.from({ length: 24 }, () => ""),
     )
-    const flipped = useSettingsStore().settings.sheets_pairorder === 1
     for (var i = 0; i < yHeadingsLength; i++) {
         for (var j = 0; j < xHeadingsLength; j++) {
             const y = yHeadings[i].charCodeAt(0) - 'A'.charCodeAt(0)
@@ -166,21 +146,7 @@ export async function CreateSheetFromFile(file) {
         }
     }
 
-    let name = file.name.slice(0, file.name.lastIndexOf('.')) //Remove file extension
-    if (name.length > 20)
-        name = name.substr(0, 20)
-
-    const newID = useSheetStore().getNewSheetID()
-    useSheetStore().sheets.push({
-        name: name,
-        id: newID,
-        type: 0,
-        xHeadings: "ABCDEFGHIJKLMNOPQRSTUVWX",
-        yHeadings: "ABCDEFGHIJKLMNOPQRSTUVWX",
-        grid: sheetGrid,
-    })
-    useSheetStore().saveState()
-    return newID
+    return [true, sheetGrid]
 }
 
 //Checks if every cell in the given sheet is empty.
