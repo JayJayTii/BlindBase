@@ -1,8 +1,10 @@
 <script setup>
 	import { computed, ref } from 'vue'
+	import { ElMessage } from 'element-plus'
+	import SheetUpload from '@/components/sheets/SheetUpload.vue'
 	import { useSheetStore } from "@/stores/SheetStore"
 	const sheetStore = useSheetStore()
-	import { downloadSheet, CreateSheetFromFile } from '@/helpers/sheets.js'
+	import { downloadSheet } from '@/helpers/sheets.js'
 
 	const props = defineProps({
 		sheetID: Number,
@@ -13,21 +15,7 @@
 		emit('sheetSelected', command)
 	}
 
-	function UploadSheet() {
-		//https://stackoverflow.com/questions/16215771/how-to-open-select-file-dialog-via-js
-		var input = document.createElement('input')
-		input.type = 'file'
-		input.accept = '.csv'
-		input.onchange = async e => {
-			var file = e.target.files[0]
-			const newSheetID = await CreateSheetFromFile(file)
-			if (newSheetID != -1)
-				emit('sheetSelected', newSheetID)
-		}
-		input.click()
-	}
-
-	function NewSheet() {
+	function newSheet() {
 		emit('sheetSelected', sheetStore.newSheet())
 	}
 
@@ -50,6 +38,7 @@
 	})
 
 	const mainDropdownRef = ref(null)
+	const uploadDialogRef = ref(null)
 
 	const sheetEditRef = ref(null)
 	const dropdownPositionRef = ref(null)
@@ -65,10 +54,11 @@
 			sheetEditRef.value?.handleOpen()
 		}
 	}
+
 </script>
 
 <template>
-	<div style="height: 100%; display: flex; align-items: center; padding-inline-start: 5px;">
+	<span>
 		<el-dropdown placement="bottom-end"
 					 :split-button="true"
 					 trigger="click"
@@ -90,7 +80,7 @@
 					<div style="display: flex; flex-direction: row; justify-content:end; margin-top: 5px;">
 						<!-- UPLOAD -->
 						<el-tooltip placement="bottom" content="Upload">
-							<el-button type="primary" @click="UploadSheet(); mainDropdownRef.handleClose()" 
+							<el-button type="primary" @click="uploadDialogRef.open(); mainDropdownRef.handleClose()" 
 									   style="justify-content: center; height: 35px; width: 35px;">
 								<el-icon :size="20">
 									<Upload />
@@ -99,7 +89,7 @@
 						</el-tooltip>
 						<!-- NEW -->
 						<el-tooltip placement="bottom" content="New">
-							<el-button type="primary" @click="NewSheet(); mainDropdownRef.handleClose()" 
+							<el-button type="primary" @click="newSheet(); mainDropdownRef.handleClose()" 
 									   style="justify-content: center; height: 35px; width: 35px;">
 								<el-icon :size="20">
 									<Plus />
@@ -147,5 +137,7 @@
 				</el-dropdown-menu>
 			</template>
 		</el-dropdown>
-	</div>
+
+		<SheetUpload ref="uploadDialogRef" @sheetUploaded="selectSheet" />
+	</span>
 </template>

@@ -112,6 +112,8 @@ export const useSheetStore = defineStore('sheetStore', {
             return null
         },
         getCell(id, coord) {
+            if (coord.x < 0 || coord.y < 0)
+                return ''
             return this.sheets[this.getSheetIndexWithID(id)]?.grid[coord.y][coord.x] || ''
         },
         setCell(id, coord, newValue) {

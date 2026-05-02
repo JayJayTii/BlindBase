@@ -14,6 +14,9 @@
     })
 
 	const emit = defineEmits(['update:selected-cells', 'update:mouse-enter-cell', 'update:mouse-exit-cell'])
+	defineExpose({
+		changeHighlightedCells,
+	})
 
     const sheet = computed({
         get: () => props.sheet
@@ -134,13 +137,14 @@
     //Highlighted cells are absolute coords
     const highlightedCells = ref([{ x: -1, y: -1 }])
     let intervalID = null
+	const gridRef = ref(null)
     function changeHighlightedCells(newValue) {
         highlightedCells.value = newValue
         if (highlightedCells.value.length != 1)
             return
-        /*
+        
         //Scroll to make sure if there is one highlightedCell, it is visible
-        const parent = mainGrid.value
+        const parent = gridRef.value
         if (!parent)    
             return
         let targetX = !flipped.value ? highlightedCells.value[0].x.toString() : highlightedCells.value[0].y.toString()
@@ -154,12 +158,7 @@
         const offsetTop = childRect.top - parentRect.top + parent.scrollTop - (parent.clientHeight / 2) + (child.clientHeight / 2)
         const offsetLeft = childRect.left - parentRect.left + parent.scrollLeft - (parent.clientWidth / 2) + (child.clientWidth / 2)
         parent.scrollTo({ top: offsetTop, left: offsetLeft })
-        */
     }
-
-    defineExpose({
-        changeHighlightedCells,
-    })
 
     function calculateCellClasses(x, y) {
         const [absX, absY] = (flipped.value ? ([y, x]) : ([x, y]))
@@ -183,7 +182,7 @@
 </script>
 
 <template>
-    <div class="SheetGrid">
+    <div class="SheetGrid" ref="gridRef">
         <template v-for="(col, y) in 25">
             <template v-for="(row, x) in 25">
                 <!-- Corner -->

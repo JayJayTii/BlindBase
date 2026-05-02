@@ -46,13 +46,16 @@
         else
             gridRef.value.changeHighlightedCells([selectedCell.value])
     }
+    function editCellKeyUpdated(coord) {
+        onCellClicked([coord], true)
+    }
 </script>
 
 
 <template>
     <div style="display: flex; flex-direction: column; gap: 5px;">
         <div style="display: flex; flex-direction: column; gap: 5px; border: 1px solid var(--el-border-color); border-radius: 4px; background-color: var(--el-fill-color-light);">
-            <div style="display: grid; grid-template-columns: auto 3fr; height: 40px; gap: 5px; border-block-end: 1px solid var(--el-border-color);">
+            <div style="height: 40px; padding: 4px; border-block-end: 1px solid var(--el-border-color);">
                 <SheetSelect :sheetID="sheetID"
                              @sheetSelected="updateSheetID" />
 
@@ -62,6 +65,7 @@
             <div style="height: 53px; margin-left: 5px;">
                 <EditCell v-if="sheetStore.isValidSheetID(sheetID)"
                           ref="editCellRef"
+                          @cellKeyChanged="editCellKeyUpdated"
                           :sheetID="sheetID" :selectedCell="selectedCell" />
             </div>
         </div>
