@@ -2,6 +2,7 @@
     import { ref, onMounted, onUnmounted } from "vue"
     import { gaussianRandom } from '@/helpers/memo.js'
     import { allLetterPairs } from '@/helpers/pairs.js'
+import { useSettingsStore } from "../../stores/SettingsStore"
 
     const props = defineProps({
         runData: Object,
@@ -13,29 +14,16 @@
     if (!(props.runData.mode == "Corners" || props.runData.mode == "One mistake")) 
         emit('stageComplete')
 
-    const timer = ref(Math.max(2, gaussianRandom(9, 2)))
+	const timer = ref(Math.max(2, gaussianRandom(Number(useSettingsStore().settings.memo_averagedistractiontime), 2)))
     const timerDelta = 0.1 //seconds
     function updateTimer() {
         timer.value -= timerDelta
 
         if (timer.value <= 0) {
             const rand = Math.random()
-            if (rand < 0.9 || hasKidded) {
-                emit('stageComplete')
-                return
-            }
-            else {
-                justKidding.value = true
-                hasKidded = true
-                setTimeout(() => justKidding.value = false, 1000)
-                timer.value = Math.max(2, gaussianRandom(8, 3))
-            }
+            emit('stageComplete')
         }
     }
-
-    //These are keep track of how angry the user is >:)
-    const justKidding = ref(false)
-    let hasKidded = false
 
     let intervalID = null
     onMounted(() => {
@@ -55,7 +43,7 @@
             position: "Fixed",
             left: "-100px",
             top: `${pairHeights[i]}vh`,
-            zIndex: "10",
+            zIndex: "20",
             animationDelay: `${i / pairCount * 5}s` // 0.1s stagger per item
         }
     }
@@ -68,9 +56,6 @@
     <div style="font-size: 8rem; position: absolute; top: 20vh; transform: translate(-50%,50%);">
         {{Math.round(timer)}}
     </div>
-    <div v-if="justKidding" style="font-size: 2rem; position: absolute; bottom: 35vh; transform: translate(-50%,50%);">
-        just kidding :)
-    </div>
     <div v-for="i in pairCount" :style="getStyle(i)" class="distractionPair">
         {{pairStrings[i]}}
     </div>
@@ -79,7 +64,7 @@
 <style>
 
     .distractionPair{
-        animation: pairAnimation 5s linear infinite;
+        animation: pairAnimation 3s linear infinite;
     }
     @keyframes pairAnimation{
         from {

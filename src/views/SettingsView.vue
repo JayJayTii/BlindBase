@@ -90,7 +90,8 @@
             Settings
         </el-text>
         <div class="Settings">
-            <div>{{ defaults.misc_defaultcornerbuffer.name }}
+            <div>
+                {{ defaults.misc_defaultcornerbuffer.name }}
             </div>
             <div>
                 <el-select v-model="settingsStore.settings.misc_defaultcornerbuffer"
@@ -153,6 +154,18 @@
             </div>
 
             <div>
+                {{ defaults.memo_averagedistractiontime.name }}
+            </div>
+            <div>
+                <el-input v-model="settingsStore.settings.memo_averagedistractiontime"
+                          type="number"
+                          :min="defaults.memo_averagedistractiontime.min"
+                          :max="defaults.memo_averagedistractiontime.max"
+                          @change="SettingUpdated"
+                          style="width: 70px;"/>
+            </div>
+
+            <div>
                 {{ defaults.timer_spaceholdingtime.name }}
                 <el-icon class="settings-help" @click="showHelp(defaults.timer_spaceholdingtime)"><QuestionFilled /></el-icon>
             </div>
@@ -190,17 +203,13 @@
                 </el-select>
             </div>
         </div>
-        <div style="display: flex; flex-direction: row; margin-top: 20px;justify-content: space-between; width: min(400px, 100%); ">
-            <div>
-                <el-button @click="exportDialogVisible = true" type="primary">
-                    <h2>Export Data</h2>
-                </el-button>
-            </div>
-            <div>
-                <el-button @click="importDialogVisible = true" type="danger">
-                    <h2>Import Data</h2>
-                </el-button>
-            </div>
+        <div>
+            <el-button @click="exportDialogVisible = true" type="primary" style="margin-right: 50px; font-size: 1.2rem; font-weight: 700;">
+                Export Data
+            </el-button>
+            <el-button @click="importDialogVisible = true" type="danger" style="font-size: 1.2rem; font-weight: 700;">
+                Import Data
+            </el-button>
         </div>
     </div>
 

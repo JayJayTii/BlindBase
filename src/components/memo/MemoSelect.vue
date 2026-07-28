@@ -52,20 +52,20 @@
         }
     })
 
-    const pairSelectValues = [{ value: 'From all pairs', tooltip: 'All letter pairs' },
-        { value: 'From sheet', tooltip: 'All letter pairs in an images sheet' },
-        { value: 'From cards', tooltip: 'Flashcards in an images card deck' },
-        { value: 'From custom', tooltip: 'Select from a grid of letter pairs' }]
-    const pairSelectValue = ref("From all pairs")
+    const pairSelectValues = [{ value: 'All letter pairs', tooltip: 'All letter pairs' },
+        { value: 'Letter pairs in a sheet', tooltip: 'All letter pairs in an images sheet' },
+        { value: 'Letter pairs in a card deck', tooltip: 'Flashcards in an images card deck' },
+        { value: 'Custom', tooltip: 'Select from a grid of letter pairs' }]
+    const pairSelectValue = ref("All letter pairs")
     const pairSelect = computed({
         get: () => pairSelectValue.value,
         set: (newValue) => {
             pairSelectValue.value = newValue
-            if (newValue === "From sheet")
+            if (newValue === "Letter pairs in a sheet")
                 pairSelectSheet.value = sheetStore.getSheetsOfType(3)[0]
-            else if (newValue === "From cards")
+            else if (newValue === "Letter pairs in a card deck")
                 pairSelectSheet.value = GetSheetsWithLearnedCards()[0]
-            else if (newValue === "From custom") {
+            else if (newValue === "Custom") {
                 if (mode.value == "Corners")
 					buffer.value = useSettingsStore().settings.misc_defaultcornerbuffer
 				else if (mode.value == "Edges")
@@ -79,7 +79,7 @@
         }
     })
 
-    //Includes both "From sheet" and "From cards" because they both take from alg-sheets
+    //Includes both "Letter pairs in a sheet" and "Letter pairs in a card deck" because they both take from alg-sheets
     const pairSelectSheetValue = ref(null)
     const pairSelectSheet = computed({
         get: () => pairSelectSheetValue.value,
@@ -90,10 +90,10 @@
     })
 
     const pairSelectFinished = computed({
-        get: () =>  pairSelect.value == "From all pairs"
-                    || pairSelect.value == "From sheet" && pairSelectSheet.value
-                    || pairSelect.value == "From cards" && pairSelectSheet.value
-                    || pairSelect.value == "From custom" && highlightedCells.value.length > 0
+        get: () =>  pairSelect.value == "All letter pairs"
+                    || pairSelect.value == "Letter pairs in a sheet" && pairSelectSheet.value
+                    || pairSelect.value == "Letter pairs in a card deck" && pairSelectSheet.value
+                    || pairSelect.value == "Custom" && highlightedCells.value.length > 0
     })
 
     function GetSheetsWithLearnedCards() {
@@ -175,10 +175,10 @@
 		let letters = "ABCDEFGHIJKLMNOPQRSTUVWX"
 		const flipped = useSettingsStore().settings.sheets_pairorder === 1
         switch (pairSelect.value) {
-			case "From all pairs":
+			case "All letter pairs":
 				return allLetterPairs
 
-            case "From sheet":
+            case "Letter pairs in a sheet":
                 for (var y = 0; y < 24; y++) {
                     for (var x = 0; x < 24; x++) {
                         if (pairSelectSheet.value.grid[y][x] == '')
@@ -188,12 +188,12 @@
                 }
                 return possiblePairs
 
-			case "From cards": // Get learned cards from selected sheet, then convert to letter pair
+			case "Letter pairs in a card deck": // Get learned cards from selected sheet, then convert to letter pair
                 return GetLearnedCards()
                     .filter(card => card.sheetID === pairSelectSheet.value.id)
                     .map(card => (letters[card.coord.y] + letters[card.coord.x]))
 
-            case "From custom": // Convert highlighted cell coords to letter pairs
+            case "Custom": // Convert highlighted cell coords to letter pairs
                 return highlightedCells.value.map(coord => letters[coord.y] + letters[coord.x])
         }
     }
@@ -228,7 +228,7 @@
     <div id="MemoSelect">
         <!-- MODE -->
         <el-select v-model="mode" size="large" style="width: 130px;">
-            <el-tooltip v-for="(mode, index) in modes" :content="modesDesc[index]" placement="right">
+            <el-tooltip v-for="(mode, index) in modes" :show-after="500" :content="modesDesc[index]" placement="right">
                 <el-option :value="mode">{{ mode }}</el-option>
             </el-tooltip>
         </el-select>
@@ -243,16 +243,16 @@
 
         <!-- MODE => FROM [___] -->
         <div v-if="modeSelected">
-            <el-select v-model="pairSelect" size="large" style="width: 150px;">
-                <el-tooltip v-for="option in pairSelectValues" :content="option.tooltip" placement="right">
+            <el-select v-model="pairSelect" size="large" style="width: 220px;">
+                <el-tooltip v-for="option in pairSelectValues" :show-after="500" :content="option.tooltip" placement="right">
                     <el-option :value="option.value">{{option.value}}</el-option>
                 </el-tooltip>
             </el-select>
         </div>
 
         <!-- MODE => FROM SHEET => [____] -->
-        <el-divider class="MemoSelectLine" v-if="pairSelect != '' && pairSelect != 'From all pairs'" />
-        <div v-if="pairSelect == 'From sheet'">
+        <el-divider class="MemoSelectLine" v-if="pairSelect != '' && pairSelect != 'All letter pairs'" />
+        <div v-if="pairSelect == 'Letter pairs in a sheet'">
             <div v-if="sheetStore.getSheetsOfType(3).length > 0">
                 <el-select v-model="pairSelectSheet" size="large" style="width: 250px;">
                     <el-option v-for="sheetOption in sheetStore.getSheetsOfType(3)" :label="sheetOption.name" :value="sheetOption">{{ sheetOption.name }}</el-option>
@@ -263,7 +263,7 @@
             </div>
         </div>
         <!-- MODE => FROM CARDS => [____] -->
-        <div v-if="pairSelect == 'From cards'">
+        <div v-if="pairSelect == 'Letter pairs in a card deck'">
             <div v-if="GetLearnedCards().length > 0">
                 <el-select v-model="pairSelectSheet" size="large" style="width: 250px">
                     <el-option v-for="sheetOption in GetSheetsWithLearnedCards()" :label="sheetOption.name" :value="sheetOption">{{ sheetOption.name }}</el-option>
@@ -275,25 +275,25 @@
         </div>
 
         <!-- CORNERS => FROM CUSTOM => CORNER BUFFER -->
-        <el-select v-if="pairSelect == 'From custom' && mode == 'Corners'"
+        <el-select v-if="pairSelect == 'Custom' && mode == 'Corners'"
                    v-model="buffer" size="large" style="width: 80px;">
             <el-option label="*" :value="-1">*</el-option>
             <el-option v-for="(buffer, index) in cornerBuffers" :label="buffer" :value="index">{{ buffer }}</el-option>
         </el-select>
         <!-- EDGES => FROM CUSTOM => EDGE BUFFER -->
-        <el-select v-if="pairSelect == 'From custom' && mode == 'Edges'"
+        <el-select v-if="pairSelect == 'Custom' && mode == 'Edges'"
                    v-model="buffer" size="large" style="width: 80px;">
             <el-option label="*" :value="-1">*</el-option>
             <el-option v-for="(buffer, index) in edgeBuffers" :label="buffer" :value="index">{{ buffer }}</el-option>
         </el-select>
-        <el-divider class="MemoSelectLine" v-if="pairSelect == 'From custom' && (mode == 'Corners' || mode == 'Edges')" />
+        <el-divider class="MemoSelectLine" v-if="pairSelect == 'Custom' && (mode == 'Corners' || mode == 'Edges')" />
 
-        <el-button v-if="pairSelect == 'From custom'" type="primary" style="height: 40px;" @click="editCustomPairButtonClicked()">
+        <el-button v-if="pairSelect == 'Custom'" type="primary" style="height: 40px;" @click="editCustomPairButtonClicked()">
             <el-icon :size="25"><Edit /></el-icon>
         </el-button>
 
-        <el-divider class="MemoSelectLine" v-if="pairSelectFinished && pairSelect == 'From all pairs'" />
-        <div v-if="pairSelectFinished && pairSelect == 'From all pairs'">
+        <el-divider class="MemoSelectLine" v-if="pairSelectFinished && pairSelect == 'All letter pairs'" />
+        <div v-if="pairSelectFinished && pairSelect == 'All letter pairs'">
             Highscore: {{ memoStore.GetHighscore(mode) }}
         </div>
     </div>

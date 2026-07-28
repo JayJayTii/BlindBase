@@ -15,16 +15,16 @@
 
     let options = []
     function getOptions() {
-        if (!sheetStore.isValidSheetID(props.sheetID) || props.selectedCell.x == -1 || props.selectedCell.y == -1) {
+        if (!sheetStore.isValidSheetID(props.sheetID) || props.selectedCell.value.x == -1 || props.selectedCell.value.y == -1) {
             options = []
             return
         }
-		options = getRecommendations(sheetStore.getSheet(props.sheetID).type, sheetStore.coordToKey(props.sheetID, props.selectedCell), sheetStore.getSheet(props.sheetID).buffer)
+		options = getRecommendations(sheetStore.getSheet(props.sheetID).type, sheetStore.coordToKey(props.sheetID, props.selectedCell.value), sheetStore.getSheet(props.sheetID).buffer)
     }
 	watch(props.selectedCell, async () => {
         getOptions()
         await nextTick()
-        cellKeyInput.value = sheetStore.coordToKey(props.sheetID, props.selectedCell)
+        cellKeyInput.value = sheetStore.coordToKey(props.sheetID, props.selectedCell.value)
         cellValueInputBox.value.focus()
     });
 
@@ -51,7 +51,7 @@
 
 	//Key of the selected cell e.g. AB, XP, DL
 	const cellKey = computed({
-		get: () => sheetStore.coordToKey(props.sheetID, props.selectedCell),
+		get: () => sheetStore.coordToKey(props.sheetID, props.selectedCell.value),
 		set: (newKey) => {
 			const newCoord = sheetStore.keyToCoord(props.sheetID, newKey)
             emit('cellKeyChanged', newCoord)
@@ -60,8 +60,8 @@
     })
 	//Value of the selected cell (i.e. an algorithm)
 	const cellValue = computed({
-		get: () => sheetStore.getCell(props.sheetID, props.selectedCell),
-		set: (newValue) => sheetStore.setCell(props.sheetID, props.selectedCell, newValue)
+		get: () => sheetStore.getCell(props.sheetID, props.selectedCell.value),
+		set: (newValue) => sheetStore.setCell(props.sheetID, props.selectedCell.value, newValue)
 	})
 
 	//Filter any cell key input to only letters and 2 characters long
@@ -100,32 +100,30 @@
         <div style="display: grid; grid-template-columns: 45px 400px auto; gap: 5px; width: 100%;">
             <el-input ref="cellKeyInputBox" 
                       v-model="cellKeyInput"
-                      style="height: 32px;" />
+                      style="height: 32px;"
+                      :disabled="!sheetStore.isValidSheetID(props.sheetID)"/>
             <el-input v-model="cellValue"
                       ref="cellValueInputBox"
                       maxlength="80" 
-                      style="height: 32px;" 
-                      :disabled="(selectedCell.x == -1 || selectedCell.y == -1)" />
+                      style="height: 32px;"
+                      :disabled="selectedCell.value.x == -1" />
 
             <div style="display: flex; flex-direction: row; overflow-x: auto; gap: 5px;" :key="sheetSettings">
-                <el-button type="primary"
-                           style="margin: 0px;"
-                           v-for="(option, index) in options"
+                <el-button v-for="(option, index) in options" type="primary" style="margin: 0px;"                          
                            @click="cellValue = options[index]">{{option}}</el-button>
             </div>
         </div>
 
-        <div v-if="options.length > 0"
-             style="position: absolute; top: 35px; display: flex; flex-direction: row; justify-content: space-between; width: 445px; font-size: 0.6rem; ">
+        <div v-if="options.length > 0" style="position: absolute; top: 35px; display: flex; justify-content: space-between; width: 445px; font-size: 0.6rem; ">
             <el-text style="font-size: inherit;">
                 Recommendations from 
                 <el-link size="small" style="margin-bottom: 3px; font-size: inherit;" underline="always" :href="isImageSheet ? 'https://bestsiteever.net/colpi/' : 'https://v2.blddb.net/'" target="_blank">
                     {{isImageSheet ? "bestsiteever.net/colpi" : "v2.blddb.net"}}
                 </el-link>
             </el-text>
-            <div v-if="sheetStore.getType(props.sheetID) == 1 || sheetStore.getType(props.sheetID) == 2" style="font-size: inherit;">
+            <span v-if="sheetStore.getType(props.sheetID) == 1 || sheetStore.getType(props.sheetID) == 2" style="font-size: inherit;">
                 {{notationType ? 'Comm' : 'Alg'}} notation <el-switch v-model="notationType" size="small" style="height: 10px;" />
-            </div>
+            </span>
         </div>
     </div>
 </template>

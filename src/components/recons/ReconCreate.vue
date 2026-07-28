@@ -78,7 +78,7 @@
 <template>
 
     <div style="border-block-end: 1px solid var(--el-border-color); padding-bottom: 10px; display: flex; flex-direction: row; align-items: center; gap: 5px;">
-        <el-tooltip content="Back">
+        <el-tooltip content="Back" :show-after="500">
             <el-button @click="back()" style="width: 40px; height: 28px;" type="primary" :plain="true">
                 <el-icon :size="20"><DArrowLeft /></el-icon>
             </el-button>

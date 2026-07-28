@@ -57,7 +57,7 @@
 
             <div style="margin-top: 10px; height: 30px; display: grid; grid-template-columns: 1fr 5fr 1fr;">
                 <!-- RECONSTRUCT BUTTON -->
-                <el-tooltip content="Reconstruct">
+                <el-tooltip content="Reconstruct" :show-after="500">
                     <el-button type="primary" style="width: 30px; height: 30px;" @click="Reconstruct()">
                         <el-icon :size="25"><Hammer /></el-icon>
                     </el-button>

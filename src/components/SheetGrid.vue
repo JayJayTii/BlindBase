@@ -1,7 +1,7 @@
 <script setup>
     //SheetGrid displays a given alg-sheet and provides callbacks for click events
     import { ref, reactive, watch, computed, nextTick } from 'vue'
-    import { getXHeadings, getYHeadings } from '@/helpers/sheets.js'
+	import { calculateCellClasses } from '@/helpers/sheets.js'
 	import { isPossiblePair } from '@/helpers/pairs.js'
     import { useSettingsStore } from '@/stores/SettingsStore'
     const settingsStore = useSettingsStore()
@@ -14,21 +14,17 @@
     })
 
 	const emit = defineEmits(['update:selected-cells', 'update:mouse-enter-cell', 'update:mouse-exit-cell'])
-	defineExpose({
-		changeHighlightedCells,
-	})
+	defineExpose({ changeHighlightedCells })
 
-    const sheet = computed({
-        get: () => props.sheet
-    })
-    const flipped = computed({
-        get: () => settingsStore.settings.sheets_pairorder === 1
-    })
+	const highlightedCells = ref([{ x: -1, y: -1 }])
+    const grid = ref(null)
+
+    const sheet = computed({ get: () => props.sheet })
+    const flipped = computed({ get: () => settingsStore.settings.sheets_pairorder === 1 })
 
     function cellClicked(absX, absY) { //Absolute x and y coords
         const create = !highlightedCells.value.some((cell) => cell.x === absX && cell.y === absY)
-        if(props.formatEmpty && props.sheet.grid[absY][absX] == "")
-            return
+        if(props.formatEmpty && props.sheet.grid[absY][absX] == "") return
 
         emit('update:selected-cells', [ {x: absX,y: absY} ], create)
     }
@@ -38,8 +34,8 @@
     }
 
     function columnClicked(index) { //This is absolute, so also a row with "Column then row" setting
-        if (!props.fullLineSelection)
-            return
+        if (!props.fullLineSelection) return
+
         const sheet = props.sheet
         let lineFilled = true //Searching for a cell that isn't empty and isn't highlighted
         for (var i = 0; i < 24; i++) {
@@ -96,17 +92,35 @@
         emit('update:selected-cells', cells, !lineFilled)
     }
 
-    function sheetClicked() {
-        if (!props.fullLineSelection)
-            return
-        //All cells in the sheet was selected (by clicking the top-left corner)
-        //If the sheet is already filled, clear all cells. Otherwise add every non-empty cell
+    function lineClicked(index, isRow) {
+		if (!props.fullLineSelection) return
 
-        const sheet = props.sheet
+		let lineFilled = true //Searching for a cell that isn't empty and isn't highlighted
+		for (var i = 0; i < 24; i++) {
+			if (props.sheet.grid[isRow ? index : i][isRow ? i : index] != '' && !highlightedCells.value.some((cell) => cell.x === (isRow ? i : index) && cell.y === (isRow ? index : i))) {
+				lineFilled = false
+				break
+			}
+        }
+
+        const cells = [] //Cells to either add or delete
+		for (var i = 0; i < 24; i++) {
+			if (lineFilled && highlightedCells.value.some((cell) => cell.x === (isRow ? i : index) && cell.y === (isRow ? index : i))
+				|| !lineFilled && props.sheet.grid[isRow ? index : i][isRow ? i : index] != '' && !highlightedCells.value.some((cell) => cell.x === (isRow ? i : index) && cell.y === (isRow ? index : i)))
+				cells.push({ x: (isRow ? i : index), y: (isRow ? index : i) })
+		}
+
+		emit('update:selected-cells', cells, !lineFilled)
+    }
+
+    function sheetClicked() {
+        //If the sheet is already filled, clear all cells. Otherwise add every non-empty cell
+        if (!props.fullLineSelection) return
+
         let sheetFilled = true
         for (var i = 0; i < 24; i++) {
             for (var j = 0; j < 24; j++) {
-                if (sheet.grid[i][j] != '' && !highlightedCells.value.some((cell) => cell.x === j && cell.y === i)) {
+                if (props.sheet.grid[i][j] != '' && !highlightedCells.value.some((cell) => cell.x === j && cell.y === i)) {
                     sheetFilled = false
                     break
                 }
@@ -114,107 +128,50 @@
         }
     
         const cells = []
-        if (sheetFilled) { //Delete cells
-            for (var i = 0; i < 24; i++) {
-                for (var j = 0; j < 24; j++) {
-                    if (highlightedCells.value.some((cell) => cell.x === j && cell.y === i))
-                        cells.push({ x: j, y: i })
-                }
-            }
-        }
-        else { //Add cells
-            for (var i = 0; i < 24; i++) {
-                for (var j = 0; j < 24; j++) {
-                    if (sheet.grid[i][j] != '' && !highlightedCells.value.some((cell) => cell.x === j && cell.y === i))
-                        cells.push({ x: j, y: i })
-                }
+        for (var i = 0; i < 24; i++) {
+            for (var j = 0; j < 24; j++) {
+                if (sheetFilled && highlightedCells.value.some((cell) => cell.x === j && cell.y === i)
+					|| !sheetFilled && props.sheet.grid[i][j] != '' && !highlightedCells.value.some((cell) => cell.x === j && cell.y === i))
+                    cells.push({ x: j, y: i })
             }
         }
 
         emit('update:selected-cells', cells, !sheetFilled)
     }
 
-    //Highlighted cells are absolute coords
-    const highlightedCells = ref([{ x: -1, y: -1 }])
-    let intervalID = null
-	const gridRef = ref(null)
     function changeHighlightedCells(newValue) {
+        if (newValue.length > 0 && newValue[0].x == -1) return
+
         highlightedCells.value = newValue
-        if (highlightedCells.value.length != 1)
-            return
-        
-        //Scroll to make sure if there is one highlightedCell, it is visible
-        const parent = gridRef.value
-        if (!parent)    
-            return
-        let targetX = !flipped.value ? highlightedCells.value[0].x.toString() : highlightedCells.value[0].y.toString()
-        let targetY = !flipped.value ? highlightedCells.value[0].y.toString() : highlightedCells.value[0].x.toString()
-        const child = document.getElementById(targetX + ',' + targetY)
-        const parentRect = parent.getBoundingClientRect()
-        const childRect = child.getBoundingClientRect()
-        const isVisible = childRect.top >= parentRect.top && childRect.bottom <= parentRect.bottom && childRect.left >= parentRect.left && childRect.right <= parentRect.right
-        if (isVisible)
-            return
-        const offsetTop = childRect.top - parentRect.top + parent.scrollTop - (parent.clientHeight / 2) + (child.clientHeight / 2)
-        const offsetLeft = childRect.left - parentRect.left + parent.scrollLeft - (parent.clientWidth / 2) + (child.clientWidth / 2)
-        parent.scrollTo({ top: offsetTop, left: offsetLeft })
     }
 
-    function calculateCellClasses(x, y) {
-        const [absX, absY] = (flipped.value ? ([y, x]) : ([x, y]))
-        //Calculate the CSS classes that a given cell will have in the grid
-        let classes = ['SheetGridCell']
-        if (!props.sheet || (props.formatEmpty && props.sheet.grid[absY][absX] === ''))
-            classes.push('SheetGridCellEmpty')
-        else {
-            const letters = "ABCDEFGHIJKLMNOPQRSTUVWX"
-			if ((props.sheet.type == 1 || props.sheet.type == 2) && !isPossiblePair(props.sheet.type, letters[x] + letters[y], props.sheet.buffer)) {
-                classes.push('SheetGridCellGreyed')
-            }
-			classes.push('SheetGridCellHoverable')
-        }
-        
-        if (Array.isArray(highlightedCells.value) && highlightedCells.value.some((cell) => cell.x === absX && cell.y === absY))
-            classes.push('SheetGridCellHightlighted')
-
-        return classes
-    }
+	const nums = Array.from({ length: 25 }, (_, i) => i - 1)
+	const headerStyle = { cursor: (props.fullLineSelection ? 'pointer' : 'default') }
 </script>
 
 <template>
-    <div class="SheetGrid" ref="gridRef">
-        <template v-for="(col, y) in 25">
-            <template v-for="(row, x) in 25">
-                <!-- Corner -->
-                <div v-if="x == 0 && y == 0"
-                     class="SheetGridCorner" 
-                     :style="{ cursor: (props.fullLineSelection ? 'pointer' : 'default') }"
+    <div class="SheetGrid" ref="grid">
+        <template v-for="(y, u) in nums">
+            <template v-for="(x, v) in nums">
+                <div v-if="v == 0 && u == 0" class="SheetGridCorner" :style="headerStyle"
                      :title="props.fullLineSelection ? 'Select sheet' : ''"
                      @click="sheetClicked()">
                 </div>
-                <!-- Column headings -->
-                <div v-else-if="y == 0"
-                     class="SheetGridTopRow"
+                <div v-else-if="u == 0" class="SheetGridTopRow" :style="headerStyle"
                      :title="props.fullLineSelection ? 'Select column' : ''"
-                     :style="{ cursor: props.fullLineSelection ? 'pointer' : 'default' }"
-                     @click="!flipped ? columnClicked(x-1) : rowClicked(x-1)">
-                    {{ "ABCDEFGHIJKLMNOPQRSTUVWX"[x-1] }}
+                     @click="lineClicked(x, flipped)">
+                    {{ "ABCDEFGHIJKLMNOPQRSTUVWX"[x] }}
                 </div>
-                <!-- Row headings -->
-                <div v-else-if="x == 0"
-                     class="SheetGridLeftColumn"
+                <div v-else-if="v == 0" class="SheetGridLeftColumn" :style="headerStyle"
                      :title="props.fullLineSelection ? 'Select row' : ''"
-                     :style="{ cursor: props.fullLineSelection ? 'pointer' : 'default' }"
-                     @click="!flipped ? rowClicked(y-1) : columnClicked(y-1)">
-                    {{ "ABCDEFGHIJKLMNOPQRSTUVWX"[y-1] }}
+                     @click="lineClicked(y, !flipped)">
+                    {{ "ABCDEFGHIJKLMNOPQRSTUVWX"[y] }}
                 </div>
-                <!-- Main grid -->
-                <div v-else :class="calculateCellClasses(x-1,y-1)"
-                            :id="(x-1).toString() + ',' + (y-1).toString()"
-                            @click="cellClicked(!flipped ? (x-1) : (y-1), !flipped ? (y-1) : (x-1));"
-                            @mouseover="emit('update:mouse-enter-cell',!flipped ? (x-1) : (y-1), !flipped ? (y-1) : (x-1))"
-                            @mouseout="emit('update:mouse-exit-cell',!flipped ? (x-1) : (y-1), !flipped ? (y-1) : (x-1))">
-                    {{ getCell(x-1,y-1) }}
+                <div v-else :id="x + ',' + y" :class="calculateCellClasses(!flipped ? x : y, !flipped ? y : x, formatEmpty, sheet, highlightedCells)"
+                            @click="cellClicked(!flipped ? x : y, !flipped ? y : x);"
+                            @mouseover="emit('update:mouse-enter-cell',!flipped ? x : y, !flipped ? y : x)"
+                            @mouseout="emit('update:mouse-exit-cell',!flipped ? x : y, !flipped ? y : x)">
+                    {{ getCell(x,y) }}
                 </div>
             </template>
         </template>
@@ -223,23 +180,21 @@
 
 <style>
 	.SheetGrid {
-		--sheet-cell-height: 2rem;
-		--sheet-cell-width: 100px;
-		max-height: calc(24 * var(--sheet-cell-height));
-		max-width: calc(24 * var(--sheet-cell-width) + var(--sheet-cell-height));
+		--sheet-cell-height: 1.7rem;
+		--sheet-cell-width: 80px;
+		--sheet-cell-bg-color: var(--el-fill-color-blank);
+		--sheet-cell-bg-color-inverse: var(--el-text-color-primary);
 		display: grid;
 		grid-template-rows: repeat(25, var(--sheet-cell-height));
 		grid-template-columns: var(--sheet-cell-height) repeat(24, var(--sheet-cell-width));
-		height: 100%;
 		overflow: auto;
 		border: 1px solid var(--el-border-color);
-		border-radius: var(--el-border-radius-base);
 	}
 
 	.SheetGridCorner {
-		background-color: var(--el-color-primary-light-8);
-		border-block-end: 3px solid var(--el-color-primary-light-3);
-		border-inline-end: 3px solid var(--el-color-primary-light-3);
+		background-color: var(--sheet-cell-bg-color);
+		border-block-end: 1px solid var(--el-border-color-dark);
+		border-inline-end: 1px solid var(--el-border-color-dark);
 		width: var(--sheet-cell-height);
 		height: var(--sheet-cell-height);
 		position: sticky;
@@ -254,9 +209,9 @@
 		z-index: 5;
 		width: var(--sheet-cell-width);
 		height: var(--sheet-cell-height);
-		background-color: var(--el-color-primary-light-8);
+		background-color: var(--sheet-cell-bg-color);
 		border: 1px solid var(--el-border-color-dark);
-		border-block-end: 3px solid var(--el-color-primary-light-3);
+		border-block-end: 1px solid var(--el-border-color-dark);
 		user-select: none;
 		display: flex;
 		justify-content: center;
@@ -270,9 +225,9 @@
 		z-index: 5;
 		width: var(--sheet-cell-height);
 		height: var(--sheet-cell-height);
-		background-color: var(--el-color-primary-light-8);
+		background-color: var(--sheet-cell-bg-color);
 		border: 1px solid var(--el-border-color-dark);
-		border-inline-end: 3px solid var(--el-color-primary-light-3);
+		border-inline-end: 1px solid var(--el-border-color-dark);
 		user-select: none;
 		display: flex;
 		justify-content: center;
@@ -283,7 +238,7 @@
 	.SheetGridCell {
 		width: var(--sheet-cell-width);
 		height: var(--sheet-cell-height);
-		background-color: var(--el-fill-color-blank);
+		background-color: var(--sheet-cell-bg-color);
 		border: 1px solid var(--el-border-color-dark);
 		padding: 0px 4px;
 		cursor: pointer;
@@ -294,16 +249,16 @@
 		line-height: var(--sheet-cell-height);
 	}
 	.SheetGridCellHoverable:hover {
-		background-color: color-mix(in srgb, var(--el-color-primary) 10%, var(--el-fill-color-blank));
+		background-color: color-mix(in srgb, var(--sheet-cell-bg-color) 90%, var(--el-color-primary) 10%);
 	}
 
 	.SheetGridCellEmpty {
-		background-color: var(--el-border-color);
+		background-color: color-mix(in srgb, var(--sheet-cell-bg-color) 90%, var(--sheet-cell-bg-color-inverse) 10%);
 		cursor: default;
 	}
 
 	.SheetGridCellGreyed {
-		background-color: var(--el-fill-color);
+		background-color: color-mix(in srgb, var(--sheet-cell-bg-color) 93%, var(--sheet-cell-bg-color-inverse) 7%);
 	}
 
     .SheetGridCellHightlighted {

@@ -250,7 +250,7 @@
                           v-model="edgeInput[index]"
                           :id="'Edges' + index.toString()"
                           :ref="el => edgeInputBox[index] = el" />
-                <el-tooltip content="Randomise" placement="left">
+                <el-tooltip content="Randomise" :show-after="500" placement="right">
                     <el-button style="height:45px; width:45px;" type="primary" :plain="true"
                                @click="FillEdgeRecommendation(index)">
                         <el-icon :size="20"><Bell /></el-icon>
@@ -291,7 +291,7 @@
                               v-model="cornerInput[index]"
                               :id="'Corns' + index.toString()"
                               :ref="el => cornerInputBox[index] = el " />
-                    <el-tooltip content="Randomise" placement="left">
+                    <el-tooltip content="Randomise" :show-after="500" placement="left">
                         <el-button style="height:45px; width:45px;" type="primary" :plain="true"
                                    @click="FillCornerRecommendation(index)">
                             <el-icon :size="20"><Bell /></el-icon>

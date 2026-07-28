@@ -150,21 +150,17 @@
             <div v-if="hasFlipped" id="result-buttons">
                 <!------BAD------>
                 <div>
-                    <el-tooltip content="Bad" placement="left">
-                        <el-button type="danger" :disabled="cardType == 'New'"
-                                   @click="finishedCard('Bad')" style="width: 70px; height: 40px;">
-                            <el-icon><Close /></el-icon>
-                        </el-button>
-                    </el-tooltip>
+                     <el-button type="danger" :disabled="cardType == 'New'"
+                                @click="finishedCard('Bad')" style="width: 70px; height: 40px;">
+                         <el-icon><Close /></el-icon>
+                     </el-button>
                 </div>
                 <!------GOOD------>
                 <div>
-                    <el-tooltip content="Good" placement="right">
-                        <el-button type="success"
-                                   @click="finishedCard('Good')" style="width: 70px; height: 40px;">
-                            <el-icon><Check /></el-icon>
-                        </el-button>
-                    </el-tooltip>
+                    <el-button type="success"
+                               @click="finishedCard('Good')" style="width: 70px; height: 40px;">
+                        <el-icon><Check /></el-icon>
+                    </el-button>
                 </div>
             </div>
         </div>

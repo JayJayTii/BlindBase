@@ -79,7 +79,7 @@
 					<hr v-if="sheetStore.sheets.length > 0" />
 					<div style="display: flex; flex-direction: row; justify-content:end; margin-top: 5px;">
 						<!-- UPLOAD -->
-						<el-tooltip placement="bottom" content="Upload">
+						<el-tooltip placement="bottom" content="Upload" :show-after="500">
 							<el-button type="primary" @click="uploadDialogRef.open(); mainDropdownRef.handleClose()" 
 									   style="justify-content: center; height: 35px; width: 35px;">
 								<el-icon :size="20">
@@ -88,7 +88,7 @@
 							</el-button>
 						</el-tooltip>
 						<!-- NEW -->
-						<el-tooltip placement="bottom" content="New">
+						<el-tooltip placement="bottom" content="New" :show-after="500">
 							<el-button type="primary" @click="newSheet(); mainDropdownRef.handleClose()" 
 									   style="justify-content: center; height: 35px; width: 35px;">
 								<el-icon :size="20">
@@ -116,7 +116,7 @@
 						   maxlength="30"
 						   style="width: 100%; font-size: inherit; margin-right: 10px;;" />
 					<!------DOWNLOAD------>
-					<el-tooltip content="Download">
+					<el-tooltip content="Download" :show-after="500">
 						<el-button type="primary" style="height: auto; width: 45px; padding: 0px;" @click="downloadSheet(sheetStore.getSheet(sheetID))">
 							<el-icon :size="20">
 								<Download />
@@ -125,13 +125,13 @@
 					</el-tooltip>
 
 					<!------DELETE------>
-					<el-popconfirm title="Are you sure?" @confirm="deleteSheet">
+					<el-popconfirm title="Delete sheet?" @confirm="deleteSheet">
 						<template #reference>
-							<el-button type="danger" style="height: auto; width: 45px; padding: 0px;">
-								<el-icon :size="20">
-									<Delete />
-								</el-icon>
-							</el-button>
+								<el-button type="danger" style="height: auto; width: 45px; padding: 0px;">
+									<el-icon :size="20">
+										<Delete />
+									</el-icon>
+								</el-button>
 						</template>
 					</el-popconfirm>
 				</el-dropdown-menu>

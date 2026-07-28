@@ -3,7 +3,8 @@ import { FaceletCube, faceColours } from '@/helpers/FaceletCube/FaceletCube.js'
 
 //https://youtube.com/playlist?list=PL2935W76vRNHFpPUuqmLoGCzwx_8eq5yK&si=ofNCSMJSk2rsow2t
 export function renderCube(gl, width, height, xSpin, ySpin, cube) {
-    const gap = 0.02
+    const gap = 0.01
+    const w = 0.08
     const vertexData = [
         //Corner 0
         -1, 3,-3,
@@ -440,178 +441,178 @@ export function renderCube(gl, width, height, xSpin, ySpin, cube) {
 
         //Piece gaps
         //White 1
-         -1-gap, 3.02,-3.02,
-         -1+gap, 3.02, 3.02,
-         -1+gap, 3.02,-3.02,
-         -1-gap, 3.02,-3.02,
-         -1+gap, 3.02, 3.02,
-         -1-gap, 3.02, 3.02,
+         -1-w, 3+gap,-3-gap,
+         -1+w, 3+gap, 3+gap,
+         -1+w, 3+gap,-3-gap,
+         -1-w, 3+gap,-3-gap,
+         -1+w, 3+gap, 3+gap,
+         -1-w, 3+gap, 3+gap,
         //White 2
-         1-gap, 3.02,-3.02,
-         1+gap, 3.02, 3.02,
-         1+gap, 3.02,-3.02,
-         1-gap, 3.02,-3.02,
-         1+gap, 3.02, 3.02,
-         1-gap, 3.02, 3.02,
+         1-w, 3+gap,-3-gap,
+         1+w, 3+gap, 3+gap,
+         1+w, 3+gap,-3-gap,
+         1-w, 3+gap,-3-gap,
+         1+w, 3+gap, 3+gap,
+         1-w, 3+gap, 3+gap,
         //White 3
-          3.02, 3.02, -1 - gap,
-          3.02, 3.02, -1 + gap,
-         -3.02, 3.02, -1 - gap,
-         -3.02, 3.02, -1 + gap,
-          3.02, 3.02, -1 + gap,
-         -3.02, 3.02, -1 - gap,
+          3+gap, 3+gap, -1 - w,
+          3+gap, 3+gap, -1 + w,
+         -3-gap, 3+gap, -1 - w,
+         -3-gap, 3+gap, -1 + w,
+          3+gap, 3+gap, -1 + w,
+         -3-gap, 3+gap, -1 - w,
         //White 4
-          3.02, 3.02, 1 - gap,
-          3.02, 3.02, 1 + gap,
-         -3.02, 3.02, 1 - gap,
-         -3.02, 3.02, 1 + gap,
-          3.02, 3.02, 1 + gap,
-         -3.02, 3.02, 1 - gap,
+          3+gap, 3+gap, 1 - w,
+          3+gap, 3+gap, 1 + w,
+         -3-gap, 3+gap, 1 - w,
+         -3-gap, 3+gap, 1 + w,
+          3+gap, 3+gap, 1 + w,
+         -3-gap, 3+gap, 1 - w,
          
         //Orange 1
-        -3.02, 3.02, 1 + gap,
-        -3.02,-3.02, 1 - gap,
-        -3.02, 3.02, 1 - gap,
-        -3.02, 3.02, 1 + gap,
-        -3.02,-3.02, 1 - gap,
-        -3.02,-3.02, 1 + gap,
+        -3-gap, 3+gap, 1 + w,
+        -3-gap,-3-gap, 1 - w,
+        -3-gap, 3+gap, 1 - w,
+        -3-gap, 3+gap, 1 + w,
+        -3-gap,-3-gap, 1 - w,
+        -3-gap,-3-gap, 1 + w,
         //Orange 2
-        -3.02, 3.02, -1 + gap,
-        -3.02,-3.02, -1 - gap,
-        -3.02, 3.02, -1 - gap,
-        -3.02, 3.02, -1 + gap,
-        -3.02,-3.02, -1 - gap,
-        -3.02,-3.02, -1 + gap,
+        -3-gap, 3+gap, -1 + w,
+        -3-gap,-3-gap, -1 - w,
+        -3-gap, 3+gap, -1 - w,
+        -3-gap, 3+gap, -1 + w,
+        -3-gap,-3-gap, -1 - w,
+        -3-gap,-3-gap, -1 + w,
         //Orange 3
-        -3.02, 1 + gap, 3.02,
-        -3.02, 1 - gap,-3.02,
-        -3.02, 1 + gap,-3.02,
-        -3.02, 1 + gap, 3.02,
-        -3.02, 1 - gap,-3.02,
-        -3.02, 1 - gap, 3.02,
+        -3-gap, 1 + w, 3+gap,
+        -3-gap, 1 - w,-3-gap,
+        -3-gap, 1 + w,-3-gap,
+        -3-gap, 1 + w, 3+gap,
+        -3-gap, 1 - w,-3-gap,
+        -3-gap, 1 - w, 3+gap,
         //Orange 4
-        -3.02, -1 + gap, 3.02,
-        -3.02, -1 - gap,-3.02,
-        -3.02, -1 + gap,-3.02,
-        -3.02, -1 + gap, 3.02,
-        -3.02, -1 - gap,-3.02,
-        -3.02, -1 - gap, 3.02,
+        -3-gap, -1 + w, 3+gap,
+        -3-gap, -1 - w,-3-gap,
+        -3-gap, -1 + w,-3-gap,
+        -3-gap, -1 + w, 3+gap,
+        -3-gap, -1 - w,-3-gap,
+        -3-gap, -1 - w, 3+gap,
 
         //Green 1
-         -1 - gap,-3.02, 3.02,
-         -1 + gap, 3.02, 3.02,
-         -1 - gap, 3.02, 3.02,
-         -1 - gap,-3.02, 3.02,
-         -1 + gap, 3.02, 3.02,
-         -1 + gap,-3.02, 3.02,
+         -1 - w,-3-gap, 3+gap,
+         -1 + w, 3+gap, 3+gap,
+         -1 - w, 3+gap, 3+gap,
+         -1 - w,-3-gap, 3+gap,
+         -1 + w, 3+gap, 3+gap,
+         -1 + w,-3-gap, 3+gap,
         //Green 2
-         1 - gap,-3.02, 3.02,
-         1 + gap, 3.02, 3.02,
-         1 - gap, 3.02, 3.02,
-         1 - gap,-3.02, 3.02,
-         1 + gap, 3.02, 3.02,
-         1 + gap,-3.02, 3.02,
+         1 - w,-3-gap, 3+gap,
+         1 + w, 3+gap, 3+gap,
+         1 - w, 3+gap, 3+gap,
+         1 - w,-3-gap, 3+gap,
+         1 + w, 3+gap, 3+gap,
+         1 + w,-3-gap, 3+gap,
         //Green 3
-         -3.02, 1 + gap, 3.02,
-         -3.02, 1 - gap, 3.02,
-          3.02, 1 + gap, 3.02,
-         -3.02, 1 - gap, 3.02,
-          3.02, 1 + gap, 3.02,
-          3.02, 1 - gap, 3.02,
+         -3-gap, 1 + w, 3+gap,
+         -3-gap, 1 - w, 3+gap,
+          3+gap, 1 + w, 3+gap,
+         -3-gap, 1 - w, 3+gap,
+          3+gap, 1 + w, 3+gap,
+          3+gap, 1 - w, 3+gap,
         //Green 4
-         -3.02, -1 + gap, 3.02,
-         -3.02, -1 - gap, 3.02,
-          3.02, -1 + gap, 3.02,
-         -3.02, -1 - gap, 3.02,
-          3.02, -1 + gap, 3.02,
-          3.02, -1 - gap, 3.02,
+         -3-gap, -1 + w, 3+gap,
+         -3-gap, -1 - w, 3+gap,
+          3+gap, -1 + w, 3+gap,
+         -3-gap, -1 - w, 3+gap,
+          3+gap, -1 + w, 3+gap,
+          3+gap, -1 - w, 3+gap,
 
         //Red 1
-         3.02, 3.02, 1 + gap,
-         3.02,-3.02, 1 - gap,
-         3.02, 3.02, 1 - gap,
-         3.02, 3.02, 1 + gap,
-         3.02,-3.02, 1 - gap,
-         3.02,-3.02, 1 + gap,
+         3+gap, 3+gap, 1 + w,
+         3+gap,-3-gap, 1 - w,
+         3+gap, 3+gap, 1 - w,
+         3+gap, 3+gap, 1 + w,
+         3+gap,-3-gap, 1 - w,
+         3+gap,-3-gap, 1 + w,
         //Red 2
-         3.02, 3.02, -1 + gap,
-         3.02,-3.02, -1 - gap,
-         3.02, 3.02, -1 - gap,
-         3.02, 3.02, -1 + gap,
-         3.02,-3.02, -1 - gap,
-         3.02,-3.02, -1 + gap,
+         3+gap, 3+gap, -1 + w,
+         3+gap,-3-gap, -1 - w,
+         3+gap, 3+gap, -1 - w,
+         3+gap, 3+gap, -1 + w,
+         3+gap,-3-gap, -1 - w,
+         3+gap,-3-gap, -1 + w,
         //Red 3
-         3.02, 1 + gap, 3.02,
-         3.02, 1 - gap,-3.02,
-         3.02, 1 + gap,-3.02,
-         3.02, 1 + gap, 3.02,
-         3.02, 1 - gap,-3.02,
-         3.02, 1 - gap, 3.02,
+         3+gap, 1 + w, 3+gap,
+         3+gap, 1 - w,-3-gap,
+         3+gap, 1 + w,-3-gap,
+         3+gap, 1 + w, 3+gap,
+         3+gap, 1 - w,-3-gap,
+         3+gap, 1 - w, 3+gap,
         //Red 4
-         3.02, -1 + gap, 3.02,
-         3.02, -1 - gap,-3.02,
-         3.02, -1 + gap,-3.02,
-         3.02, -1 + gap, 3.02,
-         3.02, -1 - gap,-3.02,
-         3.02, -1 - gap, 3.02,
+         3+gap, -1 + w, 3+gap,
+         3+gap, -1 - w,-3-gap,
+         3+gap, -1 + w,-3-gap,
+         3+gap, -1 + w, 3+gap,
+         3+gap, -1 - w,-3-gap,
+         3+gap, -1 - w, 3+gap,
          
         //Blue 1
-         -1 - gap,-3.02, -3.02,
-         -1 + gap, 3.02, -3.02,
-         -1 - gap, 3.02, -3.02,
-         -1 - gap,-3.02, -3.02,
-         -1 + gap, 3.02, -3.02,
-         -1 + gap,-3.02, -3.02,
+         -1 - w,-3-gap, -3-gap,
+         -1 + w, 3+gap, -3-gap,
+         -1 - w, 3+gap, -3-gap,
+         -1 - w,-3-gap, -3-gap,
+         -1 + w, 3+gap, -3-gap,
+         -1 + w,-3-gap, -3-gap,
         //Blue 2
-         1 - gap,-3.02, -3.02,
-         1 + gap, 3.02, -3.02,
-         1 - gap, 3.02, -3.02,
-         1 - gap,-3.02, -3.02,
-         1 + gap, 3.02, -3.02,
-         1 + gap,-3.02, -3.02,
+         1 - w,-3-gap, -3-gap,
+         1 + w, 3+gap, -3-gap,
+         1 - w, 3+gap, -3-gap,
+         1 - w,-3-gap, -3-gap,
+         1 + w, 3+gap, -3-gap,
+         1 + w,-3-gap, -3-gap,
         //Blue 3
-         -3.02, 1 + gap, -3.02,
-         -3.02, 1 - gap, -3.02,
-          3.02, 1 + gap, -3.02,
-         -3.02, 1 - gap, -3.02,
-          3.02, 1 + gap, -3.02,
-          3.02, 1 - gap, -3.02,
+         -3-gap, 1 + w, -3-gap,
+         -3-gap, 1 - w, -3-gap,
+          3+gap, 1 + w, -3-gap,
+         -3-gap, 1 - w, -3-gap,
+          3+gap, 1 + w, -3-gap,
+          3+gap, 1 - w, -3-gap,
         //Blue 4
-         -3.02, -1 + gap, -3.02,
-         -3.02, -1 - gap, -3.02,
-          3.02, -1 + gap, -3.02,
-         -3.02, -1 - gap, -3.02,
-          3.02, -1 + gap, -3.02,
-          3.02, -1 - gap, -3.02,
+         -3-gap, -1 + w, -3-gap,
+         -3-gap, -1 - w, -3-gap,
+          3+gap, -1 + w, -3-gap,
+         -3-gap, -1 - w, -3-gap,
+          3+gap, -1 + w, -3-gap,
+          3+gap, -1 - w, -3-gap,
           
         //Yellow 1
-        -1 - gap,-3.02,-3.02,
-        -1 + gap,-3.02, 3.02,
-        -1 + gap,-3.02,-3.02,
-        -1 - gap,-3.02,-3.02,
-        -1 + gap,-3.02, 3.02,
-        -1 - gap,-3.02, 3.02,
+        -1 - w,-3-gap,-3-gap,
+        -1 + w,-3-gap, 3+gap,
+        -1 + w,-3-gap,-3-gap,
+        -1 - w,-3-gap,-3-gap,
+        -1 + w,-3-gap, 3+gap,
+        -1 - w,-3-gap, 3+gap,
         //Yellow 2
-         1 - gap,-3.02,-3.02,
-         1 + gap,-3.02, 3.02,
-         1 + gap,-3.02,-3.02,
-         1 - gap,-3.02,-3.02,
-         1 + gap,-3.02, 3.02,
-         1 - gap,-3.02, 3.02,
+         1 - w,-3-gap,-3-gap,
+         1 + w,-3-gap, 3+gap,
+         1 + w,-3-gap,-3-gap,
+         1 - w,-3-gap,-3-gap,
+         1 + w,-3-gap, 3+gap,
+         1 - w,-3-gap, 3+gap,
         //Yellow 3
-         3.02,-3.02, -1 - gap,
-         3.02,-3.02, -1 + gap,
-        -3.02,-3.02, -1 - gap,
-        -3.02,-3.02, -1 + gap,
-         3.02,-3.02, -1 + gap,
-        -3.02,-3.02, -1 - gap,
+         3+gap,-3-gap, -1 - w,
+         3+gap,-3-gap, -1 + w,
+        -3-gap,-3-gap, -1 - w,
+        -3-gap,-3-gap, -1 + w,
+         3+gap,-3-gap, -1 + w,
+        -3-gap,-3-gap, -1 - w,
         //Yellow 4
-         3.02,-3.02, 1 - gap,
-         3.02,-3.02, 1 + gap,
-        -3.02,-3.02, 1 - gap,
-        -3.02,-3.02, 1 + gap,
-         3.02,-3.02, 1 + gap,
-        -3.02,-3.02, 1 - gap,
+         3+gap,-3-gap, 1 - w,
+         3+gap,-3-gap, 1 + w,
+        -3-gap,-3-gap, 1 - w,
+        -3-gap,-3-gap, 1 + w,
+         3+gap,-3-gap, 1 + w,
+        -3-gap,-3-gap, 1 - w,
     ]
 
 
@@ -619,21 +620,24 @@ export function renderCube(gl, width, height, xSpin, ySpin, cube) {
         const num = parseInt(hex.replace('#',''), 16)
         return [((num >> 16) & 255)/256.0, ((num >> 8) & 255)/256.0, (num & 255)/256.0]
     }
-
+    const grey = [0.4, 0.4, 0.4];
     let colourData = []
     for(let corner = 0; corner < 24; corner++) { // 24 corner stickers
+        //const stickerColour = grey;
         const stickerColour = hexToRGB(cube.getCornerFaceletSticker(corner))
         for(let vertex = 0; vertex < 6; vertex++) { //6 vertices per corner sticker (quad = 2 triangles)
             colourData.push(...stickerColour)
         }
     }
     for(let edge = 0; edge < 24; edge++) { // 24 edge stickers
+        //const stickerColour = grey;
         const stickerColour = hexToRGB(cube.getEdgeFaceletSticker(edge))
         for(let vertex = 0; vertex < 6; vertex++) { //6 vertices per edge sticker (quad = 2 triangles)
             colourData.push(...stickerColour)
         }
     }
     for(let center = 0; center < 6; center++) { // 6 center stickers
+        //const stickerColour = grey;
         const stickerColour = hexToRGB(cube.getCenterFaceletSticker(center))
         for(let vertex = 0; vertex < 6; vertex++) { //6 vertices per center sticker (quad = 2 triangles)
             colourData.push(...stickerColour)
@@ -711,13 +715,16 @@ export function renderCube(gl, width, height, xSpin, ySpin, cube) {
     let viewMatrix = mat4.create()
 
     const projectionMatrix = mat4.create()
-    //mat4.ortho(projectionMatrix, -10, 10, -10, 10, 0.01, 1000);
+    const zoom = 7;
+    mat4.ortho(projectionMatrix, -zoom, zoom, -height / width * zoom, height/width * zoom, 0.01, 1000);
+    /*
     mat4.perspective(projectionMatrix, 
         50 * Math.PI/180, //vfov in radians
         width / height, //aspect ratio
         1e-3, //near clip plane
         1e4 //far clip plane
     )
+    */
 
     const mvMatrix = mat4.create() //model-view
     const mvpMatrix = mat4.create() //model-view-projection

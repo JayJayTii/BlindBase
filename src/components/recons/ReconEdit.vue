@@ -116,8 +116,6 @@
                           autosize
                           maxlength="4000" />
             </div>
-
-            <div></div>
         </div>
         <div style="position: sticky; top: 20px; width: 40%; align-self: flex-start; display: flex; flex-direction: column; gap: 10px; ">
             <div style="width: 100%; aspect-ratio: 4/3; max-height: 70vh;">

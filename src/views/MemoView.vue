@@ -84,7 +84,7 @@
     }
 
     function UpdateHighscore() {
-        if (runData.pairSelect !== "From all pairs") //Only allowed highscores when using all possible pairs
+		if (runData.pairSelect !== "All letter pairs") //Only allowed highscores when using all possible pairs
             return
 
         if (runData.mode === "Multiblind") {

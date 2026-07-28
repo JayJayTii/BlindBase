@@ -83,7 +83,7 @@
 					<hr v-if="timerStore.sessions.length > 0" />
 					<div style="display: flex; flex-direction: row; justify-content: end; margin-top: 5px;">
 						<!-- NEW -->
-						<el-tooltip placement="right" content="New">
+						<el-tooltip placement="right" content="New" :show-after="500">
 							<el-button type="primary" @click="newSession(); mainDropdownRef.handleClose()"
 									   style="justify-content: center; height: 35px; width: 35px;">
 								<el-icon :size="20">
@@ -107,7 +107,7 @@
 			<template #dropdown>
 				<el-dropdown-menu style="width: min(300px, 20vw); font-size: 1.2rem; padding: 5px; display: flex; flex-direction: row; gap: 10px;">
 					<!------NAME------>
-					<input v-model="currentSessionName"
+					<el-input v-model="currentSessionName"
 						   maxlength="30"
 						   @keydown.space.stop
 						   style="width: 100%; font-size: inherit;" />

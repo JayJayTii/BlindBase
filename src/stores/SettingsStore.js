@@ -39,6 +39,12 @@ export const defaults = {
         min: 1,
         max: 20,
     },
+    memo_averagedistractiontime: {
+        name: 'Average memo distraction time',
+        default: 8,
+        min: 2,
+        max: 30,
+    },
     timer_spaceholdingtime: {
         name: 'Hold space down for ___ seconds',
         description: 'How long the spacebar needs to be held down to start the timer.',
@@ -71,10 +77,12 @@ export const useSettingsStore = defineStore('settingsStore', {
                     out[key] = value.default
                 else {
                     //Bound any number values
-                    if (defaults[key].hasOwnProperty("min") && out[key] < defaults[key].min)
+                    if (defaults[key].hasOwnProperty("min") && out[key] < defaults[key].min) {
                         out[key] = defaults[key].min
-                    if (defaults[key].hasOwnProperty("max") && out[key] > defaults[key].max)
+                    }
+                    if (defaults[key].hasOwnProperty("max") && out[key] > defaults[key].max) {
                         out[key] = defaults[key].max
+                    }
                 }
             }
             return out

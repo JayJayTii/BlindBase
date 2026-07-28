@@ -1,6 +1,7 @@
 import { ElMessageBox } from 'element-plus'
 import { useSheetStore } from '@/stores/SheetStore.js'
 import { useSettingsStore } from '@/stores/SettingsStore.js'
+import { isPossiblePair } from '@/helpers/pairs.js'
 import { cornerBuffers, edgeBuffers, cornerScheme, edgeScheme, cornerSpeffz, edgeSpeffz } from '@/helpers/letter_scheme.js'
 
 export function downloadSheet(sheet) {
@@ -228,4 +229,22 @@ export function getXHeadings(sheet) {
 }
 export function getYHeadings(sheet) {
 	return sheet ? sheet.yHeadings.split('') : 'ABCDEFGHIJKLMNOPQRSTUVWX'.split('')
+}
+
+const letters = "ABCDEFGHIJKLMNOPQRSTUVWX"
+export function calculateCellClasses(x, y, formatEmpty, sheet, highlightedCells) {
+	let classes = ['SheetGridCell']
+	if (!sheet || (formatEmpty && sheet.grid[y][x] === ''))
+		classes.push('SheetGridCellEmpty')
+	else {
+		if ((sheet.type == 1 || sheet.type == 2) && !isPossiblePair(sheet.type, letters[x] + letters[y], sheet.buffer))
+			classes.push('SheetGridCellGreyed')
+
+		classes.push('SheetGridCellHoverable')
+	}
+
+	if (Array.isArray(highlightedCells) && highlightedCells.some((cell) => cell.x === x && cell.y === y))
+		classes.push('SheetGridCellHightlighted')
+
+	return classes
 }

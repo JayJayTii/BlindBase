@@ -79,8 +79,6 @@
         align-items: center;
 	}
 		#sheet-settings > * {
-			margin-left: 5px;
-			height: 100%;
-			border-left: 1px solid var(--el-border-color);
+			margin-left: 10px;
 		}
 </style>

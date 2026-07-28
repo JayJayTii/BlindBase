@@ -8,13 +8,12 @@
 </script>
 
 <template>
-    <div style="text-align:center; display: flex; flex-direction: column; gap: 20px;">
-        <div style="height: 10dvh;" />
-        <el-text style="font-size: 5rem; color: var(--el-text-color-primary); font-weight: 600;">
-            BlindBase
+    <div id="home-view" style="text-align:center; display: flex; flex-direction: column; gap: 10px;">
+        <el-text style="font-size: 5rem; color: var(--el-text-color-primary); position: relative; font-weight: 600; margin-top: 10dvh;">
+            BlindBase <el-text id="alpha-text" type="primary">Alpha</el-text>
         </el-text>
         <el-text style="font-size: 1.5rem; width: min(700px, 100%)">
-            Blindbase.net is a website that helps you learn the 3-Style method for the Rubik's Cube blindfolded.
+            A website to help you learn 3-Style for 3x3 blindfolded.
         </el-text>
 
 
@@ -77,6 +76,15 @@
 </template>
 
 <style>
+	#alpha-text {
+		position: absolute;
+		right: -50px;
+		top: 20px;
+		font-weight: 400;
+		font-size: 1.5rem;
+		transform: rotate(20deg);
+	}
+
 	#home-view-cards {
 		display: grid;
 		grid-template-columns: repeat(auto-fit, minmax(30%, 1fr));

@@ -127,7 +127,7 @@ export const useSheetStore = defineStore('sheetStore', {
 
         //Key is AA, coord is { x: 0, y: 0 }
         coordToKey(id, coord) {
-            if (!this.isValidSheetID(id))
+            if (!this.isValidSheetID(id) || coord.x < 0 || coord.x > 23 || coord.y < 0 || coord.y > 23)
                 return ''
             const sheet = this.getSheet(id)
             return getYHeadings(sheet)[coord.y] + getXHeadings(sheet)[coord.x]

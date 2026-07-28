@@ -28,8 +28,8 @@
     })
 
     function resize() {
-		canvasRef.value.width = parseInt(window.getComputedStyle(canvasRef.value).width)
-		canvasRef.value.height = parseInt(window.getComputedStyle(canvasRef.value).height)
+		canvasRef.value.width = 5 * parseInt(window.getComputedStyle(canvasRef.value).width)
+		canvasRef.value.height = 5 * parseInt(window.getComputedStyle(canvasRef.value).height)
 		gl.viewport(0, 0, canvasRef.value.width, canvasRef.value.height);
 		renderCube(gl, canvasRef.value.width, canvasRef.value.height, xAngle, yAngle, props.cube) 
     }
@@ -62,12 +62,12 @@
         const x = event.clientX
         const y = event.clientY
         if(dragging) {
-			const factor = 250 / canvasRef.value.height
+			const factor = 500 / canvasRef.value.height
             //y and x swapped because technically x rotation requires y mouse movement and vice versa
             xAngle -= factor * (y - lastMouseY)
             yAngle -= factor * (x - lastMouseX)
             if(xAngle > 90)       xAngle = 90
-            else if(xAngle < -90) xAngle = -9
+            else if(xAngle < -90) xAngle = -90
 			renderCube(gl, canvasRef.value.width, canvasRef.value.height, xAngle, yAngle, props.cube)
         }
         lastMouseX = x

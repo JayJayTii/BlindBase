@@ -55,8 +55,8 @@
     })
     const modeSelected = computed({ get: () => (mode.value != "") })
 
-    //From all, from sheets, from cards, or from custom
-    const pairSelectValue = ref("From all pairs")
+    //From all, Letter pairs in a sheets, Letter pairs in a card deck, or from custom
+    const pairSelectValue = ref("All letter pairs")
     const pairSelect = computed({
         get: () => pairSelectValue.value,
         set: (newValue) => {
@@ -71,13 +71,13 @@
 			else if (pieceType.value == 2) // Edges
                 buffer.value = useSettingsStore().settings.misc_defaultedgebuffer
 
-            if (newValue == "From sheet") {
+            if (newValue == "Letter pairs in a sheet") {
                 pairSelectSheetID.value = getValidSheets().length > 0 ? getValidSheets()[0].id : -1
             }
-            else if (newValue == "From cards") {
+            else if (newValue == "Letter pairs in a card deck") {
 				pairSelectSheetID.value = getValidCardDecks().length > 0 ? getValidCardDecks()[0].id : -1
             }
-            else if (newValue == "From custom") {
+            else if (newValue == "Custom") {
                 for (var y = 0; y < 24; y++) {
                     for (var x = 0; x < 24; x++) {
                         selectedCells.value[y][x] = false
@@ -104,10 +104,10 @@
         get: () => pieceType.value != -1
             && ((mode.value == "Whole")
                 || (mode.value == "One pair"
-                    && (pairSelect.value == 'From all pairs'
-                        || (pairSelect.value == "From sheet" && pairSelectSheetID.value != -1)
-                        || (pairSelect.value == "From cards" && pairSelectSheetID.value != -1)
-                        || (pairSelect.value == "From custom" && getSelectedCellCount() > 0)))
+                    && (pairSelect.value == 'All letter pairs'
+                        || (pairSelect.value == "Letter pairs in a sheet" && pairSelectSheetID.value != -1)
+                        || (pairSelect.value == "Letter pairs in a card deck" && pairSelectSheetID.value != -1)
+                        || (pairSelect.value == "Custom" && getSelectedCellCount() > 0)))
                 )      
     })
 
@@ -135,7 +135,7 @@
 			editingCustomPairs.value = false
             generateCustomPairSheet()
 
-            if(pairSelect.value == "From all pairs")
+            if(pairSelect.value == "All letter pairs")
                 GeneratePairsAndEmit()
 		}
     })
@@ -212,10 +212,10 @@
 			return
 		let pairs = []
 		switch (pairSelect.value) {
-			case "From all pairs":
+			case "All letter pairs":
 				pairs = allLetterPairs.filter((pair) => isPossiblePair(pieceType.value, pair, buffer.value))
 				break
-			case "From sheet":
+			case "Letter pairs in a sheet":
 				const sheet = sheetStore.getSheet(pairSelectSheetID.value)
 				for (var y = 0; y < sheet.yHeadings.length; y++) {
 					for (var x = 0; x < sheet.xHeadings.length; x++) {
@@ -226,7 +226,7 @@
                 }
                 buffer.value = sheet.buffer
 				break
-			case "From cards":
+			case "Letter pairs in a card deck":
 				const cards = cardStore.cards
 					.filter((card) => card.sheetID == pairSelectSheetID.value
 						&& card.successCount > 0)
@@ -235,7 +235,7 @@
                 }
                 buffer.value = sheetStore.getBuffer(pairSelectSheetID.value)
 				break
-			case "From custom":
+			case "Custom":
 				for (var i = 0; i < 24; i++) {
 					for (var j = 0; j < 24; j++) {
 						if (selectedCells.value[i][j])
@@ -271,50 +271,50 @@
     <div id="ExecSelect">
 
         <!-- PIECE TYPE -->
-        <el-select v-model="pieceType" size="large" style="width: 130px;">
-            <el-option :value="1" label="Corners">Corners</el-option>
-            <el-option :value="2" label="Edges">Edges</el-option>
-        </el-select>
+        <el-tooltip content="Piece type" :show-after="500" placement="top">
+            <el-select v-model="pieceType" size="large" style="width: 130px;">
+                <el-option :value="1" label="Corners">Corners</el-option>
+                <el-option :value="2" label="Edges">Edges</el-option>
+            </el-select>
+        </el-tooltip>
 
         <!-- PIECE TYPE => MODE -->
         <el-divider class="ExecSelectLine" v-if="pieceTypeSelected" />
-        <el-select v-if="pieceTypeSelected" v-model="mode" size="large" style="width: 120px;">
-            <el-tooltip content="One pair per scramble" placement="right">
-                <el-option value="One pair">One pair</el-option>
-            </el-tooltip>
-            <el-tooltip :content="pieceTypes[pieceType] + '-only scramble'" placement="right">
-                <el-option value="Whole">Whole</el-option>
-            </el-tooltip>
-        </el-select>
+        <el-tooltip content="Scramble type" :show-after="500" placement="top">
+            <el-select v-if="pieceTypeSelected" 
+                       v-model="mode" size="large" style="width: 120px;">
+                <el-tooltip content="One pair per scramble" :show-after="500" placement="right">
+                    <el-option value="One pair">One pair</el-option>
+                </el-tooltip>
+                <el-tooltip :content="'Full ' + pieceTypes[pieceType] + ' scramble'" :show-after="500" placement="right">
+                    <el-option value="Whole">Whole</el-option>
+                </el-tooltip>
+            </el-select>
+        </el-tooltip>
 
         <!-- PIECE TYPE => ONE PAIR => FROM [___] -->
         <el-divider class="ExecSelectLine" v-if="mode == 'One pair'" />
-        <el-select v-if="mode == 'One pair'" v-model="pairSelect" size="large" style="width: 150px;">
-            <el-tooltip content="All letter pairs" placement="right">
-                <el-option value="From all pairs">From all pairs</el-option>
-            </el-tooltip>
-            <el-tooltip content="All letter pairs in an alg-sheet" placement="right">
-                <el-option value="From sheet">From sheet</el-option>
-            </el-tooltip>
-            <el-tooltip content="Flashcards in a card deck" placement="right">
-                <el-option value="From cards">From cards</el-option>
-            </el-tooltip>
-            <el-tooltip content="Select from a grid of letter pairs" placement="right">
-                <el-option value="From custom">From custom</el-option>
-            </el-tooltip>
-        </el-select>
+        <el-tooltip content="Pairs to test" :show-after="500" placement="top">
+            <el-select v-if="mode == 'One pair'" v-model="pairSelect" size="large" style="width: 220px;">
+                <el-option value="All letter pairs">All letter pairs</el-option>
+                <el-option value="Letter pairs in a sheet">Letter pairs in a sheet</el-option>
+                <el-option value="Letter pairs in a card deck">Letter pairs in a card deck</el-option>
+                <el-option value="Custom">Custom</el-option>
+            </el-select>
+        </el-tooltip>
 
-        <!-- PIECE TYPE => ONE PAIR => FROM ALL PAIRS/CUSTOM => BUFFER -->
-        <el-divider class="ExecSelectLine" v-if="pairSelect == 'From custom' || pairSelect == 'From all pairs'" />
-        <el-select v-if="pairSelect == 'From custom' || pairSelect == 'From all pairs'"
-                   v-model="buffer" size="large" style="width: 80px;">
-            <el-option v-for="(buffer, index) in (pieceType == 1 ? cornerBuffers : edgeBuffers)" :label="buffer" :value="index">{{ buffer }}</el-option>
-        </el-select>
+        <!-- PIECE TYPE => ONE PAIR => All letter pairs/CUSTOM => BUFFER -->
+        <el-divider class="ExecSelectLine" v-if="pairSelect == 'Custom' || pairSelect == 'All letter pairs'" />
+        <el-tooltip content="Buffer" placement="top" :show-after="500" v-if="pairSelect == 'Custom' || pairSelect == 'All letter pairs'">
+            <el-select v-model="buffer" size="large" style="width: 80px;">
+                <el-option v-for="(buffer, index) in (pieceType == 1 ? cornerBuffers : edgeBuffers)" :label="buffer" :value="index">{{ buffer }}</el-option>
+            </el-select>
+        </el-tooltip>
 
-        <el-divider class="ExecSelectLine" v-if="pairSelect == 'From sheet' || pairSelect == 'From cards' || pairSelect == 'From custom'" />
-        <div v-if="pairSelect == 'From sheet' || pairSelect == 'From cards' || pairSelect == 'From custom'">
-            <!-- PIECE TYPE => ONE PAIR => FROM SHEET => [_______] -->
-            <div v-if="pairSelect == 'From sheet'">
+        <el-divider class="ExecSelectLine" v-if="pairSelect == 'Letter pairs in a sheet' || pairSelect == 'Letter pairs in a card deck' || pairSelect == 'Custom'" />
+        <div v-if="pairSelect == 'Letter pairs in a sheet' || pairSelect == 'Letter pairs in a card deck' || pairSelect == 'Custom'">
+            <!-- PIECE TYPE => ONE PAIR => Letter pairs in a sheet => [_______] -->
+            <div v-if="pairSelect == 'Letter pairs in a sheet'">
                 <el-select v-if="getValidSheets().length > 0" v-model="pairSelectSheetID"
                            size="large" style="width: 250px;">
                     <el-option v-for="sheet in getValidSheets()" :label="sheet.name" :value="sheet.id">{{sheet.name}}</el-option>
@@ -323,8 +323,8 @@
                     No valid sheets
                 </div>
             </div>
-            <!-- PIECE TYPE => ONE PAIR => FROM CARDS => [_______] -->
-            <div v-if="pairSelect == 'From cards'">
+            <!-- PIECE TYPE => ONE PAIR => Letter pairs in a card deck => [_______] -->
+            <div v-if="pairSelect == 'Letter pairs in a card deck'">
                 <el-select v-if="getValidCardDecks().length > 0" v-model="pairSelectSheetID"
                            size="large" style="width: 250px;">
                     <el-option v-for="sheet in getValidCardDecks()" :label="sheet.name" :value="sheet.id">{{sheet.name}}</el-option>
@@ -333,8 +333,8 @@
                     No valid card decks
                 </div>
             </div>
-            <!-- PIECE TYPE => ONE PAIR => FROM CUSTOM => [_] -->
-            <el-button v-if="pairSelect == 'From custom'" type="primary" style="height: 40px;" @click="editCustomPairButtonClicked()">
+            <!-- PIECE TYPE => ONE PAIR => CUSTOM => [_] -->
+            <el-button v-if="pairSelect == 'Custom'" type="primary" style="height: 40px;" @click="editCustomPairButtonClicked()">
                 <el-icon :size="25"><Edit /></el-icon>
             </el-button>
         </div>

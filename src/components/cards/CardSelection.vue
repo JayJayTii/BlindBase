@@ -121,12 +121,10 @@
                     <div style="display: flex; justify-content: space-between;">
                         {{scope.row.flashcards}}
 
-                        <el-tooltip content="Edit" placement="right">
-                            <el-button type="primary" :plain="true"
-                                       @click="editFlashcardsButtonClicked(scope.row.sheet_id)">
-                                <el-icon><Edit /></el-icon>
-                            </el-button>
-                        </el-tooltip>
+                        <el-button type="primary" :plain="true"
+                                   @click="editFlashcardsButtonClicked(scope.row.sheet_id)">
+                            <el-icon><Edit /></el-icon>
+                        </el-button>
                     </div>
                 </template>
             </el-table-column>
@@ -136,8 +134,8 @@
             <el-table-column label="" props="can_practice" width="70">
                 <template #default="scope">
                     <div v-if="scope.row.can_practice">
-                        <el-tooltip content="Practice" placement="right">
-                            <el-button type="success" @click="emit('beginPractice', scope.row.sheet_id)">
+                        <el-tooltip content="Practice" :show-after="500" placement="right" size="small">
+                            <el-button type="primary" :plain="true" @click="emit('beginPractice', scope.row.sheet_id)">
                                 <el-icon><DArrowRight /></el-icon>
                             </el-button>
                         </el-tooltip>

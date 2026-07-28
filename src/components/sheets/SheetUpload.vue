@@ -77,7 +77,7 @@
 			   width="500">
 		<div v-if="selectedFile == null">
 			<span>Only .csv files are accepted </span>
-			<el-tooltip placement="right">
+			<el-tooltip placement="right" :show-after="500">
 				<el-icon><QuestionFilled /></el-icon>
 				<template #content>
 					<div style="width: 300px;">You'll need to "Save As" or "Download" your spreadsheet and change the format to "Comma-separated values (.csv)"</div>
@@ -131,7 +131,7 @@
 					<el-option :value="false" label="row-column">row-column</el-option>
 					<el-option :value="true" label="column-row">column-row</el-option>
 				</el-select>
-				<el-tooltip placement="right">
+				<el-tooltip placement="right" :show-after="500">
 					<el-icon><QuestionFilled /></el-icon>
 					<template #content>
 						<div style="width: 250px;">Does 'XA' mean 'row X, column A', or does it mean 'column X, row A'?</div>

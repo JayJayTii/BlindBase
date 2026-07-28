@@ -112,7 +112,7 @@
                 <!-- options button column -->
                 <el-table-column label="" width="60" align="right">
                     <template #header>
-                        <el-tooltip content="New" placement="right">
+                        <el-tooltip content="New" :show-after="500" placement="right">
                             <el-button type="primary" :plain="true" @click="dialogVisible = true" style="width: 30px; height: 30px; margin-top: 5px;">
                                 <el-icon :size="20"><Plus /></el-icon>
                             </el-button>
