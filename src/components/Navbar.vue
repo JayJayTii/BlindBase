@@ -9,7 +9,7 @@
 </script>
 
 <template>
-    <el-menu style="width: 100%;" :default-active="routes.indexOf(currentRoute.name).toString()"
+    <el-menu style="width: 100%; background-color: inherit;" :default-active="routes.indexOf(currentRoute.name).toString()"
              :ellipsis="false" mode="horizontal">
         <el-menu-item index="0" @click="router.push('/')">
             <el-icon :size="35" style="width: auto;">

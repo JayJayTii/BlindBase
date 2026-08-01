@@ -1,15 +1,15 @@
 <script setup>
     import { computed, watch, ref, reactive, nextTick, onMounted, onUnmounted} from "vue"
     import SheetGrid from '@/components/SheetGrid.vue'
-    import { allLetterPairs, isPossiblePair } from '@/helpers/pairs.js'
-    import { cornerBuffers, edgeBuffers } from '@/helpers/letter_scheme.js'
+    import { getAllLetterPairs, isPossiblePair } from '@/helpers/pairs.js'
+    import { cornerBuffers, edgeBuffers, SpeffzIndexToScheme } from '@/helpers/lettering_scheme.js'
     import { getFilledCells } from '@/helpers/sheets.js'
 
     import { useSheetStore } from '@/stores/SheetStore'
     const sheetStore = useSheetStore()
     import { useCardStore } from '@/stores/CardStore'
 	const cardStore = useCardStore()
-	import { useSettingsStore } from '@/stores/SettingsStore'
+	import { scheme, useSettingsStore } from '@/stores/SettingsStore'
 	useSettingsStore().loadState()
     sheetStore.loadState()
     cardStore.loadState()
@@ -17,12 +17,10 @@
     const emit = defineEmits(['update:on-selected'])
 
     function resetValues() {
-        modeValue.value = ""
+        //modeValue.value = ""
         pairSelect.value = ""
         pairSelectSheetID.value = -1
         customSheet.value = {}
-        if(editingCustomPairs.value)
-            editCustomPairButtonClicked()
     }
 
     //Corners or Edges
@@ -62,9 +60,6 @@
         set: (newValue) => {
             pairSelectValue.value = newValue
             pairSelectSheetID.value = -1
-
-            if(editingCustomPairs.value)
-                editCustomPairButtonClicked()
 
 			if (pieceType.value == 1) // Corners
 				buffer.value = useSettingsStore().settings.misc_defaultcornerbuffer
@@ -148,15 +143,14 @@
 		possibleCustomPairs = 0
 		let grid = Array.from({ length: 24 }, () => Array.from({ length: 24 }, () => ''))
 		customSheet.value = {
-			xHeadings: 'ABCDEFGHIJKLMNOPQRSTUVWX',
-			yHeadings: 'ABCDEFGHIJKLMNOPQRSTUVWX',
 			type: pieceType.value,
 			buffer: buffer.value,
-		}
+        }
 		const letters = "ABCDEFGHIJKLMNOPQRSTUVWX"
+		const isEdge = pieceType.value == "2"
 		for (var y = 0; y < 24; y++) {
 			for (var x = 0; x < 24; x++) {
-			    grid[y][x] = (isPossiblePair(pieceType.value, letters[y] + letters[x], buffer.value)) ? (letters[y] + letters[x]) : ""
+				grid[y][x] = (isPossiblePair(pieceType.value, SpeffzIndexToScheme(y, isEdge) + SpeffzIndexToScheme(x, isEdge), buffer.value)) ? (SpeffzIndexToScheme(y, isEdge) + SpeffzIndexToScheme(x, isEdge)) : ""
                 if(grid[y][x] != '')
 					possibleCustomPairs += 1
 			}
@@ -205,22 +199,31 @@
 
     function editCustomPairButtonClicked() {
         editingCustomPairs.value = !editingCustomPairs.value
+        if(editingCustomPairs.value)
+		    UpdateSelectedCells()
     }
 
 	function GeneratePairsAndEmit() {
 		if (!selectionFinished.value)
 			return
-		let pairs = []
+        let pairs = []
+		const offset = Number(pieceType.value) == 2 ? 24 : 0
 		switch (pairSelect.value) {
-			case "All letter pairs":
-				pairs = allLetterPairs.filter((pair) => isPossiblePair(pieceType.value, pair, buffer.value))
+            case "All letter pairs":
+				for (var i = offset; i < 24 + offset; i++) {
+					for (var j = offset; j < 24 + offset; j++) {
+                        if (isPossiblePair(pieceType.value, scheme()[i] + scheme()[j], buffer.value))
+                            pairs.push(scheme()[i] + scheme()[j])
+					}
+                }
 				break
 			case "Letter pairs in a sheet":
 				const sheet = sheetStore.getSheet(pairSelectSheetID.value)
-				for (var y = 0; y < sheet.yHeadings.length; y++) {
-					for (var x = 0; x < sheet.xHeadings.length; x++) {
-						if (sheet.grid[y][x] !== "") {
-							pairs.push(sheet.xHeadings.split('')[x] + sheet.yHeadings.split('')[y])
+				for (var y = 0; y < 24; y++) {
+					for (var x = 0; x < 24; x++) {
+						const pair = scheme()[y + offset] + scheme()[x + offset]
+                        if (sheet.grid[y][x] !== "" && isPossiblePair(pieceType.value, pair, buffer.value)) {
+							pairs.push(pair)
 						}
 					}
                 }
@@ -231,7 +234,9 @@
 					.filter((card) => card.sheetID == pairSelectSheetID.value
 						&& card.successCount > 0)
 				for (var i = 0; i < cards.length; i++) {
-					pairs.push(sheetStore.coordToKey(pairSelectSheetID.value, cards[i].coord))
+					const pair = sheetStore.coordToKey(pairSelectSheetID.value, cards[i].coord)
+                    if(isPossiblePair(pieceType.value, pair, buffer.value))
+					    pairs.push(pair)
                 }
                 buffer.value = sheetStore.getBuffer(pairSelectSheetID.value)
 				break
@@ -269,7 +274,6 @@
 
 <template>
     <div id="ExecSelect">
-
         <!-- PIECE TYPE -->
         <el-tooltip content="Piece type" :show-after="500" placement="top">
             <el-select v-model="pieceType" size="large" style="width: 130px;">
@@ -342,14 +346,13 @@
 
     <hr />
 
-
     <el-drawer v-model="editingCustomPairs"
                :title="'Select letter pairs to practice: ' + getSelectedCellCount().toString() + '/' + possibleCustomPairs.toString()"
                size="95%"
                direction="rtl"
-               body-class="drawer-body"
                :before-close="handleCustomPairClose">
-        <SheetGrid :sheet="customSheet.value"
+        <SheetGrid v-if="editingCustomPairs"
+                   :sheet="customSheet.value"
                    :formatEmpty="true"
                    :fullLineSelection="true"
                    :key="customSheet.value"

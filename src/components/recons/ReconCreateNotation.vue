@@ -1,17 +1,19 @@
 <script setup>
-    import { nextTick, onMounted, onUnmounted, computed, watch, ref } from 'vue'
+    import { onMounted, onUnmounted, ref } from 'vue'
     import { FaceletCube } from '@/helpers/FaceletCube/FaceletCube.js'
     import FaceletCube3D from '@/components/FaceletCube3D.vue'
     import { Sequence } from '@/helpers/sequence.js'
-    import { GetRandomRecommendation, getRecommendations, getCornerRecommendations, getEdgeRecommendations } from '@/helpers/recommendations.js'
-    import { GetInspectionMoves, ToLetters } from '@/helpers/reconstruct.js'
+	import { GetSolvingOrientationTurns } from '@/helpers/solving_orientation.js'
+    import { getRecommendations, getCornerRecommendations, getEdgeRecommendations } from '@/helpers/recommendations.js'
+    import { GetInspectionMoves, ToLetters, TrimComment } from '@/helpers/reconstruct.js'
 
     import { useSheetStore } from '@/stores/SheetStore'
     const sheetStore = useSheetStore()
     sheetStore.loadState()
-    import { useReconsStore } from '@/stores/ReconsStore'
-    const reconsStore = useReconsStore()
-    reconsStore.loadState()
+
+	const solvingOrientation = GetSolvingOrientationTurns()
+	const inverseSolvingOrientation = Object.assign(new Sequence(), JSON.parse(JSON.stringify(solvingOrientation)))
+	inverseSolvingOrientation.reverse()
 
     const props = defineProps({
         scramble: Sequence,
@@ -22,13 +24,16 @@
     const emit = defineEmits(['notationFinished', 'revertToLetterSelection'])
 
     //Apply scramble and initial rotations to the cube
-    const cube = ref(new FaceletCube())
-    cube.value.TurnSequence(props.scramble)
-    const inspection = Object.assign(new Sequence(), GetInspectionMoves(cube.value))
+	const cube = ref(new FaceletCube())
+	cube.value.TurnSequence(inverseSolvingOrientation)
+	cube.value.TurnSequence(props.scramble)
+	const inspection = Object.assign(new Sequence(), GetInspectionMoves(cube.value))
+
     function ScrambleCube() {
         cube.value = new FaceletCube()
-        cube.value.TurnSequence(props.scramble)
+		cube.value.TurnSequence(props.scramble)
     }
+    ScrambleCube()
 
     //Notation for each letter pair and references to the input boxes themselves
     const cornerInput = ref([])
@@ -37,11 +42,11 @@
     const edgeInputBox = ref([])
 
 
-    const cornerPairs = ToLetters(props.letterSolution[0]).split(' ').filter(pair => pair.length > 1)
+    const cornerPairs = ToLetters(props.letterSolution[0], 1).split(' ').filter(pair => pair.length > 1)
     for (const pair of cornerPairs) {
         cornerInput.value.push("")
     }
-    const edgePairs = ToLetters(props.letterSolution[1]).split(' ').filter(pair => pair.length > 1)
+    const edgePairs = ToLetters(props.letterSolution[1], 2).split(' ').filter(pair => pair.length > 1)
     for (const pair of edgePairs) {
         edgeInput.value.push("")
     }
@@ -144,29 +149,31 @@
         if (curSelectionStart == undefined || selectedID == "")
             return
 
-        cube.value.TurnSequence(inspection)
+		cube.value.TurnSequence(inspection)
         const isEdgeInput = (selectedID[0] == 'E')
         const inputIndex = parseInt(selectedID.substring(5))
         for (var i = 0; i < (isEdgeInput ? inputIndex : edgeInput.value.length); i++) {
             const algorithm = new Sequence()
-            algorithm.fromAlgorithmNotation(edgeInput.value[i])
-            cube.value.TurnSequence(algorithm)
+			algorithm.fromAlgorithmNotation(TrimComment(edgeInput.value[i]))
+            cube.value.TurnSequence(algorithm)  
         }
         for (var i = 0; i < (isEdgeInput ? 0 : inputIndex); i++) {
             const algorithm = new Sequence()
-            algorithm.fromAlgorithmNotation(cornerInput.value[i])
+            algorithm.fromAlgorithmNotation(TrimComment(cornerInput.value[i]))
             cube.value.TurnSequence(algorithm)
         }
         const currentAlgorithm = new Sequence()
         let inputText = isEdgeInput ? edgeInput.value[inputIndex] : cornerInput.value[inputIndex]
+        if (!inputText)
+            return
+
         let sampleIndex = curSelectionStart
         while (!([' ', '\n'].includes(inputText[sampleIndex - 1])
             || [' ', '\n'].includes(inputText[sampleIndex])
             || sampleIndex == 0 || sampleIndex >= inputText.length)) {
             sampleIndex++
         }
-        currentAlgorithm.fromAlgorithmNotation(inputText.substring(0, sampleIndex))
-
+        currentAlgorithm.fromAlgorithmNotation(TrimComment(inputText.substring(0, sampleIndex)))
         cube.value.TurnSequence(currentAlgorithm)
     }
 
@@ -298,7 +305,7 @@
                         </el-button>
                     </el-tooltip>
                 </div>
-                <el-input typeof="textarea" resize="none" autosize
+                <el-input type="textarea" resize="none" autosize
                           title="Parity/Flips/Twists"
                           class="ReconNotationInput"
                           v-model="cornerInput[cornerInput.length - 1]"

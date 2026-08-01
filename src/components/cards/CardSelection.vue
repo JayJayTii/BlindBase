@@ -149,11 +149,10 @@
                    :title="'\'' + (sheetStore.getSheet(sheetID)?.name || '') + '\' flashcards: ' + cardStore.getCardsForSheet(sheetID).length.toString() + '/' + sheetStore.getFilledCellCount(sheetID).toString()"
                    size="95%"
                    direction="rtl"
-                   body-class="drawer-body"
                    :before-close="handleClose"
                    @close="inCardDeletionMode = false;">
             <div style="display: flex; justify-content: space-between; margin-top: -20px;">
-                <div>
+                <div style="font-size: 1rem;">
                     <el-switch v-model="inCardDeletionMode" @change="cardDeletionModeChanged" />
                     {{inCardDeletionMode ? 'Flashcard deletion mode' : 'Flashcard creation mode'}} <el-icon v-if="inCardDeletionMode"><WarnTriangleFilled style="color: var(--el-color-danger);" /></el-icon>
                 </div>
@@ -188,12 +187,12 @@
 </template>
 
 <style>
-    .CardsView {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        font-size: 1.5rem;
-        gap: 10px;
-        height: 100%;
-    }
+	.CardsView {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		font-size: 1.5rem;
+		gap: 10px;
+		height: 100%;
+	}
 </style>

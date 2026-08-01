@@ -1,7 +1,7 @@
 <script setup>
     import { ref, computed, nextTick, onMounted, onUnmounted } from "vue"
     import { getCardType } from "@/helpers/cards.js"
-	import { cornerBuffers, edgeBuffers } from "@/helpers/letter_scheme.js"
+	import { cornerBuffers, edgeBuffers } from "@/helpers/lettering_scheme.js"
     import { useSheetStore } from "@/stores/SheetStore"
     const sheetStore = useSheetStore()
     sheetStore.loadState()
@@ -150,15 +150,16 @@
             <div v-if="hasFlipped" id="result-buttons">
                 <!------BAD------>
                 <div>
-                     <el-button type="danger" :disabled="cardType == 'New'"
-                                @click="finishedCard('Bad')" style="width: 70px; height: 40px;">
-                         <el-icon><Close /></el-icon>
-                     </el-button>
+                    <el-tooltip :disabled="cardType != 'New'" content="New cards can only be successful">
+                        <el-button type="danger" :disabled="cardType == 'New'"
+                                   @click="finishedCard('Bad')" style="width: 70px; height: 40px;">
+                            <el-icon><Close /></el-icon>
+                        </el-button>
+                    </el-tooltip>
                 </div>
                 <!------GOOD------>
                 <div>
-                    <el-button type="success"
-                               @click="finishedCard('Good')" style="width: 70px; height: 40px;">
+                    <el-button type="success" @click="finishedCard('Good')" style="width: 70px; height: 40px;">
                         <el-icon><Check /></el-icon>
                     </el-button>
                 </div>

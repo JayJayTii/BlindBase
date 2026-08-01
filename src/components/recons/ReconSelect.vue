@@ -1,5 +1,5 @@
 <script setup>
-	import { ref, computed, nextTick } from 'vue'
+	import { ref, computed } from 'vue'
 	import { ElMessage } from 'element-plus'
     import FaceletCube3D from '@/components/FaceletCube3D.vue'
     import { Sequence } from '@/helpers/sequence.js'
@@ -99,9 +99,9 @@
 </script>
 
 <template>
-    <el-splitter>
+    <el-splitter style="gap: 5px;">
         <!-- left column (recon list) -->
-        <el-splitter-panel size="22%" style="min-height: calc(100dvh - 190px);" :resizable="false">
+        <el-splitter-panel size="25%" style="min-height: calc(100dvh - 190px);" :resizable="false">
             <!-- recon table -->
             <el-table :data="data" highlight-current-row ref="reconTableRef"
                       @current-change="ReconClicked"
@@ -112,16 +112,14 @@
                 <!-- options button column -->
                 <el-table-column label="" width="60" align="right">
                     <template #header>
-                        <el-tooltip content="New" :show-after="500" placement="right">
-                            <el-button type="primary" :plain="true" @click="dialogVisible = true" style="width: 30px; height: 30px; margin-top: 5px;">
-                                <el-icon :size="20"><Plus /></el-icon>
-                            </el-button>
-                        </el-tooltip>
+                        <el-button @click="dialogVisible = true" style="width: 25px; height: 25px; padding: 0px;">
+                            <el-icon :size="15"><Plus /></el-icon>
+                        </el-button>
                     </template>
                     <template #default="scope">
                         <el-button @click="optionsButtonClicked(scope.row)"
-                                    :ref="el => triggerRefs[scope.row.index] = el"
-                                   style="width: 20px; height: 20px; padding: 0px;" type="info" :plain="true">
+                                   :ref="el => triggerRefs[scope.row.index] = el"
+                                   style="width: 20px; height: 20px; padding: 0px;">
                             <el-icon :size="15"><MoreFilled /></el-icon>
                         </el-button>
                     </template>
@@ -131,22 +129,21 @@
                 </template>
             </el-table>
         </el-splitter-panel>
-        <el-splitter-panel size="78%" :resizable="false">
-            <div style="display: grid; grid-template-columns: 1.5fr 1fr; width: 100%;">
-                <!-- middle column (recon preview) -->
-                <div v-if="selectedRecon != -1 && selectedRecon < reconsStore.recons.length" id="reconPreviewBody">
-                    <h1 style="font-size:2rem;" id="reconPreview"><u>{{reconsStore.recons[selectedRecon]?.name || "&nbsp"}}</u></h1>
-                    <pre style="font-size:1.3rem;line-height:1.5rem;" id="reconPreview">{{reconsStore.recons[selectedRecon]?.body || "&nbsp"}}</pre>
-                </div>
-                <!-- left column (cube vis) -->
-                <div v-if="selectedRecon != -1 && selectedRecon < reconsStore.recons.length">
-                    <FaceletCube3D style="width: 100%; aspect-ratio:1;"
-                                   :cube="reconPreviewCube"
-                                   :key="reconPreviewCube.corners.toString() + reconPreviewCube.edges.toString() + reconPreviewCube.centers.toString()" />
-                </div>
+        <el-splitter-panel size="35%" :resizable="false">
+            <div v-if="selectedRecon != -1 && selectedRecon < reconsStore.recons.length">
+                <FaceletCube3D style="width: 100%; aspect-ratio:1;"
+                               :cube="reconPreviewCube"
+                               :key="reconPreviewCube.corners.toString() + reconPreviewCube.edges.toString() + reconPreviewCube.centers.toString()" />
+            </div>
+        </el-splitter-panel>
+        <el-splitter-panel size="45%" :resizable="false">
+            <div v-if="selectedRecon != -1 && selectedRecon < reconsStore.recons.length">
+                <h2 style="font-size:2rem;" id="reconPreview">{{reconsStore.recons[selectedRecon]?.name || "&nbsp"}}</h2>
+                <pre style="font-size:1.3rem;line-height:1.5rem;" id="reconPreview">{{reconsStore.recons[selectedRecon]?.body || "&nbsp"}}</pre>
             </div>
         </el-splitter-panel>
     </el-splitter>
+
 
     <!-- Dropdown when you click the options button -->
     <el-dropdown ref="reconDropdownRef" :virtual-ref="triggerRefs[selectedRecon]"
@@ -192,10 +189,6 @@
 </template>
 
 <style>
-	#reconPreviewBody {
-		padding: 10px;
-	}
-
     #reconPreview {
         text-wrap: pretty;
         word-break: break-word;

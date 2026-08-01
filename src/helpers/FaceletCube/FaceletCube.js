@@ -4,11 +4,11 @@ import { adjacentCornerIndices, adjacentEdgeIndices } from '@/helpers/stickers.j
 
 export const faceColours = [
     "#FFFFFF", // White
-    "#FF8000", // Orange
-    "#00FF00", // Green
-    "#FF0000", // Red
-    "#0000FF", // Blue
-    "#FFFF00", // Yellow
+    "#FF8033", // Orange
+    "#33FF33", // Green
+    "#FF3333", // Red
+    "#4444FF", // Blue
+    "#FFFF33", // Yellow
 ]
 
 export class FaceletCube {

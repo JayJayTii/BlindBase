@@ -10,16 +10,6 @@
     cardStore.loadState()
 
     const sheetID = ref(-1)
-    const practicing = ref(false); //Whether to show CardSelection or CardPractice
-
-    function beginPractice(id) {
-        sheetID.value = id
-        practicing.value = true
-    }
-    function quitPractice() {
-        sheetID.value = -1
-        practicing.value = false
-    }
 
     //Reload stats at a regular interval, shared between components
     let intervalId
@@ -38,18 +28,18 @@
 
 <template>
     <div style="position: relative;">
-        <div v-if="practicing === false">
+        <div v-if="sheetID == -1">
             <CardSelection :sheetID="sheetID"
                            :updateStatsKey="updateStatsKey"
-                           @beginPractice="beginPractice" />
+                           @beginPractice="sheetID = $event" />
         </div>
         <div v-else>
             <CardPractice :sheetID="sheetID"
                           :updateStatsKey="updateStatsKey"
-                          @quitPractice="quitPractice" />
+                          @quitPractice="sheetID = -1" />
         </div>
     </div>
-    <div style="position: absolute; bottom: calc(var(--footer-height) + 5px); right: 10px; font-size:0.8rem;">
+    <div style="position: fixed; right: 10px; bottom: calc(var(--footer-height) + 10px); font-size:0.8rem;">
         Inspired by <a href="https://apps.ankiweb.net/" target="_blank">Anki</a>
     </div>
 </template>

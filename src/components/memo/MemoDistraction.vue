@@ -1,8 +1,8 @@
 <script setup>
     import { ref, onMounted, onUnmounted } from "vue"
     import { gaussianRandom } from '@/helpers/memo.js'
-    import { allLetterPairs } from '@/helpers/pairs.js'
-import { useSettingsStore } from "../../stores/SettingsStore"
+    import { getAllLetterPairs } from '@/helpers/pairs.js'
+    import { useSettingsStore } from "../../stores/SettingsStore"
 
     const props = defineProps({
         runData: Object,
@@ -34,6 +34,7 @@ import { useSettingsStore } from "../../stores/SettingsStore"
     })
 
     //There are letter pairs flying across the screen to distract the user
+    const allLetterPairs = getAllLetterPairs()
     const pairCount = 100
     const pairHeights = Array.from({ length: pairCount }, () => { return Math.random() * 100 - 5 })
     const pairStrings = Array.from({ length: pairCount }, () => { return allLetterPairs[Math.floor(Math.random() * allLetterPairs.length)] })

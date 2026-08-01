@@ -37,9 +37,6 @@
 		// Corner type by default to encourage choosing the correct settings
 		sheet.value.type = 1
 		sheet.value.buffer = useSettingsStore().settings.misc_defaultcornerbuffer
-
-		sheet.value.xHeadings = "ABCDEFGHIJKLMNOPQRSTUVWX"
-		sheet.value.yHeadings = "ABCDEFGHIJKLMNOPQRSTUVWX"
 	}
 
 	async function confirm() {

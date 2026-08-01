@@ -4,6 +4,7 @@
     import ReconCreateLetters from '@/components/recons/ReconCreateLetters.vue'
 	import ReconCreateNotation from '@/components/recons/ReconCreateNotation.vue'
     import { Sequence } from '@/helpers/sequence.js'
+    import { GetSolvingOrientationTurns } from '@/helpers/solving_orientation.js'
     import { FaceletCube } from '@/helpers/FaceletCube/FaceletCube.js'
     import { GetInspectionMoves, GenerateReconBody, GetReconMoveCount } from '@/helpers/reconstruct.js'
     import { getSolveTimeString } from '@/helpers/timer.js'
@@ -22,6 +23,9 @@
 
     const stage = ref(0)
     let inspectionCube = new FaceletCube()
+    const solvingOrientation = GetSolvingOrientationTurns()
+    solvingOrientation.reverse()
+    inspectionCube.TurnSequence(solvingOrientation)
     inspectionCube.TurnSequence(props.scramble)
     const inspectionSolution = ref(GetInspectionMoves(inspectionCube))
 

@@ -1,29 +1,16 @@
+import { scheme } from '@/stores/SettingsStore'
+import { SchemeToSpeffzIndex } from '@/helpers/lettering_scheme.js'
+
 //Connects a corner sticker to all stickers on the piece that it is on (in clockwise direction)
-export const adjacentCornerStickers = {
-    A: ['A', 'E', 'R'],
-    B: ['B', 'Q', 'N'],
-    C: ['C', 'M', 'J'],
-    D: ['D', 'I', 'F'],
-    E: ['E', 'R', 'A'],
-    F: ['F', 'D', 'I'],
-    G: ['G', 'L', 'U'],
-    H: ['H', 'X', 'S'],
-    I: ['I', 'F', 'D'],
-    J: ['J', 'C', 'M'],
-    K: ['K', 'P', 'V'],
-    L: ['L', 'U', 'G'],
-    M: ['M', 'J', 'C'],
-    N: ['N', 'B', 'Q'],
-    O: ['O', 'T', 'W'],
-    P: ['P', 'V', 'K'],
-    Q: ['Q', 'N', 'B'],
-    R: ['R', 'A', 'E'],
-    S: ['S', 'H', 'X'],
-    T: ['T', 'W', 'O'],
-    U: ['U', 'G', 'L'],
-    V: ['V', 'K', 'P'],
-    W: ['W', 'O', 'T'],
-    X: ['X', 'S', 'H'],
+export function adjacentCornerStickers(letter) {
+    const speffzIndex = SchemeToSpeffzIndex(letter, false)
+    return [
+        [0, 4, 17], [1, 16, 13], [2, 12, 9], [3, 8, 5],
+        [4, 17, 0], [5, 3, 8], [6, 11, 20], [7, 23, 18],
+        [8, 5, 3], [9, 2, 12], [10, 15, 21], [11, 20, 6],
+        [12, 9, 2], [13, 1, 16], [14, 19, 22], [15, 21, 10],
+        [16, 13, 1], [17, 0, 4], [18, 7, 23], [19, 22, 14],
+        [20, 6, 11], [21, 10, 15], [22, 14, 19], [23, 18, 7]][speffzIndex].map(adjSpeffzIndex => scheme()[adjSpeffzIndex])
 }
 export const adjacentCornerIndices = [
     [0, 4, 17],
@@ -51,32 +38,17 @@ export const adjacentCornerIndices = [
     [22, 14, 19],
     [23, 18, 7],
 ]
-//Connects a edge sticker to all stickers on the piece that it is on
-export const adjacentEdgeStickers = {
-    A: ['A', 'Q'],
-    B: ['B', 'M'],
-    C: ['C', 'I'],
-    D: ['D', 'E'],
-    E: ['E', 'D'],
-    F: ['F', 'L'],
-    G: ['G', 'X'],
-    H: ['H', 'R'],
-    I: ['I', 'C'],
-    J: ['J', 'P'],
-    K: ['K', 'U'],
-    L: ['L', 'F'],
-    M: ['M', 'B'],
-    N: ['N', 'T'],
-    O: ['O', 'V'],
-    P: ['P', 'J'],
-    Q: ['Q', 'A'],
-    R: ['R', 'H'],
-    S: ['S', 'W'],
-    T: ['T', 'N'],
-    U: ['U', 'K'],
-    V: ['V', 'O'],
-    W: ['W', 'S'],
-    X: ['X', 'G'],
+
+//Connects an edge sticker to all stickers on the piece that it is on
+export function adjacentEdgeStickers(letter) {
+    const speffzIndex = SchemeToSpeffzIndex(letter, true)
+    return [
+        [0, 16], [1, 12], [2, 8], [3, 4],
+        [4, 3], [5, 11], [6, 23], [7, 17],
+        [8, 2], [9, 15], [10, 20], [11, 5],
+        [12, 1], [13, 19], [14, 21], [15, 9],
+        [16, 0], [17, 7], [18, 22], [19, 13],
+        [20, 10], [21, 14], [22, 18], [23, 6],][speffzIndex].map(adjSpeffzIndex => scheme()[24 + adjSpeffzIndex])
 }
 export const adjacentEdgeIndices = [
     [0, 16],

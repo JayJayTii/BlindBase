@@ -1,15 +1,15 @@
 <script setup>
-    import { nextTick, watch, computed, ref, onMounted, onUnmounted } from "vue"
-    import { allLetterPairs, isPossiblePair } from '@/helpers/pairs.js'
-    import { cornerBuffers, edgeBuffers } from '@/helpers/letter_scheme.js'
-    import SheetGrid from '@/components/SheetGrid.vue'
+    import { nextTick, computed, ref } from "vue"
+    import { getAllLetterPairs, isPossiblePair } from '@/helpers/pairs.js'
+    import { cornerBuffers, edgeBuffers } from '@/helpers/lettering_scheme.js'
     import { useMemoStore, modes, modesDesc } from '@/stores/MemoStore.js'
-    const memoStore = useMemoStore()
     import { useSheetStore } from '@/stores/SheetStore'
-    const sheetStore = useSheetStore()
     import { useCardStore } from '@/stores/CardStore'
+    import { scheme, useSettingsStore } from '@/stores/SettingsStore'
+    import SheetGrid from '@/components/SheetGrid.vue'
+    const memoStore = useMemoStore()
+    const sheetStore = useSheetStore()
     const cardStore = useCardStore()
-    import { useSettingsStore } from '@/stores/SettingsStore'
     useSettingsStore().loadState()
 
     const emit = defineEmits(['restartRun', 'cancelRun'])
@@ -128,10 +128,9 @@
     const customSheet = ref({}) //Contains all the possible letter pairs that the user can select to practice from
     function generateCustomPairSheet() {
         let grid = Array.from({ length: 24 }, () => Array.from({ length: 24 }, () => ''))
+        // Just gonna make other modes use corner letter scheme sorryyyyy
         customSheet.value = {
-            xHeadings: 'ABCDEFGHIJKLMNOPQRSTUVWX',
-            yHeadings: 'ABCDEFGHIJKLMNOPQRSTUVWX',
-			type: 0,
+			type: (mode.value == "Edges" ? 2 : 1),
             buffer: buffer.value,
         }
         possibleCustomPairs = 0
@@ -139,11 +138,11 @@
         for (var y = 0; y < 24; y++) {
             for (var x = 0; x < 24; x++) {
                 if(mode.value == "Corners")
-					grid[y][x] = (Number(buffer.value) == -1 || isPossiblePair(1, letters[y] + letters[x], buffer.value)) ? (letters[y] + letters[x]) : ""
+					grid[y][x] = (Number(buffer.value) == -1 || isPossiblePair(1, scheme()[y] + scheme()[x], buffer.value)) ? (scheme()[y] + scheme()[x]) : ""
                 else if (mode.value == "Edges")
-					grid[y][x] = (Number(buffer.value) == -1 || isPossiblePair(2, letters[y] + letters[x], buffer.value)) ? (letters[y] + letters[x]) : ""
+					grid[y][x] = (Number(buffer.value) == -1 || isPossiblePair(2, scheme()[24 + y] + scheme()[24 + x], buffer.value)) ? (scheme()[24 + y] + scheme()[24 + x]) : ""
                 else
-					grid[y][x] = (letters[y] + letters[x])
+					grid[y][x] = (scheme()[y] + scheme()[x])
 
                 if (grid[y][x] != '')
                     possibleCustomPairs++
@@ -171,12 +170,13 @@
 	}
 	
     function getPossiblePairs() {
-		let possiblePairs = []
-		let letters = "ABCDEFGHIJKLMNOPQRSTUVWX"
+        let possiblePairs = []
 		const flipped = useSettingsStore().settings.sheets_pairorder === 1
+		const letters = "ABCDEFGHIJKLMNOPQRSTUVWX"
+		const offset = (mode.value == "Edges") ? 24 : 0
         switch (pairSelect.value) {
 			case "All letter pairs":
-				return allLetterPairs
+				return getAllLetterPairs()
 
             case "Letter pairs in a sheet":
                 for (var y = 0; y < 24; y++) {
@@ -191,10 +191,10 @@
 			case "Letter pairs in a card deck": // Get learned cards from selected sheet, then convert to letter pair
                 return GetLearnedCards()
                     .filter(card => card.sheetID === pairSelectSheet.value.id)
-                    .map(card => (letters[card.coord.y] + letters[card.coord.x]))
+					.map(card => (letters[card.coord.y] + letters[card.coord.x]))
 
             case "Custom": // Convert highlighted cell coords to letter pairs
-                return highlightedCells.value.map(coord => letters[coord.y] + letters[coord.x])
+				return highlightedCells.value.map(coord => scheme()[coord.y + offset] + scheme()[coord.x + offset])
         }
     }
 
@@ -304,7 +304,6 @@
                :title="'Select letter pairs to practice: ' + highlightedCells.length.toString() + '/' + possibleCustomPairs.toString()"
                size="95%"
                direction="rtl"
-               body-class="drawer-body"
                :before-close="handleCustomPairClose">
         <SheetGrid :sheet="customSheet"
                    :formatEmpty="true"

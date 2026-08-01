@@ -18,8 +18,7 @@ export function gaussianRandom(mean = 0, stdev = 1) {
 export function GeneratePairSequence(possiblePairs, length) {
     var newSequence = ''
     for (var key = 0; key < length; key++) {
-        const nextKey =
-            possiblePairs[Math.floor(Math.random() * possiblePairs.length)]
+        const nextKey = possiblePairs[Math.floor(Math.random() * possiblePairs.length)]
         newSequence += nextKey + ' '
     }
     newSequence = newSequence.trim()    

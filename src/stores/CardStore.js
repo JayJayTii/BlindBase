@@ -138,7 +138,7 @@ export const useCardStore = defineStore('cardStore', {
                     delete card.algorithm
                 }
             })
-            this.cards = this.cards.filter(card => sheetIDs.has(card.sheetID))
+            this.cards = this.cards.filter(card => sheetIDs.has(card.sheetID) && useSheetStore().getCell(card.sheetID, card.coord) != "")
         },
         checkDailyStats() {
             //Reset daily limit for new cards if it is a new day!

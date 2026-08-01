@@ -62,7 +62,7 @@
         const x = event.clientX
         const y = event.clientY
         if(dragging) {
-			const factor = 500 / canvasRef.value.height
+			const factor = 1000 / canvasRef.value.height
             //y and x swapped because technically x rotation requires y mouse movement and vice versa
             xAngle -= factor * (y - lastMouseY)
             yAngle -= factor * (x - lastMouseX)

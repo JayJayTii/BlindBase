@@ -1,5 +1,5 @@
 <script setup>
-    import { computed, ref, nextTick, onMounted, onUnmounted } from 'vue'
+    import { computed, ref, onMounted, onUnmounted } from 'vue'
     import FaceletCube3D from '@/components/FaceletCube3D.vue'
     import { FaceletCube } from '@/helpers/FaceletCube/FaceletCube.js'
     import { Sequence } from '@/helpers/sequence.js'

@@ -1,20 +1,28 @@
-import { ElMessageBox } from 'element-plus'
-import { useSheetStore } from '@/stores/SheetStore.js'
-import { useSettingsStore } from '@/stores/SettingsStore.js'
+import { computed } from 'vue'
+import { scheme, useSettingsStore } from '@/stores/SettingsStore.js'
 import { isPossiblePair } from '@/helpers/pairs.js'
-import { cornerBuffers, edgeBuffers, cornerScheme, edgeScheme, cornerSpeffz, edgeSpeffz } from '@/helpers/letter_scheme.js'
+import { cornerBuffers, edgeBuffers, AlphabetisedScheme, GridIndexToSpeffzIndex, SchemeToSpeffzIndex } from '@/helpers/lettering_scheme.js'
+
+const CornerGridHeadings = computed({ get: () => AlphabetisedScheme(1).map(letter => letter + " (" + cornerBuffers[SchemeToSpeffzIndex(letter, false)] + ")") })
+const EdgeGridHeadings = computed({ get: () => AlphabetisedScheme(2).map(letter => letter + " (" + edgeBuffers[SchemeToSpeffzIndex(letter, true)] + ")") })
+export function gridHeadings(sheetType) {
+	if (sheetType == 1) return CornerGridHeadings.value
+	else if (sheetType == 2) return EdgeGridHeadings.value
+	return AlphabetisedScheme(sheetType)
+}
 
 export function downloadSheet(sheet) {
 	const flipped = useSettingsStore().settings.sheets_pairorder === 1
-
 	//Convert sheet object into csv format
-	let csvString = "," + sheet.xHeadings.split('').join(',') + ",\n"
-	for (var i = 0; i < sheet.yHeadings.length; i++) {
-		csvString += sheet.yHeadings[i] + ","
-		for (var j = 0; j < sheet.xHeadings.length; j++) {
-			let cellVal = sheet.grid[flipped ? i : j][flipped ? j : i]
+	let csvString = "," + gridHeadings(sheet.type).join(',') + ",\n"
+	for (var i = 0; i < 24; i++) {
+		csvString += gridHeadings(sheet.type)[i] + ","
+		for (var j = 0; j < 24; j++) {
+			let cellVal = sheet.grid[flipped ? GridIndexToSpeffzIndex(sheet.type)[i] : GridIndexToSpeffzIndex(sheet.type)[j]][flipped ? GridIndexToSpeffzIndex(sheet.type)[j] : GridIndexToSpeffzIndex(sheet.type)[i]]
+
 			if (cellVal.includes(','))
 				cellVal = '\"' + cellVal + '\"'
+
 			csvString += cellVal + ","
 		}
 		csvString += "\n"
@@ -36,8 +44,8 @@ export function downloadSheet(sheet) {
 //Since an empty flashcard is not allowed
 export function getFilledCells(sheet) {
 	let filledCells = 0
-	for (var i = 0; i < customSheet.value.yHeadings.length; i++) {
-		for (var j = 0; j < customSheet.value.xHeadings.length; j++) {
+	for (var i = 0; i < 24; i++) {
+		for (var j = 0; j < 24; j++) {
 			if (customSheet.value.grid[i][j] !== "")
 				filledCells++
 		}
@@ -76,49 +84,37 @@ function readCSV(content) {
 	return csvGrid
 }
 
-// Boolean for if the contents of a cell in an uploaded sheet is a heading
-// This includes: 'A', 'B (DBL)', 'G', 'LF', 'J (this is a comment)'
 function getHeading(cell, sheetType) {
 	if (cell == "")
 		return ""
 	
-	// Detect UFR notation
-
-	for (const buffer of cornerBuffers) {
-		if (cell.includes(buffer)) {
-			//console.log(cell + " includes corner buffer: " + buffer)
-			return buffer
+	// Detect piece notation
+	if (sheetType == 1) {
+		for (const buffer of cornerBuffers) {
+			if (cell.includes(buffer)) {
+				//console.log(cell + " includes corner buffer: " + buffer)
+				return buffer
+			}
 		}
-	}
-	for (const buffer of edgeBuffers) {
-		if (cell.includes(buffer)) {
-			//console.log(cell + " includes edge buffer: " + buffer)
-			return buffer
+	} else if (sheetType == 2) {
+		for (const buffer of edgeBuffers) {
+			if (cell.includes(buffer)) {
+				//console.log(cell + " includes edge buffer: " + buffer)
+				return buffer
+			}
 		}
-	}
-	
-	// Otherwise detect a letter on its own
-
-	cell = " " + cell + " " // Padding so we can just detect spaces around a letter, not the start/end of the string
-	const result = cell.match(/\s([A-Z])\s/) || []
-	if (result.length == 2) { // Contains the full match and the captured group. E.g. 'A' or 'B (DBL)'
-		//console.log(cell + " includes letter: " + result[1])
-		let target = result[1] // Resolve letter scheme into UFR notation
-
-		if (sheetType == 2) { // Edges
-			return edgeBuffers[edgeScheme.indexOf(target)]
+	} else {
+		const result = cell.match(/^[A-Z]$/)
+		if (result) {
+			return result[0]
 		}
-		else if (sheetType == 1) { // Corners
-			return cornerBuffers[cornerScheme.indexOf(target)]
-		}
-		// None and Images stay as letters
-		return target
 	}
 
 	return ""
 }
-function isHeading(cell) {
-	return getHeading(cell, 0) != "" // Sheet type parameter doesnt matter since we don't care about how letters are converted
+
+function isHeading(cell, sheetType) {
+	return getHeading(cell, sheetType) != ""
 }
 
 // Gets just the sheet grid from the full contents of the file
@@ -162,7 +158,7 @@ export function CreateSheetFromFile(content, flipped, type) {
 	// Grid needs to be at least 2 tall and 2 wide to detect it
 	for (let row = 0; row < grid.length - 2; row++) {
 		for (let column = 0; column < grid[0].length - 2; column++) {
-			if (isHeading(grid[row][column + 1]) && isHeading(grid[row][column + 2]) && isHeading(grid[row + 1][column]) && isHeading(grid[row + 2][column])) {
+			if (isHeading(grid[row][column + 1], type) && isHeading(grid[row][column + 2], type) && isHeading(grid[row + 1][column], type) && isHeading(grid[row + 2][column], type)) {
 				gridAnchor = { column: column, row: row }
 				break
 			}
@@ -172,7 +168,7 @@ export function CreateSheetFromFile(content, flipped, type) {
 	}
 	
 	if (gridAnchor.column == -1 || gridAnchor.row == -1)
-		return [false, "Could not find the table in this sheet. Please make sure there are headings on both axes which contain the targets that are used by the table."]
+		return [false, "Could not find the table in this sheet. Please make sure each row and column heading contains the piece notation for its sticker (e.g. UFR, BL, FDL)"]
 
 
 	// Get width and height of the sheet grid
@@ -223,21 +219,12 @@ export function isEmpty(sheet) {
 	return empty
 }
 
-//X and Y headings are the headings of the columns and rows respectively, returned as an array.
-export function getXHeadings(sheet) {
-	return sheet ? sheet.xHeadings.split('') : 'ABCDEFGHIJKLMNOPQRSTUVWX'.split('')
-}
-export function getYHeadings(sheet) {
-	return sheet ? sheet.yHeadings.split('') : 'ABCDEFGHIJKLMNOPQRSTUVWX'.split('')
-}
-
-const letters = "ABCDEFGHIJKLMNOPQRSTUVWX"
 export function calculateCellClasses(x, y, formatEmpty, sheet, highlightedCells) {
 	let classes = ['SheetGridCell']
 	if (!sheet || (formatEmpty && sheet.grid[y][x] === ''))
 		classes.push('SheetGridCellEmpty')
 	else {
-		if ((sheet.type == 1 || sheet.type == 2) && !isPossiblePair(sheet.type, letters[x] + letters[y], sheet.buffer))
+		if ((sheet.type == 1 || sheet.type == 2) && !formatEmpty && !isPossiblePair(sheet.type, scheme()[x + (sheet.type == 2 ? 24 : 0)] + scheme()[y + (sheet.type == 2 ? 24 : 0)], sheet.buffer))
 			classes.push('SheetGridCellGreyed')
 
 		classes.push('SheetGridCellHoverable')

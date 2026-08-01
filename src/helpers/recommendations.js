@@ -3,7 +3,7 @@ import edgeData from '../assets/recommendations/edgeManmade_formatted.json'
 import imageData from '../assets/recommendations/imageRecommendations.json'
 import { useSettingsStore } from '../stores/SettingsStore'
 import { adjacentCornerStickers, adjacentEdgeStickers } from '@/helpers/stickers.js'
-import { cornerSpeffz, edgeSpeffz } from '@/helpers/letter_scheme.js'
+import { speffzScheme, SchemeToSpeffz, SpeffzIndexToScheme } from '@/helpers/lettering_scheme.js'
 
 //A "recommendation" is an algorithm which solves a certain letter pair (for corners and edges)
 //For the "Images" sheet type, a recommendation is a phrase containing the letters in the pair to help with memorisation.
@@ -57,7 +57,7 @@ function getEquivalentCornerComms(key) {
             for (var i = 0; i < 3; i++) {
                 //Index cycle
                 let letter = cycle[i]
-                rotation += adjacentCornerStickers[letter][j]
+                rotation += adjacentCornerStickers(letter)[j]
             }
             output.push(rotation)
         }
@@ -78,7 +78,7 @@ function getEquivalentEdgeComms(key) {
             for (var i = 0; i < 3; i++) {
                 //For each letter of that inversion
                 let letter = cycle[i]
-                rotation += adjacentEdgeStickers[letter][j]
+                rotation += adjacentEdgeStickers(letter)[j]
             }
             output.push(rotation)
         }
@@ -88,10 +88,11 @@ function getEquivalentEdgeComms(key) {
 
 export function getCornerRecommendations(baseKey, buffer, notationType) {
     //buffer is always included in the comm
-    baseKey = cornerSpeffz[buffer] + baseKey
+    baseKey = SpeffzIndexToScheme(buffer) + baseKey
     const equivalentKeys = getEquivalentCornerComms(baseKey)
     let allComms = []
     for (var key of equivalentKeys) {
+        key = SchemeToSpeffz(key[0], false) + SchemeToSpeffz(key[1], false) + SchemeToSpeffz(key[2], false)
         if (!cornerData[key]) continue
 
         //Each of these equivalent keys could have multiple algs
@@ -108,10 +109,11 @@ export function getCornerRecommendations(baseKey, buffer, notationType) {
 }
 export function getEdgeRecommendations(baseKey, buffer, notationType) {
     //buffer is always included in the comm
-    baseKey = edgeSpeffz[buffer] + baseKey
+    baseKey = SpeffzIndexToScheme(buffer + 24) + baseKey
     const equivalentKeys = getEquivalentEdgeComms(baseKey)
     let allComms = []
     for (var key of equivalentKeys) {
+        key = SchemeToSpeffz(key[0], true) + SchemeToSpeffz(key[1], true) + SchemeToSpeffz(key[2], true)
         if (!edgeData[key]) continue
 
         //Each of these equivalent keys could have multiple algs

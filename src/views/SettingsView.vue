@@ -1,19 +1,20 @@
 <script setup>
-	import { computed, ref } from 'vue'
+	import { ref } from 'vue'
 	import { ElMessage, ElMessageBox } from 'element-plus'
     import { useCardStore } from '@/stores/CardStore.js'
-    import { cornerScheme, edgeScheme } from '@/helpers/letter_scheme.js'
 	import { defaults, useSettingsStore } from '.././stores/SettingsStore'
+	import LetteringScheme from '@/components/LetteringScheme.vue'
     const settingsStore = useSettingsStore()
     settingsStore.loadState()
     
 	const exportDialogVisible = ref(false)
 	const importDialogVisible = ref(false)
+	const editingLetteringScheme = ref(false)
 
     function SettingUpdated() {
         settingsStore.saveState()
     }
-    
+
 	function UpdateTheme() {
         if(settingsStore.settings.misc_theme == 1)
 		    document.documentElement.classList.add('dark')
@@ -81,7 +82,13 @@
 			setting.description,
 			setting.name
 		)
-	}
+    }
+
+    const letteringScheme = ref(null)
+    function closeLetteringScheme(save) {
+        if (letteringScheme.value.tryClose(save))
+            editingLetteringScheme.value = false
+    }
 </script>
 
 <template>
@@ -112,6 +119,15 @@
                            :options="defaults.misc_defaultedgebuffer.options"
                            :props="{value: 'id',label: 'name', options: defaults.misc_defaultedgebuffer.options}">
                 </el-select>
+            </div>
+
+            <div>
+                {{ defaults.lettering_scheme.name }}<br />and {{ defaults.solving_orientation.name }}
+            </div>
+            <div>
+                <el-button style="height: 40px;" @click="editingLetteringScheme = true">
+                    <el-icon :size="30"><Edit /></el-icon>
+                </el-button>
             </div>
 
             <div>
@@ -162,7 +178,7 @@
                           :min="defaults.memo_averagedistractiontime.min"
                           :max="defaults.memo_averagedistractiontime.max"
                           @change="SettingUpdated"
-                          style="width: 70px;"/>
+                          style="width: 70px;" />
             </div>
 
             <div>
@@ -234,6 +250,41 @@
                 </el-button>
             </div>
         </template>
+    </el-dialog>
+
+
+    <el-dialog v-model="editingLetteringScheme"
+               style="width: fit-content;"
+               @close="closeLetteringScheme(false)">
+        <template #header>
+            <div>
+                Solving orientation:
+                <el-select v-model="settingsStore.settings.solving_orientation"
+                           @change="SettingUpdated(); letteringScheme.updateSolvingOrientation()"
+                           style="width: 160px;"
+                           :options="defaults.solving_orientation.options"
+                           :props="{value: 'id',label: 'name', options: defaults.solving_orientation.options}">
+                </el-select>
+            </div>
+        </template>
+        <div style="display: flex; padding-bottom: 15px;">
+            <el-text size="large" style="padding-inline-end: 10px;">
+            Lettering Scheme:
+            </el-text>
+            <el-button @click="letteringScheme.speffz()">Speffz</el-button>
+            <el-button @click="letteringScheme.random()">Random</el-button>
+            <el-button @click="letteringScheme.clear()">Clear</el-button>
+        </div>
+        <div style="width: contain; display: flex; flex-direction: column; align-items: center;">
+            <LetteringScheme ref="letteringScheme" />
+        </div>
+        <template #footer>
+            <div>
+                <el-button @click="closeLetteringScheme(false)">Cancel</el-button>
+                <el-button type="success" @click="closeLetteringScheme(true)">Confirm</el-button>
+            </div>
+        </template>
+
     </el-dialog>
 </template>
 

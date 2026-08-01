@@ -4,9 +4,13 @@
     import { FaceletCube } from '@/helpers/FaceletCube/FaceletCube.js'
     import { Sequence } from '@/helpers/sequence.js'
     import { GetInspectionMoves, FinishCornerCycle, FinishEdgeCycle, ToLetters } from '@/helpers/reconstruct.js'
-	import { cornerBuffers, edgeBuffers, cornerScheme, edgeScheme } from '@/helpers/letter_scheme.js'
+    import { GetSolvingOrientationTurns } from '@/helpers/solving_orientation.js'
+	import { cornerBuffers, edgeBuffers, SchemeToSpeffzIndex } from '@/helpers/lettering_scheme.js'
     import FaceletCube3D from '@/components/FaceletCube3D.vue'
-    import ReconCreateLetters from '@/components/recons/ReconCreateLetters.vue'
+
+	const solvingOrientation = GetSolvingOrientationTurns()
+	const inverseSolvingOrientation = Object.assign(new Sequence(), JSON.parse(JSON.stringify(solvingOrientation)))
+    inverseSolvingOrientation.reverse()
 
     const props = defineProps({
         scramble: Sequence,
@@ -16,8 +20,14 @@
     const emit = defineEmits(['lettersFinished'])
 
 	let cube = new FaceletCube()
-	cube.TurnSequence(props.scramble) //Apply the scramble to the cube
+
+	cube.TurnSequence(inverseSolvingOrientation)
+    cube.TurnSequence(props.scramble) //Apply the scramble to the cube
 	const inspection = Object.assign(new Sequence(), GetInspectionMoves(cube))
+    cube = new FaceletCube()
+    cube.TurnSequence(inverseSolvingOrientation)
+    cube.TurnSequence(props.scramble)
+    cube.TurnSequence(inspection)
     const displayCube = ref({})
 
     let updating = false //Prevents recursion in watchers
@@ -47,9 +57,13 @@
 
     function restart() {
 		cube = new FaceletCube()
-		cube.TurnSequence(props.scramble) //Apply the scramble to the cube
-		cube.TurnSequence(inspection) //Apply the inspection rotations to get green-front and white-top
-		displayCube.value = Object.assign(new FaceletCube(), JSON.parse(JSON.stringify(cube)))
+		cube.TurnSequence(inverseSolvingOrientation)
+		cube.TurnSequence(props.scramble)
+		cube.TurnSequence(inspection)
+        displayCube.value = new FaceletCube()
+        displayCube.value.TurnSequence(props.scramble)
+        displayCube.value.TurnSequence(inspection)
+        displayCube.value.TurnSequence(solvingOrientation)
         letterSolution.value = [[], []]
         letterOptions.value = []
         cornerInput.value = ""
@@ -78,7 +92,7 @@
         letterOptions.value = newCycle[1]
 
         const input = pieceType.value === 0 ? cornerInput : edgeInput
-        input.value = ToLetters(letterSolution.value[pieceType.value])
+        input.value = ToLetters(letterSolution.value[pieceType.value], pieceType.value + 1)
 
 
         if (letterOptions.value.length === 0) {
@@ -104,7 +118,8 @@
         if (updating) return
         updating = true
         const inputChar = [...newValue].filter(char => !oldValue.includes(char))[0]
-        const charIndex = inputChar ? (inputChar.toUpperCase().charCodeAt(0) - 'A'.charCodeAt(0)) : -1
+        const charIndex = inputChar 
+            ? (SchemeToSpeffzIndex(inputChar.toUpperCase(), pieceType.value + 1 == 2)) : -1
 
         if (letterOptions.value.includes(charIndex))
             letterSelected(charIndex)
@@ -120,8 +135,8 @@
         const lastCycle = cycleHistory.pop()
         //Reset arrays to previous values
         letterSolution.value = JSON.parse(lastCycle[0])
-        cornerInput.value = ToLetters(letterSolution.value[0])
-        edgeInput.value = ToLetters(letterSolution.value[1])
+        cornerInput.value = ToLetters(letterSolution.value[0], 1)
+        edgeInput.value = ToLetters(letterSolution.value[1], 2)
 
         //Focus correct input box
         pieceType.value = lastCycle[1]
@@ -201,8 +216,8 @@
         curSelectionStart = document.activeElement.selectionStart
         selectedID = document.activeElement.id
 
-        displayCube.value = new FaceletCube()
-        displayCube.value.TurnSequence(props.scramble)
+		displayCube.value = new FaceletCube()
+		displayCube.value.TurnSequence(props.scramble)
         if (curSelectionStart == undefined || selectedID == "") {
             cubeKey.value++
             return
@@ -213,8 +228,8 @@
         if (!isCornerInput) { //Complete full corner sequence
             const cornerPairs = cornerInput.value.split(' ').filter(pair => pair.length > 1)
             for (const pair of cornerPairs) {
-                displayCube.value.SwapCornerCubies(props.cornerBuffer, (pair.charCodeAt(0) - 'A'.charCodeAt(0)))
-                displayCube.value.SwapCornerCubies(props.cornerBuffer, (pair.charCodeAt(1) - 'A'.charCodeAt(0)))
+                displayCube.value.SwapCornerCubies(props.cornerBuffer, SchemeToSpeffzIndex(pair[0], false))
+				displayCube.value.SwapCornerCubies(props.cornerBuffer, SchemeToSpeffzIndex(pair[1], false))
             }
         }
         let currentLetterSequence = ""
@@ -227,14 +242,14 @@
         currentLetterSequence = inputText.substring(0, sampleIndex)
         for (const pair of currentLetterSequence.split(' ').filter(pair => pair.length > 1)) {
             if (isCornerInput) {
-                displayCube.value.SwapCornerCubies(props.cornerBuffer, (pair.charCodeAt(0) - 'A'.charCodeAt(0)))
-                displayCube.value.SwapCornerCubies(props.cornerBuffer, (pair.charCodeAt(1) - 'A'.charCodeAt(0)))
+                displayCube.value.SwapCornerCubies(props.cornerBuffer, SchemeToSpeffzIndex(pair[0], false))
+                displayCube.value.SwapCornerCubies(props.cornerBuffer, SchemeToSpeffzIndex(pair[1], false))
             } else {
-                displayCube.value.SwapEdgeCubies(props.edgeBuffer, (pair.charCodeAt(0) - 'A'.charCodeAt(0)))
-                displayCube.value.SwapEdgeCubies(props.edgeBuffer, (pair.charCodeAt(1) - 'A'.charCodeAt(0)))
+                displayCube.value.SwapEdgeCubies(props.edgeBuffer, SchemeToSpeffzIndex(pair[0], true))
+                displayCube.value.SwapEdgeCubies(props.edgeBuffer, SchemeToSpeffzIndex(pair[1], true))
             }
         }
-        cubeKey.value++ //Update the cube visual
+		cubeKey.value++ //Update the cube visual
     }
 
     onMounted(() => {
@@ -286,7 +301,7 @@
             <div style="display:flex;flex-direction:row;">
                 <el-button style="font-size: 1.2rem; width: 25px;" type="primary" :plain="true"
                            v-for="(letterIndex, index) in letterOptions" @click="letterSelected(letterIndex)">
-                    <i>{{ToLetters([letterIndex])[0]}}</i>
+                    <i>{{ToLetters([letterIndex], pieceType + 1)[0]}}</i>
                 </el-button>
             </div>
 

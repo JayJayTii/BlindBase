@@ -5,7 +5,6 @@
     import { defaults, useSettingsStore } from '@/stores/SettingsStore'
     const settingsStore = useSettingsStore()
     settingsStore.loadState()
-    import { cornerBuffers, edgeBuffers, cornerScheme, edgeScheme } from '@/helpers/letter_scheme.js'
 
     const props = defineProps({
         sheetID: Number,

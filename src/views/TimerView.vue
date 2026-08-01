@@ -142,7 +142,7 @@
             </el-splitter-panel>
             <el-splitter-panel style="position: relative;">
                 <el-button v-if="previousScramble != ''" style="height: 2rem; top:12px; left: 10px; width: 35px; position:absolute; cursor: pointer; z-index: 10;"
-                           @click="lastScramble()" type="primary" :plain="true">
+                           @click="lastScramble()">
                     <el-icon :size="20"><ArrowLeft /></el-icon>
                 </el-button>
                 <!-----------TIMER------------>
@@ -153,7 +153,7 @@
                        @update:solve-complete="onSolveComplete"
                        ref="timer" />
                 <el-button style="height: 2rem; top:12px; right: 10px; width: 35px; position:absolute; cursor: pointer; z-index: 10;"
-                           @click="nextScramble()" type="primary" :plain="true">
+                           @click="nextScramble()">
                     <el-icon :size="20"><ArrowRight /></el-icon>
                 </el-button>
                 <div style="position: absolute; bottom:0px; right: 10px; font-size:0.8rem;">Inspired by <a href="https://cstimer.net/" target="_blank">csTimer</a> (obviously)</div>

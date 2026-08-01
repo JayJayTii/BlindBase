@@ -60,8 +60,21 @@ export const defaults = {
     misc_theme: {
         name: 'Theme',
         default: 0,
-        options: [{ id: 0, name: "Light" }, {id: 1, name: "Dark"}]
+        options: [{ id: 0, name: "Light" }, { id: 1, name: "Dark" }]
     },
+    lettering_scheme: {
+        name: 'Lettering scheme',
+        default: "ABCDEFGHIJKLMNOPQRSTUVWXABCDEFGHIJKLMNOPQRSTUVWX",
+    },
+    solving_orientation: {
+        name: 'Solving orientation',
+        default: 0,
+        options: [{ id: 0, name: "White-Green" }, { id: 1, name: "White-Red" }, { id: 2, name: "White-Blue" }, { id: 3, name: "White-Orange" }, { id: 4, name: "Yellow-Green" }, { id: 5, name: "Yellow-Red" }, { id: 6, name: "Yellow-Blue" }, { id: 7, name: "Yellow-Orange" }, { id: 8, name: "Orange-Blue" }, { id: 9, name: "Orange-White" }, { id: 10, name: "Orange-Yellow" }, { id: 11, name: "Orange-Green" }, { id: 12, name: "Red-Blue" }, { id: 13, name: "Red-White" }, { id: 14, name: "Red-Yellow" }, { id: 15, name: "Red-Green" }, { id: 16, name: "Green-Orange" }, { id: 17, name: "Green-Yellow" }, { id: 18, name: "Green-White" }, { id: 19, name: "Green-Red" }, { id: 20, name: "Blue-Orange" }, { id: 21, name: "Blue-Yellow" }, { id: 22, name: "Blue-White" }, { id: 23, name: "Blue-Red" }]
+    }
+}
+
+export function scheme() {
+    return useSettingsStore().settings.lettering_scheme
 }
 
 export const useSettingsStore = defineStore('settingsStore', {
