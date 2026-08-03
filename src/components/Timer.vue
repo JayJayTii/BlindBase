@@ -2,7 +2,6 @@
     import { ref,watch, reactive, computed, onMounted, onUnmounted, nextTick } from 'vue'
     import { getSolveTimeString, getSolveRatioString } from '@/helpers/timer.js'
     import { useSettingsStore } from '@/stores/SettingsStore.js'
-    useSettingsStore().loadState()
 
     const emit = defineEmits(['update:solve-complete'])
     const props = defineProps({

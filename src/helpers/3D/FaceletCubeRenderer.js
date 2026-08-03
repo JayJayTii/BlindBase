@@ -3,7 +3,7 @@ import { FaceletCube, faceColours } from '@/helpers/FaceletCube/FaceletCube.js'
 
 //https://youtube.com/playlist?list=PL2935W76vRNHFpPUuqmLoGCzwx_8eq5yK&si=ofNCSMJSk2rsow2t
 export function renderCube(gl, width, height, xSpin, ySpin, cube) {
-    const gap = 0.01
+    const gap = 0.02
     const w = 0.08
     const vertexData = [
         //Corner 0
@@ -716,15 +716,14 @@ export function renderCube(gl, width, height, xSpin, ySpin, cube) {
 
     const projectionMatrix = mat4.create()
     const zoom = 7;
-    mat4.ortho(projectionMatrix, -zoom, zoom, -height / width * zoom, height/width * zoom, 0.01, 1000);
-    /*
+    //mat4.ortho(projectionMatrix, -zoom, zoom, -height / width * zoom, height/width * zoom, 0.01, 1000);
+    
     mat4.perspective(projectionMatrix, 
-        50 * Math.PI/180, //vfov in radians
+        70 * Math.PI/180, //vfov in radians
         width / height, //aspect ratio
         1e-3, //near clip plane
         1e4 //far clip plane
     )
-    */
 
     const mvMatrix = mat4.create() //model-view
     const mvpMatrix = mat4.create() //model-view-projection
@@ -737,7 +736,7 @@ export function renderCube(gl, width, height, xSpin, ySpin, cube) {
     viewMatrix = mat4.create()
     mat4.rotateY(viewMatrix, viewMatrix, degToRad(ySpin));
     mat4.rotateX(viewMatrix, viewMatrix, degToRad(xSpin));
-    mat4.translate(viewMatrix, viewMatrix, [0, 0, 13])
+    mat4.translate(viewMatrix, viewMatrix, [0, 0, 11])
     mat4.invert(viewMatrix, viewMatrix)
 
     mat4.multiply(mvMatrix, viewMatrix, modelMatrix)

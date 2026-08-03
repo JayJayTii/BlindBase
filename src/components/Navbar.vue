@@ -5,7 +5,6 @@
     const router = useRouter()
     const currentRoute = useRoute()
     const routes = ['Home', 'Sheets', 'Cards', 'Memo', 'Exec', 'Timer', 'Recons', 'Settings']
-
 </script>
 
 <template>

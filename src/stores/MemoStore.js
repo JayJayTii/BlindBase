@@ -35,12 +35,8 @@ export const useMemoStore = defineStore('memoStore', {
             )
         },
         loadState() {
-            try {
-                const data = JSON.parse(localStorage.getItem('memoStore'))
-                this.highscores = data.highscores
-            } catch {}
-            if (!this.hasOwnProperty("highscores"))
-                this.highscores = {}
+            const data = JSON.parse(localStorage.getItem('memoStore')) || {}
+            this.highscores = data.highscores || {}
             this.highscores = this.ValidateValues(this.highscores)
             this.saveState()
         },

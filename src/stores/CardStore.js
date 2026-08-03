@@ -125,7 +125,6 @@ export const useCardStore = defineStore('cardStore', {
         },
 
         checkInvalidCards() {
-            useSheetStore().loadState()
             //This is to convert from an old format for storing cards
             const sheetIDs = new Set(useSheetStore().sheets.map(sheet => sheet.id))
             this.cards.forEach(card => {
@@ -159,9 +158,9 @@ export const useCardStore = defineStore('cardStore', {
         },
         loadState() {
             try {
-                const data = JSON.parse(localStorage.getItem('cardStore'))
-                this.cards = data.cards
-                this.dailyStats = data.dailyStats
+                const data = JSON.parse(localStorage.getItem('cardStore')) || {}
+                this.cards = data.cards || []
+                this.dailyStats = data.dailyStats || { date: new Date().setHours(0, 0, 0, 0), dailyNewCards: 0 }
             } catch { }
             this.checkInvalidCards()
             this.checkDailyStats()

@@ -1,11 +1,12 @@
 <script setup>
-    import { nextTick, ref, watch, computed, onMounted, onUnmounted }from 'vue'
-	import { useReconsStore } from "@/stores/ReconsStore"
+    import { nextTick, ref, watch, computed, onMounted, onUnmounted } from 'vue'
     import { FaceletCube } from '@/helpers/FaceletCube/FaceletCube.js'
     import { Sequence } from '@/helpers/sequence.js'
     import { GetInspectionMoves, FinishCornerCycle, FinishEdgeCycle, ToLetters } from '@/helpers/reconstruct.js'
     import { GetSolvingOrientationTurns } from '@/helpers/solving_orientation.js'
 	import { cornerBuffers, edgeBuffers, SchemeToSpeffzIndex } from '@/helpers/lettering_scheme.js'
+	import { useReconsStore } from "@/stores/ReconsStore"
+
     import FaceletCube3D from '@/components/FaceletCube3D.vue'
 
 	const solvingOrientation = GetSolvingOrientationTurns()

@@ -32,27 +32,15 @@
 </script>
 
 <template>
-    <div id="session-settings" v-if="timerStore.isValidSessionID(props.sessionID)">
+    <span id="session-settings" v-if="timerStore.isValidSessionID(props.sessionID)">
         <!------TYPE------>
-        <hr style="height: 100%;" />
         <div>
-            Type:
+            <span style="padding-inline-end: 10px;">Type:</span>
             <el-select v-model="currentSessionType"
-                       style="width: 150px;"
+                       style="width: 200px;"
                        :options="session_types"
                        :props="{value: 'id',label: 'name', options: session_types}">
             </el-select>
         </div>
-    </div>
+    </span>
 </template>
-
-<style>
-	#session-settings {
-		display: flex;
-		flex-direction: row;
-		gap: 5px;
-		padding: 2px;
-		padding-left: 5px;
-        align-items: center;
-	}
-</style>

@@ -3,9 +3,7 @@
 	import { useSheetStore } from "../stores/SheetStore"
 	import { useSettingsStore } from "../stores/SettingsStore"
 	const sheetStore = useSheetStore()
-	sheetStore.loadState()
 	const settingsStore = useSettingsStore()
-	settingsStore.loadState()
 
 	import SheetSelect from "@/components/sheets/SheetSelect.vue"
 	import SheetSettings from "@/components/sheets/SheetSettings.vue"

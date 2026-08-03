@@ -1,129 +1,124 @@
 <script setup>
-    import { computed, ref } from 'vue'
+	import { computed, ref, watch, nextTick } from 'vue'
+	import { ElMessageBox } from 'element-plus'
     import { useTimerStore } from "@/stores/TimerStore"
 	const timerStore = useTimerStore()
 
     const props = defineProps({
         sessionID: Number,
     })
-    const emit = defineEmits(['sessionSelected'])
+	const emit = defineEmits(['sessionSelected'])
+	watch(
+		() => props.sessionID,
+		(newValue) => { selectedSession.value = newValue }
+	)
 
-    function selectSession(id) {
+	function selectSession(id) {
+		document.activeElement.blur() // Prevent select box from taking the space input instead of timer
         emit('sessionSelected', id)
-    }
+	}
 
 	function newSession() {
 		emit('sessionSelected', timerStore.newSession())
 	}
 
-	function deleteSession() {
-		timerStore.deleteSession(props.sessionID)
+	function deleteSession(sessionID) {
+		timerStore.deleteSession(sessionID)
 		if (timerStore.sessions.length > 0)
 			emit('sessionSelected', timerStore.sessions[timerStore.sessions.length - 1].id)
-		else
+		else {
 			emit('sessionSelected', -1)
+			nextTick(() => { selectedSession.value = null })
+		}
 	}
 
-	const currentSessionName = computed({
-		get: () => timerStore.getSession(props.sessionID)?.name || '',
+	const sessionNameEditName = computed({
+		get: () => timerStore.getSession(sessionNameEditSession.value)?.name || '',
 		set: (newName) => {
-			if (timerStore.isValidSessionID(props.sessionID)) {
-				timerStore.sessions[timerStore.getSessionIndexWithID(props.sessionID)].name = newName
+			if (timerStore.isValidSessionID(sessionNameEditSession.value)) {
+				timerStore.sessions[timerStore.getSessionIndexWithID(sessionNameEditSession.value)].name = newName
 				timerStore.saveState()
 			}
 		}
 	})
 
-	const mainDropdownRef = ref(null)
+	const selectedSession = ref(props.sessionID == -1 ? null : props.sessionID)
 
-	const sessionEditRef = ref(null)
-	const dropdownPositionRef = ref(null)
-	const sessionEditOpen = ref(false)
-	function onVisibleChange(isOpen) {
-		sessionEditOpen.value = isOpen
-	}
-	const handleClick = () => {
-		if (sessionEditOpen.value) {
-			sessionEditRef.value?.handleClose()
-		} else {
-			event.preventDefault()
-			sessionEditRef.value?.handleOpen()
-		}
-	}
+	const sessionNameEditSession = ref(-1)
+	const newSessionNameInputRef = ref(null)
 
-	function handleKeydown(event) {
-		if (event.code == 'Space' || event.key == ' ') {
-			// If it's been selected, it opens by space press on default but that messes with the timer
-			mainDropdownRef.value.handleClose()
-		}
+	function confirmDelete(sessionID) {
+		ElMessageBox.confirm(
+			'Are you sure you want to delete \'' + timerStore.getName(sessionID) + '\'?',
+			'Delete session',
+			{ confirmButtonText: 'Confirm', cancelButtonText: 'Cancel', type: 'warning', }
+		).then(() => { deleteSession(sessionID) }).catch(() => { })
 	}
 </script>
 
 <template>
-	<div style="display: flex; align-items: center;">
-		<el-dropdown placement="bottom-end"
-					 :split-button="true"
-					 trigger="click"
-					 @command="selectSession"
-					 @click="handleClick"
-					 style="padding-inline-start: 5px;"
-					 @keydown="handleKeydown"
-					 ref="mainDropdownRef">
-			<div class="el-dropdown-link" ref="dropdownPositionRef" style="width: 222px;">
-				<el-text :truncated="true">{{timerStore.getSession(sessionID)?.name || ''}}</el-text>
-			</div>
-			<!-- Dropdown with sheets to select from -->
-			<template #dropdown>
-				<el-dropdown-menu style="width: min(200px, 20vw); max-height: 400px; padding: 5px;">
-					<el-dropdown-item v-for="session in timerStore.sessions"
-									  :style="(session.id == sessionID) ? 'font-weight: bolder;' : ''"
-									  :command="session.id">
-						<el-text :truncated="true" id="name-input">{{session.name}}</el-text>
-					</el-dropdown-item>
-					<hr v-if="timerStore.sessions.length > 0" />
-					<div style="display: flex; flex-direction: row; justify-content: end; margin-top: 5px;">
-						<!-- NEW -->
-						<el-tooltip placement="right" content="New" :show-after="500">
-							<el-button type="primary" @click="newSession(); mainDropdownRef.handleClose()"
-									   style="justify-content: center; height: 35px; width: 35px;">
-								<el-icon :size="20">
-									<Plus />
-								</el-icon>
-							</el-button>
-						</el-tooltip>
-					</div>
-				</el-dropdown-menu>
-			</template>
-		</el-dropdown>
+	<span >
+		<el-select v-model="selectedSession" placeholder="Create a session" style="width: 100%;">
+			<el-option v-for="session in timerStore.sessions" :value="session.id" @click="selectSession(session.id)" :label="session.name" class="session-option">
+				<span><el-text class="sessionNameLabel">{{session.name}}</el-text></span>
+				<span class="edit-session" @click.stop @click="sessionNameEditSession = session.id"><el-icon size="18"><Edit /></el-icon></span>
+				<span class="edit-session" :id="'delete' + session.id" @click.stop @click="confirmDelete(session.id)"><el-icon size="18"><Delete /></el-icon></span>
+			</el-option>
 
-		<!-- Sheet editing dropdown, virtually triggered -->
-		<el-dropdown :disabled="!timerStore.isValidSessionID(sessionID)"
-					 ref="sessionEditRef"
-					 virtual-triggering
-					 :virtual-ref="dropdownPositionRef"
-					 placement="bottom-start"
-					 trigger="click"
-					 @visible-change="onVisibleChange" >
-			<template #dropdown>
-				<el-dropdown-menu style="width: min(300px, 20vw); font-size: 1.2rem; padding: 5px; display: flex; flex-direction: row; gap: 10px;">
-					<!------NAME------>
-					<el-input v-model="currentSessionName"
-						   maxlength="30"
-						   @keydown.space.stop
-						   style="width: 100%; font-size: inherit;" />
-
-					<!------DELETE------>
-					<el-popconfirm title="Are you sure?" @confirm="deleteSession">
-						<template #reference>
-							<el-button type="danger" style="height: auto; width: 15px;">
-								<el-icon :size="15">
-									<Delete />
-								</el-icon>
-							</el-button>
-						</template>
-					</el-popconfirm>
-				</el-dropdown-menu>
+			<template #empty>
+				Click the + to create a session
 			</template>
-		</el-dropdown>
-	</div>
+			<template #footer>
+				<div style="display: flex; justify-content: end;">
+
+					<el-tooltip placement="bottom" content="New" :show-after="500">
+						<el-button @click="newSession();" style="justify-content: center; height: 35px; width: 35px;">
+							<el-icon :size="20"><Plus /></el-icon>
+						</el-button>
+					</el-tooltip>
+				</div>
+			</template>
+		</el-select>
+
+		<el-dialog :model-value="sessionNameEditSession != -1" title="Enter a new name for this session:" width="500" @close="sessionNameEditSession = -1" @opened="newSessionNameInputRef.focus()">
+			<el-input v-model="sessionNameEditName" ref="newSessionNameInputRef" id="sessionNameInput" maxlength="30" style="width: 100%; font-size: inherit; margin-right: 10px;" />
+			<template #footer>
+				<el-button @click="sessionNameEditSession = -1">Done</el-button>
+			</template>
+		</el-dialog>
+	</span>
 </template>
+
+<style>
+	.session-option {
+		display: grid;
+		grid-template-columns: 180px repeat(2, 1fr);
+		gap: 5px;
+	}
+
+		.session-option:hover .sessionNameLabel {
+			display: inline-block;
+			max-width: 140px;
+			white-space: nowrap;
+			overflow: hidden;
+			text-overflow: ellipsis;
+		}
+
+	.edit-session {
+		cursor: pointer;
+		margin-top: 4px;
+		padding-left: 3px;
+		height: 25px;
+		width: 25px;
+		display: none;
+	}
+
+	.session-option:hover .edit-session {
+		display: inline-block;
+	}
+
+	.edit-session:hover {
+		border-radius: 10px;
+		background-color: var(--el-fill-color-darker);
+	}
+</style>

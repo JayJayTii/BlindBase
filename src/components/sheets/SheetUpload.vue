@@ -2,8 +2,8 @@
 	import { ref } from 'vue'
 	import { ElMessageBox } from 'element-plus'
 	import { CreateSheetFromFile } from '@/helpers/sheets.js'
-	import { sheet_types, useSheetStore } from "@/stores/SheetStore"
 	import { useSettingsStore, defaults } from "@/stores/SettingsStore"
+	import { sheet_types, useSheetStore } from "@/stores/SheetStore"
 	defineExpose({
 		open, close
 	})

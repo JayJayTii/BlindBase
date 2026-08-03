@@ -1,20 +1,18 @@
 <script setup>
     //Handles the creation of a reconstruction for each stage
     import { ref } from 'vue'
-    import ReconCreateLetters from '@/components/recons/ReconCreateLetters.vue'
-	import ReconCreateNotation from '@/components/recons/ReconCreateNotation.vue'
+	import { useRouter } from 'vue-router'
+	const router = useRouter()
     import { Sequence } from '@/helpers/sequence.js'
     import { GetSolvingOrientationTurns } from '@/helpers/solving_orientation.js'
     import { FaceletCube } from '@/helpers/FaceletCube/FaceletCube.js'
     import { GetInspectionMoves, GenerateReconBody, GetReconMoveCount } from '@/helpers/reconstruct.js'
     import { getSolveTimeString } from '@/helpers/timer.js'
+	import { useSettingsStore } from '@/stores/SettingsStore.js'
+	import { useReconsStore } from "@/stores/ReconsStore"
 
-    import { useSettingsStore } from '@/stores/SettingsStore.js'
-    useSettingsStore().loadState()
-    import { useReconsStore } from "@/stores/ReconsStore"
-    const reconsStore = useReconsStore()
-    import { useRouter } from 'vue-router'
-    const router = useRouter()
+	import ReconCreateLetters from '@/components/recons/ReconCreateLetters.vue'
+	import ReconCreateNotation from '@/components/recons/ReconCreateNotation.vue'
 
     const props = defineProps({
         scramble: Sequence,
@@ -62,7 +60,7 @@
         sessionStorage.removeItem('reconstructionSolve') //Remove no matter what
 
         newRecon.body = GenerateReconBody(newRecon)
-        const newReconIndex = reconsStore.createRecon(newRecon)
+        const newReconIndex = useReconsStore().createRecon(newRecon)
         router.replace(`/recons`).then(() => {
             router.push(`/recons/${props.scramble.toString()}`)
 		})

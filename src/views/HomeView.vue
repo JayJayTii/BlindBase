@@ -1,10 +1,6 @@
 <script setup>
 	import { useRouter } from 'vue-router'
 	const router = useRouter()
-    import { useSettingsStore } from '.././stores/SettingsStore'
-    
-    const settingsStore = useSettingsStore()
-    settingsStore.loadState()
 </script>
 
 <template>

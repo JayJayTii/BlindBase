@@ -3,9 +3,8 @@
     import { getCardType } from "@/helpers/cards.js"
 	import { cornerBuffers, edgeBuffers } from "@/helpers/lettering_scheme.js"
     import { useSheetStore } from "@/stores/SheetStore"
-    const sheetStore = useSheetStore()
-    sheetStore.loadState()
     import { useCardStore } from "@/stores/CardStore"
+    const sheetStore = useSheetStore()
     const cardStore = useCardStore()
 
     const props = defineProps({

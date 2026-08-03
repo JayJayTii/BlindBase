@@ -4,15 +4,11 @@
     import { getAllLetterPairs, isPossiblePair } from '@/helpers/pairs.js'
     import { cornerBuffers, edgeBuffers, SpeffzIndexToScheme } from '@/helpers/lettering_scheme.js'
     import { getFilledCells } from '@/helpers/sheets.js'
-
-    import { useSheetStore } from '@/stores/SheetStore'
-    const sheetStore = useSheetStore()
-    import { useCardStore } from '@/stores/CardStore'
-	const cardStore = useCardStore()
 	import { scheme, useSettingsStore } from '@/stores/SettingsStore'
-	useSettingsStore().loadState()
-    sheetStore.loadState()
-    cardStore.loadState()
+    import { useSheetStore } from '@/stores/SheetStore'
+    import { useCardStore } from '@/stores/CardStore'
+    const sheetStore = useSheetStore()
+	const cardStore = useCardStore()
 
     const emit = defineEmits(['update:on-selected'])
 

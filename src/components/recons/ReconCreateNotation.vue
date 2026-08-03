@@ -1,15 +1,14 @@
 <script setup>
     import { onMounted, onUnmounted, ref } from 'vue'
     import { FaceletCube } from '@/helpers/FaceletCube/FaceletCube.js'
-    import FaceletCube3D from '@/components/FaceletCube3D.vue'
     import { Sequence } from '@/helpers/sequence.js'
 	import { GetSolvingOrientationTurns } from '@/helpers/solving_orientation.js'
     import { getRecommendations, getCornerRecommendations, getEdgeRecommendations } from '@/helpers/recommendations.js'
     import { GetInspectionMoves, ToLetters, TrimComment } from '@/helpers/reconstruct.js'
-
     import { useSheetStore } from '@/stores/SheetStore'
     const sheetStore = useSheetStore()
-    sheetStore.loadState()
+
+    import FaceletCube3D from '@/components/FaceletCube3D.vue'
 
 	const solvingOrientation = GetSolvingOrientationTurns()
 	const inverseSolvingOrientation = Object.assign(new Sequence(), JSON.parse(JSON.stringify(solvingOrientation)))

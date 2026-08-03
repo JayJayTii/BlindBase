@@ -143,7 +143,7 @@ export function GenerateReconBody(recon) {
 	}
 
 	const cornersEmpty = (recon.notation.corners.length == 1 && recon.notation.corners[0] == '')
-	summary += cornersEmpty ? "" : `\n//Corners\n`
+	summary += cornersEmpty ? "" : `//Corners\n`
 	const cornerPairs = ToLetters(recon.letters[0], 1).split(' ').filter(pair => pair.length > 1)
 	for (var i = 0; i < recon.notation.corners.length; i++) {
 		summary += recon.notation.corners[i]
@@ -151,14 +151,40 @@ export function GenerateReconBody(recon) {
 	}
 
 	const moveCount = GetReconMoveCount(recon)
-	summary += "\n//" + moveCount.toString() + " move" + (moveCount != 1 ? "s" : "") + "\n"
+	summary += "//" + moveCount.toString() + " move" + (moveCount != 1 ? "s" : "")
 
 	if (!recon.hasOwnProperty("solve"))
 		return summary
 	//Add timing information if arriving from the timer tool
 	const solve = JSON.parse(recon.solve)
-	summary += "//" + getSolveTimeString(solve) + " (" + getSolveRatioString(solve) + ")\n"
+	summary += "\n//" + getSolveTimeString(solve) + " (" + getSolveRatioString(solve) + ")"
 	const tps = moveCount / (solve[0] - solve[1]) * 1000 //times are stored in milliseconds
-	summary += "//" + (Math.round(10 * tps) / 10).toString() + "TPS\n"
+	summary += "\n//" + (Math.round(10 * tps) / 10).toString() + "TPS"
 	return summary
+}
+
+export function OpenReconInCubeDB(recon) {
+	let alg = recon.body.substring(recon.body.indexOf('\n'))
+	while (alg[0] == '\n') {
+		alg = alg.slice(1)
+	}
+	//CubeDB encodes a full reconstruction in the URL, so just cram it all in there
+	let url = `https://cubedb.net/?title=${encodeURIComponent(recon.name)}`
+	url += `&scramble=${encodeURIComponent(recon.scramble)}`
+	url += `&alg=${encodeURIComponent(alg)}`
+	if (recon.hasOwnProperty('solve'))
+		url += `&time=${encodeURIComponent(Math.round(JSON.parse(recon.solve)[0] / 10) / 100)}`
+	window.open(url, "_blank");
+}
+
+export function OpenReconInAlgCubingNet(recon) {
+	let alg = recon.body.substring(recon.body.indexOf('\n'))
+	while (alg[0] == '\n') {
+		alg = alg.slice(1)
+	}
+	//CubeDB encodes a full reconstruction in the URL, so just cram it all in there
+	let url = `https://alg.cubing.net/?setup=${encodeURIComponent(recon.scramble)}`
+	url += `&alg=${encodeURIComponent(alg)}`
+
+	window.open(url, "_blank");
 }

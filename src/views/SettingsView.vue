@@ -1,11 +1,11 @@
 <script setup>
 	import { ref } from 'vue'
 	import { ElMessage, ElMessageBox } from 'element-plus'
-    import { useCardStore } from '@/stores/CardStore.js'
 	import { defaults, useSettingsStore } from '.././stores/SettingsStore'
-	import LetteringScheme from '@/components/LetteringScheme.vue'
+    import { useCardStore } from '@/stores/CardStore.js'
     const settingsStore = useSettingsStore()
-    settingsStore.loadState()
+
+	import LetteringScheme from '@/components/LetteringScheme.vue'
     
 	const exportDialogVisible = ref(false)
 	const importDialogVisible = ref(false)
@@ -38,8 +38,9 @@
             
             try {
                 const jsonData = JSON.parse(content);
-                for(var key of Object.keys(jsonData)) {
-                    localStorage.setItem(key, JSON.stringify(jsonData[key]));
+                const stores = ['settingsStore', 'sheetStore', 'cardStore', 'memoStore', 'timerStore', 'reconsStore']
+                for (var key of stores) {
+                    localStorage.setItem(key, JSON.stringify(jsonData[key] || {}))
                 }
             }
 			catch (error) {

@@ -2,10 +2,10 @@
 	import { computed, watch, nextTick, ref } from 'vue'
 	import { getRecommendations } from "@/helpers/Recommendations"
 	import { speffzScheme } from '@/helpers/lettering_scheme.js'
-	import { useSheetStore } from "@/stores/SheetStore"
-	const sheetStore = useSheetStore()
 	import { scheme, useSettingsStore } from "@/stores/SettingsStore"
+	import { useSheetStore } from "@/stores/SheetStore"
 	const settingsStore = useSettingsStore()
+	const sheetStore = useSheetStore()
 
 	const props = defineProps({
 		sheetID: Number,

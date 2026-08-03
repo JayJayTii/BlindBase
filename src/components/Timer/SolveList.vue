@@ -1,9 +1,8 @@
 <script setup>
-    import { ref, computed } from 'vue'
-    import { getSolveTimeString } from "@/helpers/timer.js"
-    import { useTimerStore } from "@/stores/TimerStore"
-	const timerStore = useTimerStore()
-	import { calculateMean, formatTime } from '@/helpers/timer.js'
+	import { h, ref, computed } from 'vue'
+	import { ElSelect, ElOption } from 'element-plus'
+	import { getSolveTimeString, calculateMean, formatTime } from "@/helpers/timer.js"
+	import { useTimerStore } from "@/stores/TimerStore"
 
     const props = defineProps({
         solveIndex: Number,
@@ -12,7 +11,7 @@
     const emit = defineEmits(['selectSolve'])
 
 	const solves = computed({
-		get: () => timerStore.getSession(props.sessionID)?.solves || []
+		get: () => useTimerStore().getSession(props.sessionID)?.solves || []
     })
 
     function SolveClicked(index) {
@@ -20,7 +19,6 @@
     }
 
 	const section = ref(0)
-	const sectionOptions = [{ label: 'Full', value: 0 }, { label: 'Memo', value: 1 }, { label: 'Exec', value: 2 }]
     const data = computed({
         get: () => {
             //iterating in reverse so the end is at the top of the table
@@ -43,7 +41,7 @@
 
 	const columns = [
 		{
-            title: 'Solve',
+			title: 'Solve',
 			cellRenderer: ({ rowData }) => {
 				return rowData.index + 1
 			},
@@ -51,7 +49,22 @@
             width: 60,
         },
 		{
-			title: 'Time',
+			headerCellRenderer: () => {
+				return h(
+					ElSelect,
+					{
+						modelValue: section.value,
+						'onUpdate:modelValue': v => (section.value = v),
+						size: 'small',
+						style: 'width: 100px;'
+					},
+					() => [
+						h(ElOption, { label: 'Full', value: 0 }),
+						h(ElOption, { label: 'Memo', value: 1 }),
+						h(ElOption, { label: 'Exec', value: 2 })
+					]
+				)
+			},
 			cellRenderer: ({ rowData }) => {
                 switch (section.value) {
                     case 0: // Full
@@ -86,13 +99,12 @@
 			key: 2,
 			width: 100,
 		}
-	]
+    ]
 </script>
 
 <template>
     <div :key="solves.length" style="border-radius: 4px; border: 1px solid var(--el-border-color);">
-        <el-segmented v-model="section" :options="sectionOptions" size="small" style="width:100%; background-color: var(--el-fill-color-blank);" /> 
-        <el-auto-resizer style="height: 285px;">
+        <el-auto-resizer style="height: 100%;">
             <template #default="{ height, width }">
                 <el-table-v2 :columns="columns"
                              :data="data"

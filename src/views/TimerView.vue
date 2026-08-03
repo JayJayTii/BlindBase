@@ -1,16 +1,16 @@
 <script setup>
-    import { ref, nextTick, onMounted, onUnmounted, watch, computed } from 'vue'
-    import SessionSelect from "@/components/timer/SessionSelect.vue"
-    import SessionSettings from "@/components/timer/SessionSettings.vue"
-    import SessionDetails from "@/components/timer/SessionDetails.vue"
-    import SolveDetails from "@/components/timer/SolveDetails.vue"
-    import SolveList from "@/components/timer/SolveList.vue"
-    import Timer from "@/components/Timer.vue"
-    import { useTimerStore } from "../stores/TimerStore"
+	import { ref, nextTick, onMounted, onUnmounted, watch, computed } from 'vue'
+	import { Scramble, get3BLDscramble } from '@/helpers/scramble.js'
+	import { scramblers } from '@/helpers/solver/scramble_333_edit.js'
+    import { useTimerStore } from "@/stores/TimerStore"
     const timerStore = useTimerStore()
-    timerStore.loadState()
-    import { Scramble, get3BLDscramble } from '@/helpers/scramble.js'
-    import { scramblers } from '@/helpers/solver/scramble_333_edit.js'
+
+	import SessionSelect from "@/components/timer/SessionSelect.vue"
+	import SessionSettings from "@/components/timer/SessionSettings.vue"
+	import SessionDetails from "@/components/timer/SessionDetails.vue"
+	import SolveDetails from "@/components/timer/SolveDetails.vue"
+	import SolveList from "@/components/timer/SolveList.vue"
+	import Timer from "@/components/Timer.vue"
 
     let scramblersInitialized = false
     setTimeout(() => {
@@ -117,7 +117,7 @@
     }
     
 	function handleKeydown(event) {
-		if (event.code === "Space") {
+		if (event.code === "Space" && document.activeElement.id != "sessionNameInput") {
             event.preventDefault()
 		}
 	}
@@ -128,20 +128,17 @@
 
 <template>
     <div style="display: flex; flex-direction: column;">
-        <div id="top-row">
-            <SessionSelect :sessionID="sessionID"
-                           @sessionSelected="updateSessionID" />
-            <SessionSettings v-if="timerStore.isValidSessionID(sessionID)"
-                             :sessionID="sessionID" />
-        </div>
-
-        <el-splitter v-if="timerStore.isValidSessionID(sessionID)" 
-                     id="timer-container" style="width: 100%; height: calc(100dvh - var(--footer-height) - 150px);">
+        <el-splitter id="timer-container" style="width: 100%; height: calc(100dvh - var(--footer-height) - 105px);">
             <el-splitter-panel size="300" :resizable="false" style="background-color: var(--el-fill-color-light);">
-                <SessionDetails style="width:100%;height:100%" :sessionID="sessionID" />
+                <div style="display: flex; flex-direction: column; gap: 5px;">
+                    <SessionSelect :sessionID="sessionID" @sessionSelected="updateSessionID" />
+                    <SessionSettings v-if="timerStore.isValidSessionID(sessionID)" :sessionID="sessionID" />
+                    <SessionDetails :sessionID="sessionID" />
+                </div>
             </el-splitter-panel>
             <el-splitter-panel style="position: relative;">
-                <el-button v-if="previousScramble != ''" style="height: 2rem; top:12px; left: 10px; width: 35px; position:absolute; cursor: pointer; z-index: 10;"
+                <el-button v-if="previousScramble != '' && timerStore.isValidSessionID(sessionID)" 
+                           style="height: 2rem; top:12px; left: 10px; width: 35px; position:absolute; cursor: pointer; z-index: 10;"
                            @click="lastScramble()">
                     <el-icon :size="20"><ArrowLeft /></el-icon>
                 </el-button>
@@ -152,7 +149,8 @@
                        :twoStage="true"
                        @update:solve-complete="onSolveComplete"
                        ref="timer" />
-                <el-button style="height: 2rem; top:12px; right: 10px; width: 35px; position:absolute; cursor: pointer; z-index: 10;"
+                <el-button v-if="timerStore.isValidSessionID(sessionID)"
+                           style="height: 2rem; top:12px; right: 10px; width: 35px; position:absolute; cursor: pointer; z-index: 10;"
                            @click="nextScramble()">
                     <el-icon :size="20"><ArrowRight /></el-icon>
                 </el-button>
@@ -166,7 +164,8 @@
                                       style="height: 100%; width: 100%;"/>
                     </el-splitter-panel>
                     <el-splitter-panel :resizable="false">
-                        <SolveList style="width:100%;height:100%;"
+                        <SolveList v-if="timerStore.isValidSessionID(sessionID)"
+                                   style="width:100%;height:100%;"
                                    :solveIndex="solveIndex"
                                    :sessionID="sessionID"
                                    @selectSolve="selectSolve" />

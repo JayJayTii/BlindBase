@@ -1,18 +1,16 @@
 <script setup>
     import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue'
     import { gaussianRandom, GeneratePairSequence, FormatPairSequence, GetLongestStringLength, getCorrect, getScore } from '@/helpers/memo.js'
-    //Sheet and card stores for memo header for fetching sheet and card names
+
     import { defaults, useSettingsStore } from '@/stores/SettingsStore.js'
+    import { useSheetStore } from '@/stores/SheetStore'
+    import { useCardStore } from '@/stores/CardStore'
+    import { useMemoStore } from '@/stores/MemoStore'
     const settingsStore = useSettingsStore()
-    import { useSheetStore } from '../stores/SheetStore'
     const sheetStore = useSheetStore()
-    sheetStore.loadState()
-    import { useCardStore } from '../stores/CardStore'
     const cardStore = useCardStore()
-    cardStore.loadState()
-    import { useMemoStore } from '../stores/MemoStore'
     const memoStore = useMemoStore()
-    memoStore.loadState()
+
     import MemoSelect from '@/components/memo/MemoSelect.vue'
     import MemoDisplay from '@/components/memo/MemoDisplay.vue'
     import MemoDistraction from '@/components/memo/MemoDistraction.vue'

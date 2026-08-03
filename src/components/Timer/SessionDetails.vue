@@ -31,7 +31,6 @@
     })
 
     const section = ref(0)
-	const sectionOptions = [{ label: 'Full', value: 0 }, { label: 'Memo', value: 1 }, { label: 'Exec', value: 2 }]
 
     const dnfRatio = computed({
         get: () => {
@@ -47,7 +46,6 @@
         <div style="display: flex; flex-direction: column; border: 1px solid var(--el-border-color); border-radius: 4px;">
             <el-table :data="data" size="small" style="border-radius: 4px;" border>
                 <el-table-column prop="name" label="" width="90">
-
                     <template #header>
                         <el-select size="small" v-model="section" style="font-size: 0.2rem;">
                             <el-option :value="0" label="Full">Full</el-option>

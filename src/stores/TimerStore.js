@@ -70,7 +70,12 @@ export const useTimerStore = defineStore('timerStore', {
             }
             return null
         },
-
+        getName(id) {
+            for (var i = 0; i < this.sessions.length; i++) {
+                if (this.sessions[i].id === id) return this.sessions[i].name
+            }
+            return ''
+        },
         addSolve(sessionID, solve) {
             this.getSession(sessionID).solves.push(solve)
             this.saveState();
@@ -126,12 +131,8 @@ export const useTimerStore = defineStore('timerStore', {
             )
         },
         loadState() {
-            try {
-                const data = JSON.parse(localStorage.getItem('timerStore'))
-                this.sessions = data.sessions
-            } catch {
-                this.sessions = []
-            }
+            var data = JSON.parse(localStorage.getItem('timerStore')) || {}
+            this.sessions = data.sessions || []
         },
     },
     getters: {

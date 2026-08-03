@@ -2,12 +2,11 @@
 	import { ref, computed, nextTick } from 'vue'
 	import { ElMessage } from 'element-plus'
     import { useSheetStore } from "@/stores/SheetStore"
-    const sheetStore = useSheetStore()
     import { useCardStore } from "@/stores/CardStore"
-    const cardStore = useCardStore()
     import { useSettingsStore } from "@/stores/SettingsStore"
+    const sheetStore = useSheetStore()
+    const cardStore = useCardStore()
     const settingsStore = useSettingsStore()
-    settingsStore.loadState()
 
     import SheetGrid from "@/components/SheetGrid.vue"
 
@@ -114,7 +113,7 @@
     <div class="CardsView">
         <div style="height: 50px;"></div>
         <el-table :data="tableData" :border="true"
-                  empty-text="Create an alg-sheet to get started" style="width: auto; box-shadow: 0px 0px 10px var(--el-border-color-dark); border-radius: 4px;">
+                  empty-text="Create a sheet to get started" style="width: auto; box-shadow: 0px 0px 10px var(--el-border-color-dark); border-radius: 4px;">
             <el-table-column prop="sheet_name" label="Sheet" width="250" />
             <el-table-column label="Flashcards" prop="flashcards" width="150">
                 <template #default="scope">

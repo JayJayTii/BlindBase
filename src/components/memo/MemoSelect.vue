@@ -2,15 +2,14 @@
     import { nextTick, computed, ref } from "vue"
     import { getAllLetterPairs, isPossiblePair } from '@/helpers/pairs.js'
     import { cornerBuffers, edgeBuffers } from '@/helpers/lettering_scheme.js'
-    import { useMemoStore, modes, modesDesc } from '@/stores/MemoStore.js'
+    import { scheme, useSettingsStore } from '@/stores/SettingsStore'
     import { useSheetStore } from '@/stores/SheetStore'
     import { useCardStore } from '@/stores/CardStore'
-    import { scheme, useSettingsStore } from '@/stores/SettingsStore'
+    import { useMemoStore, modes, modesDesc } from '@/stores/MemoStore.js'
     import SheetGrid from '@/components/SheetGrid.vue'
-    const memoStore = useMemoStore()
     const sheetStore = useSheetStore()
     const cardStore = useCardStore()
-    useSettingsStore().loadState()
+    const memoStore = useMemoStore()
 
     const emit = defineEmits(['restartRun', 'cancelRun'])
 

@@ -1,10 +1,9 @@
 <script setup>
     import { computed } from 'vue'
-    import { sheet_types, useSheetStore } from "@/stores/SheetStore"
-    const sheetStore = useSheetStore()
     import { defaults, useSettingsStore } from '@/stores/SettingsStore'
+    import { sheet_types, useSheetStore } from "@/stores/SheetStore"
     const settingsStore = useSettingsStore()
-    settingsStore.loadState()
+    const sheetStore = useSheetStore()
 
     const props = defineProps({
         sheetID: Number,

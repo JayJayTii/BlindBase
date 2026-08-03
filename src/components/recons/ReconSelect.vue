@@ -1,14 +1,15 @@
 <script setup>
 	import { ref, computed } from 'vue'
-	import { ElMessage } from 'element-plus'
-    import FaceletCube3D from '@/components/FaceletCube3D.vue'
-    import { Sequence } from '@/helpers/sequence.js'
-    import { FaceletCube } from '@/helpers/FaceletCube/FaceletCube.js'
     import { useRouter } from 'vue-router'
     const router = useRouter()
+	import { ElMessage, ElMessageBox } from 'element-plus'
+    import { Sequence } from '@/helpers/sequence.js'
+    import { FaceletCube } from '@/helpers/FaceletCube/FaceletCube.js'
+	import { OpenReconInCubeDB, OpenReconInAlgCubingNet } from '@/helpers/reconstruct.js'
     import { useReconsStore } from "@/stores/ReconsStore"
     const reconsStore = useReconsStore()
-	reconsStore.loadState()
+
+    import FaceletCube3D from '@/components/FaceletCube3D.vue'
 
 	const dialogVisible = ref(false)
     const newScramble = ref("")
@@ -35,19 +36,24 @@
     }, 0)
 
 
-    const selectedRecon = ref(-1)
+    const selectedRecon = ref(null)
 	let reconPreviewCube = new FaceletCube()
     const ReconClicked = (val) => {
-		if (!val || val.index == -1 || val.index >= reconsStore.recons.length)
+        if (val == null || val.index >= reconsStore.recons.length) {
+            selectedRecon.value = null
             return
+        }
 
 		selectedRecon.value = val.index
         //Apply the recon's scramble to a cube and show to the user
         reconPreviewCube = new FaceletCube()
         const scramble = new Sequence()
-		scramble.fromAlgorithmNotation(reconsStore.recons[val.index].scramble)
+        scramble.fromAlgorithmNotation(reconsStore.recons[val.index].scramble)
         reconPreviewCube.TurnSequence(scramble)
     }
+
+	if (reconsStore.recons.length > 0)
+		ReconClicked(data.value[0])
 
 	const newScrambleInputRef = ref(null)
 	function handleScrambleInputKeydown(event) {
@@ -74,104 +80,77 @@
 
 	function CopyRecon() {
 		navigator.clipboard.writeText(data.value[selectedRecon.value].recon.body)
-		ElMessage('Reconstruction copied!')
+		ElMessage('Reconstruction copied to clipboard')
 	}
-	function ExportRecon() {
-		const recon = data.value[selectedRecon.value].recon
-		let alg = recon.body.substring(recon.body.indexOf('\n'))
-		while (alg[0] == '\n') {
-			alg = alg.slice(1)
-		}
-		//CubeDB encodes a full reconstruction in the URL, so just cram it all in there
-		let url = `https://cubedb.net/?title=${encodeURIComponent(recon.name)}`
-		url += `&scramble=${encodeURIComponent(recon.scramble)}`
-		url += `&alg=${encodeURIComponent(alg)}`
-		if (recon.hasOwnProperty('solve'))
-			url += `&time=${encodeURIComponent(Math.round(JSON.parse(recon.solve)[0] / 10) / 100)}`
-        window.open(url, "_blank");
-	}
-	function DeleteRecon() {
-        const deleteIndex = selectedRecon.value
-		const newSelectedRow = { index: (reconsStore.recons.length > 1 ? selectedRecon.value - 1 : -1) }
+	function DeleteRecon(index) {
+		const newSelectedRow = { index: (reconsStore.recons.length > 1 ? index - 1 : -1) }
 		ReconClicked(newSelectedRow)
-        reconsStore.deleteRecon(deleteIndex)
+		reconsStore.deleteRecon(index)
+    }
+
+	function confirmDelete(reconIndex) {
+		ElMessageBox.confirm(
+			'Are you sure you want to delete \'' + data.value[reconIndex].name + '\'?',
+			'Delete sheet',
+			{ confirmButtonText: 'Confirm', cancelButtonText: 'Cancel', type: 'warning', }
+		).then(() => { DeleteRecon(reconIndex) }).catch(() => { })
 	}
 </script>
 
 <template>
-    <el-splitter style="gap: 5px;">
-        <!-- left column (recon list) -->
-        <el-splitter-panel size="25%" style="min-height: calc(100dvh - 190px);" :resizable="false">
-            <!-- recon table -->
-            <el-table :data="data" highlight-current-row ref="reconTableRef"
-                      @current-change="ReconClicked"
-                      row-class-name="table-row" header-row-class-name="recon-table-header"
-                      style="border: 1px solid var(--el-border-color); border-radius: 4px;">
-                <!-- recon name column -->
-                <el-table-column prop="name" label="Reconstructions" />
-                <!-- options button column -->
-                <el-table-column label="" width="60" align="right">
-                    <template #header>
-                        <el-button @click="dialogVisible = true" style="width: 25px; height: 25px; padding: 0px;">
-                            <el-icon :size="15"><Plus /></el-icon>
+    <div style="width: 100%; display: grid; grid-template-columns: 2fr 3fr; gap: 10px;">
+        <div style="display: flex; flex-direction: column; gap:10px;">
+            <el-select v-model="selectedRecon" placeholder="Create a reconstruction" style="width: 100%;">
+                <el-option v-for="recon in data" :value="recon.index" @click="ReconClicked(recon)" :label="recon.name">
+                    {{recon.name}}
+                </el-option>
+                
+			    <template #empty>Click the + to create a reconstruction</template>
+                <template #footer>
+                    <div style="display: flex; justify-content: end;">
+                        <el-button @click="dialogVisible = true" style="justify-content: center; height: 35px; width: 35px;">
+                            <el-icon :size="20"><Plus /></el-icon>
                         </el-button>
-                    </template>
-                    <template #default="scope">
-                        <el-button @click="optionsButtonClicked(scope.row)"
-                                   :ref="el => triggerRefs[scope.row.index] = el"
-                                   style="width: 20px; height: 20px; padding: 0px;">
-                            <el-icon :size="15"><MoreFilled /></el-icon>
-                        </el-button>
-                    </template>
-                </el-table-column>
-                <template #empty>
-                    &nbsp;
+                    </div>
                 </template>
-            </el-table>
-        </el-splitter-panel>
-        <el-splitter-panel size="35%" :resizable="false">
-            <div v-if="selectedRecon != -1 && selectedRecon < reconsStore.recons.length">
-                <FaceletCube3D style="width: 100%; aspect-ratio:1;"
+            </el-select>
+            <div v-if="selectedRecon != null && selectedRecon < reconsStore.recons.length">
+                <FaceletCube3D style="aspect-ratio: 4/3;"
                                :cube="reconPreviewCube"
                                :key="reconPreviewCube.corners.toString() + reconPreviewCube.edges.toString() + reconPreviewCube.centers.toString()" />
             </div>
-        </el-splitter-panel>
-        <el-splitter-panel size="45%" :resizable="false">
-            <div v-if="selectedRecon != -1 && selectedRecon < reconsStore.recons.length">
+        </div>
+        
+        <div v-if="selectedRecon != null" style="display: flex; flex-direction: column; gap:10px;">
+            <div style="display: flex; flex-direction: row;">
+                <el-button @click="router.push(`/recons/${reconsStore.recons[selectedRecon].scramble}`)">
+                    <el-icon style="margin-right: 3px;"><Edit /></el-icon>
+                    Edit
+                </el-button>
+                <el-button @click="CopyRecon">
+                    <el-icon style="margin-right: 3px;"><CopyDocument /></el-icon>
+                    Copy
+                </el-button>
+                <el-button @click="OpenReconInCubeDB(data[selectedRecon].recon)">
+                    <el-icon style="margin-right: 3px;"><Notebook /></el-icon>
+                    CubeDB
+                </el-button>
+                <el-button @click="OpenReconInAlgCubingNet(data[selectedRecon].recon)">
+                    <el-icon style="margin-right: 3px;"><Notebook /></el-icon>
+                    alg.cubing.net
+                </el-button>
+                <el-button @click="confirmDelete(selectedRecon)">
+                    <el-icon style="margin-right: 3px;"><Delete /></el-icon>
+                    Delete
+                </el-button>
+            </div>
+            <div style="overflow-y: auto;">
                 <h2 style="font-size:2rem;" id="reconPreview">{{reconsStore.recons[selectedRecon]?.name || "&nbsp"}}</h2>
                 <pre style="font-size:1.3rem;line-height:1.5rem;" id="reconPreview">{{reconsStore.recons[selectedRecon]?.body || "&nbsp"}}</pre>
             </div>
-        </el-splitter-panel>
-    </el-splitter>
+        </div>
+    </div>
 
-
-    <!-- Dropdown when you click the options button -->
-    <el-dropdown ref="reconDropdownRef" :virtual-ref="triggerRefs[selectedRecon]"
-                 virtual-triggering @visibleChange="visibleChange"
-                 trigger="contextmenu"
-                 placement="bottom-start">
-        <template #dropdown>
-            <el-dropdown-menu style="height: 141px;">
-                <el-dropdown-item icon="Edit" @click="router.push(`/recons/${reconsStore.recons[selectedRecon].scramble}`)">
-                    Edit
-                </el-dropdown-item>
-                <el-dropdown-item icon="CopyDocument" @click="CopyRecon">
-                    Copy to clipboard
-                </el-dropdown-item>
-                <el-dropdown-item icon="Notebook" @click="ExportRecon">
-                    Open in CubeDB
-                </el-dropdown-item>
-                <el-popconfirm title="Are you sure?" @confirm="DeleteRecon">
-                    <template #reference>
-                        <el-button type="danger" :plain="true" style="position: absolute; right: 5px; bottom: 5px; height: 30px; width: 30px;">
-                            <el-icon><Delete /></el-icon>
-                        </el-button>
-                    </template>
-                </el-popconfirm>
-                
-            </el-dropdown-menu>
-        </template>
-    </el-dropdown>
 
     <!-- New recon dialog -->
     <el-dialog v-model="dialogVisible"

@@ -1,11 +1,12 @@
 <script setup>
-    import { computed, onMounted, onUnmounted } from 'vue'
+	import { computed, onMounted, onUnmounted } from 'vue'
     import { getSolveTimeString, getSolveRatioString } from "@/helpers/timer.js"
-    import Hammer from "@/components/Icons/Hammer.vue"
+	import { useRouter } from 'vue-router'
+    const router = useRouter()
     import { useTimerStore, solve_statuses } from "@/stores/TimerStore"
     const timerStore = useTimerStore()
-    import { useRouter } from 'vue-router'
-    const router = useRouter()
+
+    import Hammer from "@/components/Icons/Hammer.vue"
 
     const props = defineProps({
         sessionID: Number,
@@ -25,13 +26,15 @@
 
     function handleKeydown(event) {
         //Status change keybinds
-        if (event.code === "ArrowRight") {
-            selectedSolve.value[2] = (selectedSolve.value[2] + 1) % 3
-            timerStore.saveState()
-        }
-        else if (event.code === "ArrowLeft") {
-            selectedSolve.value[2] = (selectedSolve.value[2] + 3 - 1) % 3
-            timerStore.saveState()
+		if (document.activeElement.tagName != "INPUT") {
+			if (event.code === "ArrowRight") {
+				selectedSolve.value[2] = (selectedSolve.value[2] + 1) % 3
+				timerStore.saveState()
+			}
+			else if (event.code === "ArrowLeft") {
+				selectedSolve.value[2] = (selectedSolve.value[2] + 3 - 1) % 3
+				timerStore.saveState()
+			}
         }
     }
 
@@ -48,14 +51,14 @@
         <div style="display: flex; flex-direction: column; overflow-y: auto;">
             <!-- SOLVE X -->
             <el-text style="color: var(--el-text-color-primary); margin-top: -2px; padding-bottom: 5px; text-align: center; font-size: 1.5rem; font-weight: bold; width: 100%; border-block-end: 2px solid var(--el-border-color);">
-                Solve {{props.solveIndex + 1}}:
+                Solve {{props.solveIndex + 1}}
             </el-text>
             <!------SOLVE RESULTS------>
             <el-text size="large" style="text-align: center;">{{selectedSolve[3]}}</el-text>
             <el-text style="font-size: 2rem; font-weight: bold;">{{getSolveTimeString(selectedSolve)}}</el-text>
             <el-text>{{getSolveRatioString(selectedSolve)}}</el-text>
 
-            <div style="margin-top: 10px; height: 30px; display: grid; grid-template-columns: 1fr 5fr 1fr;">
+            <div style="margin-top: 15px; height: 30px; display: grid; grid-template-columns: 1fr 5fr 1fr;">
                 <!-- RECONSTRUCT BUTTON -->
                 <el-tooltip content="Reconstruct" :show-after="500">
                     <el-button type="primary" style="width: 30px; height: 30px;" @click="Reconstruct()">

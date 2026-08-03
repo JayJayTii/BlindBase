@@ -1,13 +1,13 @@
 <script setup>
     import { computed, ref, onMounted, onUnmounted } from 'vue'
-    import FaceletCube3D from '@/components/FaceletCube3D.vue'
+    import { useRouter } from 'vue-router'
+    const router = useRouter()
     import { FaceletCube } from '@/helpers/FaceletCube/FaceletCube.js'
     import { Sequence } from '@/helpers/sequence.js'
     import { useReconsStore } from "@/stores/ReconsStore"
     const reconsStore = useReconsStore()
-    reconsStore.loadState()
-    import { useRouter } from 'vue-router'
-    const router = useRouter()
+
+    import FaceletCube3D from '@/components/FaceletCube3D.vue'
 
     //Only able to edit a recon that is already saved and stored
     const props = defineProps({

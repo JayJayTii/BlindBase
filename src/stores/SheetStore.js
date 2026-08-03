@@ -103,6 +103,12 @@ export const useSheetStore = defineStore('sheetStore', {
 			}
 			return null
 		},
+		getName(id) {
+			for (var i = 0; i < this.sheets.length; i++) {
+				if (this.sheets[i].id === id) return this.sheets[i].name
+			}
+			return ''
+		},
 		getCell(id, coord) {
 			if (coord.x < 0 || coord.y < 0)
 				return ''
@@ -156,16 +162,9 @@ export const useSheetStore = defineStore('sheetStore', {
 			)
 		},
 		loadState() {
-			try {
-				const data = JSON.parse(localStorage.getItem('sheetStore'))
-				this.sheets = data.sheets
-				this.updateSheets()
-			} catch {
-				this.sheets = []
-			}
+			const data = JSON.parse(localStorage.getItem('sheetStore')) || {}
+			this.sheets = data.sheets || []
+			this.updateSheets()
 		},
-	},
-	getters: {
-		getSheetNames: (state) => state.sheets.map((sheet) => sheet.name),
 	},
 })

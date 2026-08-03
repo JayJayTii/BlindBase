@@ -5,7 +5,6 @@
 	import { GridIndexToSpeffzIndex } from '@/helpers/lettering_scheme.js'
 	import { useSettingsStore } from '@/stores/SettingsStore'
 	const settingsStore = useSettingsStore()
-	settingsStore.loadState()
 
 	const props = defineProps({
 		sheet: Object,

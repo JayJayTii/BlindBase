@@ -104,20 +104,12 @@ export class FaceletCube {
     }
 
     getCornerFaceletSticker(index) {
-        //if (this.corners[index] != 0 && this.corners[index] != 2 && this.corners[index] != 4 && this.corners[index] != 6 && this.corners[index] != 9 && this.corners[index] != 11 && this.corners[index] != 12 && this.corners[index] != 14)
-        //    return "#666666"
         return faceColours[Math.floor(this.corners[index] / 4)]
     }
     getEdgeFaceletSticker(index) {
-        //return "#666666"
-        //if (this.edges[index] != 0 && this.edges[index] != 1 && this.edges[index] != 2 && this.edges[index] != 3 && this.edges[index] != 8 && this.edges[index] != 10 && this.edges[index] != 12 && this.edges[index] != 14 && this.edges[index] != 16 && this.edges[index] != 18 && this.edges[index] != 20 && this.edges[index] != 21 && this.edges[index] != 22 && this.edges[index] != 23 && this.edges[index] != 4)
-        //  return "#666666"
         return faceColours[Math.floor(this.edges[index] / 4)]
     }
     getCenterFaceletSticker(index) {
-        //return "#666666"
-        //if (this.centers[index] != 0 && this.centers[index] != 2 && this.centers[index] != 3 && this.centers[index] != 5)
-        //    return "#666666"
         return faceColours[this.centers[index]]
     }
 }

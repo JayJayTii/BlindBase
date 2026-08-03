@@ -5,7 +5,6 @@
 	import { SolvingOrientationToTurns } from '@/helpers/solving_orientation.js'
 	import { useSettingsStore } from '.././stores/SettingsStore'
 	const settingsStore = useSettingsStore()
-	settingsStore.loadState()
 
 	import LetteringSchemeFacelet from '@/components/LetteringSchemeFacelet.vue'
 

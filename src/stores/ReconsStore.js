@@ -1,6 +1,4 @@
 import { defineStore } from 'pinia'
-import { useSheetStore } from './SheetStore'
-import { Sequence } from '@/helpers/sequence.js'
 
 export function getReconsStore() {
     return useReconsStore()
@@ -64,12 +62,9 @@ export const useReconsStore = defineStore('reconsStore', {
             )
         },
         loadState() {
-            try {
-                const data = JSON.parse(localStorage.getItem('reconsStore'))
-                this.recons = data.recons
-                this.algsheets = data.algsheets
-                this.pseudoswap = data.pseudoswap || [2, 1]
-            } catch { }
+            const data = JSON.parse(localStorage.getItem('reconsStore')) || {}
+            this.recons = data.recons || []
+            this.pseudoswap = data.pseudoswap || [2, 1]
         },
     },
     getters: {},

@@ -92,14 +92,12 @@ function getHeading(cell, sheetType) {
 	if (sheetType == 1) {
 		for (const buffer of cornerBuffers) {
 			if (cell.includes(buffer)) {
-				//console.log(cell + " includes corner buffer: " + buffer)
 				return buffer
 			}
 		}
 	} else if (sheetType == 2) {
 		for (const buffer of edgeBuffers) {
 			if (cell.includes(buffer)) {
-				//console.log(cell + " includes edge buffer: " + buffer)
 				return buffer
 			}
 		}

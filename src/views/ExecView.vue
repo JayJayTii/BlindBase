@@ -8,7 +8,6 @@
     import { scramblers } from '@/helpers/solver/scramble_333_edit.js'
     import { useSettingsStore } from '@/stores/SettingsStore'
     const settingsStore = useSettingsStore()
-    settingsStore.loadState()
 
     //Running the initialisation asynchronously to avoid lag spike when entering exec tool
     setTimeout(() => {

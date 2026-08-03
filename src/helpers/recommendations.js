@@ -39,8 +39,8 @@ export function GetRandomRecommendation(pieceType, key, buffer = -1) {
     }
     const index = Math.floor(Math.random() * recommendations.length)
     if (recommendations[index] == undefined) {
-        console.log(recommendations)
-        console.log(index)
+        console.warn(recommendations)
+        console.warn(index)
     }
     return recommendations[index]
 }

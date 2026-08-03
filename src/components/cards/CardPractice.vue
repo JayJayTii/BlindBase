@@ -1,8 +1,8 @@
 <script setup>
     import { reactive} from "vue"
     import { useSheetStore } from "@/stores/SheetStore"
-    const sheetStore = useSheetStore()
     import { useCardStore } from "@/stores/CardStore"
+    const sheetStore = useSheetStore()
     const cardStore = useCardStore()
 
     import Flashcard from "@/components/cards/Flashcard.vue"
