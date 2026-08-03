@@ -2,316 +2,316 @@
 	import { ref } from 'vue'
 	import { ElMessage, ElMessageBox } from 'element-plus'
 	import { defaults, useSettingsStore } from '.././stores/SettingsStore'
-    import { useCardStore } from '@/stores/CardStore.js'
-    const settingsStore = useSettingsStore()
+	import { useCardStore } from '@/stores/CardStore.js'
+	const settingsStore = useSettingsStore()
 
 	import LetteringScheme from '@/components/LetteringScheme.vue'
-    
+	
 	const exportDialogVisible = ref(false)
 	const importDialogVisible = ref(false)
 	const editingLetteringScheme = ref(false)
 
-    function SettingUpdated() {
-        settingsStore.saveState()
-    }
-
-	function UpdateTheme() {
-        if(settingsStore.settings.misc_theme == 1)
-		    document.documentElement.classList.add('dark')
-        else
-		    document.documentElement.classList.remove('dark')
+	function SettingUpdated() {
+		settingsStore.saveState()
 	}
 
-    function ImportAll() {
-        //https://stackoverflow.com/questions/16215771/how-to-open-select-file-dialog-via-js
-        var input = document.createElement('input')
-        input.type = 'file'
-        input.onchange = async e => {
-            var file = e.target.files[0]
-            const content = await new Promise((resolve, reject) => {
-                const reader = new FileReader()
-                reader.readAsText(file, 'UTF-8')
-                reader.onload = e => resolve(e.target.result)
-                reader.onerror = reject
-            })
-            
-            
-            try {
-                const jsonData = JSON.parse(content);
-                const stores = ['settingsStore', 'sheetStore', 'cardStore', 'memoStore', 'timerStore', 'reconsStore']
-                for (var key of stores) {
-                    localStorage.setItem(key, JSON.stringify(jsonData[key] || {}))
-                }
-            }
+	function UpdateTheme() {
+		if(settingsStore.settings.misc_theme == 1)
+			document.documentElement.classList.add('dark')
+		else
+			document.documentElement.classList.remove('dark')
+	}
+
+	function ImportAll() {
+		//https://stackoverflow.com/questions/16215771/how-to-open-select-file-dialog-via-js
+		var input = document.createElement('input')
+		input.type = 'file'
+		input.onchange = async e => {
+			var file = e.target.files[0]
+			const content = await new Promise((resolve, reject) => {
+				const reader = new FileReader()
+				reader.readAsText(file, 'UTF-8')
+				reader.onload = e => resolve(e.target.result)
+				reader.onerror = reject
+			})
+			
+			
+			try {
+				const jsonData = JSON.parse(content);
+				const stores = ['settingsStore', 'sheetStore', 'cardStore', 'memoStore', 'timerStore', 'reconsStore']
+				for (var key of stores) {
+					localStorage.setItem(key, JSON.stringify(jsonData[key] || {}))
+				}
+			}
 			catch (error) {
 				ElMessageBox.alert('Failed to import data, please make sure that it was previously exported from BlindBase and that it is a .json file.', 'Import Data', {
 					confirmButtonText: 'OK',
 				})
-                return
-            }
+				return
+			}
 			ElMessageBox.alert('Data successfully imported!', 'Import Data', {
 				confirmButtonText: 'OK',
-                callback: (action) => { window.location.reload(); },
-            })
-        }
-        input.click()
-    }
+				callback: (action) => { window.location.reload(); },
+			})
+		}
+		input.click()
+	}
 
-    function ExportAll() {
-        var keys = Object.keys(localStorage).filter(key => key.includes('Store'));
-        var jsonString = '{';
-        for (var i = 0; i < keys.length; i++ ) {
-            jsonString += '\"' + keys[i] + '\": ';
-            jsonString += localStorage.getItem(keys[i]);
-            if(i < keys.length - 1)
-                jsonString += ',';
-        }
-        jsonString += '}';
-    
-        const encodedUri = "data:text/csv;charset=utf-8," + encodeURIComponent(jsonString);
-    
-        const link = document.createElement("a")
-        link.setAttribute("href", encodedUri)
-        link.setAttribute("download", "BlindBase_Data.json")
-        document.body.appendChild(link)
-        link.click();
-        document.body.removeChild(link)
-    }
+	function ExportAll() {
+		var keys = Object.keys(localStorage).filter(key => key.includes('Store'));
+		var jsonString = '{';
+		for (var i = 0; i < keys.length; i++ ) {
+			jsonString += '\"' + keys[i] + '\": ';
+			jsonString += localStorage.getItem(keys[i]);
+			if(i < keys.length - 1)
+				jsonString += ',';
+		}
+		jsonString += '}';
+	
+		const encodedUri = "data:text/csv;charset=utf-8," + encodeURIComponent(jsonString);
+	
+		const link = document.createElement("a")
+		link.setAttribute("href", encodedUri)
+		link.setAttribute("download", "BlindBase_Data.json")
+		document.body.appendChild(link)
+		link.click();
+		document.body.removeChild(link)
+	}
 
 	const showHelp = (setting) => {
 		ElMessageBox.alert(
 			setting.description,
 			setting.name
 		)
-    }
+	}
 
-    const letteringScheme = ref(null)
-    function closeLetteringScheme(save) {
-        if (letteringScheme.value.tryClose(save))
-            editingLetteringScheme.value = false
-    }
+	const letteringScheme = ref(null)
+	function closeLetteringScheme(save) {
+		if (letteringScheme.value.tryClose(save))
+			editingLetteringScheme.value = false
+	}
 </script>
 
 <template>
-    <div style="display:flex;flex-direction:column;width: 100%; align-items:center;">
-        <el-text style="font-size: 5rem; font-weight: 600;">
-            Settings
-        </el-text>
-        <div class="Settings">
-            <div>
-                {{ defaults.misc_defaultcornerbuffer.name }}
-            </div>
-            <div>
-                <el-select v-model="settingsStore.settings.misc_defaultcornerbuffer"
-                           @change="SettingUpdated"
-                           style="width: 100px;"
-                           :options="defaults.misc_defaultcornerbuffer.options"
-                           :props="{value: 'id',label: 'name', options: defaults.misc_defaultcornerbuffer.options}">
-                </el-select>
-            </div>
+	<div style="display:flex;flex-direction:column;width: 100%; align-items:center;">
+		<el-text style="font-size: 5rem; font-weight: 600;">
+			Settings
+		</el-text>
+		<div class="Settings">
+			<div>
+				{{ defaults.misc_defaultcornerbuffer.name }}
+			</div>
+			<div>
+				<el-select v-model="settingsStore.settings.misc_defaultcornerbuffer"
+						   @change="SettingUpdated"
+						   style="width: 100px;"
+						   :options="defaults.misc_defaultcornerbuffer.options"
+						   :props="{value: 'id',label: 'name', options: defaults.misc_defaultcornerbuffer.options}">
+				</el-select>
+			</div>
 
-            <div>
-                {{ defaults.misc_defaultedgebuffer.name }}
-            </div>
-            <div>
-                <el-select v-model="settingsStore.settings.misc_defaultedgebuffer"
-                           @change="SettingUpdated"
-                           style="width: 100px;"
-                           :options="defaults.misc_defaultedgebuffer.options"
-                           :props="{value: 'id',label: 'name', options: defaults.misc_defaultedgebuffer.options}">
-                </el-select>
-            </div>
+			<div>
+				{{ defaults.misc_defaultedgebuffer.name }}
+			</div>
+			<div>
+				<el-select v-model="settingsStore.settings.misc_defaultedgebuffer"
+						   @change="SettingUpdated"
+						   style="width: 100px;"
+						   :options="defaults.misc_defaultedgebuffer.options"
+						   :props="{value: 'id',label: 'name', options: defaults.misc_defaultedgebuffer.options}">
+				</el-select>
+			</div>
 
-            <div>
-                {{ defaults.lettering_scheme.name }}<br />and {{ defaults.solving_orientation.name }}
-            </div>
-            <div>
-                <el-button style="height: 40px;" @click="editingLetteringScheme = true">
-                    <el-icon :size="30"><Edit /></el-icon>
-                </el-button>
-            </div>
+			<div>
+				{{ defaults.lettering_scheme.name }}<br />and {{ defaults.solving_orientation.name }}
+			</div>
+			<div>
+				<el-button style="height: 40px;" @click="editingLetteringScheme = true">
+					<el-icon :size="30"><Edit /></el-icon>
+				</el-button>
+			</div>
 
-            <div>
-                {{ defaults.sheets_pairorder.name }}
-                <el-icon class="settings-help" @click="showHelp(defaults.sheets_pairorder)"><QuestionFilled /></el-icon>
-            </div>
-            <div>
-                <el-select v-model="settingsStore.settings.sheets_pairorder"
-                           @change="SettingUpdated"
-                           style="width: 180px;"
-                           :options="defaults.sheets_pairorder.options"
-                           :props="{value: 'id',label: 'name', options: defaults.sheets_pairorder.options}">
-                </el-select>
-            </div>
+			<div>
+				{{ defaults.sheets_pairorder.name }}
+				<el-icon class="settings-help" @click="showHelp(defaults.sheets_pairorder)"><QuestionFilled /></el-icon>
+			</div>
+			<div>
+				<el-select v-model="settingsStore.settings.sheets_pairorder"
+						   @change="SettingUpdated"
+						   style="width: 180px;"
+						   :options="defaults.sheets_pairorder.options"
+						   :props="{value: 'id',label: 'name', options: defaults.sheets_pairorder.options}">
+				</el-select>
+			</div>
 
-            <div>
-                {{ defaults.cards_dailymaximumnewcards.name }}
-                <el-icon class="settings-help" @click="showHelp(defaults.cards_dailymaximumnewcards)"><QuestionFilled /></el-icon>
-            </div>
-            <div>
-                <el-input v-model="settingsStore.settings.cards_dailymaximumnewcards"
-                          type="number"
-                          :min="defaults.cards_dailymaximumnewcards.min"
-                          :max="defaults.cards_dailymaximumnewcards.max"
-                          @change="SettingUpdated"
-                          style="width: 70px;" />
-            </div>
+			<div>
+				{{ defaults.cards_dailymaximumnewcards.name }}
+				<el-icon class="settings-help" @click="showHelp(defaults.cards_dailymaximumnewcards)"><QuestionFilled /></el-icon>
+			</div>
+			<div>
+				<el-input v-model="settingsStore.settings.cards_dailymaximumnewcards"
+						  type="number"
+						  :min="defaults.cards_dailymaximumnewcards.min"
+						  :max="defaults.cards_dailymaximumnewcards.max"
+						  @change="SettingUpdated"
+						  style="width: 70px;" />
+			</div>
 
-            <div>
-                {{ defaults.memo_startingmemolength.name }}
-                <el-icon class="settings-help" @click="showHelp(defaults.memo_startingmemolength)"><QuestionFilled /></el-icon>
-            </div>
-            <div>
-                <el-input v-model="settingsStore.settings.memo_startingmemolength"
-                          type="number"
-                          :min="defaults.memo_startingmemolength.min"
-                          :max="defaults.memo_startingmemolength.max"
-                          @change="SettingUpdated"
-                          style="width: 70px;" />
-            </div>
+			<div>
+				{{ defaults.memo_startingmemolength.name }}
+				<el-icon class="settings-help" @click="showHelp(defaults.memo_startingmemolength)"><QuestionFilled /></el-icon>
+			</div>
+			<div>
+				<el-input v-model="settingsStore.settings.memo_startingmemolength"
+						  type="number"
+						  :min="defaults.memo_startingmemolength.min"
+						  :max="defaults.memo_startingmemolength.max"
+						  @change="SettingUpdated"
+						  style="width: 70px;" />
+			</div>
 
-            <div>
-                {{ defaults.memo_averagedistractiontime.name }}
-            </div>
-            <div>
-                <el-input v-model="settingsStore.settings.memo_averagedistractiontime"
-                          type="number"
-                          :min="defaults.memo_averagedistractiontime.min"
-                          :max="defaults.memo_averagedistractiontime.max"
-                          @change="SettingUpdated"
-                          style="width: 70px;" />
-            </div>
+			<div>
+				{{ defaults.memo_averagedistractiontime.name }}
+			</div>
+			<div>
+				<el-input v-model="settingsStore.settings.memo_averagedistractiontime"
+						  type="number"
+						  :min="defaults.memo_averagedistractiontime.min"
+						  :max="defaults.memo_averagedistractiontime.max"
+						  @change="SettingUpdated"
+						  style="width: 70px;" />
+			</div>
 
-            <div>
-                {{ defaults.timer_spaceholdingtime.name }}
-                <el-icon class="settings-help" @click="showHelp(defaults.timer_spaceholdingtime)"><QuestionFilled /></el-icon>
-            </div>
-            <div>
-                <el-input v-model="settingsStore.settings.timer_spaceholdingtime"
-                          type="number"
-                          :min="defaults.timer_spaceholdingtime.min"
-                          :max="defaults.timer_spaceholdingtime.max"
-                          step="0.1"
-                          @change="SettingUpdated"
-                          style="width: 70px;" />
-            </div>
+			<div>
+				{{ defaults.timer_spaceholdingtime.name }}
+				<el-icon class="settings-help" @click="showHelp(defaults.timer_spaceholdingtime)"><QuestionFilled /></el-icon>
+			</div>
+			<div>
+				<el-input v-model="settingsStore.settings.timer_spaceholdingtime"
+						  type="number"
+						  :min="defaults.timer_spaceholdingtime.min"
+						  :max="defaults.timer_spaceholdingtime.max"
+						  step="0.1"
+						  @change="SettingUpdated"
+						  style="width: 70px;" />
+			</div>
 
-            <div>
-                {{ defaults.misc_widemovetype.name }}
-            </div>
-            <div>
-                <el-select v-model="settingsStore.settings.misc_widemovetype"
-                           @change="SettingUpdated"
-                           style="width: 100px;"
-                           :options="defaults.misc_widemovetype.options"
-                           :props="{value: 'id',label: 'name', options: defaults.misc_widemovetype.options}">
-                </el-select>
-            </div>
+			<div>
+				{{ defaults.misc_widemovetype.name }}
+			</div>
+			<div>
+				<el-select v-model="settingsStore.settings.misc_widemovetype"
+						   @change="SettingUpdated"
+						   style="width: 100px;"
+						   :options="defaults.misc_widemovetype.options"
+						   :props="{value: 'id',label: 'name', options: defaults.misc_widemovetype.options}">
+				</el-select>
+			</div>
 
-            <div>
-                {{ defaults.misc_theme.name }}
-            </div>
-            <div>
-                <el-select v-model="settingsStore.settings.misc_theme"
-                           @change="SettingUpdated(); UpdateTheme()"
-                           style="width: 100px;"
-                           :options="defaults.misc_theme.options"
-                           :props="{value: 'id',label: 'name', options: defaults.misc_theme.options}">
-                </el-select>
-            </div>
-        </div>
-        <div>
-            <el-button @click="exportDialogVisible = true" type="primary" style="margin-right: 50px; font-size: 1.2rem; font-weight: 700;">
-                Export Data
-            </el-button>
-            <el-button @click="importDialogVisible = true" type="danger" style="font-size: 1.2rem; font-weight: 700;">
-                Import Data
-            </el-button>
-        </div>
-    </div>
+			<div>
+				{{ defaults.misc_theme.name }}
+			</div>
+			<div>
+				<el-select v-model="settingsStore.settings.misc_theme"
+						   @change="SettingUpdated(); UpdateTheme()"
+						   style="width: 100px;"
+						   :options="defaults.misc_theme.options"
+						   :props="{value: 'id',label: 'name', options: defaults.misc_theme.options}">
+				</el-select>
+			</div>
+		</div>
+		<div>
+			<el-button @click="exportDialogVisible = true" type="primary" style="margin-right: 50px; font-size: 1.2rem; font-weight: 700;">
+				Export Data
+			</el-button>
+			<el-button @click="importDialogVisible = true" type="danger" style="font-size: 1.2rem; font-weight: 700;">
+				Import Data
+			</el-button>
+		</div>
+	</div>
 
-    <el-dialog v-model="exportDialogVisible" title="Export Data" width="500">
-        <span>A copy of your data will be downloaded, which you can import later or on another device.</span>
-        <template #footer>
-            <div>
-                <el-button @click="exportDialogVisible = false">Cancel</el-button>
-                <el-button type="primary" @click="exportDialogVisible = false; ExportAll()">
-                    Export
-                </el-button>
-            </div>
-        </template>
-    </el-dialog>
-    <el-dialog v-model="importDialogVisible" title="Import Data" width="500">
-        <span style="font-size: 1rem;">This will delete and overwrite anything saved on BlindBase. <br /> It might be worth exporting your data first, just in case.</span>
-        <template #footer>
-            <div>
-                <el-button @click="importDialogVisible = false">Cancel</el-button>
-                <el-button type="primary" @click="importDialogVisible = false; ImportAll()">
-                    Import
-                </el-button>
-            </div>
-        </template>
-    </el-dialog>
+	<el-dialog v-model="exportDialogVisible" title="Export Data" width="500">
+		<span>A copy of your data will be downloaded, which you can import later or on another device.</span>
+		<template #footer>
+			<div>
+				<el-button @click="exportDialogVisible = false">Cancel</el-button>
+				<el-button type="primary" @click="exportDialogVisible = false; ExportAll()">
+					Export
+				</el-button>
+			</div>
+		</template>
+	</el-dialog>
+	<el-dialog v-model="importDialogVisible" title="Import Data" width="500">
+		<span style="font-size: 1rem;">This will delete and overwrite anything saved on BlindBase. <br /> It might be worth exporting your data first, just in case.</span>
+		<template #footer>
+			<div>
+				<el-button @click="importDialogVisible = false">Cancel</el-button>
+				<el-button type="primary" @click="importDialogVisible = false; ImportAll()">
+					Import
+				</el-button>
+			</div>
+		</template>
+	</el-dialog>
 
 
-    <el-dialog v-model="editingLetteringScheme"
-               style="width: fit-content;"
-               @close="closeLetteringScheme(false)">
-        <template #header>
-            <div>
-                Solving orientation:
-                <el-select v-model="settingsStore.settings.solving_orientation"
-                           @change="SettingUpdated(); letteringScheme.updateSolvingOrientation()"
-                           style="width: 160px;"
-                           :options="defaults.solving_orientation.options"
-                           :props="{value: 'id',label: 'name', options: defaults.solving_orientation.options}">
-                </el-select>
-            </div>
-        </template>
-        <div style="display: flex; padding-bottom: 15px;">
-            <el-text size="large" style="padding-inline-end: 10px;">
-            Lettering Scheme:
-            </el-text>
-            <el-button @click="letteringScheme.speffz()">Speffz</el-button>
-            <el-button @click="letteringScheme.random()">Random</el-button>
-            <el-button @click="letteringScheme.clear()">Clear</el-button>
-        </div>
-        <div style="width: contain; display: flex; flex-direction: column; align-items: center;">
-            <LetteringScheme ref="letteringScheme" />
-        </div>
-        <template #footer>
-            <div>
-                <el-button @click="closeLetteringScheme(false)">Cancel</el-button>
-                <el-button type="success" @click="closeLetteringScheme(true)">Confirm</el-button>
-            </div>
-        </template>
+	<el-dialog v-model="editingLetteringScheme"
+			   style="width: fit-content;"
+			   @close="closeLetteringScheme(false)">
+		<template #header>
+			<div>
+				Solving orientation:
+				<el-select v-model="settingsStore.settings.solving_orientation"
+						   @change="SettingUpdated(); letteringScheme.updateSolvingOrientation()"
+						   style="width: 160px;"
+						   :options="defaults.solving_orientation.options"
+						   :props="{value: 'id',label: 'name', options: defaults.solving_orientation.options}">
+				</el-select>
+			</div>
+		</template>
+		<div style="display: flex; padding-bottom: 15px;">
+			<el-text size="large" style="padding-inline-end: 10px;">
+			Lettering Scheme:
+			</el-text>
+			<el-button @click="letteringScheme.speffz()">Speffz</el-button>
+			<el-button @click="letteringScheme.random()">Random</el-button>
+			<el-button @click="letteringScheme.clear()">Clear</el-button>
+		</div>
+		<div style="width: contain; display: flex; flex-direction: column; align-items: center;">
+			<LetteringScheme ref="letteringScheme" />
+		</div>
+		<template #footer>
+			<div>
+				<el-button @click="closeLetteringScheme(false)">Cancel</el-button>
+				<el-button type="success" @click="closeLetteringScheme(true)">Confirm</el-button>
+			</div>
+		</template>
 
-    </el-dialog>
+	</el-dialog>
 </template>
 
 <style>
-    .Settings {
-        width: min(600px, 100%);
-        display: grid;
-        grid-template-columns: 2fr 1fr;
-        font-size: 1.3rem;
-        padding: 20px;
-        gap: 10px;
-    }
+	.Settings {
+		width: min(600px, 100%);
+		display: grid;
+		grid-template-columns: 2fr 1fr;
+		font-size: 1.3rem;
+		padding: 20px;
+		gap: 10px;
+	}
 
 		.Settings * {
 			font-size: inherit;
 		}
 		.Settings > :nth-child(even) {
-            text-align: end;
+			text-align: end;
 		}
 
 	.settings-help {
-        transform: translate(0px, 3px);
-        opacity: 0.5;
-        cursor: pointer;
+		transform: translate(0px, 3px);
+		opacity: 0.5;
+		cursor: pointer;
 	}
-        .settings-help:hover {
-            opacity: 1;
-        }
+		.settings-help:hover {
+			opacity: 1;
+		}
 </style>

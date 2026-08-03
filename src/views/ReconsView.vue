@@ -1,26 +1,26 @@
 <script setup>
-    import { useRoute, useRouter } from 'vue-router'
-    import { Sequence } from '@/helpers/sequence.js'
-    import ReconSelect from '@/components/recons/ReconSelect.vue'
-    import ReconEdit   from '@/components/recons/ReconEdit.vue'
-    import ReconCreate from '@/components/recons/ReconCreate.vue'
-    import { useReconsStore } from "@/stores/ReconsStore"
+	import { useRoute, useRouter } from 'vue-router'
+	import { Sequence } from '@/helpers/sequence.js'
+	import ReconSelect from '@/components/recons/ReconSelect.vue'
+	import ReconEdit   from '@/components/recons/ReconEdit.vue'
+	import ReconCreate from '@/components/recons/ReconCreate.vue'
+	import { useReconsStore } from "@/stores/ReconsStore"
 
-    const router = useRouter()
-    const route = useRoute()
-    const scramble = decodeURIComponent(route.params.pathMatch)
-    const scrambleSequence = new Sequence()
-    scrambleSequence.fromAlgorithmNotation(scramble)
+	const router = useRouter()
+	const route = useRoute()
+	const scramble = decodeURIComponent(route.params.pathMatch)
+	const scrambleSequence = new Sequence()
+	scrambleSequence.fromAlgorithmNotation(scramble)
 	const reconIndex = useReconsStore().GetReconWithScramble(scramble)
 
-    const newRecon = (scramble != "" && reconIndex == -1)
+	const newRecon = (scramble != "" && reconIndex == -1)
 </script>
 
 <template>
-    <div style="position: relative;">
-        <!--Selects between creating, editing, and selecting a recon-->
-        <ReconCreate v-if="newRecon" :scramble="scrambleSequence" />
-        <ReconEdit v-else-if="reconIndex > -1" :reconIndex="reconIndex" />
-        <ReconSelect v-else />
-    </div>
+	<div style="position: relative;">
+		<!--Selects between creating, editing, and selecting a recon-->
+		<ReconCreate v-if="newRecon" :scramble="scrambleSequence" />
+		<ReconEdit v-else-if="reconIndex > -1" :reconIndex="reconIndex" />
+		<ReconSelect v-else />
+	</div>
 </template>

@@ -2,158 +2,158 @@
 
 //Just a turn sequence, not an algorithm because that implies a goal
 export class Sequence { 
-    turns = []
+	turns = []
 
-    constructor() {
-        this.turns = []
-    }
+	constructor() {
+		this.turns = []
+	}
 
-    //Collapsing turns means making the sequence as short as possible.
-    //For example twisting the top side multiple times in multiple turns is the same as doing one big turn.
-    collapse() {
-        if (this.turns.length < 2) {
-            return
-        }
+	//Collapsing turns means making the sequence as short as possible.
+	//For example twisting the top side multiple times in multiple turns is the same as doing one big turn.
+	collapse() {
+		if (this.turns.length < 2) {
+			return
+		}
 
-        //Run through and collapse turns until we cannot collapse any more
-        let collapsed = true
-        while (collapsed) { 
-            collapsed = false
-            for (var i = this.turns.length - 1; i > 0; i--) {
-                if ((this.turns[i - 1][0] === "U" && this.turns[i][0] === "D")
-                    || (this.turns[i - 1][0] === "R" && this.turns[i][0] === "L")
-                    || (this.turns[i - 1][0] === "F" && this.turns[i][0] === "B")) {
-                    //Bubble sort opposite faces to allow for collapsing 
-                    //e.g. F B F' => B F F' => B
-                    const temp = this.turns[i - 1]
-                    this.turns[i - 1] = this.turns[i]
-                    this.turns[i] = temp
-                }
+		//Run through and collapse turns until we cannot collapse any more
+		let collapsed = true
+		while (collapsed) { 
+			collapsed = false
+			for (var i = this.turns.length - 1; i > 0; i--) {
+				if ((this.turns[i - 1][0] === "U" && this.turns[i][0] === "D")
+					|| (this.turns[i - 1][0] === "R" && this.turns[i][0] === "L")
+					|| (this.turns[i - 1][0] === "F" && this.turns[i][0] === "B")) {
+					//Bubble sort opposite faces to allow for collapsing 
+					//e.g. F B F' => B F F' => B
+					const temp = this.turns[i - 1]
+					this.turns[i - 1] = this.turns[i]
+					this.turns[i] = temp
+				}
 
-                //Collapse same face in a row
-                //e.g. D D2 => D'
-                if (this.turns[i][0] === this.turns[i - 1][0]) { //Same face as previous
-                    this.turns[i - 1][1] = (this.turns[i][1] + this.turns[i - 1][1]) % 4
-                    this.turns.splice(i, 1)
-                    collapsed = true
-                }
-            }
+				//Collapse same face in a row
+				//e.g. D D2 => D'
+				if (this.turns[i][0] === this.turns[i - 1][0]) { //Same face as previous
+					this.turns[i - 1][1] = (this.turns[i][1] + this.turns[i - 1][1]) % 4
+					this.turns.splice(i, 1)
+					collapsed = true
+				}
+			}
 
-            //Remove any turns with magnitude of 0 (from previous collapsing steps)
-            //e.g.  => 
-            let index = 0
-            while (index < this.turns.length) {
-                if (this.turns[index][1] === 0) {
-                    this.turns.splice(index, 1)
-                    collapsed = true
-                }
-                index++
-            }
-        }
-    }
+			//Remove any turns with magnitude of 0 (from previous collapsing steps)
+			//e.g.  => 
+			let index = 0
+			while (index < this.turns.length) {
+				if (this.turns[index][1] === 0) {
+					this.turns.splice(index, 1)
+					collapsed = true
+				}
+				index++
+			}
+		}
+	}
 
-    add(turn) {
-        this.turns.push(turn)
-        this.collapse()
-    }
+	add(turn) {
+		this.turns.push(turn)
+		this.collapse()
+	}
 
-    //This inverts a sequence so that it would undo the forward version.
-    reverse() {
-        const oldTurns = this.turns
-        this.turns = []
-        for (var i = oldTurns.length - 1; i >= 0; i--) {
-            const oldTurn = oldTurns[i]
-            this.turns.push([oldTurn[0], 4 - oldTurn[1]])
-        }
-    }
+	//This inverts a sequence so that it would undo the forward version.
+	reverse() {
+		const oldTurns = this.turns
+		this.turns = []
+		for (var i = oldTurns.length - 1; i >= 0; i--) {
+			const oldTurn = oldTurns[i]
+			this.turns.push([oldTurn[0], 4 - oldTurn[1]])
+		}
+	}
 
-    //Converts a string of algorithm notation (like R U R' U') into the internal turn representation
-    fromAlgorithmNotation(str) {
-        str = str.replace(/[‘’′]/g, "'") // https://sqlpey.com/javascript/fixing-javascript-smart-quotes/
-        //Splt into an array of turns
-        const turnArr = str.split(/[ \n]/)
-        this.turns = []
-        for (var i = 0; i < turnArr.length; i++) {
-            //Convert each turn into its internal representation
-            let turn = turnArr[i]
-            if (turn == '')
-                continue
-            if (turn.includes('w')) { //All "Lw" turned into "l" e.g
-                turn = turn[0].toLowerCase() + turn.substring(2)
-            }
-            let turnType = 0
-            if (turn.length === 1)
-                turnType = 1
-            else if (turn[1] === '2')
-                turnType = 2
-            else if (turn[1] === '\'')
-                turnType = 3
+	//Converts a string of algorithm notation (like R U R' U') into the internal turn representation
+	fromAlgorithmNotation(str) {
+		str = str.replace(/[‘’′]/g, "'") // https://sqlpey.com/javascript/fixing-javascript-smart-quotes/
+		//Splt into an array of turns
+		const turnArr = str.split(/[ \n]/)
+		this.turns = []
+		for (var i = 0; i < turnArr.length; i++) {
+			//Convert each turn into its internal representation
+			let turn = turnArr[i]
+			if (turn == '')
+				continue
+			if (turn.includes('w')) { //All "Lw" turned into "l" e.g
+				turn = turn[0].toLowerCase() + turn.substring(2)
+			}
+			let turnType = 0
+			if (turn.length === 1)
+				turnType = 1
+			else if (turn[1] === '2')
+				turnType = 2
+			else if (turn[1] === '\'')
+				turnType = 3
 
-            this.turns.push([turn[0], turnType])
-        }
-    }
+			this.turns.push([turn[0], turnType])
+		}
+	}
 
-    //Converts a string of commutator notation (like [U', R' D R]) into the internal turn representation
-    fromCommNotation(str) { //e.g. [U', R' D R] or U' R U':[R' U R,D'] or [R2 : [D, R' U R]]
-        let setup = str.match(/\[?(.*):/) //After [ (if there is one) and before :
-        setup = (setup == null) ? "" : setup[1]
-        const setupSeq = new Sequence() 
-        setupSeq.fromAlgorithmNotation(setup)
+	//Converts a string of commutator notation (like [U', R' D R]) into the internal turn representation
+	fromCommNotation(str) { //e.g. [U', R' D R] or U' R U':[R' U R,D'] or [R2 : [D, R' U R]]
+		let setup = str.match(/\[?(.*):/) //After [ (if there is one) and before :
+		setup = (setup == null) ? "" : setup[1]
+		const setupSeq = new Sequence() 
+		setupSeq.fromAlgorithmNotation(setup)
 
-        let part1 = str.match(/:?.*\[(.*),/) //After : and [ and before ,
-        if (part1 == null) { //Comm notation must have at least stuff between [ and ,
-            this.turns = []
-            return
-        } else {
-            part1 = part1[1]
-        }
-        const part1Seq = new Sequence()
-        part1Seq.fromAlgorithmNotation(part1)
+		let part1 = str.match(/:?.*\[(.*),/) //After : and [ and before ,
+		if (part1 == null) { //Comm notation must have at least stuff between [ and ,
+			this.turns = []
+			return
+		} else {
+			part1 = part1[1]
+		}
+		const part1Seq = new Sequence()
+		part1Seq.fromAlgorithmNotation(part1)
 
-        let part2 = str.match(/,(.*)\]/) //After , and before ]
-        if (part2 == null) {
-            this.turns = []
-            return
-        } else {
-            part2 = part2[1].replace(']', '')
-        }
-        const part2Seq = new Sequence()
-        part2Seq.fromAlgorithmNotation(part2)
+		let part2 = str.match(/,(.*)\]/) //After , and before ]
+		if (part2 == null) {
+			this.turns = []
+			return
+		} else {
+			part2 = part2[1].replace(']', '')
+		}
+		const part2Seq = new Sequence()
+		part2Seq.fromAlgorithmNotation(part2)
 
-        part2Seq.fromAlgorithmNotation(part2)
+		part2Seq.fromAlgorithmNotation(part2)
 
-        //A comm is performed as (setup) A B A' B' (setup)'
-        //So add turns to this sequence with that pattern
-        setupSeq.turns.forEach(turn => this.add([...turn]))
-        part1Seq.turns.forEach(turn => this.add([...turn]))
-        part2Seq.turns.forEach(turn => this.add([...turn]))
-        part1Seq.reverse()
-        part1Seq.turns.forEach(turn => this.add([...turn]))
-        part2Seq.reverse()
-        part2Seq.turns.forEach(turn => this.add([...turn]))
-        setupSeq.reverse()
-        setupSeq.turns.forEach(turn => this.add([...turn]))
-    }
+		//A comm is performed as (setup) A B A' B' (setup)'
+		//So add turns to this sequence with that pattern
+		setupSeq.turns.forEach(turn => this.add([...turn]))
+		part1Seq.turns.forEach(turn => this.add([...turn]))
+		part2Seq.turns.forEach(turn => this.add([...turn]))
+		part1Seq.reverse()
+		part1Seq.turns.forEach(turn => this.add([...turn]))
+		part2Seq.reverse()
+		part2Seq.turns.forEach(turn => this.add([...turn]))
+		setupSeq.reverse()
+		setupSeq.turns.forEach(turn => this.add([...turn]))
+	}
 
-    //Convert the internal turn representation into algorithm notation
-    toString() {
-        useSettingsStore().loadIfNecessary()
-        this.collapse()
-        let out = ""
-        for (var i = 0; i < this.turns.length; i++) {
-            if (useSettingsStore().settings.misc_widemovetype == 0) 
-                out += this.turns[i][0].replace(/[rufldb]/g, match => match.toUpperCase() + "w")
-            else
-                out += this.turns[i][0]
+	//Convert the internal turn representation into algorithm notation
+	toString() {
+		useSettingsStore().loadIfNecessary()
+		this.collapse()
+		let out = ""
+		for (var i = 0; i < this.turns.length; i++) {
+			if (useSettingsStore().settings.misc_widemovetype == 0) 
+				out += this.turns[i][0].replace(/[rufldb]/g, match => match.toUpperCase() + "w")
+			else
+				out += this.turns[i][0]
 
-            if (this.turns[i][1] === 2)
-                out += "2"
-            else if (this.turns[i][1] === 3)
-                out += "'"
+			if (this.turns[i][1] === 2)
+				out += "2"
+			else if (this.turns[i][1] === 3)
+				out += "'"
 
-            if (i < this.turns.length - 1)
-                out += " "
-        }
-        return out
-    }
+			if (i < this.turns.length - 1)
+				out += " "
+		}
+		return out
+	}
 }

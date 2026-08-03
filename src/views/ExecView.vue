@@ -1,138 +1,138 @@
 <script setup>
-    import { nextTick, computed, onMounted, onUnmounted, ref } from 'vue'
-    import ExecSelect from '@/components/exec/ExecSelect.vue'
-    import Timer from '@/components/Timer.vue'
-    import { Sequence } from '@/helpers/sequence.js'
-    import { GetRandomRecommendation } from '@/helpers/recommendations.js'
-    import { formatTime } from '@/helpers/timer.js'
-    import { scramblers } from '@/helpers/solver/scramble_333_edit.js'
-    import { useSettingsStore } from '@/stores/SettingsStore'
-    const settingsStore = useSettingsStore()
+	import { nextTick, computed, onMounted, onUnmounted, ref } from 'vue'
+	import ExecSelect from '@/components/exec/ExecSelect.vue'
+	import Timer from '@/components/Timer.vue'
+	import { Sequence } from '@/helpers/sequence.js'
+	import { GetRandomRecommendation } from '@/helpers/recommendations.js'
+	import { formatTime } from '@/helpers/timer.js'
+	import { scramblers } from '@/helpers/solver/scramble_333_edit.js'
+	import { useSettingsStore } from '@/stores/SettingsStore'
+	const settingsStore = useSettingsStore()
 
-    //Running the initialisation asynchronously to avoid lag spike when entering exec tool
-    setTimeout(() => {
-        scramblers['333'].initialize(null, Math)
-    }, 0)
+	//Running the initialisation asynchronously to avoid lag spike when entering exec tool
+	setTimeout(() => {
+		scramblers['333'].initialize(null, Math)
+	}, 0)
 
-    //Settings for exec practice
-    let fullScramble = false
-    let possiblePairs = []
-    let pieceType = 0
-    let buffer = -1
+	//Settings for exec practice
+	let fullScramble = false
+	let possiblePairs = []
+	let pieceType = 0
+	let buffer = -1
 
-    const solveCount = ref(1)
+	const solveCount = ref(1)
 
-    const lastScramble = ref("")
-    const scrambleStr = ref("")
-    const nextScramble = ref("") //Used for preview of next scramble, always one ahead
+	const lastScramble = ref("")
+	const scrambleStr = ref("")
+	const nextScramble = ref("") //Used for preview of next scramble, always one ahead
 
 
-    const timer = ref(null)
-    const timerKey = ref(0)
-    function solveComplete(solve) {
-        if (solve) {
-            solveCount.value++
-            lastScramble.value = scrambleStr.value
-        }
-        else {
-            nextScramble.value = ""
-        }
+	const timer = ref(null)
+	const timerKey = ref(0)
+	function solveComplete(solve) {
+		if (solve) {
+			solveCount.value++
+			lastScramble.value = scrambleStr.value
+		}
+		else {
+			nextScramble.value = ""
+		}
 
-        if (nextScramble.value == "")
-            nextScramble.value = generateScramble()
+		if (nextScramble.value == "")
+			nextScramble.value = generateScramble()
 
-        scrambleStr.value = nextScramble.value
-        nextScramble.value = generateScramble()
+		scrambleStr.value = nextScramble.value
+		nextScramble.value = generateScramble()
 
-        timer.value.setScramble(scrambleStr.value)
-    }
+		timer.value.setScramble(scrambleStr.value)
+	}
 
-    function generateScramble() {
-        if (fullScramble) //Full corner or edge scramble
-            return (pieceType === 1) ? scramblers['333'].getCornerScramble() : scramblers['333'].getEdgeScramble()
+	function generateScramble() {
+		if (fullScramble) //Full corner or edge scramble
+			return (pieceType === 1) ? scramblers['333'].getCornerScramble() : scramblers['333'].getEdgeScramble()
 
-        const pair = possiblePairs[Math.floor(Math.random() * possiblePairs.length)]
-        const solution = GetRandomRecommendation(pieceType, pair, buffer)
-        //This is done by reversing a solution to that state
-        let scramble = new Sequence()
-        scramble.fromAlgorithmNotation(solution)
-        scramble.reverse()
-        let scrambleStr = scramble.toString()
-        return scrambleStr
-    }
+		const pair = possiblePairs[Math.floor(Math.random() * possiblePairs.length)]
+		const solution = GetRandomRecommendation(pieceType, pair, buffer)
+		//This is done by reversing a solution to that state
+		let scramble = new Sequence()
+		scramble.fromAlgorithmNotation(solution)
+		scramble.reverse()
+		let scrambleStr = scramble.toString()
+		return scrambleStr
+	}
 
-    const select = ref(null)
-    function updatePossiblePairs(newFullScramble, newPairs, newPieceType, newBuffer) {
-        fullScramble = newFullScramble
-        possiblePairs = newPairs
-        pieceType = newPieceType
-        buffer = newBuffer
-        nextTick(() => {
-            if(!timer.value)
-                return
-            solveComplete()
-        })
-    }
+	const select = ref(null)
+	function updatePossiblePairs(newFullScramble, newPairs, newPieceType, newBuffer) {
+		fullScramble = newFullScramble
+		possiblePairs = newPairs
+		pieceType = newPieceType
+		buffer = newBuffer
+		nextTick(() => {
+			if(!timer.value)
+				return
+			solveComplete()
+		})
+	}
 
-    function selectionFinished() {
-        return select.value ? select.value.selectionFinished : false
-    }
+	function selectionFinished() {
+		return select.value ? select.value.selectionFinished : false
+	}
 
-    const currentTimerStage = computed(() => timer.value ? timer.value.timerStage : 0)
+	const currentTimerStage = computed(() => timer.value ? timer.value.timerStage : 0)
 
 </script>
 
 <template>
-    <div class="ExecView">
-        <ExecSelect ref="select" :key="settingsStore.settings.sheets_pairorder"
-                    @update:on-selected="updatePossiblePairs" />
+	<div class="ExecView">
+		<ExecSelect ref="select" :key="settingsStore.settings.sheets_pairorder"
+					@update:on-selected="updatePossiblePairs" />
 
-        <div style="display:grid; grid-template-columns:35% 30% 35%;">
-            <!-- LEFT COLUMN LAST SOLVE -->
-            <div id="execColumn">
-                <div v-show="lastScramble.length > 0" style="font-weight:bold; font-size:2rem;">
-                    {{solveCount - 1}}
-                </div>
-                <div>{{lastScramble}}</div>
-            </div>
+		<div style="display:grid; grid-template-columns:35% 30% 35%;">
+			<!-- LEFT COLUMN LAST SOLVE -->
+			<div id="execColumn">
+				<div v-show="lastScramble.length > 0" style="font-weight:bold; font-size:2rem;">
+					{{solveCount - 1}}
+				</div>
+				<div>{{lastScramble}}</div>
+			</div>
 
-            <!-- MIDDLE COLUMN CURRENT SOLVE -->
-            <div style="margin-top: 20px;">
-                <div v-show="selectionFinished()" style="text-align:center; font-weight:bold; font-size:2rem;">
-                    {{solveCount}}
-                </div>
-                <Timer v-if="selectionFinished()"
-                       :key="timerKey"
-                       ref="timer"
-                       @update:solve-complete="solveComplete"
-                       style="height: 60vh; width:100%;" />
-            </div>
+			<!-- MIDDLE COLUMN CURRENT SOLVE -->
+			<div style="margin-top: 20px;">
+				<div v-show="selectionFinished()" style="text-align:center; font-weight:bold; font-size:2rem;">
+					{{solveCount}}
+				</div>
+				<Timer v-if="selectionFinished()"
+					   :key="timerKey"
+					   ref="timer"
+					   @update:solve-complete="solveComplete"
+					   style="height: 60vh; width:100%;" />
+			</div>
 
-            <!-- RIGHT COLUMN NEXT SOLVE -->
-            <div id="execColumn" v-if="selectionFinished()">
-                <div style="font-weight:bold; font-size:2rem;">
-                    {{solveCount + 1}}
-                </div>
-                <div style="color:transparent;text-shadow:0 0 12px var(--el-text-color-regular);user-select:none;">
-                    {{nextScramble}}
-                </div>
-            </div>
-        </div>
-    </div>
+			<!-- RIGHT COLUMN NEXT SOLVE -->
+			<div id="execColumn" v-if="selectionFinished()">
+				<div style="font-weight:bold; font-size:2rem;">
+					{{solveCount + 1}}
+				</div>
+				<div style="color:transparent;text-shadow:0 0 12px var(--el-text-color-regular);user-select:none;">
+					{{nextScramble}}
+				</div>
+			</div>
+		</div>
+	</div>
 </template>
 
 <style>
-    .ExecView {
-        height: 100%;
-        position: relative;
-    }
+	.ExecView {
+		height: 100%;
+		position: relative;
+	}
 
-    #execColumn {
-        display: flex;
-        flex-direction: column;
-        text-align: center;
-        font-size: 1.2rem;
-        height: 100%;
-        padding-inline: 10%;
-    }
+	#execColumn {
+		display: flex;
+		flex-direction: column;
+		text-align: center;
+		font-size: 1.2rem;
+		height: 100%;
+		padding-inline: 10%;
+	}
 </style>

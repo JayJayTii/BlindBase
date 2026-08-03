@@ -9,142 +9,142 @@ import { speffzScheme, SchemeToSpeffz, SpeffzIndexToScheme } from '@/helpers/let
 //For the "Images" sheet type, a recommendation is a phrase containing the letters in the pair to help with memorisation.
 
 export function getRecommendations(pieceType, key, buffer = -1) {
-    switch (pieceType) {
-        case 0:
-            //No sheet type, no recommendations
-            return []
-        case 1:
-            //Corners
-            return getCornerRecommendations(key, buffer, useSettingsStore().settings.sheets_notationtype)
-        case 2:
-            //Edges
-            return getEdgeRecommendations(key, buffer, useSettingsStore().settings.sheets_notationtype)
-        case 3:
-            //Images
-            return getImageRecommendations(key)
-    }
+	switch (pieceType) {
+		case 0:
+			//No sheet type, no recommendations
+			return []
+		case 1:
+			//Corners
+			return getCornerRecommendations(key, buffer, useSettingsStore().settings.sheets_notationtype)
+		case 2:
+			//Edges
+			return getEdgeRecommendations(key, buffer, useSettingsStore().settings.sheets_notationtype)
+		case 3:
+			//Images
+			return getImageRecommendations(key)
+	}
 }
 
 //Gets a random recommendation for a letter pair (key) with a certain pieceType
 export function GetRandomRecommendation(pieceType, key, buffer = -1) {
-    if (key.length !== 2)
-        return ""
+	if (key.length !== 2)
+		return ""
 
-    let recommendations = []
-    if (pieceType === 1) {
-        recommendations = getCornerRecommendations(key, buffer, 0)
-    }
-    else if (pieceType === 2) {
-        recommendations = getEdgeRecommendations(key, buffer, 0)
-    }
-    const index = Math.floor(Math.random() * recommendations.length)
-    if (recommendations[index] == undefined) {
-        console.warn(recommendations)
-        console.warn(index)
-    }
-    return recommendations[index]
+	let recommendations = []
+	if (pieceType === 1) {
+		recommendations = getCornerRecommendations(key, buffer, 0)
+	}
+	else if (pieceType === 2) {
+		recommendations = getEdgeRecommendations(key, buffer, 0)
+	}
+	const index = Math.floor(Math.random() * recommendations.length)
+	if (recommendations[index] == undefined) {
+		console.warn(recommendations)
+		console.warn(index)
+	}
+	return recommendations[index]
 }
 
 //The same key can have multiple equivalent keys. For example, ABC would also be BCA and CAB.
 function getEquivalentCornerComms(key) {
-    //Each corner comm can have many equivalents, which are spread throughout the cornerData
-    const cycled = [key, key[2] + key[0] + key[1], key[1] + key[2] + key[0]]
-    let output = []
-    for (let cycle of cycled) {
-        for (var j = 0; j < 3; j++) {
-            //How many times we rotate each sticker around its corner
-            let rotation = ''
-            for (var i = 0; i < 3; i++) {
-                //Index cycle
-                let letter = cycle[i]
-                rotation += adjacentCornerStickers(letter)[j]
-            }
-            output.push(rotation)
-        }
-    }
-    return output
+	//Each corner comm can have many equivalents, which are spread throughout the cornerData
+	const cycled = [key, key[2] + key[0] + key[1], key[1] + key[2] + key[0]]
+	let output = []
+	for (let cycle of cycled) {
+		for (var j = 0; j < 3; j++) {
+			//How many times we rotate each sticker around its corner
+			let rotation = ''
+			for (var i = 0; i < 3; i++) {
+				//Index cycle
+				let letter = cycle[i]
+				rotation += adjacentCornerStickers(letter)[j]
+			}
+			output.push(rotation)
+		}
+	}
+	return output
 }
 
 //The same key can have multiple equivalent keys. For example, ABC would also be BCA and CAB.
 function getEquivalentEdgeComms(key) {
-    //Each edge comm can have many equivalents, which are spread throughout the edgeData
-    const cycled = [key, key[2] + key[0] + key[1], key[1] + key[2] + key[0]]
-    let output = []
-    for (let cycle of cycled) {
-        //For each cycle of the base key
-        for (var j = 0; j < 2; j++) {
-            //For each inversion of that cycle around the edge piece
-            let rotation = ''
-            for (var i = 0; i < 3; i++) {
-                //For each letter of that inversion
-                let letter = cycle[i]
-                rotation += adjacentEdgeStickers(letter)[j]
-            }
-            output.push(rotation)
-        }
-    }
-    return output
+	//Each edge comm can have many equivalents, which are spread throughout the edgeData
+	const cycled = [key, key[2] + key[0] + key[1], key[1] + key[2] + key[0]]
+	let output = []
+	for (let cycle of cycled) {
+		//For each cycle of the base key
+		for (var j = 0; j < 2; j++) {
+			//For each inversion of that cycle around the edge piece
+			let rotation = ''
+			for (var i = 0; i < 3; i++) {
+				//For each letter of that inversion
+				let letter = cycle[i]
+				rotation += adjacentEdgeStickers(letter)[j]
+			}
+			output.push(rotation)
+		}
+	}
+	return output
 }
 
 export function getCornerRecommendations(baseKey, buffer, notationType) {
-    //buffer is always included in the comm
-    baseKey = SpeffzIndexToScheme(buffer) + baseKey
-    const equivalentKeys = getEquivalentCornerComms(baseKey)
-    let allComms = []
-    for (var key of equivalentKeys) {
-        key = SchemeToSpeffz(key[0], false) + SchemeToSpeffz(key[1], false) + SchemeToSpeffz(key[2], false)
-        if (!cornerData[key]) continue
+	//buffer is always included in the comm
+	baseKey = SpeffzIndexToScheme(buffer) + baseKey
+	const equivalentKeys = getEquivalentCornerComms(baseKey)
+	let allComms = []
+	for (var key of equivalentKeys) {
+		key = SchemeToSpeffz(key[0], false) + SchemeToSpeffz(key[1], false) + SchemeToSpeffz(key[2], false)
+		if (!cornerData[key]) continue
 
-        //Each of these equivalent keys could have multiple algs
-        for (var alg of cornerData[key]) {
-            if (alg[notationType] == "Not found.")
-                continue
-            let cleanedAlg = alg[notationType]
-            if (useSettingsStore().settings.misc_widemovetype == 0)
-                cleanedAlg = alg[notationType].replace(/[rufldb]/g, match => match.toUpperCase() + "w")
-            allComms.push(cleanedAlg)
-        }
-    }
-    return allComms
+		//Each of these equivalent keys could have multiple algs
+		for (var alg of cornerData[key]) {
+			if (alg[notationType] == "Not found.")
+				continue
+			let cleanedAlg = alg[notationType]
+			if (useSettingsStore().settings.misc_widemovetype == 0)
+				cleanedAlg = alg[notationType].replace(/[rufldb]/g, match => match.toUpperCase() + "w")
+			allComms.push(cleanedAlg)
+		}
+	}
+	return allComms
 }
 export function getEdgeRecommendations(baseKey, buffer, notationType) {
-    //buffer is always included in the comm
-    baseKey = SpeffzIndexToScheme(buffer + 24) + baseKey
-    const equivalentKeys = getEquivalentEdgeComms(baseKey)
-    let allComms = []
-    for (var key of equivalentKeys) {
-        key = SchemeToSpeffz(key[0], true) + SchemeToSpeffz(key[1], true) + SchemeToSpeffz(key[2], true)
-        if (!edgeData[key]) continue
+	//buffer is always included in the comm
+	baseKey = SpeffzIndexToScheme(buffer + 24) + baseKey
+	const equivalentKeys = getEquivalentEdgeComms(baseKey)
+	let allComms = []
+	for (var key of equivalentKeys) {
+		key = SchemeToSpeffz(key[0], true) + SchemeToSpeffz(key[1], true) + SchemeToSpeffz(key[2], true)
+		if (!edgeData[key]) continue
 
-        //Each of these equivalent keys could have multiple algs
-        for (var alg of edgeData[key]) {
-            if (alg[notationType] == "Not found.")
-                continue
-            let cleanedAlg = alg[notationType]
-            if (useSettingsStore().settings.misc_widemovetype == 0)
-                cleanedAlg = alg[notationType].replace(/[rufldb]/g, match => match.toUpperCase() + "w");
-            allComms.push(cleanedAlg)
-        }
-    }
-    return allComms
+		//Each of these equivalent keys could have multiple algs
+		for (var alg of edgeData[key]) {
+			if (alg[notationType] == "Not found.")
+				continue
+			let cleanedAlg = alg[notationType]
+			if (useSettingsStore().settings.misc_widemovetype == 0)
+				cleanedAlg = alg[notationType].replace(/[rufldb]/g, match => match.toUpperCase() + "w");
+			allComms.push(cleanedAlg)
+		}
+	}
+	return allComms
 }
 
 function getImageRecommendations(baseKey) {
-    let result = imageData[baseKey]
-    if (!baseKey.includes('X')) {
-        return result
-    }
+	let result = imageData[baseKey]
+	if (!baseKey.includes('X')) {
+		return result
+	}
 
-    //Get every combination of X/ʧ options
-    if (baseKey[0] == 'X') {
-        result = result.concat(imageData['ʧ' + baseKey[1]])
-    }
-    if (baseKey[1] == 'X') {
-        result = result.concat(imageData[baseKey[0] + 'ʧ'])
-    }
-    if (baseKey == 'XX') {
-        result = result.concat(imageData['ʧʧ'])
-    }
+	//Get every combination of X/ʧ options
+	if (baseKey[0] == 'X') {
+		result = result.concat(imageData['ʧ' + baseKey[1]])
+	}
+	if (baseKey[1] == 'X') {
+		result = result.concat(imageData[baseKey[0] + 'ʧ'])
+	}
+	if (baseKey == 'XX') {
+		result = result.concat(imageData['ʧʧ'])
+	}
 
-    return result
+	return result
 }

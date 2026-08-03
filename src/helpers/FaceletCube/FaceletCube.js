@@ -3,113 +3,113 @@ import { cornerFaceletMove, edgeFaceletMove, centerFaceletMove } from '@/helpers
 import { adjacentCornerIndices, adjacentEdgeIndices } from '@/helpers/stickers.js'
 
 export const faceColours = [
-    "#FFFFFF", // White
-    "#FF8033", // Orange
-    "#33FF33", // Green
-    "#FF3333", // Red
-    "#4444FF", // Blue
-    "#FFFF33", // Yellow
+	"#FFFFFF", // White
+	"#FF8033", // Orange
+	"#33FF33", // Green
+	"#FF3333", // Red
+	"#4444FF", // Blue
+	"#FFFF33", // Yellow
 ]
 
 export class FaceletCube {
-    //The solved state is all these numbers in the correct order
-    //Each sticker ("facelet") of the cube has its own number which gets moved around when turns are done
-    //The numbers go in the same order and places as the speffz lettering scheme
-    //The way that turns affect the cube is defined in ./FaceletMove.js
-    corners = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23]
-    edges = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23]
-    centers = [0, 1, 2, 3, 4, 5]
+	//The solved state is all these numbers in the correct order
+	//Each sticker ("facelet") of the cube has its own number which gets moved around when turns are done
+	//The numbers go in the same order and places as the speffz lettering scheme
+	//The way that turns affect the cube is defined in ./FaceletMove.js
+	corners = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23]
+	edges = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23]
+	centers = [0, 1, 2, 3, 4, 5]
 
 
-    Turn(move) { //Expects an internal representation of a move e.g. ['R', 2]
-        const faces = ['U', 'R', 'F', 'D', 'L', 'B', 'x', 'y', 'z', 'u', 'r', 'f', 'd', 'l', 'b', 'M', 'E', 'S']
-        const moveIndex = faces.indexOf(move[0])
-        if (moveIndex == -1)
-            return
-        for(var i = 0; i < move[1]; i++) {
-            this.Multiply({ corners: cornerFaceletMove[moveIndex], edges: edgeFaceletMove[moveIndex], centers: centerFaceletMove[moveIndex] })
-        }
-    }
-    TurnSequence(sequence) {
-        for (var i = 0; i < sequence.turns.length; i++) {
-            this.Turn(sequence.turns[i])
-        }
-    }
+	Turn(move) { //Expects an internal representation of a move e.g. ['R', 2]
+		const faces = ['U', 'R', 'F', 'D', 'L', 'B', 'x', 'y', 'z', 'u', 'r', 'f', 'd', 'l', 'b', 'M', 'E', 'S']
+		const moveIndex = faces.indexOf(move[0])
+		if (moveIndex == -1)
+			return
+		for(var i = 0; i < move[1]; i++) {
+			this.Multiply({ corners: cornerFaceletMove[moveIndex], edges: edgeFaceletMove[moveIndex], centers: centerFaceletMove[moveIndex] })
+		}
+	}
+	TurnSequence(sequence) {
+		for (var i = 0; i < sequence.turns.length; i++) {
+			this.Turn(sequence.turns[i])
+		}
+	}
 
-    Multiply(other) {
-        this.MultiplyCorners(other.corners)
-        this.MultiplyEdges(other.edges)
-        this.MultiplyCenters(other.centers)
-    }
+	Multiply(other) {
+		this.MultiplyCorners(other.corners)
+		this.MultiplyEdges(other.edges)
+		this.MultiplyCenters(other.centers)
+	}
 
-    MultiplyCorners(otherCorners) {
-        var newCorns = []
-        for (var i = 0; i < 24; i++) {
-            let newCorn = this.corners[otherCorners[i]]
-            newCorns.push(newCorn)
-        }
-        this.corners = newCorns
-    }
-    MultiplyEdges(otherEdges) {
-        var newEdges = []
-        for (var i = 0; i < 24; i++) {
-            let newEdge = this.edges[otherEdges[i]]
-            newEdges.push(newEdge)
-        }
-        this.edges = newEdges
-    }
-    MultiplyCenters(otherCenters) {
-        var newCenters = []
-        for (var i = 0; i < 6; i++) {
-            let newCenter = this.centers[otherCenters[i]]
-            newCenters.push(newCenter)
-        }
-        this.centers = newCenters
-    }
+	MultiplyCorners(otherCorners) {
+		var newCorns = []
+		for (var i = 0; i < 24; i++) {
+			let newCorn = this.corners[otherCorners[i]]
+			newCorns.push(newCorn)
+		}
+		this.corners = newCorns
+	}
+	MultiplyEdges(otherEdges) {
+		var newEdges = []
+		for (var i = 0; i < 24; i++) {
+			let newEdge = this.edges[otherEdges[i]]
+			newEdges.push(newEdge)
+		}
+		this.edges = newEdges
+	}
+	MultiplyCenters(otherCenters) {
+		var newCenters = []
+		for (var i = 0; i < 6; i++) {
+			let newCenter = this.centers[otherCenters[i]]
+			newCenters.push(newCenter)
+		}
+		this.centers = newCenters
+	}
 
-    SwapCornerCubies(sticker1, sticker2) {
-        //Needs to swap the adjacent stickers on the corners as well as these stickers
-        const cubie1 = adjacentCornerIndices[sticker1]
-        const cubie2 = adjacentCornerIndices[sticker2]
-        for (var i = 0; i < 3; i++) {
-            const temp = this.corners[cubie1[i]]
-            this.corners[cubie1[i]] = this.corners[cubie2[i]]
-            this.corners[cubie2[i]] = temp
-        }
-    }
-    SwapEdgeCubies(sticker1, sticker2) {
-        //Needs to swap the adjacent stickers on the edges as well as these stickers
-        const cubie1 = adjacentEdgeIndices[sticker1]
-        const cubie2 = adjacentEdgeIndices[sticker2]
-        for (var i = 0; i < 2; i++) {
-            const temp = this.edges[cubie1[i]]
-            this.edges[cubie1[i]] = this.edges[cubie2[i]]
-            this.edges[cubie2[i]] = temp
-        }
-    }
+	SwapCornerCubies(sticker1, sticker2) {
+		//Needs to swap the adjacent stickers on the corners as well as these stickers
+		const cubie1 = adjacentCornerIndices[sticker1]
+		const cubie2 = adjacentCornerIndices[sticker2]
+		for (var i = 0; i < 3; i++) {
+			const temp = this.corners[cubie1[i]]
+			this.corners[cubie1[i]] = this.corners[cubie2[i]]
+			this.corners[cubie2[i]] = temp
+		}
+	}
+	SwapEdgeCubies(sticker1, sticker2) {
+		//Needs to swap the adjacent stickers on the edges as well as these stickers
+		const cubie1 = adjacentEdgeIndices[sticker1]
+		const cubie2 = adjacentEdgeIndices[sticker2]
+		for (var i = 0; i < 2; i++) {
+			const temp = this.edges[cubie1[i]]
+			this.edges[cubie1[i]] = this.edges[cubie2[i]]
+			this.edges[cubie2[i]] = temp
+		}
+	}
 
-    Print() {
-        let cornerArrStr = "["
-        cornerArrStr += this.corners.map((corn) => (corn.toString()))
-        cornerArrStr += "]"
-        console.log("corners: " + cornerArrStr)
-        let edgeArrStr = "["
-        edgeArrStr += this.edges.map((edge) => (edge.toString()))
-        edgeArrStr += "]"
-        console.log("edges: " + edgeArrStr)
-        let cenArrStr = "["
-        cenArrStr += this.centers.map((cen) => (cen.toString()))
-        cenArrStr += "]"
-        console.log("centers: " + cenArrStr)
-    }
+	Print() {
+		let cornerArrStr = "["
+		cornerArrStr += this.corners.map((corn) => (corn.toString()))
+		cornerArrStr += "]"
+		console.log("corners: " + cornerArrStr)
+		let edgeArrStr = "["
+		edgeArrStr += this.edges.map((edge) => (edge.toString()))
+		edgeArrStr += "]"
+		console.log("edges: " + edgeArrStr)
+		let cenArrStr = "["
+		cenArrStr += this.centers.map((cen) => (cen.toString()))
+		cenArrStr += "]"
+		console.log("centers: " + cenArrStr)
+	}
 
-    getCornerFaceletSticker(index) {
-        return faceColours[Math.floor(this.corners[index] / 4)]
-    }
-    getEdgeFaceletSticker(index) {
-        return faceColours[Math.floor(this.edges[index] / 4)]
-    }
-    getCenterFaceletSticker(index) {
-        return faceColours[this.centers[index]]
-    }
+	getCornerFaceletSticker(index) {
+		return faceColours[Math.floor(this.corners[index] / 4)]
+	}
+	getEdgeFaceletSticker(index) {
+		return faceColours[Math.floor(this.edges[index] / 4)]
+	}
+	getCenterFaceletSticker(index) {
+		return faceColours[this.centers[index]]
+	}
 }

@@ -1,12 +1,12 @@
 <script setup>
 	import { computed, ref, watch, nextTick } from 'vue'
 	import { ElMessageBox } from 'element-plus'
-    import { useTimerStore } from "@/stores/TimerStore"
+	import { useTimerStore } from "@/stores/TimerStore"
 	const timerStore = useTimerStore()
 
-    const props = defineProps({
-        sessionID: Number,
-    })
+	const props = defineProps({
+		sessionID: Number,
+	})
 	const emit = defineEmits(['sessionSelected'])
 	watch(
 		() => props.sessionID,
@@ -15,7 +15,7 @@
 
 	function selectSession(id) {
 		document.activeElement.blur() // Prevent select box from taking the space input instead of timer
-        emit('sessionSelected', id)
+		emit('sessionSelected', id)
 	}
 
 	function newSession() {
